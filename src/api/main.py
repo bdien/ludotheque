@@ -2,10 +2,12 @@ import logging
 import peewee
 from pwmodels import Item, Loan, User
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from playhouse.shortcuts import model_to_dict
 
 logging.basicConfig(level=logging.DEBUG)
 app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins="*")
 
 FAKE_USER = 1
 FAKE_USER_ROLE = "operator"
@@ -47,5 +49,5 @@ def get_user():
 
     user = User.get_by_id(FAKE_USER)
     ret = model_to_dict(user)
-    ret["loans"] = list(Loan.select().where(Loan.user==user, Loan.status=="out").dicts())
+    ret["loans"] = list(Loan.select().where(Loan.user==user, Loan.status=="out").order_by(Loan.start).dicts())
     return ret

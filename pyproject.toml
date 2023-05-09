@@ -37,3 +37,6 @@ max-complexity = 28
 "Source/*/tests/*.py" = ["S101"]
 # S101: Use of assert
 
+[tool.pdm.scripts]
+api = {shell = "cd src/api && uvicorn main:app --reload --host 0.0.0.0"}
+webui = {shell = "cd src/webui && pnpm run dev"}
