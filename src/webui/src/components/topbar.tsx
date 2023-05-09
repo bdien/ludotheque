@@ -4,13 +4,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import MenuIcon from '@mui/icons-material/Menu';
-import WarningIcon from '@mui/icons-material/Warning';
+import Icon from '@mui/material/Icon';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import { useAccount } from "../hooks/api";
-import { Warning } from '@mui/icons-material';
 
 export function TopBar() {
   const { account } = useAccount();
@@ -33,7 +30,7 @@ export function TopBar() {
         aria-label="menu"
         sx={{ mr: 2 }}
       >
-        <MenuIcon />
+        <Icon>menu</Icon>
       </IconButton>
       <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
         Ludothèque
@@ -41,7 +38,7 @@ export function TopBar() {
       {account && <div>
 
         <IconButton color="inherit">
-          <WarningIcon color="warning"/>
+          <Icon color="warning">warning</Icon>
         </IconButton>
         <IconButton
           aria-label="account of current user"
@@ -50,7 +47,7 @@ export function TopBar() {
           onClick={handleMenu}
           color="inherit"
         >
-          <AccountCircle />
+          <Icon>account_circle</Icon>
         </IconButton>
         <Menu
           id="menu-appbar"

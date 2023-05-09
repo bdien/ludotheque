@@ -1,6 +1,6 @@
 import Profile from './components/profile'
 import TopBar from './components/topbar'
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material'
 
 function App() {
 

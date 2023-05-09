@@ -1,6 +1,8 @@
 export interface Loan {
-    name: string;
-    email?: string;
-    role: string;
     id: number;
+    item: number;
+    user: number;
+    start: string;
+    stop: string;
+    status: string;
   }

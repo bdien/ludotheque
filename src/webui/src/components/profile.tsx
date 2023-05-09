@@ -1,4 +1,5 @@
 import { useAccount } from "../hooks/api";
+import MiniItem from "./mini_item";
 
 
 export function Profile() {
@@ -9,7 +10,13 @@ export function Profile() {
   if (!account) return <div>Server error...</div>
 
   // render data
-  return <div>hello {account.name} ({account?.loans?.length} Prêt)</div>
+  return <div>hello {account.name} ({account?.loans?.length} Prêt)
+
+    En retard:
+    {account?.loans?.map((obj,) =>
+      <MiniItem id={obj.item}/>
+    )}
+  </div>
 }
 
 export default Profile;

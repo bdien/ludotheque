@@ -1,5 +1,6 @@
 import useSWRImmutable from 'swr/immutable';
 import { Account } from "../models/account";
+import { Item } from "../models/item";
 
 async function fetcher<JSON = any>(
     input: RequestInfo,
@@ -16,6 +17,18 @@ export function useAccount() {
 
     return {
         account: data,
+        isLoading,
+        error
+    }
+}
+
+export function useItem(id: number) {
+    const { data, error, isLoading } = useSWRImmutable<Item>(
+        `http://localhost:8000/items/${id}`,
+        fetcher);
+
+    return {
+        item: data,
         isLoading,
         error
     }
