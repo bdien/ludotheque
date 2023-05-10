@@ -44,6 +44,18 @@ def get_loans(all: str | None = None, user: str | None = None):
     return list(loans.dicts())
 
 
+@app.get("/users/{user_id}")
+def get_user(user_id: int):
+    user = User.get_or_none(user_id)
+    if not user:
+        raise HTTPException(404)
+    return model_to_dict(user)
+
+@app.get("/users")
+def get_users():
+    return list(User.select(User.id, User.name).dicts())
+
+
 @app.get("/me")
 def get_user():
 

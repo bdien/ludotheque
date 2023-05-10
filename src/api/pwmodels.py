@@ -16,6 +16,7 @@ class User(BaseModel):
     name = peewee.CharField()
     email = peewee.CharField(null=True)
     role = peewee.CharField(default="user")
+    credit = peewee.IntegerField(default=0)
     created_time = peewee.DateTimeField(default=datetime.datetime.utcnow)
 
 class Item(BaseModel):

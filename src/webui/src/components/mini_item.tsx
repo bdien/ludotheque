@@ -17,24 +17,23 @@ export function MiniItem(props: MiniItemProps) {
   if (!item) return <div>Server error...</div>
 
   // render data
-  return <Card sx={{ display: 'flex' }}>
-  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-    <CardContent sx={{ flex: '1 0 auto' }}>
-      <Typography component="div" variant="h5">
-        {item.name} ({item.id})
-      </Typography>
-      <Typography variant="subtitle1" color="text.secondary" component="div">
-        {item.description}
-      </Typography>
-    </CardContent>
-  </Box>
-  <CardMedia
-    component="img"
-    sx={{ width: 151 }}
-    image={ "/img/" + (item.picture || "notavailable.png") }
-    alt="Live from space album cover"
-  />
-</Card>;
+  return <Card sx={{ display: 'flex', height: 'clamp(100px, 30vw, 300px)' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+      <CardContent sx={{ flex: '1 0 auto' }}>
+        <Typography component="div" variant="h6">
+          {item.name} ({item.id})
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary" component="div" >
+          {item.description}
+        </Typography>
+      </CardContent>
+    </Box>
+    <CardMedia
+      component="img"
+      sx={{ width: 'clamp(150px, 20vw, 300px)' }}
+      image={"/img/" + (item.picture || "notavailable.png")}
+    />
+  </Card>;
 }
 
 export default MiniItem;

@@ -1,11 +1,10 @@
 import useSWRImmutable from 'swr/immutable';
-import { Account } from "../models/account";
-import { Item } from "../models/item";
+import { Account, Item, UserModel, Users } from "../models/api";
 
 async function fetcher<JSON = any>(
     input: RequestInfo,
     init?: RequestInit
-  ): Promise<JSON> {
+): Promise<JSON> {
     const res = await fetch(input, init)
     return res.json()
 }
@@ -29,6 +28,33 @@ export function useItem(id: number) {
 
     return {
         item: data,
+        isLoading,
+        error
+    }
+}
+
+export function useUser(id: number | null) {
+    if (!id)
+        return { user: null, isLoading: false, error: false };
+
+    const { data, error, isLoading } = useSWRImmutable<UserModel>(
+        `http://localhost:8000/users/${id}`,
+        fetcher);
+
+    return {
+        user: data,
+        isLoading,
+        error
+    }
+}
+
+export function useUsers() {
+    const { data, error, isLoading } = useSWRImmutable<Users>(
+        `http://localhost:8000/users`,
+        fetcher);
+
+    return {
+        users: data,
         isLoading,
         error
     }

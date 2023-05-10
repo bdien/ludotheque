@@ -1,6 +1,7 @@
 import { useAccount } from "../hooks/api";
 import MiniItem from "./mini_item";
 
+const groupBy = (x, f) => x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
 
 export function Profile() {
   const { account, error, isLoading } = useAccount();

@@ -1,8 +1,10 @@
-import { useAccount } from "../hooks/api";
+import { useAccount, useUsers } from "../hooks/api";
+import { UsersItem } from "../models/api";
 
 
 export function Profile() {
   const { account, error, isLoading } = useAccount();
+  const { users } = useUsers();
 
   if (error) return <div>failed to load</div>
   if (isLoading) return <div>loading...</div>

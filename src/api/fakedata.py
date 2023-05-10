@@ -3,7 +3,7 @@ from pwmodels import User, Item, Loan, create_all_tables
 
 
 create_all_tables()
-u, created = User.get_or_create(name="Benoit")
+u, created = User.get_or_create(name="Benoit", credit=1)
 
 # Already returned
 for item in (433, 935, 1003, 56, 75):
