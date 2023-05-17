@@ -1,4 +1,4 @@
-import { useUser } from "../hooks/api";
+import { useUser } from "../api/hooks";
 
 interface UserProps {
   id: number;
@@ -7,10 +7,10 @@ interface UserProps {
 export function User(props: UserProps) {
   const { user } = useUser(props.id);
 
-  if (!user) return <></>
+  if (!user) return <></>;
 
   // render data
-  return <div>User {user.name}</div>
+  return <div>User {user.name}</div>;
 }
 
 export default User;

@@ -11,9 +11,9 @@ export interface UsersItem {
   name: string;
 }
 
-export interface Users extends Array<UsersItem> { }
+export interface Users extends Array<UsersItem> {}
 
-export interface Item {
+export interface ItemModel {
   id: number;
   name: string;
   picture?: string;

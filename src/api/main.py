@@ -12,11 +12,29 @@ app.add_middleware(CORSMiddleware, allow_origins="*")
 FAKE_USER = 1
 FAKE_USER_ROLE = "operator"
 
+
+@app.get("/items/qsearch/{txt}")
+def qsearch_item(txt: str):
+    return list(
+        Item.select(Item.id, Item.name)
+        .where((Item.name ** f"%{txt}%") | (Item.id ** f"%{txt}%"))
+        .order_by(Item.id.desc())
+        .limit(7)
+        .dicts()
+    )
+
+
 @app.get("/items/{item_id}")
 def get_item(item_id: int):
-
     # Retrieve item + status
-    items = Item.select(Item, Loan).join(Loan, peewee.JOIN.LEFT_OUTER).where(Item.id == item_id).order_by(Loan.start).limit(1).execute()
+    items = (
+        Item.select(Item, Loan)
+        .join(Loan, peewee.JOIN.LEFT_OUTER)
+        .where(Item.id == item_id)
+        .order_by(Loan.start)
+        .limit(1)
+        .execute()
+    )
 
     if items:
         item = items[0]
@@ -34,13 +52,12 @@ def get_item(item_id: int):
 
 @app.get("/loans")
 def get_loans(all: str | None = None, user: str | None = None):
-
     if user is None:
         user = FAKE_USER
 
-    loans = Loan.select().where(Loan.user==user)
+    loans = Loan.select().where(Loan.user == user)
     if all is None:
-        loans = loans.where(Loan.status=="out")
+        loans = loans.where(Loan.status == "out")
     return list(loans.dicts())
 
 
@@ -51,15 +68,31 @@ def get_user(user_id: int):
         raise HTTPException(404)
     return model_to_dict(user)
 
+
 @app.get("/users")
 def get_users():
     return list(User.select(User.id, User.name).dicts())
 
 
-@app.get("/me")
-def get_user():
+@app.get("/users/qsearch/{txt}")
+def qsearch_user(txt: str):
+    return list(
+        User.select(User.id, User.name)
+        .where((User.name ** f"%{txt}%") | (User.id ** f"%{txt}%"))
+        .order_by(User.id.desc())
+        .limit(7)
+        .dicts()
+    )
 
+
+@app.get("/me")
+def get_myself():
     user = User.get_by_id(FAKE_USER)
     ret = model_to_dict(user)
-    ret["loans"] = list(Loan.select().where(Loan.user==user, Loan.status=="out").order_by(Loan.start).dicts())
+    ret["loans"] = list(
+        Loan.select()
+        .where(Loan.user == user, Loan.status == "out")
+        .order_by(Loan.start)
+        .dicts()
+    )
     return ret
