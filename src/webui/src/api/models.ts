@@ -16,8 +16,13 @@ export interface Users extends Array<UsersItem> {}
 export interface ItemModel {
   id: number;
   name: string;
-  picture?: string;
   description?: string;
+  picture?: string;
+  players_max?: number;
+  players_min?: number;
+  age?: number;
+  big?: boolean;
+  outside?: boolean;
 }
 
 export interface Loan {
