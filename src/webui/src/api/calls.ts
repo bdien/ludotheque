@@ -1,5 +1,5 @@
 import { UserModel, ItemModel, UsersItem } from "./models";
-export const SERVER_URL = "http://localhost:8000";
+export const SERVER_URL = "/api";
 
 export async function fetchUser(userId: number): Promise<UserModel> {
   const response = await fetch(`${SERVER_URL}/users/${userId}`);

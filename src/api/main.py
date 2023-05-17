@@ -7,7 +7,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from playhouse.shortcuts import model_to_dict
 
 logging.basicConfig(level=logging.DEBUG)
-app = FastAPI()
+app = FastAPI(root_path="/api")
 app.add_middleware(CORSMiddleware, allow_origins="*")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 

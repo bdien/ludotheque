@@ -23,6 +23,7 @@ export interface ItemModel {
   age?: number;
   big?: boolean;
   outside?: boolean;
+  status?: string;
 }
 
 export interface Loan {

@@ -3,11 +3,13 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Chip from "@mui/material/Chip";
 import { ItemModel } from "../api/models";
 import { Link } from "wouter";
+import Box from "@mui/material/Box";
+import { AgeChip } from "../components/age_chip";
 
 function nameDisplay(item: ItemModel) {
   return (
     <>
-      <Link href={`/item/${item.id}`}>{item.name}</Link>
+      <Link href={`/items/${item.id}`}>{item.name}</Link>
       {item.big && (
         <Chip
           label="Big"
@@ -28,58 +30,6 @@ function nameDisplay(item: ItemModel) {
       )}
     </>
   );
-}
-
-function ageDisplay(age: number) {
-  if (age == 0)
-    return (
-      <Chip
-        label="1-"
-        size="small"
-        sx={{ backgroundColor: "hsl(170, 100%, 90%)" }}
-      />
-    );
-  if (age == 2)
-    return (
-      <Chip
-        label="2/3"
-        size="small"
-        sx={{ backgroundColor: "hsl(90, 100%, 80%)" }}
-      />
-    );
-  if (age == 4)
-    return (
-      <Chip
-        label="4/5"
-        size="small"
-        sx={{ backgroundColor: "hsl(50, 100%, 70%)" }}
-      />
-    );
-  if (age == 6)
-    return (
-      <Chip
-        label="6/7"
-        size="small"
-        sx={{ backgroundColor: "hsl(320, 100%, 70%)" }}
-      />
-    );
-  if (age == 8)
-    return (
-      <Chip
-        label="8/9"
-        size="small"
-        sx={{ backgroundColor: "hsl(210, 100%, 80%)" }}
-      />
-    );
-  if (age == 10)
-    return (
-      <Chip
-        label="10+"
-        size="small"
-        sx={{ backgroundColor: "hsl(0, 100%, 75%)" }}
-      />
-    );
-  return <Chip label={age} size="small" />;
 }
 
 function playerDisplay(item: ItemModel) {
@@ -106,14 +56,17 @@ const columns: GridColDef[] = [
     headerName: "Joueurs",
     flex: 0.3,
     renderCell: (i) => playerDisplay(i.row),
+    headerAlign: "center",
     align: "center",
   },
   {
     field: "age",
     headerName: "Age",
-    renderCell: (i) => ageDisplay(i.value),
+    renderCell: (i) => <AgeChip age={i.value} />,
     flex: 0.3,
+    headerAlign: "center",
     align: "center",
+    minWidth: 60,
   },
 ];
 
@@ -125,8 +78,8 @@ export function ItemList() {
   if (!items) return <div>Empty</div>;
 
   return (
-    <div style={{ height: "85vh", width: "100%" }}>
-      <h2>Liste des Jeux</h2>
+    <Box sx={{ p: 1, height: "calc(100vh - 56px)" }}>
+      {/* <h2>Liste des Jeux</h2> */}
       <DataGrid
         rows={items}
         columns={columns}
@@ -134,6 +87,6 @@ export function ItemList() {
         rowHeight={40}
         disableRowSelectionOnClick
       />
-    </div>
+    </Box>
   );
 }
