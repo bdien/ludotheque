@@ -5,12 +5,15 @@ from playhouse.db_url import connect
 
 db = connect("sqliteext:///ludotheque.db", autoconnect=True)
 
+
 def create_all_tables():
     db.create_tables([User, Item, ItemLink, Loan])
+
 
 class BaseModel(peewee.Model):
     class Meta:
         database = db
+
 
 class User(BaseModel):
     name = peewee.CharField()
@@ -18,6 +21,7 @@ class User(BaseModel):
     role = peewee.CharField(default="user")
     credit = peewee.IntegerField(default=0)
     created_time = peewee.DateTimeField(default=datetime.datetime.utcnow)
+
 
 class Item(BaseModel):
     id = peewee.AutoField()
@@ -27,12 +31,16 @@ class Item(BaseModel):
     players_min = peewee.IntegerField()
     players_max = peewee.IntegerField()
     age = peewee.IntegerField()
+    big = peewee.BooleanField()
+    outside = peewee.BooleanField()
     created_time = peewee.DateTimeField(default=datetime.datetime.utcnow)
+
 
 class ItemLink(BaseModel):
     item = peewee.ForeignKeyField(model=Item)
     name = peewee.CharField()
     url = peewee.CharField()
+
 
 class Loan(BaseModel):
     user = peewee.ForeignKeyField(model=User)
