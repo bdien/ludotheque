@@ -3,11 +3,13 @@ import peewee
 from pwmodels import Item, Loan, User
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from playhouse.shortcuts import model_to_dict
 
 logging.basicConfig(level=logging.DEBUG)
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins="*")
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 FAKE_USER = 1
 FAKE_USER_ROLE = "operator"
@@ -48,6 +50,14 @@ def get_item(item_id: int):
                 base["last_loan"] = model_to_dict(item.loan, recurse=False)
         return base
     raise HTTPException(404)
+
+
+@app.get("/items")
+def get_items(nb: int = 0, sort: str | None = None):
+    query = Item.select()
+    if nb:
+        query = query.limit(nb)
+    return list(query.order_by(Item.id).dicts())
 
 
 @app.get("/loans")

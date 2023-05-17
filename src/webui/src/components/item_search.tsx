@@ -20,7 +20,7 @@ export function ItemSearch(props: ItemSearchProps) {
     <Autocomplete
       disablePortal
       options={itemChoices}
-      getOptionLabel={(option: ItemModel) => option.name}
+      getOptionLabel={(option: ItemModel) => `[${option.id}] ${option.name}`}
       sx={{ width: "90vw", margin: "auto" }}
       filterOptions={(x) => x}
       renderInput={(params) => <TextField {...params} label="" />}

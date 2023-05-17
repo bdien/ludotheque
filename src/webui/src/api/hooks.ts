@@ -36,6 +36,19 @@ export function useItem(id: number) {
   };
 }
 
+export function useItems() {
+  const { data, error, isLoading } = useSWRImmutable<ItemModel[]>(
+    `${SERVER_URL}/items`,
+    fetcher,
+  );
+
+  return {
+    items: data,
+    isLoading,
+    error,
+  };
+}
+
 export function useUser(id: number | null) {
   if (!id) return { user: null, isLoading: false, error: false };
 
