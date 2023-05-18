@@ -24,6 +24,7 @@ export interface ItemModel {
   big?: boolean;
   outside?: boolean;
   status?: string;
+  return?: string;
 }
 
 export interface Loan {

@@ -5,7 +5,8 @@ import { Route, Switch } from "wouter";
 import { Loan } from "./pages/loan";
 import { ItemList } from "./pages/item_list";
 import { CreateUser } from "./pages/create_user";
-import { Item } from "./pages/item";
+import { Item } from "./pages/item_view";
+import { ItemEdit } from "./pages/item_edit";
 
 function App() {
   return (
@@ -24,6 +25,9 @@ function App() {
           <Route path="/items" component={ItemList} />
           <Route path="/items/:id">
             {(params) => <Item id={parseInt(params.id)} />}
+          </Route>
+          <Route path="/items/:id/edit">
+            {(params) => <ItemEdit id={parseInt(params.id)} />}
           </Route>
           <Route path="/" component={Loan} />
         </Switch>
