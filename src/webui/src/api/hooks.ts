@@ -7,6 +7,10 @@ async function fetcher<JSON = any>(
   init?: RequestInit,
 ): Promise<JSON> {
   const res = await fetch(input, init);
+
+  if (res.status >= 400)
+    throw new Error(await res.text(), { cause: res.status });
+
   return res.json();
 }
 
