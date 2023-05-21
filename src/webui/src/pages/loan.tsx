@@ -6,7 +6,7 @@ import { Button } from "@mui/material";
 
 export function Loan() {
   const [user, setUser] = useState<UserModel | null>(null);
-  const [item, setItem] = useState<ItemModel | null>(null);
+  const [_item, setItem] = useState<ItemModel | null>(null);
 
   let html = (
     <div>

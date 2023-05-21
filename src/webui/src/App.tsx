@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Profile from "./components/profile";
 import TopBar from "./components/topbar";
 import { Box, Container } from "@mui/material";
@@ -9,25 +10,49 @@ import { Item } from "./pages/item_view";
 import { ItemEdit } from "./pages/item_edit";
 
 function App() {
+  const [title, setTitle] = useState("Ludothèque");
+
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <TopBar />
+      <TopBar title={title} />
 
       <Container maxWidth="md" disableGutters={true}>
         <Switch>
           <Route path="/me">
-            <Profile />
+            {() => {
+              setTitle("Mon compte");
+              return <Profile />;
+            }}
           </Route>
-          <Route path="/users/new" component={CreateUser} />
+          <Route path="/users/new">
+            {() => {
+              setTitle("Nouvelle personne");
+              return <CreateUser />;
+            }}
+          </Route>
           <Route path="/users/:id">
-            {(params) => <div>User {params.id}</div>}
+            {(params) => {
+              setTitle("Utilisateur");
+              return <div>User {params.id}</div>;
+            }}
           </Route>
-          <Route path="/items" component={ItemList} />
+          <Route path="/items">
+            {() => {
+              setTitle("Liste de jeux");
+              return <ItemList />;
+            }}
+          </Route>
           <Route path="/items/:id">
-            {(params) => <Item id={parseInt(params.id)} />}
+            {(params) => {
+              setTitle("Jeu");
+              return <Item id={parseInt(params.id)} />;
+            }}
           </Route>
           <Route path="/items/:id/edit">
-            {(params) => <ItemEdit id={parseInt(params.id)} />}
+            {(params) => {
+              setTitle("Edition");
+              return <ItemEdit id={parseInt(params.id)} />;
+            }}
           </Route>
           <Route path="/" component={Loan} />
         </Switch>

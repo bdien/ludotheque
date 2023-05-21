@@ -19,6 +19,7 @@ interface ItemProps {
 function displayStatus(item: ItemModel) {
   if (item?.status == "in") return "Disponible";
   if (item?.status == "out") {
+    if (!item?.return) return "Emprunté";
     const ret = new Date(item.return);
     return `Retour le ${ret.toLocaleDateString()}`;
   }
