@@ -9,7 +9,11 @@ import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { useAccount } from "../api/hooks";
 
-export function TopBar() {
+interface TopBarProps {
+  title?: any;
+}
+
+export function TopBar(props: TopBarProps) {
   const { account } = useAccount();
   const [anchorUserMenu, setAnchorUserManu] =
     React.useState<null | HTMLElement>(null);
@@ -35,7 +39,7 @@ export function TopBar() {
           <Icon>menu</Icon>
         </IconButton>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Ludothèque
+          {props.title}
         </Typography>
         {account && (
           <div>

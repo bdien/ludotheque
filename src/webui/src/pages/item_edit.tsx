@@ -13,15 +13,6 @@ interface ItemEditProps {
   id: number;
 }
 
-function displayStatus(item: ItemModel) {
-  if (item?.status == "in") return "Disponible";
-  if (item?.status == "out") {
-    const ret = new Date(item.return);
-    return `Retour le ${ret.toLocaleDateString()}`;
-  }
-  return "Inconnu";
-}
-
 function playerDisplay(item: ItemModel) {
   let txt = item.players_min;
   if (item.players_min == item.players_max) return <>{txt}</>;
@@ -76,7 +67,7 @@ export function ItemEdit(props: ItemEditProps) {
             <TableBody>
               <TableRow>
                 <TableCell>Status</TableCell>
-                <TableCell>{displayStatus(item)}</TableCell>
+                <TableCell>displayStatus(item)</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Joueurs</TableCell>

@@ -7,7 +7,7 @@ import os
 from pwmodels import Item, create_all_tables
 
 Jeu = collections.namedtuple(
-    "Jeu", "id, nom, type, editeur, joueurs_min, joueurs_max, age, resume"
+    "Jeu", "id, photo, nom, type, editeur, joueurs_min, joueurs_max, age, resume"
 )
 
 AGE_MAP = {
@@ -61,8 +61,8 @@ def pretty_string(txt: str) -> str:
     return ". ".join(i.strip().capitalize() for i in newtxt.split("."))
 
 
-def get_one(id: int) -> Jeu:
-    r = requests.get(f"http://ludoacigne.free.fr/jeux/jeu.php?id={id}", timeout=60)
+def get_one(i: int) -> Jeu:
+    r = requests.get(f"http://ludoacigne.free.fr/jeux/jeu.php?id={i}", timeout=60)
 
     text = r.content.decode("Windows-1252")
     kv = dict(
@@ -73,11 +73,15 @@ def get_one(id: int) -> Jeu:
         )
     )
 
+    res = re.search('src="(.*?)"', kv.get("Photo", ""))
+    photo = res[1] if res else None
+
     minj, maxj = parse_joueurs(kv["Nombre de joueurs"])
     minj = max(minj, 1)
     maxj = max(maxj, minj)
     return Jeu(
-        id,
+        i,
+        photo,
         pretty_string(kv["Nom du jeu"]),
         pretty_string(kv["Type de jeu"]),
         pretty_string(kv["Editeur"]),
@@ -88,8 +92,8 @@ def get_one(id: int) -> Jeu:
     )
 
 
-def get_photo(id: int) -> bytes | None:
-    r = requests.get(f"http://ludoacigne.free.fr/jeux/images/jeux_{id}.jpg", timeout=60)
+def get_photo(url: str) -> bytes | None:
+    r = requests.get(f"http://ludoacigne.free.fr/jeux/{url}", timeout=60)
     return None if r.status_code != 200 else r.content
 
 
@@ -103,31 +107,33 @@ jeu = get_one(999)
 ids = get_all()
 bigs = get_all_big()
 outside = get_all_outside()
-for id in ids:
-    obj = Item.get_or_none(Item.id == id)
+for i in ids:
+    obj = Item.get_or_none(Item.id == i)
     if obj:
         continue
 
-    jeu = get_one(id)
+    jeu = get_one(i)
     print(jeu)
 
-    imgname = f"jeu_{id}.jpg"
+    imgname = f"jeu_{i:05d}.jpg"
     filename = f"img/{imgname}"
-    if not os.path.exists(filename):
-        if imgdata := get_photo(id):
+    if jeu.photo and not os.path.exists(filename):
+        if imgdata := get_photo(jeu.photo):
             with open(filename, "wb") as f:
                 f.write(imgdata)
         else:
             imgname = None
+    else:
+        imgname = None
 
     Item.create(
-        id=id,
+        id=i,
         name=jeu.nom,
         description=jeu.resume,
         picture=imgname,
         players_min=jeu.joueurs_min,
         players_max=jeu.joueurs_max,
         age=jeu.age,
-        big=id in bigs,
-        outside=id in outside,
+        big=i in bigs,
+        outside=i in outside,
     )
