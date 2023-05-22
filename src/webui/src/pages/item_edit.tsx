@@ -5,7 +5,7 @@ import { updateItem } from "../api/calls";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
@@ -15,7 +15,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { AgeChip } from "../components/age_chip";
 import Button from "@mui/material/Button";
-import { Redirect } from "wouter";
+import { useLocation } from "wouter";
 
 interface ItemEditProps {
   id: number;
@@ -55,10 +55,6 @@ const marks = [
   },
   {
     value: 16,
-    label: "16",
-  },
-  {
-    value: 20,
     label: "∞",
   },
 ];
@@ -66,6 +62,7 @@ const marks = [
 export function ItemEdit(props: ItemEditProps) {
   const { item, error, mutate } = useItem(props.id);
   const { register, control, handleSubmit } = useForm<ItemModel>();
+  const [_location, navigate] = useLocation();
 
   async function onSubmit(data: Object) {
     console.log(item?.id);
@@ -76,6 +73,7 @@ export function ItemEdit(props: ItemEditProps) {
 
     await updateItem(item?.id ?? 0, data);
     mutate({ ...data });
+    navigate(`/items/${item?.id}`);
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
@@ -95,7 +93,14 @@ export function ItemEdit(props: ItemEditProps) {
       />
 
       <TableContainer component={Paper}>
-        <Table>
+        <Table
+          size="small"
+          sx={{
+            [`& .${tableCellClasses.root}`]: {
+              borderBottom: "none",
+            },
+          }}
+        >
           <TableBody>
             <TableRow>
               <TableCell>Nom</TableCell>
@@ -142,7 +147,8 @@ export function ItemEdit(props: ItemEditProps) {
                     <Slider
                       {...field}
                       valueLabelDisplay="auto"
-                      max={20}
+                      min={1}
+                      max={16}
                       step={1}
                       marks={marks}
                     />

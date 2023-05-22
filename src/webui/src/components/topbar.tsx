@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -8,6 +8,12 @@ import Icon from "@mui/material/Icon";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { useAccount } from "../api/hooks";
+import Drawer from "@mui/material/Drawer";
+import ListItem from "@mui/material/ListItem";
+import List from "@mui/material/List";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import { Link } from "wouter";
 
 interface TopBarProps {
   title?: any;
@@ -15,15 +21,17 @@ interface TopBarProps {
 
 export function TopBar(props: TopBarProps) {
   const { account } = useAccount();
-  const [anchorUserMenu, setAnchorUserManu] =
-    React.useState<null | HTMLElement>(null);
+  const [anchorUserMenu, setAnchorUserMenu] = useState<null | HTMLElement>(
+    null,
+  );
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorUserManu(event.currentTarget);
+  const handleUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorUserMenu(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorUserManu(null);
+  const handleUserMenuClose = () => {
+    setAnchorUserMenu(null);
   };
 
   // render data
@@ -34,13 +42,51 @@ export function TopBar(props: TopBarProps) {
           edge="start"
           color="inherit"
           aria-label="menu"
-          sx={{ mr: 2 }}
+          onClick={() => setIsDrawerOpen(true)}
+          sx={{ mr: 1 }}
         >
           <Icon>menu</Icon>
         </IconButton>
+
+        <Drawer open={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}>
+          <List>
+            <ListItem
+              component={Link}
+              to="/"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ListItemIcon>
+                <Icon>home</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Accueil" />
+            </ListItem>
+            <ListItem
+              component={Link}
+              to="/me"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ListItemIcon>
+                <Icon>account_circle</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Mes emprunts" />
+            </ListItem>
+            <ListItem
+              component={Link}
+              to="/items"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ListItemIcon>
+                <Icon>list</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Liste de Jeux" />
+            </ListItem>
+          </List>
+        </Drawer>
+
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           {props.title}
         </Typography>
+
         {account && (
           <div>
             <IconButton color="inherit">
@@ -48,15 +94,14 @@ export function TopBar(props: TopBarProps) {
             </IconButton>
             <IconButton
               aria-label="account of current user"
-              aria-controls="menu-appbar"
               aria-haspopup="true"
-              onClick={handleMenu}
+              onClick={handleUserMenu}
               color="inherit"
             >
               <Icon>account_circle</Icon>
             </IconButton>
             <Menu
-              id="menu-appbar"
+              id="usermenu-appbar"
               anchorEl={anchorUserMenu}
               anchorOrigin={{
                 vertical: "top",
@@ -68,10 +113,10 @@ export function TopBar(props: TopBarProps) {
                 horizontal: "right",
               }}
               open={Boolean(anchorUserMenu)}
-              onClose={handleClose}
+              onClose={handleUserMenuClose}
             >
-              <MenuItem onClick={handleClose}>Mon profil</MenuItem>
-              <MenuItem onClick={handleClose}>Se déconnecter</MenuItem>
+              <MenuItem onClick={handleUserMenuClose}>Mon profil</MenuItem>
+              <MenuItem onClick={handleUserMenuClose}>Se déconnecter</MenuItem>
             </Menu>
           </div>
         )}

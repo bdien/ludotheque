@@ -5,6 +5,8 @@ import { ItemModel } from "../api/models";
 import { Link } from "wouter";
 import Box from "@mui/material/Box";
 import { AgeChip } from "../components/age_chip";
+import { TextField } from "@mui/material";
+import { useState } from "react";
 
 function nameDisplay(item: ItemModel) {
   return (
@@ -44,7 +46,7 @@ function playerDisplay(item: ItemModel) {
 }
 
 const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", type: "number", minWidth: 55, flex: 0.1 },
+  { field: "id", headerName: "ID", type: "number", minWidth: 56, flex: 0.1 },
   {
     field: "name",
     headerName: "Nom",
@@ -71,22 +73,38 @@ const columns: GridColDef[] = [
 ];
 
 export function ItemList() {
+  const [filter, setFilter] = useState<string>("");
   const { items, isLoading } = useItems();
 
   if (isLoading) return <div>Loading</div>;
-
   if (!items) return <div>Empty</div>;
 
+  // Filtering
+  let displayed = items;
+  if (filter) {
+    const lw_filter = filter.toLowerCase();
+    displayed = items.filter((i) => i.name.toLowerCase().includes(lw_filter));
+  }
+
   return (
-    <Box sx={{ p: 1, height: "calc(100vh - 56px)" }}>
-      {/* <h2>Liste des Jeux</h2> */}
-      <DataGrid
-        rows={items}
-        columns={columns}
-        autoPageSize
-        rowHeight={40}
-        disableRowSelectionOnClick
+    <>
+      <TextField
+        size="small"
+        label="Recherche"
+        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+          setFilter(event.target.value);
+        }}
+        sx={{ m: 1 }}
       />
-    </Box>
+      <Box sx={{ p: 1, pt: 0, height: "calc(88vh - 56px)" }}>
+        <DataGrid
+          rows={displayed}
+          columns={columns}
+          autoPageSize
+          rowHeight={40}
+          disableRowSelectionOnClick
+        />
+      </Box>
+    </>
   );
 }

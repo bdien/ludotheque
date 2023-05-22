@@ -68,10 +68,12 @@ def get_item(item_id: int):
 
 
 @app.get("/items")
-def get_items(nb: int = 0, sort: str | None = None):
+def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
     query = Item.select()
     if nb:
         query = query.limit(nb)
+    if q:
+        query = query.where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
     return list(query.order_by(Item.id).dicts())
 
 
