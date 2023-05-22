@@ -17,6 +17,17 @@ export async function fetchItem(itemId: number): Promise<ItemModel> {
   return response.json();
 }
 
+export async function updateItem(
+  itemId: number,
+  obj: Object,
+): Promise<ItemModel> {
+  const response = await fetch(`${SERVER_URL}/items/${itemId}`, {
+    method: "POST",
+    body: JSON.stringify(obj),
+  });
+  return response.json();
+}
+
 export async function qsearchUser(txt: string): Promise<UsersItem[]> {
   if (!txt || txt.length < 2) return Promise.resolve([]);
   const response = await fetch(`${SERVER_URL}/users/qsearch/${txt}`);

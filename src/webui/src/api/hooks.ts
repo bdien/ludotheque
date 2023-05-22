@@ -28,7 +28,7 @@ export function useAccount() {
 }
 
 export function useItem(id: number) {
-  const { data, error, isLoading } = useSWRImmutable<ItemModel>(
+  const { data, error, isLoading, mutate } = useSWRImmutable<ItemModel>(
     `${SERVER_URL}/items/${id}`,
     fetcher,
   );
@@ -37,6 +37,7 @@ export function useItem(id: number) {
     item: data,
     isLoading,
     error,
+    mutate,
   };
 }
 
