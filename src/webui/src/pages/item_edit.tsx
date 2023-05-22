@@ -1,7 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { useItem } from "../api/hooks";
 import { ItemModel } from "../api/models";
-import { updateItem } from "../api/calls";
+import { deleteItemPicture, updateItem, updateItemPicture } from "../api/calls";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -16,20 +16,11 @@ import MenuItem from "@mui/material/MenuItem";
 import { AgeChip } from "../components/age_chip";
 import Button from "@mui/material/Button";
 import { useLocation } from "wouter";
+import { ImageChooser } from "../components/image_chooser";
+import { useState } from "react";
 
 interface ItemEditProps {
   id: number;
-}
-
-function playerDisplay(item: ItemModel) {
-  let txt = item.players_min;
-  if (item.players_min == item.players_max) return <>{txt}</>;
-  if (item.players_max == 99) return <>{txt}+</>;
-  return (
-    <>
-      {item.players_min} - {item.players_max}
-    </>
-  );
 }
 
 const marks = [
@@ -61,17 +52,29 @@ const marks = [
 
 export function ItemEdit(props: ItemEditProps) {
   const { item, error, mutate } = useItem(props.id);
+  const [imgFile, setImgFile] = useState<File | null | undefined>(undefined);
   const { register, control, handleSubmit } = useForm<ItemModel>();
   const [_location, navigate] = useLocation();
 
   async function onSubmit(data: Object) {
-    console.log(item?.id);
-    console.log(data);
+    if (!item?.id) return;
 
     data.players_min = data.players[0];
     data.players_max = data.players[1];
 
     await updateItem(item?.id ?? 0, data);
+
+    // Remove previous picture
+    if (imgFile === null && item?.picture) deleteItemPicture(item.id);
+
+    // Upload new picture
+    if (imgFile) {
+      await updateItemPicture(item.id, imgFile);
+      // const reader = new FileReader();
+      // reader.onload = async e => await updateItemPicture(item.id, imgFile);
+      // await reader.readAsBinaryString(imgFile);
+    }
+
     mutate({ ...data });
     navigate(`/items/${item?.id}`);
   }
@@ -83,14 +86,17 @@ export function ItemEdit(props: ItemEditProps) {
   return (
     <>
       <Box
-        component="img"
         sx={{
           width: "100vw",
           height: "40vh",
           objectFit: "contain",
         }}
-        src={"/img/" + (item.picture || "notavailable.png")}
-      />
+      >
+        <ImageChooser
+          onImageChange={setImgFile}
+          src={item.picture && "/img/" + item.picture}
+        />
+      </Box>
 
       <TableContainer component={Paper}>
         <Table

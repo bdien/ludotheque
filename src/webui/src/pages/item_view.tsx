@@ -51,7 +51,7 @@ export function Item(props: ItemProps) {
         sx={{
           width: "100vw",
           height: "40vh",
-          objectFit: "cover",
+          objectFit: "contain",
         }}
         src={"/img/" + (item.picture || "notavailable.png")}
       />

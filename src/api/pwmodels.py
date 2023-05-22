@@ -13,6 +13,7 @@ def create_all_tables():
 class BaseModel(peewee.Model):
     class Meta:
         database = db
+        only_save_dirty = True
 
 
 class User(BaseModel):

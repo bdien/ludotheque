@@ -28,6 +28,22 @@ export async function updateItem(
   return response.json();
 }
 
+export async function deleteItemPicture(itemId: number) {
+  await fetch(`${SERVER_URL}/items/${itemId}/picture`, {
+    method: "DELETE",
+  });
+}
+
+export async function updateItemPicture(itemId: number, file: File) {
+  var data = new FormData();
+  data.append("file", file);
+
+  await fetch(`${SERVER_URL}/items/${itemId}/picture`, {
+    method: "POST",
+    body: data,
+  });
+}
+
 export async function qsearchUser(txt: string): Promise<UsersItem[]> {
   if (!txt || txt.length < 2) return Promise.resolve([]);
   const response = await fetch(`${SERVER_URL}/users/qsearch/${txt}`);
