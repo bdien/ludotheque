@@ -1,10 +1,11 @@
 import logging
 import peewee
 from pwmodels import Item, Loan, User
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from playhouse.shortcuts import model_to_dict
+
 
 logging.basicConfig(level=logging.DEBUG)
 app = FastAPI(root_path="/api")
@@ -24,6 +25,20 @@ def qsearch_item(txt: str):
         .limit(7)
         .dicts()
     )
+
+
+@app.post("/items/{item_id}")
+async def modify_item(item_id: int, request: Request):
+    body = await request.json()
+
+    # Limit to selected properties
+    update_params = {
+        k: v
+        for k, v in body.items()
+        if k in ["name", "description", "age", "players_min", "players_max"]
+    }
+
+    Item.update(**update_params).where(Item.id == item_id).execute()
 
 
 @app.get("/items/{item_id}")

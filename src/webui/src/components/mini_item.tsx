@@ -23,7 +23,7 @@ export function MiniItem(props: MiniItemProps) {
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>
           <Typography component="div" variant="h6">
-            <Link href={`/items/${item.id}/edit`}>
+            <Link href={`/items/${item.id}`}>
               {item.name} ({item.id})
             </Link>
           </Typography>

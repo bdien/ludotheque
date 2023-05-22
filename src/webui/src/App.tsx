@@ -16,7 +16,7 @@ function App() {
     <Box sx={{ flexGrow: 1 }}>
       <TopBar title={title} />
 
-      <Container maxWidth="md" disableGutters={true}>
+      <Container disableGutters={true}>
         <Switch>
           <Route path="/me">
             {() => {

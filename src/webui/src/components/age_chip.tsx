@@ -2,6 +2,7 @@ import Chip from "@mui/material/Chip";
 
 interface AgeChipProps {
   age: number;
+  size?: "small" | "medium";
 }
 
 export function AgeChip(props: AgeChipProps) {
@@ -9,7 +10,7 @@ export function AgeChip(props: AgeChipProps) {
     return (
       <Chip
         label="0+"
-        size="small"
+        size={props.size ?? "small"}
         sx={{ backgroundColor: "hsl(170, 100%, 90%)" }}
       />
     );
@@ -17,7 +18,7 @@ export function AgeChip(props: AgeChipProps) {
     return (
       <Chip
         label="2+"
-        size="small"
+        size={props.size ?? "small"}
         sx={{ backgroundColor: "hsl(90, 100%, 80%)" }}
       />
     );
@@ -25,7 +26,7 @@ export function AgeChip(props: AgeChipProps) {
     return (
       <Chip
         label="4+"
-        size="small"
+        size={props.size ?? "small"}
         sx={{ backgroundColor: "hsl(50, 100%, 70%)" }}
       />
     );
@@ -33,7 +34,7 @@ export function AgeChip(props: AgeChipProps) {
     return (
       <Chip
         label="6+"
-        size="small"
+        size={props.size ?? "small"}
         sx={{ backgroundColor: "hsl(320, 100%, 70%)" }}
       />
     );
@@ -41,7 +42,7 @@ export function AgeChip(props: AgeChipProps) {
     return (
       <Chip
         label="8+"
-        size="small"
+        size={props.size ?? "small"}
         sx={{ backgroundColor: "hsl(210, 100%, 80%)" }}
       />
     );
@@ -49,9 +50,9 @@ export function AgeChip(props: AgeChipProps) {
     return (
       <Chip
         label="10+"
-        size="small"
+        size={props.size ?? "small"}
         sx={{ backgroundColor: "hsl(0, 100%, 75%)" }}
       />
     );
-  return <Chip label={props.age} size="small" />;
+  return <Chip label={props.age} size={props.size ?? "small"} />;
 }
