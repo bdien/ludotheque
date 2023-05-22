@@ -35,7 +35,7 @@ export function AgeChip(props: AgeChipProps) {
       <Chip
         label="6+"
         size={props.size ?? "small"}
-        sx={{ backgroundColor: "hsl(320, 100%, 70%)" }}
+        sx={{ backgroundColor: "hsl(300, 100%, 80%)" }}
       />
     );
   if (props.age == 8)

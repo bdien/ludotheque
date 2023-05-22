@@ -41,9 +41,11 @@ export function useItem(id: number) {
   };
 }
 
-export function useItems() {
+export function useItems(filter?: string) {
+  let qs = "";
+  if (filter) qs = `?q=${filter}`;
   const { data, error, isLoading } = useSWRImmutable<ItemModel[]>(
-    `${SERVER_URL}/items`,
+    `${SERVER_URL}/items${qs}`,
     fetcher,
   );
 

@@ -68,6 +68,7 @@ export function Item(props: ItemProps) {
           variant="subtitle1"
           color="text.secondary"
           component="div"
+          style={{ whiteSpace: "pre-line" }}
           sx={{ p: 1 }}
         >
           {item.description}
