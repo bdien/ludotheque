@@ -36,7 +36,7 @@ export function TopBar(props: TopBarProps) {
 
   // render data
   return (
-    <AppBar position="static">
+    <AppBar position="relative">
       <Toolbar>
         <IconButton
           edge="start"

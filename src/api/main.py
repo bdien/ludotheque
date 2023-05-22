@@ -1,7 +1,10 @@
+import mimetypes
 import logging
+import os
+import shutil
 import peewee
 from pwmodels import Item, Loan, User
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from playhouse.shortcuts import model_to_dict
@@ -39,6 +42,32 @@ async def modify_item(item_id: int, request: Request):
     }
 
     Item.update(**update_params).where(Item.id == item_id).execute()
+
+
+@app.post("/items/{item_id}/picture")
+async def modify_item_picture(item_id: int, file: UploadFile):
+    # Save new image to disk
+    extension = mimetypes.guess_extension(file.content_type, strict=False)
+    filename = f"jeu_{item_id:05d}{extension}"
+    with open(f"img/{filename}", "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
+
+    # Delete previous image and set new one in DB
+    item = Item.get_by_id(item_id)
+    if item.picture and item.picture != filename:
+        print(f"Unlink img/{item.picture}")
+        os.unlink(f"img/{item.picture}")
+    item.picture = filename
+    item.save()
+
+
+@app.delete("/items/{item_id}/picture")
+def delete_item_picture(item_id: int):
+    item = Item.get_by_id(item_id)
+    if item.picture:
+        os.unlink(f"img/{item.picture}")
+    item.picture = None
+    item.save()
 
 
 @app.get("/items/{item_id}")
