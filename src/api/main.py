@@ -127,7 +127,16 @@ def get_user(user_id: int):
 
 @app.get("/users")
 def get_users():
-    return list(User.select(User.id, User.name).dicts())
+    return list(
+        User.select(
+            User,
+            peewee.fn.Count(Loan).alias("loans"),
+            peewee.fn.Min(Loan.stop).alias("oldest_loan"),
+        )
+        .join(Loan, peewee.JOIN.LEFT_OUTER)
+        .where(Loan.status == "out")
+        .dicts()
+    )
 
 
 @app.get("/users/qsearch/{txt}")

@@ -15,11 +15,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import { Link } from "wouter";
 
-interface TopBarProps {
-  title?: any;
-}
-
-export function TopBar(props: TopBarProps) {
+export function TopBar() {
   const { account } = useAccount();
   const [anchorUserMenu, setAnchorUserMenu] = useState<null | HTMLElement>(
     null,
@@ -84,7 +80,7 @@ export function TopBar(props: TopBarProps) {
         </Drawer>
 
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          {props.title}
+          Ludothèque
         </Typography>
 
         {account && (

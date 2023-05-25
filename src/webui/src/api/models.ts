@@ -4,6 +4,7 @@ export interface UserModel {
   email?: string;
   role: string;
   credit: number;
+  loans?: number;
 }
 
 export interface UsersItem {
