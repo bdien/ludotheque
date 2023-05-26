@@ -4,29 +4,64 @@ import { UserSearch } from "../components/user_search";
 import { ItemSearch } from "../components/item_search";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import Icon from "@mui/material/Icon";
 
 export function Loan() {
   const [user, setUser] = useState<UserModel | null>(null);
-  const [_item, setItem] = useState<ItemModel | null>(null);
+  const [items, setItems] = useState<ItemModel[]>([]);
 
   let html = (
-    <div>
+    <Box sx={{ mb: 2 }}>
       Personne: <UserSearch setUser={setUser} />
-    </div>
+    </Box>
   );
 
   if (!user) {
     return html;
   }
 
+  const topay = items.length * 0.5;
+  const topay_fromcredit = Math.min(topay, user.credit);
+
   return (
     <>
       {html}
-      <Box>
+      <Box sx={{ mb: 2 }}>
         Emprunts:
-        <ItemSearch setItem={setItem} />
+        <ItemSearch setItems={setItems} />
       </Box>
-      <Button variant="contained" color="primary" sx={{ width: "90vw", m: 1 }}>
+
+      {items.length > 0 && (
+        <Box sx={{ mb: 2, position: "relative" }}>
+          Règlement:
+          <br />
+          <ul>
+            <li>Total: {topay}€</li>
+            <li>
+              Carte: {topay_fromcredit}€ (Il restera{" "}
+              {user.credit - topay_fromcredit}€)
+            </li>
+            <li>
+              Reste: <b>{topay - topay_fromcredit}€</b>
+            </li>
+          </ul>
+          <Icon
+            sx={{
+              top: (theme) => theme.spacing(1),
+              right: (theme) => theme.spacing(2),
+              position: "absolute",
+            }}
+          >
+            settings
+          </Icon>
+        </Box>
+      )}
+      <Button
+        variant="contained"
+        disabled={!items.length}
+        color="primary"
+        sx={{ width: "90vw", m: 1 }}
+      >
         Valider
       </Button>
     </>

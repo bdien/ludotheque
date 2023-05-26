@@ -6,7 +6,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { debounce } from "@mui/material/utils";
 
 interface ItemSearchProps {
-  setItem: any;
+  setItems: any;
 }
 
 export function ItemSearch(props: ItemSearchProps) {
@@ -28,11 +28,11 @@ export function ItemSearch(props: ItemSearchProps) {
       filterOptions={(x) => x}
       renderInput={(params) => <TextField {...params} label="" />}
       multiple={true}
-      onChange={async (_event: any, newValue: ItemModel | null) => {
+      onChange={async (_event: any, newValue: ItemModel[] | null) => {
         if (!newValue) {
-          props.setItem(undefined);
+          props.setItems(undefined);
         } else {
-          props.setItem(await fetchItem(newValue.id));
+          props.setItems(newValue);
         }
       }}
       onInputChange={debounce((_event, newInputValue) => {
