@@ -94,17 +94,16 @@ export function ItemList() {
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
           setFilter(event.target.value);
         }}
-        sx={{ m: 1 }}
+        sx={{ mb: 1 }}
       />
-      <Box sx={{ p: 1, pt: 0, height: "calc(88vh - 56px)" }}>
-        <DataGrid
-          rows={displayed}
-          columns={columns}
-          autoPageSize
-          rowHeight={40}
-          disableRowSelectionOnClick
-        />
-      </Box>
+      <DataGrid
+        rows={displayed}
+        columns={columns}
+        autoPageSize
+        rowHeight={40}
+        disableRowSelectionOnClick
+        sx={{ height: "100%" }}
+      />
     </>
   );
 }

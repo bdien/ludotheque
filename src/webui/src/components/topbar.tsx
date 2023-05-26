@@ -30,7 +30,6 @@ export function TopBar() {
     setAnchorUserMenu(null);
   };
 
-  // render data
   return (
     <AppBar position="relative">
       <Toolbar>
@@ -56,16 +55,18 @@ export function TopBar() {
               </ListItemIcon>
               <ListItemText primary="Accueil" />
             </ListItem>
-            <ListItem
-              component={Link}
-              to="/me"
-              onClick={() => setIsDrawerOpen(false)}
-            >
-              <ListItemIcon>
-                <Icon>account_circle</Icon>
-              </ListItemIcon>
-              <ListItemText primary="Mes emprunts" />
-            </ListItem>
+            {account && (
+              <ListItem
+                component={Link}
+                to={`/users/${account.id}`}
+                onClick={() => setIsDrawerOpen(false)}
+              >
+                <ListItemIcon>
+                  <Icon>account_circle</Icon>
+                </ListItemIcon>
+                <ListItemText primary="Mes emprunts" />
+              </ListItem>
+            )}
             <ListItem
               component={Link}
               to="/items"
@@ -121,5 +122,3 @@ export function TopBar() {
     </AppBar>
   );
 }
-
-export default TopBar;

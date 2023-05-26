@@ -17,9 +17,13 @@ interface ItemProps {
 }
 
 function displayStatus(item: ItemModel) {
-  if (item?.status == "in") return "Disponible";
+  if (item?.status == "in") {
+    return "Disponible";
+  }
   if (item?.status == "out") {
-    if (!item?.return) return "Emprunté";
+    if (!item?.return) {
+      return "Emprunté";
+    }
     const ret = new Date(item.return);
     return `Retour le ${ret.toLocaleDateString()}`;
   }
@@ -74,6 +78,8 @@ export function Item(props: ItemProps) {
           {item.description}
         </Typography>
       )}
+
+      {/* Item details */}
       <Box sx={{ p: 1 }}>
         <TableContainer sx={{ pt: 2 }}>
           <Table size="small">
@@ -102,6 +108,22 @@ export function Item(props: ItemProps) {
           </Table>
         </TableContainer>
       </Box>
+
+      {/* Loan history */}
+      {item?.loans?.length && (
+        <div>
+          Emprunts:
+          <br />
+          {item.loans.map((i) => (
+            <span>
+              {i.start} ➜ {i.stop}
+              <br />
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Edit button */}
       <Link href={`/items/${item.id}/edit`}>
         <Fab
           color="primary"

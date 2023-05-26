@@ -71,27 +71,30 @@ def delete_item_picture(item_id: int):
 
 
 @app.get("/items/{item_id}")
-def get_item(item_id: int):
+def get_item(item_id: int, history: int | None = 10):
+    if FAKE_USER_ROLE != "operator":
+        history = 1
+
     # Retrieve item + status
     items = (
         Item.select(Item, Loan)
         .join(Loan, peewee.JOIN.LEFT_OUTER)
         .where(Item.id == item_id)
-        .order_by(Loan.start)
-        .limit(1)
+        .order_by(-Loan.stop)
+        .limit(history)
         .execute()
     )
 
     if items:
         item = items[0]
         base = model_to_dict(item)
+        loans = [i.loan for i in items] if hasattr(item, "loan") else []
         base["status"] = "in"
-        if hasattr(item, "loan"):
-            base["status"] = item.loan.status
-            if base["status"] == "out":
-                base["return"] = item.loan.stop
+        if loans:
+            base["status"] = loans[0].status
+            base["return"] = loans[0].stop
             if FAKE_USER_ROLE == "operator":
-                base["last_loan"] = model_to_dict(item.loan, recurse=False)
+                base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
         return base
     raise HTTPException(404)
 
@@ -122,7 +125,14 @@ def get_user(user_id: int):
     user = User.get_or_none(user_id)
     if not user:
         raise HTTPException(404)
-    return model_to_dict(user)
+    ret = model_to_dict(user)
+    ret["loans"] = list(
+        Loan.select()
+        .where(Loan.user == user, Loan.status == "out")
+        .order_by(Loan.stop)
+        .dicts()
+    )
+    return ret
 
 
 @app.get("/users")
@@ -152,12 +162,6 @@ def qsearch_user(txt: str):
 
 @app.get("/me")
 def get_myself():
-    user = User.get_by_id(FAKE_USER)
-    ret = model_to_dict(user)
-    ret["loans"] = list(
-        Loan.select()
-        .where(Loan.user == user, Loan.status == "out")
-        .order_by(Loan.start)
-        .dicts()
-    )
-    return ret
+    if user := User.get_or_none(User.id == FAKE_USER):
+        return model_to_dict(user)
+    raise HTTPException(402)

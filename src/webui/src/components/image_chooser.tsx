@@ -12,18 +12,24 @@ export function ImageChooser(props: ImageChooserProps) {
   const handleFilePicker = (e: ChangeEvent<HTMLInputElement>): void => {
     const { files } = e.target;
 
-    if (img) URL.revokeObjectURL(img);
+    if (img) {
+      URL.revokeObjectURL(img);
+    }
 
     if (files != null && files.length > 0) {
       let newimg = URL.createObjectURL(files[0]);
       setImg(newimg);
-      if (props.onImageChange) props.onImageChange(files[0]);
+      if (props.onImageChange) {
+        props.onImageChange(files[0]);
+      }
     }
   };
 
   const handleDeleteImage = (): void => {
     setImg(null);
-    if (props.onImageChange) props.onImageChange(null);
+    if (props.onImageChange) {
+      props.onImageChange(null);
+    }
   };
 
   return (

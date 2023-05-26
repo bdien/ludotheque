@@ -2,7 +2,8 @@ import { useState } from "react";
 import { UserModel, ItemModel } from "../api/models";
 import { UserSearch } from "../components/user_search";
 import { ItemSearch } from "../components/item_search";
-import { Button } from "@mui/material";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 
 export function Loan() {
   const [user, setUser] = useState<UserModel | null>(null);
@@ -14,14 +15,20 @@ export function Loan() {
     </div>
   );
 
-  if (!user) return html;
+  if (!user) {
+    return html;
+  }
 
-  return [
-    html,
-    <div>
-      Emprunt:
-      <ItemSearch setItem={setItem} />
-      <Button variant="contained">+</Button>
-    </div>,
-  ];
+  return (
+    <>
+      {html}
+      <Box>
+        Emprunts:
+        <ItemSearch setItem={setItem} />
+      </Box>
+      <Button variant="contained" color="primary" sx={{ width: "90vw", m: 1 }}>
+        Valider
+      </Button>
+    </>
+  );
 }

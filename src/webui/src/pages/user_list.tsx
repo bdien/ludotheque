@@ -9,7 +9,7 @@ import { GridColDef } from "@mui/x-data-grid/models";
 function nameDisplay(user: UserModel) {
   return (
     <>
-      <Link href={`/items/${user.id}`}>{user.name}</Link>
+      <Link href={`/users/${user.id}`}>{user.name}</Link>
       {user.role && <Icon>star</Icon>}
     </>
   );

@@ -17,12 +17,23 @@ export function MiniItem(props: MiniItemProps) {
   if (isLoading) return <div>loading...</div>;
   if (!item) return <div>Server error...</div>;
 
+  const rtf = new Intl.RelativeTimeFormat();
+  const today = new Date();
+  function relTime(txt: string) {
+    const days: number = Math.round((new Date(txt) - today) / (3600000 * 24));
+    return rtf.format(days, "days");
+  }
+
   // render data
   return (
-    <Card sx={{ display: "flex", height: "clamp(100px, 30vw, 300px)" }}>
+    <Card sx={{ display: "flex", height: "clamp(100px, 15vw, 300px)", mb: 1 }}>
       <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>
-          <Typography component="div" variant="h6">
+          <Typography
+            component="div"
+            variant="h6"
+            sx={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}
+          >
             <Link href={`/items/${item.id}`}>
               {item.name} ({item.id})
             </Link>
@@ -32,7 +43,9 @@ export function MiniItem(props: MiniItemProps) {
             color="text.secondary"
             component="div"
           >
-            {item.description}
+            Emprunté {relTime(item.loans[0].start)}
+            <br />
+            Date de retour {relTime(item.loans[0].stop)}
           </Typography>
         </CardContent>
       </Box>
