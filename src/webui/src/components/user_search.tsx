@@ -3,6 +3,7 @@ import { fetchUser, qsearchUser } from "../api/calls";
 import { UsersItem } from "../api/models";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import { debounce } from "@mui/material/utils";
 
 interface UserSearchProps {
   setUser: any;
@@ -20,18 +21,21 @@ export function UserSearch(props: UserSearchProps) {
     <Autocomplete
       disablePortal
       options={userChoices}
+      noOptionsText={"Pas d'utilisateur sélectionné"}
       getOptionLabel={(option: UsersItem) => option.name}
       sx={{ width: "90vw", margin: "auto" }}
-      filterOptions={(x) => x}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
       renderInput={(params) => <TextField {...params} label="" />}
       onChange={async (_event: any, newValue: UsersItem | null) => {
-        console.log("onChange");
-        newValue && props.setUser(await fetchUser(newValue.id));
+        if (!newValue) {
+          props.setUser(undefined);
+        } else {
+          props.setUser(await fetchUser(newValue.id));
+        }
       }}
-      onInputChange={(_event, newInputValue) => {
-        console.log("onInputChange");
+      onInputChange={debounce((_event, newInputValue) => {
         setUserInput(newInputValue);
-      }}
+      }, 400)}
     />
   );
 }

@@ -1,28 +1,29 @@
-import Profile from "./components/profile";
-import TopBar from "./components/topbar";
-import { Box, Container } from "@mui/material";
 import { Route, Switch } from "wouter";
+import { TopBar } from "./components/topbar";
 import { Loan } from "./pages/loan";
 import { ItemList } from "./pages/item_list";
-import { UserCreate } from "./pages/user_create";
 import { Item } from "./pages/item_view";
 import { ItemEdit } from "./pages/item_edit";
 import { UserList } from "./pages/user_list";
+import { UserCreate } from "./pages/user_create";
+import { UserView } from "./pages/user_view";
+import { Box, Container } from "@mui/material";
 
 function App() {
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box height="100vh" display="flex" flexDirection="column">
       <TopBar />
 
-      <Container disableGutters={true}>
+      <Container
+        disableGutters={true}
+        sx={{ height: "calc(100vh - 130px)", p: 1 }}
+      >
         <Switch>
-          <Route path="/me" component={Profile} />
-
           <Route path="/users" component={UserList} />
           <Route path="/users/new" component={UserCreate} />
           <Route path="/users/:id">
             {(params) => {
-              return <div>User {params.id}</div>;
+              return <UserView id={parseInt(params.id)} />;
             }}
           </Route>
           <Route path="/items" component={ItemList} />
