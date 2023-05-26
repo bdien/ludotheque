@@ -24,8 +24,8 @@ def qsearch_item(txt: str):
     return list(
         Item.select(Item.id, Item.name)
         .where((Item.name ** f"%{txt}%") | (Item.id ** f"%{txt}%"))
-        .order_by(Item.id.desc())
-        .limit(7)
+        .order_by(Item.id)
+        .limit(10)
         .dicts()
     )
 
@@ -154,8 +154,8 @@ def qsearch_user(txt: str):
     return list(
         User.select(User.id, User.name)
         .where((User.name ** f"%{txt}%") | (User.id ** f"%{txt}%"))
-        .order_by(User.id.desc())
-        .limit(7)
+        .order_by(User.id)
+        .limit(10)
         .dicts()
     )
 

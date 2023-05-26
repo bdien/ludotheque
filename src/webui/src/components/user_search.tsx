@@ -25,6 +25,7 @@ export function UserSearch(props: UserSearchProps) {
       getOptionLabel={(option: UsersItem) => option.name}
       sx={{ width: "90vw", margin: "auto" }}
       isOptionEqualToValue={(option, value) => option.id === value.id}
+      filterOptions={(x) => x}
       renderInput={(params) => <TextField {...params} label="" />}
       onChange={async (_event: any, newValue: UsersItem | null) => {
         if (!newValue) {
