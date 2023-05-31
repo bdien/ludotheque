@@ -49,3 +49,14 @@ export async function qsearchUser(txt: string): Promise<UsersItem[]> {
   const response = await fetch(`${SERVER_URL}/users/qsearch/${txt}`);
   return response.json();
 }
+
+export async function createLoan(
+  user: number,
+  items: number[],
+): Promise<ItemModel> {
+  const response = await fetch(`${SERVER_URL}/loans`, {
+    method: "POST",
+    body: JSON.stringify({ user, items }),
+  });
+  return response.json();
+}
