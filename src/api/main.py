@@ -1,9 +1,10 @@
+import datetime
 import mimetypes
 import logging
 import os
 import shutil
 import peewee
-from pwmodels import Item, Loan, User
+from pwmodels import Item, Loan, User, db
 from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -118,6 +119,39 @@ def get_loans(all: str | None = None, user: str | None = None):
     if all is None:
         loans = loans.where(Loan.status == "out")
     return list(loans.dicts())
+
+
+@app.post("/loans")
+async def create_loan(request: Request):
+    body = await request.json()
+    if ("user" not in body) or ("items" not in body):
+        raise HTTPException(400, "Missing parameters")
+
+    user = User.get_or_none(User.id == body["user"])
+    if not user:
+        raise HTTPException(400, "No such user")
+
+    items = [Item.get_or_none(Item.id == i) for i in body["items"]]
+    if not all(items):
+        raise HTTPException(400, "Cannot find some items")
+
+    topay = len(items) * 0.5
+    topay_fromcredit = min(topay, user.credit)
+    user.credit -= topay_fromcredit
+
+    with db.transaction():
+        today = datetime.date.today()
+        for i in items:
+            Loan.create(
+                user=user,
+                item=i,
+                start=today,
+                stop=today + datetime.timedelta(days=7 * 3),
+                status="out",
+            )
+
+        user.save()
+    return "OK"
 
 
 @app.get("/users/{user_id}")

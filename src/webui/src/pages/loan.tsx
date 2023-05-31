@@ -1,3 +1,4 @@
+import { createLoan } from "../api/calls";
 import { useState } from "react";
 import { UserModel, ItemModel } from "../api/models";
 import { UserSearch } from "../components/user_search";
@@ -5,6 +6,10 @@ import { ItemSearch } from "../components/item_search";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
+
+function submitLoan(user_id: number, objs_id: number[]) {
+  createLoan(user_id, objs_id);
+}
 
 export function Loan() {
   const [user, setUser] = useState<UserModel | null>(null);
@@ -61,6 +66,12 @@ export function Loan() {
         disabled={!items.length}
         color="primary"
         sx={{ width: "90vw", m: 1 }}
+        onClick={() =>
+          submitLoan(
+            user.id,
+            items.map((i) => i.id),
+          )
+        }
       >
         Valider
       </Button>
