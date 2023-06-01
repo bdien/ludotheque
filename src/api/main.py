@@ -4,7 +4,7 @@ import logging
 import os
 import shutil
 import peewee
-from pwmodels import Item, Loan, User, db
+from .pwmodels import Item, Loan, User, db
 from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -18,6 +18,9 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 FAKE_USER = 1
 FAKE_USER_ROLE = "operator"
+
+LOAN_COST = 0.5
+LOAN_TIME_DAYS = 7 * 3
 
 
 @app.get("/items/qsearch/{txt}")
@@ -88,7 +91,7 @@ def get_item(item_id: int, history: int | None = 10):
 
     if items:
         item = items[0]
-        base = model_to_dict(item)
+        base = model_to_dict(item, recurse=False)
         loans = [i.loan for i in items] if hasattr(item, "loan") else []
         base["status"] = "in"
         if loans:
@@ -124,8 +127,9 @@ def get_loans(all: str | None = None, user: str | None = None):
 @app.post("/loans")
 async def create_loan(request: Request):
     body = await request.json()
-    if ("user" not in body) or ("items" not in body):
-        raise HTTPException(400, "Missing parameters")
+    for i in "user", "items", "cost":
+        if i not in body:
+            raise HTTPException(400, f"Missing parameter '{i}'")
 
     user = User.get_or_none(User.id == body["user"])
     if not user:
@@ -135,23 +139,52 @@ async def create_loan(request: Request):
     if not all(items):
         raise HTTPException(400, "Cannot find some items")
 
-    topay = len(items) * 0.5
-    topay_fromcredit = min(topay, user.credit)
-    user.credit -= topay_fromcredit
+    topay_fromcredit = min(body["cost"], user.credit)
 
     with db.transaction():
         today = datetime.date.today()
+
+        # For each item, forget any other loan and create a new one
         for i in items:
+            Loan.update({"status": "in", "stop": today}).where(
+                Loan.id == i, Loan.status == "out"
+            ).execute()
+
             Loan.create(
                 user=user,
                 item=i,
                 start=today,
-                stop=today + datetime.timedelta(days=7 * 3),
+                stop=today + datetime.timedelta(days=LOAN_TIME_DAYS),
                 status="out",
             )
 
-        user.save()
+        # Update user credit
+        if topay_fromcredit:
+            user.credit -= topay_fromcredit
+            user.save()
+
     return "OK"
+
+
+@app.get("/loans/{loan_id}")
+def get_loan(loan_id: int):
+    if loan := Loan.get_or_none(loan_id):
+        return model_to_dict(loan, recurse=False)
+    raise HTTPException(404)
+
+
+@app.get("/loans/{loan_id}/close")
+def close_loan(loan_id: int):
+    loan = Loan.get_or_none(Loan.id == loan_id)
+    if not loan:
+        raise HTTPException(400, "No such loan")
+    if loan.status != "out":
+        raise HTTPException(400, "Already closed")
+
+    loan.stop = datetime.date.today()
+    loan.status = "in"
+    loan.save()
+    return model_to_dict(loan, recurse=False)
 
 
 @app.get("/users/{user_id}")
@@ -159,7 +192,7 @@ def get_user(user_id: int):
     user = User.get_or_none(user_id)
     if not user:
         raise HTTPException(404)
-    ret = model_to_dict(user)
+    ret = model_to_dict(user, recurse=False)
     ret["loans"] = list(
         Loan.select()
         .where(Loan.user == user, Loan.status == "out")
@@ -197,5 +230,5 @@ def qsearch_user(txt: str):
 @app.get("/me")
 def get_myself():
     if user := User.get_or_none(User.id == FAKE_USER):
-        return model_to_dict(user)
+        return model_to_dict(user, recurse=False)
     raise HTTPException(402)
