@@ -3,10 +3,13 @@ import peewee
 from playhouse.db_url import connect
 
 
-db = connect("sqliteext:///ludotheque.db", autoconnect=True)
+db = peewee.DatabaseProxy()
+db.initialize(connect("sqliteext:///ludotheque.db", autoconnect=True))
 
 
-def create_all_tables():
+def create_all_tables(drop=False):
+    if drop:
+        db.drop_tables([User, Item, ItemLink, Loan])
     db.create_tables([User, Item, ItemLink, Loan])
 
 
@@ -29,11 +32,11 @@ class Item(BaseModel):
     name = peewee.CharField()
     description = peewee.TextField(null=True)
     picture = peewee.CharField(null=True)
-    players_min = peewee.IntegerField()
-    players_max = peewee.IntegerField()
-    age = peewee.IntegerField()
-    big = peewee.BooleanField()
-    outside = peewee.BooleanField()
+    players_min = peewee.IntegerField(null=True)
+    players_max = peewee.IntegerField(null=True)
+    age = peewee.IntegerField(null=True)
+    big = peewee.BooleanField(default=False)
+    outside = peewee.BooleanField(default=False)
     created_time = peewee.DateTimeField(default=datetime.datetime.utcnow)
 
 

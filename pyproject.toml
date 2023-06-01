@@ -5,6 +5,8 @@ dev = [
     "ruff>=0.0.265",
     "black>=23.3.0",
     "pre-commit>=3.3.1",
+    "pytest>=7.3.1",
+    "httpx>=0.24.1",
 ]
 [project]
 name = ""
@@ -35,7 +37,7 @@ target-version = "py311"
 max-complexity = 28
 
 [tool.ruff.per-file-ignores]
-"Source/*/tests/*.py" = ["S101"]
+"src/tests_api/*.py" = ["S101"]
 # S101: Use of assert
 
 [tool.pdm.scripts]
