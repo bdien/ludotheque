@@ -4,18 +4,24 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import { useItem } from "../api/hooks";
+import { closeLoan } from "../api/calls";
 import { Link } from "wouter";
+import Button from "@mui/material/Button";
 
 interface MiniItemProps {
   id: number;
 }
 
 export function MiniItem(props: MiniItemProps) {
-  const { item, error, isLoading } = useItem(props.id);
+  const { item, error, isLoading, mutate } = useItem(props.id);
 
   if (error) return <div>failed to load</div>;
   if (isLoading) return <div>loading...</div>;
   if (!item) return <div>Server error...</div>;
+
+  function close_loan(loanId: number) {
+    closeLoan(loanId).then((data) => mutate(data));
+  }
 
   const rtf = new Intl.RelativeTimeFormat();
   const today = new Date();
@@ -38,15 +44,26 @@ export function MiniItem(props: MiniItemProps) {
               {item.name} ({item.id})
             </Link>
           </Typography>
-          <Typography
-            variant="subtitle1"
-            color="text.secondary"
-            component="div"
-          >
-            Emprunté {relTime(item.loans[0].start)}
-            <br />
-            Date de retour {relTime(item.loans[0].stop)}
-          </Typography>
+          {item.loans && (
+            <>
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                component="div"
+              >
+                Date de retour {relTime(item.loans[0].stop)}
+              </Typography>
+              {item.loans[0].status == "out" && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={() => close_loan(item.loans[0].id)}
+                >
+                  Rendre
+                </Button>
+              )}
+            </>
+          )}
         </CardContent>
       </Box>
       <CardMedia
