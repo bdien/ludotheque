@@ -60,3 +60,8 @@ export async function createLoan(
   });
   return response.json();
 }
+
+export async function closeLoan(loanId: number): Promise<ItemModel> {
+  const response = await fetch(`${SERVER_URL}/loans/${loanId}/close`);
+  return response.json();
+}

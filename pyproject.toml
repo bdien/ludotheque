@@ -9,9 +9,8 @@ dev = [
     "httpx>=0.24.1",
 ]
 [project]
-name = ""
-version = ""
-description = ""
+name = "api"
+description = "Ludotheque"
 authors = [
     {name = "Benoît", email = "benoit.dien@gmail.com"},
 ]
@@ -24,6 +23,10 @@ dependencies = [
 ]
 requires-python = ">=3.11"
 license = {text = "GPL2"}
+dynamic = [ "version" ]
+
+[tool.pdm.version]
+source = "scm"
 
 [tool.ruff]
 select = ["E", "F", "B", "RUF", "UP", "SIM", "S"]
@@ -43,3 +46,6 @@ max-complexity = 28
 [tool.pdm.scripts]
 api = {shell = "cd src/api && uvicorn main:app --reload"}
 webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
+
+[tool.pytest.ini_options]
+addopts = "--ignore=__pypackages__"

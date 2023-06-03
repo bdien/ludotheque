@@ -4,7 +4,7 @@ import logging
 import os
 import shutil
 import peewee
-from .pwmodels import Item, Loan, User, db
+from api.pwmodels import Item, Loan, User, db
 from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
