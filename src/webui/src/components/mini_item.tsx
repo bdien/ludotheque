@@ -24,11 +24,15 @@ export function MiniItem(props: MiniItemProps) {
   }
 
   const rtf = new Intl.RelativeTimeFormat();
-  const today = new Date();
+  const today = new Date().valueOf();
   function relTime(txt: string) {
-    const days: number = Math.round((new Date(txt) - today) / (3600000 * 24));
+    const days: number = Math.round(
+      (new Date(txt).valueOf() - today) / (3600000 * 24),
+    );
     return rtf.format(days, "days");
   }
+
+  const last_loan = item.loans ? item.loans[0] : undefined;
 
   // render data
   return (
@@ -44,20 +48,20 @@ export function MiniItem(props: MiniItemProps) {
               {item.name} ({item.id})
             </Link>
           </Typography>
-          {item.loans && (
+          {last_loan && (
             <>
               <Typography
                 variant="subtitle2"
                 color="text.secondary"
                 component="div"
               >
-                Date de retour {relTime(item.loans[0].stop)}
+                Date de retour {relTime(last_loan.stop)}
               </Typography>
-              {item.loans[0].status == "out" && (
+              {last_loan.status == "out" && (
                 <Button
                   size="small"
                   variant="contained"
-                  onClick={() => close_loan(item.loans[0].id)}
+                  onClick={() => close_loan(last_loan.id)}
                 >
                   Rendre
                 </Button>
@@ -69,7 +73,7 @@ export function MiniItem(props: MiniItemProps) {
       <CardMedia
         component="img"
         sx={{ width: "clamp(150px, 20vw, 300px)" }}
-        image={"/img/" + (item.picture || "notavailable.png")}
+        image={"/storage/img/" + (item.picture || "notavailable.png")}
       />
     </Card>
   );

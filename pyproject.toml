@@ -44,7 +44,9 @@ max-complexity = 28
 # S101: Use of assert
 
 [tool.pdm.scripts]
+build = {shell = "cd src/webui && pnpm run build"}
 api = {shell = "cd src/api && uvicorn main:app --reload"}
+api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
 webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
 
 [tool.pytest.ini_options]

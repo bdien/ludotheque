@@ -38,7 +38,7 @@ export function UserView(props: UserViewProps) {
         </Grid>
         <Grid>
           <Typography variant="h4">{user.name}</Typography>
-          <div>Créé le {user.created_time}</div>
+          {user.created_time && <div>Créé le {user.created_time}</div>}
           <div>{user?.loans?.length} Prêts</div>
           <div>Credit sur la carte: {user?.credit}€</div>
         </Grid>

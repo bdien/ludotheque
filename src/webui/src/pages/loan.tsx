@@ -7,8 +7,8 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 
-function submitLoan(user_id: number, objs_id: number[]) {
-  createLoan(user_id, objs_id);
+function submitLoan(user_id: number, objs_id: number[], topay: number) {
+  createLoan(user_id, objs_id, topay);
 }
 
 export function Loan() {
@@ -70,6 +70,7 @@ export function Loan() {
           submitLoan(
             user.id,
             items.map((i) => i.id),
+            topay,
           )
         }
       >
