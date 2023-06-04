@@ -23,7 +23,7 @@ export function UserSearch(props: UserSearchProps) {
       options={userChoices}
       noOptionsText={"Pas d'utilisateur sélectionné"}
       getOptionLabel={(option: UsersItem) => option.name}
-      sx={{ width: "90vw", margin: "auto" }}
+      sx={{ width: "90%", margin: "auto" }}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       filterOptions={(x) => x}
       renderInput={(params) => <TextField {...params} label="" />}
