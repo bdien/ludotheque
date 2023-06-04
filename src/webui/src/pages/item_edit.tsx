@@ -50,19 +50,29 @@ const marks = [
   },
 ];
 
+type FormValues = {
+  players: number[];
+  name: string;
+  description: string;
+  age: number;
+};
+
 export function ItemEdit(props: ItemEditProps) {
   const { item, error, mutate } = useItem(props.id);
   const [imgFile, setImgFile] = useState<File | null | undefined>(undefined);
-  const { register, control, handleSubmit } = useForm<ItemModel>();
+  const { register, control, handleSubmit } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
 
-  async function onSubmit(data: Object) {
+  async function onSubmit(item: ItemModel, data: FormValues) {
     if (!item?.id) return;
 
-    data.players_min = data.players[0];
-    data.players_max = data.players[1];
+    item.players_min = data.players[0];
+    item.players_max = data.players[1];
+    item.name = data.name;
+    item.description = data.description;
+    item.age = data.age;
 
-    await updateItem(item?.id ?? 0, data);
+    await updateItem(item?.id ?? 0, item);
 
     // Remove previous picture
     if (imgFile === null && item?.picture) deleteItemPicture(item.id);
@@ -75,7 +85,7 @@ export function ItemEdit(props: ItemEditProps) {
       // await reader.readAsBinaryString(imgFile);
     }
 
-    mutate({ ...data });
+    mutate({ ...item });
     navigate(`/items/${item?.id}`);
   }
 
@@ -94,7 +104,7 @@ export function ItemEdit(props: ItemEditProps) {
       >
         <ImageChooser
           onImageChange={setImgFile}
-          src={item.picture && "/img/" + item.picture}
+          src={item.picture && "/storage/img/" + item.picture}
         />
       </Box>
 
@@ -146,7 +156,9 @@ export function ItemEdit(props: ItemEditProps) {
               <TableCell>Joueurs</TableCell>
               <TableCell>
                 <Controller
-                  defaultValue={[item.players_min ?? 1, item.players_max ?? 4]}
+                  defaultValue={
+                    [item.players_min ?? 1, item.players_max ?? 4] as number[]
+                  }
                   control={control}
                   name="players"
                   render={({ field }) => (
@@ -166,7 +178,9 @@ export function ItemEdit(props: ItemEditProps) {
         </Table>
       </TableContainer>
 
-      <Button onClick={handleSubmit(onSubmit)}>Submit</Button>
+      <Button onClick={handleSubmit((formdata) => onSubmit(item, formdata))}>
+        Submit
+      </Button>
     </>
   );
 }

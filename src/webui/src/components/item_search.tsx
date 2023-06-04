@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchItem, qsearchItem } from "../api/calls";
+import { qsearchItem } from "../api/calls";
 import { ItemModel } from "../api/models";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";

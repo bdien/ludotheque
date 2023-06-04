@@ -53,10 +53,11 @@ export async function qsearchUser(txt: string): Promise<UsersItem[]> {
 export async function createLoan(
   user: number,
   items: number[],
+  cost: number,
 ): Promise<ItemModel> {
   const response = await fetch(`${SERVER_URL}/loans`, {
     method: "POST",
-    body: JSON.stringify({ user, items }),
+    body: JSON.stringify({ user, items, cost }),
   });
   return response.json();
 }

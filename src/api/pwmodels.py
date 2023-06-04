@@ -1,10 +1,12 @@
+import os
 import datetime
 import peewee
 from playhouse.db_url import connect
 
 
 db = peewee.DatabaseProxy()
-db.initialize(connect("sqliteext:///ludotheque.db", autoconnect=True))
+dbpath = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
+db.initialize(connect(f"sqliteext:///{dbpath}/ludotheque.db", autoconnect=True))
 
 
 def create_all_tables(drop=False):

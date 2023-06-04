@@ -3,7 +3,6 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Chip from "@mui/material/Chip";
 import { ItemModel } from "../api/models";
 import { Link } from "wouter";
-import Box from "@mui/material/Box";
 import { AgeChip } from "../components/age_chip";
 import { TextField } from "@mui/material";
 import { useState } from "react";
