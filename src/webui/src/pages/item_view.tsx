@@ -53,7 +53,7 @@ export function Item(props: ItemProps) {
       <Box
         component="img"
         sx={{
-          width: "100vw",
+          width: "100%",
           height: "40vh",
           objectFit: "contain",
         }}

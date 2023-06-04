@@ -1,3 +1,4 @@
+import { useLocation } from "wouter";
 import { createLoan } from "../api/calls";
 import { useState } from "react";
 import { UserModel, ItemModel } from "../api/models";
@@ -65,7 +66,7 @@ export function Loan() {
         variant="contained"
         disabled={!items.length}
         color="primary"
-        sx={{ width: "90vw", m: 1 }}
+        sx={{ width: "90%", m: 1 }}
         onClick={() =>
           submitLoan(
             user.id,
