@@ -23,7 +23,7 @@ export function ItemSearch(props: ItemSearchProps) {
       options={itemChoices}
       noOptionsText={"Pas d'objet sélectionné"}
       getOptionLabel={(option: ItemModel) => `[${option.id}] ${option.name}`}
-      sx={{ width: "90%", margin: "auto" }}
+      sx={{ width: "100%", pl: 2, pr: 2 }}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       filterOptions={(x) => x}
       renderInput={(params) => <TextField {...params} label="" />}
