@@ -7,17 +7,24 @@ import { ItemEdit } from "./pages/item_edit";
 import { UserList } from "./pages/user_list";
 import { UserCreate } from "./pages/user_create";
 import { UserView } from "./pages/user_view";
-import { Box, Container } from "@mui/material";
+import { Box, Toolbar } from "@mui/material";
+import { Main } from "./pages/main";
 
 function App() {
   return (
-    <Box height="100vh" display="flex" flexDirection="column">
-      <TopBar />
+    <Box height="100vh" display="flex">
+      <TopBar width={220} />
 
-      <Container
-        disableGutters={true}
-        sx={{ height: "calc(100vh - 130px)", p: 1 }}
+      <Box
+        component="main"
+        sx={{
+          height: "calc(100vh - 130px)",
+          flexGrow: 1,
+          p: 2,
+          width: { sm: `calc(100% - 240px)` },
+        }}
       >
+        <Toolbar />
         <Switch>
           <Route path="/users" component={UserList} />
           <Route path="/users/new" component={UserCreate} />
@@ -37,9 +44,10 @@ function App() {
               return <ItemEdit id={parseInt(params.id)} />;
             }}
           </Route>
-          <Route path="/" component={Loan} />
+          <Route path="/loans/new" component={Loan} />
+          <Route path="/" component={Main} />
         </Switch>
-      </Container>
+      </Box>
     </Box>
   );
 }
