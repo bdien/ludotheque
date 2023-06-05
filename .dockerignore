@@ -1,3 +1,6 @@
-node_modules
-__pypackages__
+**/node_modules
+**/__pypackages__
 storage
+src/webui/public/storage
+src/webui/dist
+.git

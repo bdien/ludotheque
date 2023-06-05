@@ -6,7 +6,7 @@ RUN apk add nodejs
 RUN wget -qO- https://get.pnpm.io/install.sh  | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
 ENV PATH="$PATH:/root/.local/share/pnpm"
 ADD . /app
-RUN cd /app/src/webui && pnpm run build
+RUN cd /app/src/webui && pnpm install && pnpm run build
 
 # Now build final image
 FROM alpine:3.18
