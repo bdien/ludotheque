@@ -1,4 +1,3 @@
-import { useLocation } from "wouter";
 import { createLoan } from "../api/calls";
 import { useState } from "react";
 import { UserModel, ItemModel } from "../api/models";

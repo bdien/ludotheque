@@ -10,6 +10,7 @@ RUN cd /app/src/webui && pnpm run build
 
 # Now build final image
 FROM alpine:3.18
+
 ENV LUDO_STORAGE /app/storage
 VOLUME /app/storage
 

@@ -1,0 +1,18 @@
+# fly.toml app configuration file generated for ludotheque on 2023-06-05T09:19:28+02:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "ludotheque"
+primary_region = "cdg"
+
+[[mounts]]
+  source = "ludotheque_storage"
+  destination = "/app/storage"
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 1
