@@ -1,3 +1,4 @@
+import { useLocation } from "wouter";
 import { createLoan } from "../api/calls";
 import { useState } from "react";
 import { UserModel, ItemModel } from "../api/models";
@@ -8,10 +9,11 @@ import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 
 function submitLoan(user_id: number, objs_id: number[], topay: number) {
-  createLoan(user_id, objs_id, topay);
+  return createLoan(user_id, objs_id, topay);
 }
 
 export function Loan() {
+  const [_location, setLocation] = useLocation();
   const [user, setUser] = useState<UserModel | null>(null);
   const [items, setItems] = useState<ItemModel[]>([]);
 
@@ -65,13 +67,15 @@ export function Loan() {
         variant="contained"
         disabled={!items.length}
         color="primary"
-        sx={{ width: "90%", m: 1 }}
+        sx={{ width: "100%", p: 2 }}
         onClick={() =>
           submitLoan(
             user.id,
             items.map((i) => i.id),
             topay,
-          )
+          ).then(() => {
+            setLocation(`/users/${user.id}`);
+          })
         }
       >
         Valider
