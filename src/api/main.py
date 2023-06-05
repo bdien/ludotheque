@@ -22,6 +22,8 @@ FAKE_USER_ROLE = "operator"
 LOAN_COST = 0.5
 LOAN_TIME_DAYS = 7 * 3
 
+LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
+
 
 @app.get("/items/qsearch/{txt}")
 def qsearch_item(txt: str):
@@ -53,14 +55,14 @@ async def modify_item_picture(item_id: int, file: UploadFile):
     # Save new image to disk
     extension = mimetypes.guess_extension(file.content_type, strict=False)
     filename = f"jeu_{item_id:05d}{extension}"
-    with open(f"img/{filename}", "wb+") as file_object:
+    with open(f"{LUDO_STORAGE}/img/{filename}", "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
 
     # Delete previous image and set new one in DB
     item = Item.get_by_id(item_id)
     if item.picture and item.picture != filename:
-        print(f"Unlink img/{item.picture}")
-        os.unlink(f"img/{item.picture}")
+        print(f"Unlink {LUDO_STORAGE}/img/{item.picture}")
+        os.unlink(f"{LUDO_STORAGE}/img/{item.picture}")
     item.picture = filename
     item.save()
 
@@ -69,7 +71,7 @@ async def modify_item_picture(item_id: int, file: UploadFile):
 def delete_item_picture(item_id: int):
     item = Item.get_by_id(item_id)
     if item.picture:
-        os.unlink(f"img/{item.picture}")
+        os.unlink(f"{LUDO_STORAGE}/img/{item.picture}")
     item.picture = None
     item.save()
 
@@ -110,6 +112,7 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
         query = query.limit(nb)
     if q:
         query = query.where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
+
     return list(query.order_by(Item.id).dicts())
 
 
