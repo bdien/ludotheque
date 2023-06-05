@@ -78,6 +78,36 @@ export function TopBar(props: TopBarProps) {
           </ListItem>
         )}
         <hr />
+        <ListItem
+          component={Link}
+          to="/loans/new"
+          onClick={() => setIsDrawerOpen(false)}
+        >
+          <ListItemIcon>
+            <Icon>playlist_add</Icon>
+          </ListItemIcon>
+          <ListItemText primary="Nouvel emprunt" />
+        </ListItem>
+        <ListItem
+          component={Link}
+          to="/users/new"
+          onClick={() => setIsDrawerOpen(false)}
+        >
+          <ListItemIcon>
+            <Icon>person_add_alt1</Icon>
+          </ListItemIcon>
+          <ListItemText primary="Nouvel adhérent" />
+        </ListItem>
+        <ListItem
+          component={Link}
+          to="/items/new"
+          onClick={() => setIsDrawerOpen(false)}
+        >
+          <ListItemIcon>
+            <Icon>post_add</Icon>
+          </ListItemIcon>
+          <ListItemText primary="Nouvel objet" />
+        </ListItem>
       </List>
     </>
   );
