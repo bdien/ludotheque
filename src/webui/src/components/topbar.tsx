@@ -106,7 +106,7 @@ export function TopBar(props: TopBarProps) {
           <ListItemIcon>
             <Icon>post_add</Icon>
           </ListItemIcon>
-          <ListItemText primary="Nouvel objet" />
+          <ListItemText primary="Nouveau jeu" />
         </ListItem>
       </List>
     </>

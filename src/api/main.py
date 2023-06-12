@@ -17,7 +17,7 @@ app.add_middleware(CORSMiddleware, allow_origins="*")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 FAKE_USER = 1
-FAKE_USER_ROLE = "operator"
+FAKE_USER_ROLE = "operator"  # Could be user, operator, admin
 
 LOAN_COST = 0.5
 LOAN_TIME_DAYS = 7 * 3
@@ -36,6 +36,30 @@ def qsearch_item(txt: str):
     )
 
 
+@app.post("/items")
+async def create_item(request: Request):
+    body = await request.json()
+
+    # Limit to selected properties
+    create_params = {
+        k: v
+        for k, v in body.items()
+        if k
+        in (
+            "name",
+            "description",
+            "age",
+            "players_min",
+            "players_max",
+            "big",
+            "outside",
+        )
+    }
+
+    item = Item.create(**create_params)
+    return model_to_dict(item)
+
+
 @app.post("/items/{item_id}")
 async def modify_item(item_id: int, request: Request):
     body = await request.json()
@@ -44,7 +68,16 @@ async def modify_item(item_id: int, request: Request):
     update_params = {
         k: v
         for k, v in body.items()
-        if k in ["name", "description", "age", "players_min", "players_max"]
+        if k
+        in (
+            "name",
+            "description",
+            "age",
+            "players_min",
+            "players_max",
+            "big",
+            "outside",
+        )
     }
 
     Item.update(**update_params).where(Item.id == item_id).execute()
@@ -78,7 +111,7 @@ def delete_item_picture(item_id: int):
 
 @app.get("/items/{item_id}")
 def get_item(item_id: int, history: int | None = 10):
-    if FAKE_USER_ROLE != "operator":
+    if FAKE_USER_ROLE == "user":
         history = 1
 
     # Retrieve item + status
@@ -99,7 +132,7 @@ def get_item(item_id: int, history: int | None = 10):
         if loans:
             base["status"] = loans[0].status
             base["return"] = loans[0].stop
-            if FAKE_USER_ROLE == "operator":
+            if FAKE_USER_ROLE in ("operator", "admin"):
                 base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
         return base
     raise HTTPException(404)
@@ -190,8 +223,36 @@ def close_loan(loan_id: int):
     return model_to_dict(loan, recurse=False)
 
 
+@app.post("/users")
+async def create_user(request: Request):
+    body = await request.json()
+
+    # Limit to selected properties
+    create_params = {
+        k: v for k, v in body.items() if k in ("name", "email", "role", "credit")
+    }
+
+    user = User.create(**create_params)
+    return model_to_dict(user)
+
+
+@app.post("/users/{user_id}")
+async def modify_user(user_id: int, request: Request):
+    body = await request.json()
+
+    # Limit to selected properties
+    update_params = {
+        k: v for k, v in body.items() if k in ("name", "email", "role", "credit")
+    }
+
+    User.update(**update_params).where(User.id == user_id).execute()
+
+
 @app.get("/users/{user_id}")
 def get_user(user_id: int):
+    if FAKE_USER_ROLE in ("operator", "admin"):
+        HTTPException(403)
+
     user = User.get_or_none(user_id)
     if not user:
         raise HTTPException(404)
@@ -206,21 +267,36 @@ def get_user(user_id: int):
 
 
 @app.get("/users")
-def get_users():
-    return list(
+def get_users(nb: int = 0, sort: str | None = None, q: str | None = None):
+    if FAKE_USER_ROLE in ("operator", "admin"):
+        HTTPException(403)
+
+    query = (
         User.select(
             User,
             peewee.fn.Count(Loan).alias("loans"),
             peewee.fn.Min(Loan.stop).alias("oldest_loan"),
         )
-        .join(Loan, peewee.JOIN.LEFT_OUTER)
-        .where(Loan.status == "out")
-        .dicts()
+        .join(
+            Loan,
+            peewee.JOIN.LEFT_OUTER,
+            on=((Loan.user == User.id) & (Loan.status == "out")),
+        )
+        .group_by(User.id)
     )
+
+    if nb:
+        query = query.limit(nb)
+    if q:
+        query = query.where((User.name ** f"%{q}%") | (User.email ** f"%{q}%"))
+
+    return list(query.order_by(User.id).dicts())
 
 
 @app.get("/users/qsearch/{txt}")
 def qsearch_user(txt: str):
+    if FAKE_USER_ROLE in ("operator", "admin"):
+        HTTPException(403)
     return list(
         User.select(User.id, User.name)
         .where((User.name ** f"%{txt}%") | (User.id ** f"%{txt}%"))

@@ -33,7 +33,7 @@ export function UserView(props: UserViewProps) {
         component={Paper}
         sx={{ m: 0, mt: 1, mb: 2 }}
       >
-        <Grid xs={1} textAlign={"center"}>
+        <Grid textAlign={"center"}>
           <Icon>person</Icon>
         </Grid>
         <Grid>

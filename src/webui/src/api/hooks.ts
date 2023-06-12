@@ -28,7 +28,27 @@ export function useAccount() {
   };
 }
 
-export function useItem(id: number) {
+const DEFAULT_ITEM: ItemModel = {
+  id: 0,
+  age: 8,
+  big: false,
+  description: "",
+  name: "",
+  outside: false,
+  players_max: 4,
+  players_min: 1,
+};
+
+export function useItem(id?: number) {
+  if (!id) {
+    return {
+      item: DEFAULT_ITEM,
+      isLoading: false,
+      error: false,
+      mutate: undefined,
+    };
+  }
+
   const { data, error, isLoading, mutate } = useSWR<ItemModel>(
     `${SERVER_URL}/items/${id}`,
     fetcher,

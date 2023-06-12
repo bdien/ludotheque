@@ -4,7 +4,7 @@ import logging
 import re
 import collections
 import os
-from pwmodels import Item, create_all_tables
+from api.pwmodels import Item, create_all_tables
 
 Jeu = collections.namedtuple(
     "Jeu", "id, photo, nom, type, editeur, joueurs_min, joueurs_max, age, resume"

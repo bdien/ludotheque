@@ -1,12 +1,14 @@
+import { Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import FormControl from "@mui/material/FormControl";
+import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 
 export function UserCreate() {
   return (
-    <div>
-      <h2>Création d'un compte</h2>
-      <FormControl sx={{ width: "90vw", margin: "5vw" }}>
+    <>
+      <Typography variant="h5">Nouvel adhérent</Typography>
+      <FormControl sx={{ width: "100%", p: 2 }}>
         <TextField
           label="Nom du compte"
           fullWidth
@@ -14,11 +16,18 @@ export function UserCreate() {
           margin="normal"
         />
         <TextField label="Email" margin="normal" />
-        <TextField label="Crédit" margin="normal" type="number" />
+        <TextField
+          label="Crédit"
+          margin="normal"
+          type="number"
+          InputProps={{
+            endAdornment: <InputAdornment position="end">€</InputAdornment>,
+          }}
+        />
         <Button variant="contained" size="large" style={{ marginTop: "20px" }}>
           Valider
         </Button>
       </FormControl>
-    </div>
+    </>
   );
 }

@@ -7,6 +7,7 @@ import { ItemSearch } from "../components/item_search";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
+import Typography from "@mui/material/Typography";
 
 function submitLoan(user_id: number, objs_id: number[], topay: number) {
   return createLoan(user_id, objs_id, topay);
@@ -18,9 +19,14 @@ export function Loan() {
   const [items, setItems] = useState<ItemModel[]>([]);
 
   let html = (
-    <Box sx={{ mb: 2 }}>
-      Personne: <UserSearch setUser={setUser} />
-    </Box>
+    <>
+      <Typography variant="h5" gutterBottom>
+        Nouvel emprunt
+      </Typography>
+      <Box sx={{ mb: 2 }}>
+        Adhérent: <UserSearch setUser={setUser} />
+      </Box>
+    </>
   );
 
   if (!user) {

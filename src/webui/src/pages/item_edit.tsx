@@ -1,7 +1,12 @@
 import { Controller, useForm } from "react-hook-form";
 import { useItem } from "../api/hooks";
 import { ItemModel } from "../api/models";
-import { deleteItemPicture, updateItem, updateItemPicture } from "../api/calls";
+import {
+  createItem,
+  deleteItemPicture,
+  updateItem,
+  updateItemPicture,
+} from "../api/calls";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -18,9 +23,12 @@ import Button from "@mui/material/Button";
 import { useLocation } from "wouter";
 import { ImageChooser } from "../components/image_chooser";
 import { useState } from "react";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import FormControl from "@mui/material/FormControl";
 
 interface ItemEditProps {
-  id: number;
+  id?: number;
 }
 
 const marks = [
@@ -55,6 +63,8 @@ type FormValues = {
   name: string;
   description: string;
   age: number;
+  big: boolean;
+  outside: boolean;
 };
 
 export function ItemEdit(props: ItemEditProps) {
@@ -64,28 +74,31 @@ export function ItemEdit(props: ItemEditProps) {
   const [_location, navigate] = useLocation();
 
   async function onSubmit(item: ItemModel, data: FormValues) {
-    if (!item?.id) return;
-
     item.players_min = data.players[0];
     item.players_max = data.players[1];
     item.name = data.name;
     item.description = data.description;
     item.age = data.age;
+    item.big = data.big;
+    item.outside = data.outside;
 
-    await updateItem(item?.id ?? 0, item);
+    if (item?.id) {
+      await updateItem(item?.id ?? 0, item);
 
-    // Remove previous picture
-    if (imgFile === null && item?.picture) deleteItemPicture(item.id);
+      // Remove previous picture
+      if (imgFile === null && item?.picture) deleteItemPicture(item.id);
+    } else {
+      item = await createItem(item);
+    }
 
     // Upload new picture
     if (imgFile) {
       await updateItemPicture(item.id, imgFile);
-      // const reader = new FileReader();
-      // reader.onload = async e => await updateItemPicture(item.id, imgFile);
-      // await reader.readAsBinaryString(imgFile);
     }
 
-    mutate({ ...item });
+    if (mutate) {
+      mutate({ ...item });
+    }
     navigate(`/items/${item?.id}`);
   }
 
@@ -95,92 +108,122 @@ export function ItemEdit(props: ItemEditProps) {
   // render data
   return (
     <>
-      <Box
-        sx={{
-          width: "100vw",
-          height: "40vh",
-          objectFit: "contain",
-        }}
-      >
-        <ImageChooser
-          onImageChange={setImgFile}
-          src={item.picture && "/storage/img/" + item.picture}
-        />
-      </Box>
-
-      <TableContainer component={Paper}>
-        <Table
-          size="small"
+      <FormControl sx={{ width: "100%", p: 2 }}>
+        <Box
           sx={{
-            [`& .${tableCellClasses.root}`]: {
-              borderBottom: "none",
-            },
+            width: "100%",
+            height: "40vh",
+            objectFit: "contain",
           }}
         >
-          <TableBody>
-            <TableRow>
-              <TableCell>Nom</TableCell>
-              <TableCell>
-                <TextField
-                  fullWidth
-                  defaultValue={item.name}
-                  {...register("name")}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Description</TableCell>
-              <TableCell>
-                <TextField
-                  fullWidth
-                  multiline
-                  minRows={3}
-                  defaultValue={item.description}
-                  {...register("description")}
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Age</TableCell>
-              <TableCell>
-                <Select defaultValue={item.age} {...register("age")}>
-                  {[0, 2, 4, 6, 8, 10].map((i) => (
-                    <MenuItem dense key={i} value={i}>
-                      <AgeChip age={i} size="medium" />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Joueurs</TableCell>
-              <TableCell>
-                <Controller
-                  defaultValue={
-                    [item.players_min ?? 1, item.players_max ?? 4] as number[]
-                  }
-                  control={control}
-                  name="players"
-                  render={({ field }) => (
-                    <Slider
-                      {...field}
-                      valueLabelDisplay="auto"
-                      min={1}
-                      max={16}
-                      step={1}
-                      marks={marks}
-                    />
-                  )}
-                />
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </TableContainer>
+          <ImageChooser
+            onImageChange={setImgFile}
+            src={item.picture && "/storage/img/" + item.picture}
+          />
+        </Box>
 
-      <Button onClick={handleSubmit((formdata) => onSubmit(item, formdata))}>
-        Submit
-      </Button>
+        <TableContainer component={Paper}>
+          <Table
+            size="small"
+            sx={{
+              [`& .${tableCellClasses.root}`]: {
+                borderBottom: "none",
+              },
+            }}
+          >
+            <TableBody>
+              <TableRow>
+                <TableCell>Nom</TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    defaultValue={item.name}
+                    spellCheck={true}
+                    {...register("name")}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Description</TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    spellCheck={true}
+                    multiline
+                    minRows={2}
+                    defaultValue={item.description}
+                    {...register("description")}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Age</TableCell>
+                <TableCell>
+                  <Select defaultValue={item.age} {...register("age")}>
+                    {[0, 2, 4, 6, 8, 10].map((i) => (
+                      <MenuItem dense key={i} value={i}>
+                        <AgeChip age={i} size="medium" />
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Joueurs</TableCell>
+                <TableCell>
+                  <Controller
+                    defaultValue={
+                      [item.players_min ?? 1, item.players_max ?? 4] as number[]
+                    }
+                    control={control}
+                    name="players"
+                    render={({ field }) => (
+                      <Slider
+                        {...field}
+                        valueLabelDisplay="auto"
+                        min={1}
+                        max={16}
+                        step={1}
+                        marks={marks}
+                      />
+                    )}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Extra</TableCell>
+                <TableCell>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={item.outside}
+                        {...register("outside")}
+                      />
+                    }
+                    label="Plein Air"
+                  />
+                  <br />
+                  <FormControlLabel
+                    control={
+                      <Checkbox checked={item.big} {...register("big")} />
+                    }
+                    label="Surdimensionné"
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Button
+          variant="contained"
+          size="large"
+          style={{ marginTop: "20px" }}
+          onClick={handleSubmit((formdata) => onSubmit(item, formdata))}
+        >
+          {item.id == 0 ? "Créer" : "Modifier"}
+        </Button>
+      </FormControl>
     </>
   );
 }

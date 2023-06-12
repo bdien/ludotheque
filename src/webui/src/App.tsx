@@ -1,8 +1,8 @@
 import { Route, Switch } from "wouter";
 import { TopBar } from "./components/topbar";
 import { Loan } from "./pages/loan";
-import { ItemList } from "./pages/item_list";
 import { Item } from "./pages/item_view";
+import { ItemList } from "./pages/item_list";
 import { ItemEdit } from "./pages/item_edit";
 import { UserList } from "./pages/user_list";
 import { UserCreate } from "./pages/user_create";
@@ -22,6 +22,7 @@ function App() {
           flexGrow: 1,
           p: 2,
           width: { sm: `calc(100% - 240px)` },
+          overflowX: "clip",
         }}
       >
         <Toolbar />
@@ -34,6 +35,11 @@ function App() {
             }}
           </Route>
           <Route path="/items" component={ItemList} />
+          <Route path="/items/new">
+            {() => {
+              return <ItemEdit />;
+            }}
+          </Route>
           <Route path="/items/:id">
             {(params) => {
               return <Item id={parseInt(params.id)} />;

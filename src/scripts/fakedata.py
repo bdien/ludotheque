@@ -1,5 +1,5 @@
 import datetime
-from pwmodels import User, Item, Loan, create_all_tables
+from api.pwmodels import User, Item, Loan, create_all_tables
 
 
 create_all_tables()
