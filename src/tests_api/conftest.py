@@ -17,8 +17,10 @@ def dbtables():
 
     # Note: Memory does not seem to exists for multiple connections
     with tempfile.NamedTemporaryFile() as tmpfile:
+        logging.getLogger("peewee").setLevel(logging.INFO)
         database = peewee.SqliteDatabase(tmpfile.name, autoconnect=True)
         api.pwmodels.db.initialize(database)
 
         api.pwmodels.create_all_tables()
+        logging.getLogger("peewee").setLevel(logging.DEBUG)
         yield None

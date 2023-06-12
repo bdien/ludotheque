@@ -7,6 +7,7 @@ dev = [
     "pre-commit>=3.3.1",
     "pytest>=7.3.1",
     "httpx>=0.24.1",
+    "pytest-cov>=4.1.0",
 ]
 [project]
 name = "api"
@@ -50,4 +51,4 @@ api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
 webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
 
 [tool.pytest.ini_options]
-addopts = "--ignore=__pypackages__"
+addopts = "--ignore=__pypackages__ --cov=api --cov-report html"

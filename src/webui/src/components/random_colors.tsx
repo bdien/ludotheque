@@ -18,8 +18,11 @@ const colors = [
 export function RandomColors(props: RandomColorsProp) {
   return (
     <>
-      {[...props.txt].map((i) => (
-        <span style={{ color: colors[~~(Math.random() * colors.length)] }}>
+      {[...props.txt].map((i, idx) => (
+        <span
+          key={idx}
+          style={{ color: colors[~~(Math.random() * colors.length)] }}
+        >
           {i}
         </span>
       ))}

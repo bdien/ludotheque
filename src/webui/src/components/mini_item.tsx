@@ -20,7 +20,9 @@ export function MiniItem(props: MiniItemProps) {
   if (!item) return <div>Server error...</div>;
 
   function close_loan(loanId: number) {
-    closeLoan(loanId).then((data) => mutate(data));
+    closeLoan(loanId).then((data) => {
+      mutate && mutate(data);
+    });
   }
 
   const rtf = new Intl.RelativeTimeFormat();
