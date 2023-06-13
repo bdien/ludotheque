@@ -63,7 +63,7 @@ export function TopBar(props: TopBarProps) {
           <ListItemIcon>
             <Icon>list</Icon>
           </ListItemIcon>
-          <ListItemText primary="Liste de Jeux" />
+          <ListItemText primary="Liste des Jeux" />
         </ListItem>
         {account && (
           <ListItem
@@ -87,6 +87,17 @@ export function TopBar(props: TopBarProps) {
             <Icon>playlist_add</Icon>
           </ListItemIcon>
           <ListItemText primary="Nouvel emprunt" />
+        </ListItem>
+        <hr />
+        <ListItem
+          component={Link}
+          to="/users"
+          onClick={() => setIsDrawerOpen(false)}
+        >
+          <ListItemIcon>
+            <Icon>list</Icon>
+          </ListItemIcon>
+          <ListItemText primary="Liste adhérents" />
         </ListItem>
         <ListItem
           component={Link}

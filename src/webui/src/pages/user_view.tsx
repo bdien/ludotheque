@@ -5,6 +5,8 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import { Typography } from "@mui/material";
+import Fab from "@mui/material/Fab";
+import { Link } from "wouter";
 
 interface UserViewProps {
   id: number;
@@ -45,6 +47,21 @@ export function UserView(props: UserViewProps) {
       </Grid>
       <Box component={Paper}></Box>
       {user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)}
+
+      {/* Edit button */}
+      <Link href={`/users/${user.id}/edit`}>
+        <Fab
+          color="primary"
+          aria-label="edit"
+          sx={{
+            position: "fixed",
+            bottom: (theme) => theme.spacing(2),
+            right: (theme) => theme.spacing(2),
+          }}
+        >
+          <Icon>edit</Icon>
+        </Fab>
+      </Link>
     </>
   );
 }

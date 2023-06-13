@@ -100,3 +100,27 @@ def test_get_users():
     users = response.json()
     assert len(users) == 1
     assert User1.items() <= users[0].items()
+
+
+def test_get_users_loancount():
+    # Create a user without loan
+    response = client.post("/users", json={"name": "bob"})
+    user_id = response.json()["id"]
+
+    # Check API
+    response = client.get("/users")
+    user = response.json()[0]
+    assert user["loans"] == 0
+
+    # Create a loan
+    response = client.post("/items", json={"name": "obj"})
+    item_id = response.json()["id"]
+    response = client.post(
+        "/loans", json={"user": user_id, "items": [item_id], "cost": 0}
+    )
+    response.json()[0]["id"]
+
+    # Check API
+    response = client.get("/users")
+    user = response.json()[0]
+    assert user["loans"] == 1

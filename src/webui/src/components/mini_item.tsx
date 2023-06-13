@@ -75,7 +75,9 @@ export function MiniItem(props: MiniItemProps) {
       <CardMedia
         component="img"
         sx={{ width: "clamp(150px, 20vw, 300px)" }}
-        image={"/storage/img/" + (item.picture || "notavailable.png")}
+        image={
+          item.picture ? `/storage/img/${item.picture}` : "/notavailable.png"
+        }
       />
     </Card>
   );

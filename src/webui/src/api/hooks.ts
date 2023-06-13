@@ -77,10 +77,25 @@ export function useItems(filter?: string) {
   };
 }
 
-export function useUser(id: number | null) {
-  if (!id) return { user: null, isLoading: false, error: false };
+const DEFAULT_USER: UserModel = {
+  id: 0,
+  name: "",
+  email: "",
+  role: "user",
+  credit: 0,
+};
 
-  const { data, error, isLoading } = useSWR<UserModel>(
+export function useUser(id?: number) {
+  if (!id) {
+    return {
+      user: DEFAULT_USER,
+      isLoading: false,
+      error: false,
+      mutate: undefined,
+    };
+  }
+
+  const { data, error, isLoading, mutate } = useSWR<UserModel>(
     `${SERVER_URL}/users/${id}`,
     fetcher,
   );
@@ -89,11 +104,12 @@ export function useUser(id: number | null) {
     user: data,
     isLoading,
     error,
+    mutate,
   };
 }
 
 export function useUsers() {
-  const { data, error, isLoading } = useSWRImmutable<Users>(
+  const { data, error, isLoading } = useSWR<Users>(
     `${SERVER_URL}/users`,
     fetcher,
   );
