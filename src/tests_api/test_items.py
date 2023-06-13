@@ -1,6 +1,6 @@
 import pytest
 from api.main import app
-from api.pwmodels import Item
+from api.pwmodels import Item, Loan
 from fastapi.testclient import TestClient
 
 client = TestClient(app)
@@ -60,6 +60,31 @@ def test_create_item_bigoutside(big, outside):
     item = response.json()
     assert item["big"] == big
     assert item["outside"] == outside
+
+
+def test_delete_item():
+    response = client.post("/users", json={"name": "bob"})
+    user_id = response.json()["id"]
+    response = client.post("/items", json={"name": "obj"})
+    item_id = response.json()["id"]
+    response = client.post(
+        "/loans", json={"user": user_id, "items": [item_id], "cost": 0}
+    )
+    loan_id = response.json()[0]["id"]
+
+    # Delete via API
+    response = client.delete(f"/items/{item_id}")
+    assert response.status_code == 200
+
+    # Check in DB
+    assert not Item.get_or_none(Item.id == item_id)
+    assert not Loan.get_or_none(Loan.id == loan_id)
+
+
+def test_delete_unknown_item():
+    # Delete via API
+    response = client.delete("/items/7")
+    assert response.status_code == 404
 
 
 @pytest.mark.parametrize(
