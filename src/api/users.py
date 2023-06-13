@@ -29,7 +29,7 @@ def get_users(nb: int = 0, sort: str | None = None, q: str | None = None):
     query = (
         User.select(
             User,
-            peewee.fn.Count(Loan).alias("loans"),
+            peewee.fn.Count(Loan.id).alias("loans"),
             peewee.fn.Min(Loan.stop).alias("oldest_loan"),
         )
         .join(

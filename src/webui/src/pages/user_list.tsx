@@ -3,14 +3,31 @@ import { DataGrid } from "@mui/x-data-grid/DataGrid";
 import Box from "@mui/material/Box";
 import { UserModel } from "../api/models";
 import { Link } from "wouter";
-import Icon from "@mui/material/Icon";
 import { GridColDef } from "@mui/x-data-grid/models";
+import Chip from "@mui/material/Chip";
 
 function nameDisplay(user: UserModel) {
   return (
     <>
       <Link href={`/users/${user.id}`}>{user.name}</Link>
-      {user.role && <Icon>star</Icon>}
+      {user.role == "operator" && (
+        <Chip
+          label="Opérateur"
+          size="small"
+          color="primary"
+          variant="outlined"
+          sx={{ ml: 1 }}
+        />
+      )}
+      {user.role == "admin" && (
+        <Chip
+          label="Admin"
+          size="small"
+          color="primary"
+          variant="outlined"
+          sx={{ ml: 1 }}
+        />
+      )}
     </>
   );
 }
@@ -23,6 +40,11 @@ const columns: GridColDef[] = [
     renderCell: (i) => nameDisplay(i.row),
   },
   {
+    field: "email",
+    headerName: "Email",
+    flex: 1,
+  },
+  {
     field: "loans",
     headerName: "Prêts",
     flex: 0.3,
@@ -31,7 +53,7 @@ const columns: GridColDef[] = [
   },
   {
     field: "oldest_loan",
-    headerName: "+ Vieux",
+    headerName: "Prêt +vieux",
     flex: 0.3,
     minWidth: 95,
     headerAlign: "center",

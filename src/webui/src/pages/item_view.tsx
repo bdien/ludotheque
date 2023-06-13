@@ -57,7 +57,9 @@ export function Item(props: ItemProps) {
           height: "40vh",
           objectFit: "contain",
         }}
-        src={item.picture ? `/storage/img/{item.picture}` : "/notavailable.png"}
+        src={
+          item.picture ? `/storage/img/${item.picture}` : "/notavailable.png"
+        }
       />
       <Typography
         variant="h5"

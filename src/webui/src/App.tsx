@@ -5,7 +5,7 @@ import { Item } from "./pages/item_view";
 import { ItemList } from "./pages/item_list";
 import { ItemEdit } from "./pages/item_edit";
 import { UserList } from "./pages/user_list";
-import { UserCreate } from "./pages/user_create";
+import { UserEdit } from "./pages/user_edit";
 import { UserView } from "./pages/user_view";
 import { Box, Toolbar } from "@mui/material";
 import { Main } from "./pages/main";
@@ -28,12 +28,22 @@ function App() {
         <Toolbar />
         <Switch>
           <Route path="/users" component={UserList} />
-          <Route path="/users/new" component={UserCreate} />
+          <Route path="/users/new">
+            {() => {
+              return <UserEdit />;
+            }}
+          </Route>
           <Route path="/users/:id">
             {(params) => {
               return <UserView id={parseInt(params.id)} />;
             }}
           </Route>
+          <Route path="/users/:id/edit">
+            {(params) => {
+              return <UserEdit id={parseInt(params.id)} />;
+            }}
+          </Route>
+
           <Route path="/items" component={ItemList} />
           <Route path="/items/new">
             {() => {
@@ -50,7 +60,9 @@ function App() {
               return <ItemEdit id={parseInt(params.id)} />;
             }}
           </Route>
+
           <Route path="/loans/new" component={Loan} />
+
           <Route path="/" component={Main} />
         </Switch>
       </Box>
