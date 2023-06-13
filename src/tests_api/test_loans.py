@@ -1,6 +1,6 @@
 import pytest
 from api.main import app
-from api.pwmodels import User, Item
+from api.pwmodels import Loan, User, Item
 from fastapi.testclient import TestClient
 
 client = TestClient(app)
@@ -69,3 +69,22 @@ def test_close_loan(dbitems):
     response = client.get(f"/users/{USER_ID}")
     user = response.json()
     assert not user["loans"]
+
+
+def test_delete_loan():
+    "Create a user with loans, everything must be removed"
+    response = client.post("/users", json={"name": "bob"})
+    user_id = response.json()["id"]
+    response = client.post("/items", json={"name": "obj"})
+    item_id = response.json()["id"]
+    response = client.post(
+        "/loans", json={"user": user_id, "items": [item_id], "cost": 0}
+    )
+    loan_id = response.json()[0]["id"]
+
+    # Delete via API
+    response = client.delete(f"/loans/{loan_id}")
+    assert response.status_code == 200
+
+    # Check in DB
+    assert not Loan.get_or_none(Loan.id == loan_id)

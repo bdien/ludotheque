@@ -17,7 +17,7 @@ async function fetcher<JSON = any>(
 
 export function useAccount() {
   const { data, error, isLoading } = useSWR<Account>(
-    `${SERVER_URL}/me`,
+    `${SERVER_URL}/users/me`,
     fetcher,
   );
 
