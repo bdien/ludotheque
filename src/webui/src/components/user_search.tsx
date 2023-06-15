@@ -6,6 +6,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { debounce } from "@mui/material/utils";
 
 interface UserSearchProps {
+  user?: UsersItem | null;
   setUser: any;
 }
 
@@ -20,6 +21,7 @@ export function UserSearch(props: UserSearchProps) {
   return (
     <Autocomplete
       disablePortal
+      defaultValue={props.user}
       options={userChoices}
       noOptionsText={"Pas d'utilisateur sélectionné"}
       getOptionLabel={(option: UsersItem) => option.name}

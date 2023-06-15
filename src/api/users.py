@@ -1,3 +1,4 @@
+import re
 import peewee
 from api.pwmodels import Loan, User
 from fastapi import APIRouter, HTTPException, Request
@@ -101,6 +102,10 @@ async def delete_user(user_id: int):
 def qsearch_user(txt: str):
     if FAKE_USER_ROLE in ("operator", "admin"):
         HTTPException(403)
+
+    # Replace accents
+    txt = re.sub("[eéèaàcçuù]", "_", txt)
+
     return list(
         User.select(User.id, User.name)
         .where((User.name ** f"%{txt}%") | (User.id ** f"%{txt}%"))

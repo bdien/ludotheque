@@ -67,6 +67,7 @@ export function UserEdit(props: UserEditProps) {
         margin="normal"
         defaultValue={user.email}
         required={true}
+        autoCorrect="off"
         {...register("email")}
       />
 

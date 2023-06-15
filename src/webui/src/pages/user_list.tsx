@@ -5,6 +5,7 @@ import { UserModel } from "../api/models";
 import { Link } from "wouter";
 import { GridColDef } from "@mui/x-data-grid/models";
 import Chip from "@mui/material/Chip";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 function nameDisplay(user: UserModel) {
   return (
@@ -12,7 +13,7 @@ function nameDisplay(user: UserModel) {
       <Link href={`/users/${user.id}`}>{user.name}</Link>
       {user.role == "operator" && (
         <Chip
-          label="Opérateur"
+          label="Ops"
           size="small"
           color="primary"
           variant="outlined"
@@ -70,6 +71,8 @@ const columns: GridColDef[] = [
 
 export function UserList() {
   const { users, isLoading } = useUsers();
+  const theme = useTheme();
+  const displaysm = useMediaQuery(theme.breakpoints.up("md"));
 
   if (isLoading || !users) return <div>Loading</div>;
 
@@ -81,6 +84,7 @@ export function UserList() {
         autoPageSize
         rowHeight={40}
         disableRowSelectionOnClick
+        columnVisibilityModel={{ email: displaysm }}
       />
     </Box>
   );
