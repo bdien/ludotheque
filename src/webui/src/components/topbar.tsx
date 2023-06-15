@@ -150,9 +150,9 @@ export function TopBar(props: TopBarProps) {
 
             {account && (
               <div>
-                <IconButton color="inherit">
+                {/* <IconButton color="inherit">
                   <Icon color="warning">warning</Icon>
-                </IconButton>
+                </IconButton> */}
                 <IconButton
                   aria-label="account of current user"
                   aria-haspopup="true"
