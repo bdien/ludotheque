@@ -27,7 +27,7 @@ export function Main() {
             </a>
           </b>
         </p>
-        <img src="/photomain.jpg" />
+        <img src="/photomain.jpg" alt="Logo Picture" />
         <p>
           <b>Tarifs:</b>
           <br />

@@ -42,7 +42,7 @@ export function TopBar(props: TopBarProps) {
 
   const drawer = (
     <>
-      <img src="/logo.png" />
+      <img src="/logosmall.webp" />
       <List>
         <hr />
         <ListItem
