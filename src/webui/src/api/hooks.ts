@@ -1,4 +1,3 @@
-import useSWRImmutable from "swr/immutable";
 import useSWR from "swr";
 import { Account, ItemModel, UserModel, Users } from "./models";
 import { SERVER_URL } from "./calls";
@@ -65,7 +64,7 @@ export function useItem(id?: number) {
 export function useItems(filter?: string) {
   let qs = "";
   if (filter) qs = `?q=${filter}`;
-  const { data, error, isLoading } = useSWRImmutable<ItemModel[]>(
+  const { data, error, isLoading } = useSWR<ItemModel[]>(
     `${SERVER_URL}/items${qs}`,
     fetcher,
   );
