@@ -13,7 +13,6 @@ import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Slider from "@mui/material/Slider";
 import Select from "@mui/material/Select";
@@ -122,7 +121,7 @@ export function ItemEdit(props: ItemEditProps) {
           />
         </Box>
 
-        <TableContainer component={Paper}>
+        <TableContainer>
           <Table
             size="small"
             sx={{
@@ -196,7 +195,7 @@ export function ItemEdit(props: ItemEditProps) {
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={item.outside}
+                        defaultChecked={item.outside}
                         {...register("outside")}
                       />
                     }
@@ -205,7 +204,10 @@ export function ItemEdit(props: ItemEditProps) {
                   <br />
                   <FormControlLabel
                     control={
-                      <Checkbox checked={item.big} {...register("big")} />
+                      <Checkbox
+                        defaultChecked={item.big}
+                        {...register("big")}
+                      />
                     }
                     label="Surdimensionné"
                   />

@@ -1,33 +1,28 @@
 import { useItems } from "../api/hooks";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import Chip from "@mui/material/Chip";
 import { ItemModel } from "../api/models";
 import { Link } from "wouter";
 import { AgeChip } from "../components/age_chip";
-import { TextField } from "@mui/material";
 import { useState } from "react";
+import TextField from "@mui/material/TextField";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Icon from "@mui/material/Icon";
+import Box from "@mui/material/Box";
 
 function nameDisplay(item: ItemModel) {
   return (
     <>
       <Link href={`/items/${item.id}`}>{item.name}</Link>
       {item.big && (
-        <Chip
-          label="Big"
-          size="small"
-          color="primary"
-          variant="outlined"
-          sx={{ ml: 1 }}
-        />
+        <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
+          inventory
+        </Icon>
       )}
       {item.outside && (
-        <Chip
-          label="Ext"
-          size="small"
-          color="primary"
-          variant="outlined"
-          sx={{ ml: 1 }}
-        />
+        <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
+          park
+        </Icon>
       )}
     </>
   );
@@ -71,8 +66,18 @@ const columns: GridColDef[] = [
   },
 ];
 
+interface ItemListFilters {
+  text: string;
+  outside_air: string;
+  age: number;
+}
+
 export function ItemList() {
-  const [filter, setFilter] = useState<string>("");
+  const [filter, setFilter] = useState<ItemListFilters>({
+    text: "",
+    outside_air: "",
+    age: 99,
+  });
   const { items, isLoading } = useItems();
 
   if (isLoading) return <div>Loading</div>;
@@ -81,20 +86,88 @@ export function ItemList() {
   // Filtering
   let displayed = items;
   if (filter) {
-    const lw_filter = filter.toLowerCase();
-    displayed = items.filter((i) => i.name.toLowerCase().includes(lw_filter));
+    if (filter.text) {
+      const lw_filter = filter.text.toLowerCase();
+      displayed = items.filter((i) => i.name.toLowerCase().includes(lw_filter));
+    }
+    if (filter.outside_air == "big") {
+      displayed = displayed.filter((i) => i.big);
+    }
+    if (filter.outside_air == "outside") {
+      displayed = displayed.filter((i) => i.outside);
+    }
+    if (filter.age != 99) {
+      displayed = displayed.filter((i) => i.age == filter.age);
+    }
   }
 
   return (
     <>
-      <TextField
-        size="small"
-        label="Recherche"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          setFilter(event.target.value);
+      <Box
+        sx={{
+          mb: 1,
+          display: "flex",
+          alignItems: "flex-start",
+          textAlign: "left",
         }}
-        sx={{ mb: 1 }}
-      />
+      >
+        <TextField
+          size="small"
+          label="Recherche"
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setFilter({ ...filter, text: event.target.value });
+          }}
+          sx={{ flexGrow: 0.5 }}
+        />
+
+        <Select
+          size="small"
+          sx={{
+            height: "40px",
+            ml: 1,
+            pt: 1,
+            maxWidth: "66px",
+          }}
+          displayEmpty
+          defaultValue=""
+          onChange={(event) =>
+            setFilter({ ...filter, outside_air: event.target.value as string })
+          }
+        >
+          <MenuItem value="">--</MenuItem>
+          <MenuItem dense value="outside">
+            <Icon fontSize="small" color="action">
+              park
+            </Icon>
+          </MenuItem>
+          <MenuItem dense value="big">
+            <Icon fontSize="small" color="action">
+              inventory
+            </Icon>
+          </MenuItem>
+        </Select>
+        <Select
+          size="small"
+          sx={{
+            height: "40px",
+            ml: 1,
+          }}
+          defaultValue={99}
+          onChange={(event) =>
+            setFilter({ ...filter, age: event.target.value as number })
+          }
+        >
+          <MenuItem dense value="99">
+            --
+          </MenuItem>
+          {[0, 2, 4, 6, 8, 10].map((i) => (
+            <MenuItem dense key={i} value={i}>
+              <AgeChip age={i} />
+            </MenuItem>
+          ))}
+        </Select>
+      </Box>
+
       <DataGrid
         rows={displayed}
         columns={columns}
