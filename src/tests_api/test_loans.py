@@ -13,7 +13,7 @@ ITEM_ID = 158
 @pytest.fixture()
 def dbitems():
     "Create basic DB items"
-    u = User.create(id=USER_ID, name="User", credit=1)
+    u = User.create(id=USER_ID, name="User", email="user@email", credit=1)
     i = Item.create(id=ITEM_ID, name="Item")
     yield {"user": u, "items": [i]}
 
@@ -73,7 +73,7 @@ def test_close_loan(dbitems):
 
 def test_delete_loan():
     "Create a user with loans, everything must be removed"
-    response = client.post("/users", json={"name": "bob"})
+    response = client.post("/users", json={"name": "bob", "email": "bob@nomail"})
     user_id = response.json()["id"]
     response = client.post("/items", json={"name": "obj"})
     item_id = response.json()["id"]
