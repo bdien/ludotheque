@@ -88,7 +88,11 @@ export function ItemList() {
   if (filter) {
     if (filter.text) {
       const lw_filter = filter.text.toLowerCase();
-      displayed = items.filter((i) => i.name.toLowerCase().includes(lw_filter));
+      displayed = items.filter(
+        (i) =>
+          i.name.toLowerCase().includes(lw_filter) ||
+          i.id.toString().includes(lw_filter),
+      );
     }
     if (filter.outside_air == "big") {
       displayed = displayed.filter((i) => i.big);
