@@ -23,7 +23,7 @@ class BaseModel(peewee.Model):
 
 class User(BaseModel):
     name = peewee.CharField()
-    email = peewee.CharField(null=True)
+    email = peewee.CharField(unique=True)
     role = peewee.CharField(default="user")
     credit = peewee.IntegerField(default=0)
     created_time = peewee.DateTimeField(default=datetime.datetime.utcnow)

@@ -7,7 +7,7 @@ client = TestClient(app)
 
 
 def test_create_user():
-    response = client.post("/users", json={"name": "bob"})
+    response = client.post("/users", json={"name": "bob", "email": "bob@nomail"})
     assert response.status_code == 200
     newuser = response.json()
     assert "id" in newuser
@@ -15,12 +15,14 @@ def test_create_user():
     # Check in DB
     user_db = User.get_by_id(newuser["id"])
     assert user_db.name == "bob"
+    assert user_db.email == "bob@nomail"
 
     # Check in API
     response = client.get(f"/users/{newuser['id']}")
     assert response.status_code == 200
     user = response.json()
     assert user["name"] == "bob"
+    assert user["email"] == "bob@nomail"
 
 
 def test_create_user_attributes():
@@ -36,7 +38,7 @@ def test_create_user_attributes():
 
 def test_delete_user():
     "Create a user with loans, everything must be removed"
-    response = client.post("/users", json={"name": "bob"})
+    response = client.post("/users", json={"name": "bob", "email": "bob@nomail"})
     user_id = response.json()["id"]
     response = client.post("/items", json={"name": "obj"})
     item_id = response.json()["id"]
@@ -104,7 +106,7 @@ def test_get_users():
 
 def test_get_users_loancount():
     # Create a user without loan
-    response = client.post("/users", json={"name": "bob"})
+    response = client.post("/users", json={"name": "bob", "email": "bob@nomail"})
     user_id = response.json()["id"]
 
     # Check API

@@ -63,7 +63,7 @@ def test_create_item_bigoutside(big, outside):
 
 
 def test_delete_item():
-    response = client.post("/users", json={"name": "bob"})
+    response = client.post("/users", json={"name": "bob", "email": "bob@nomail"})
     user_id = response.json()["id"]
     response = client.post("/items", json={"name": "obj"})
     item_id = response.json()["id"]
