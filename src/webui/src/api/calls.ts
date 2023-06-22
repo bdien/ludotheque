@@ -89,6 +89,13 @@ export async function createUser(obj: Object): Promise<UserModel> {
   return response.json();
 }
 
+export async function deleteUser(userId: number) {
+  const response = await fetch(`${SERVER_URL}/users/${userId}`, {
+    method: "DELETE",
+  });
+  return response.json();
+}
+
 export async function updateUser(
   userId: number,
   obj: Object,

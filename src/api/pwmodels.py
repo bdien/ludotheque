@@ -6,7 +6,9 @@ import peewee
 db = peewee.DatabaseProxy()
 dbpath = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 db.initialize(
-    peewee.SqliteDatabase(f"{dbpath}/ludotheque.db", pragmas={"foreign_keys": 1})
+    peewee.SqliteDatabase(
+        f"{dbpath}/ludotheque.db", pragmas={"foreign_keys": 1, "journal_mode": "wal"}
+    )
 )
 
 

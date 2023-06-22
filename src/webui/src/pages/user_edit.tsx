@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
 import { useUser } from "../api/hooks";
-import { createUser, updateUser } from "../api/calls";
+import { createUser, deleteUser, updateUser } from "../api/calls";
 import { UserModel } from "../api/models";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -32,7 +32,7 @@ export function UserEdit(props: UserEditProps) {
     user.role = data.role;
 
     if (user?.id) {
-      await updateUser(user?.id ?? 0, user);
+      await updateUser(user.id, user);
     } else {
       user = await createUser(user);
     }
@@ -41,6 +41,13 @@ export function UserEdit(props: UserEditProps) {
       mutate({ ...user });
     }
     navigate(`/users/${user?.id}`);
+  }
+
+  async function onDelete(user_id: number) {
+    if (user?.id) {
+      await deleteUser(user_id);
+    }
+    navigate("/users");
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
@@ -99,11 +106,23 @@ export function UserEdit(props: UserEditProps) {
       <Button
         variant="contained"
         size="large"
-        style={{ marginTop: "20px" }}
+        sx={{ ml: 2, mt: "20px" }}
         onClick={handleSubmit((formdata) => onSubmit(user, formdata))}
       >
         {user.id == 0 ? "Créer" : "Modifier"}
       </Button>
+
+      {user.id != 0 && (
+        <Button
+          variant="outlined"
+          size="large"
+          color="error"
+          sx={{ ml: 2, mt: "20px" }}
+          onClick={handleSubmit(() => onDelete(user.id))}
+        >
+          Supprimer
+        </Button>
+      )}
     </>
   );
 }
