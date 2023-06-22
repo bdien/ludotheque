@@ -2,11 +2,11 @@ import peewee
 from api.pwmodels import Loan, Item
 from fastapi import APIRouter, HTTPException, Request, UploadFile
 from playhouse.shortcuts import model_to_dict
-import mimetypes
 import os
-import shutil
+from PIL import Image
 
 
+IMAGE_MAX_DIM = 800
 FAKE_USER = 1
 FAKE_USER_ROLE = "operator"  # Could be user, operator, admin
 LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
@@ -103,17 +103,21 @@ async def modify_item(item_id: int, request: Request):
 
 @router.post("/items/{item_id}/picture", tags=["items"])
 async def modify_item_picture(item_id: int, file: UploadFile):
-    # Save new image to disk
-    extension = mimetypes.guess_extension(file.content_type, strict=False)
-    filename = f"jeu_{item_id:05d}{extension}"
-    with open(f"{LUDO_STORAGE}/img/{filename}", "wb+") as file_object:
-        shutil.copyfileobj(file.file, file_object)
+    # Convert (and maybe resize) new image to webP
+    img = Image.open(file.file)
+    if (img.width > IMAGE_MAX_DIM) or (img.height > IMAGE_MAX_DIM):
+        img.thumbnail((IMAGE_MAX_DIM, IMAGE_MAX_DIM))
 
-    # Delete previous image and set new one in DB
+    filename = f"jeu_{item_id:05d}.webp"
+    img.save(f"{LUDO_STORAGE}/img/{filename}")
+
+    # Delete previous image
     item = Item.get_by_id(item_id)
     if item.picture and item.picture != filename:
         print(f"Unlink {LUDO_STORAGE}/img/{item.picture}")
         os.unlink(f"{LUDO_STORAGE}/img/{item.picture}")
+
+    # Set new one in DB
     item.picture = filename
     item.save()
 
