@@ -5,6 +5,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 import api.users
 import api.items
 import api.loans
+import api.system
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -14,3 +15,4 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.include_router(api.users.router)
 app.include_router(api.items.router)
 app.include_router(api.loans.router)
+app.include_router(api.system.router)
