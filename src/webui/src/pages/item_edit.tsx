@@ -92,14 +92,14 @@ export function ItemEdit(props: ItemEditProps) {
       await updateItem(item?.id ?? 0, item);
 
       // Remove previous picture
-      if (imgFile === null && item?.picture) deleteItemPicture(item.id);
+      if (imgFile === null && item?.pictures) deleteItemPicture(item.id, 0);
     } else {
       item = await createItem(item);
     }
 
     // Upload new picture
     if (imgFile) {
-      await updateItemPicture(item.id, imgFile);
+      await updateItemPicture(item.id, 0, imgFile);
     }
 
     if (mutate) {
@@ -131,7 +131,9 @@ export function ItemEdit(props: ItemEditProps) {
         >
           <ImageChooser
             onImageChange={setImgFile}
-            src={item.picture && "/storage/img/" + item.picture}
+            src={
+              item.pictures?.length ? "/storage/img/" + item.pictures[0] : null
+            }
           />
         </Box>
 

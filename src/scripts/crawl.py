@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+import io
 import requests
 import logging
 import re
 import collections
 import os
-from api.pwmodels import Item, create_all_tables
+from api.pwmodels import Item, ItemPicture, create_all_tables
+from PIL import Image
 
 Jeu = collections.namedtuple(
     "Jeu", "id, photo, nom, type, editeur, joueurs_min, joueurs_max, age, resume"
@@ -115,25 +117,29 @@ for i in ids:
     jeu = get_one(i)
     print(jeu)
 
-    imgname = f"jeu_{i:05d}.jpg"
+    imgname = f"jeu_{i:05d}.webp"
     filename = f"img/{imgname}"
     if jeu.photo and not os.path.exists(filename):
         if imgdata := get_photo(jeu.photo):
-            with open(filename, "wb") as f:
-                f.write(imgdata)
+            # Convert to WebP and resize to 800x800 max
+            img = Image.open(io.BytesIO(imgdata))
+            if (img.width > 800) or (img.height > 800):
+                img.thumbnail((800, 800))
+            img.save(filename)
         else:
             imgname = None
     else:
         imgname = None
 
-    Item.create(
+    item = Item.create(
         id=i,
         name=jeu.nom,
         description=jeu.resume,
-        picture=imgname,
         players_min=jeu.joueurs_min,
         players_max=jeu.joueurs_max,
         age=jeu.age,
         big=i in bigs,
         outside=i in outside,
     )
+
+    ItemPicture.create(item=item, picture=imgname)

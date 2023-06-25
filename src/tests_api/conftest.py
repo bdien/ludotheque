@@ -1,8 +1,10 @@
+import os
 import tempfile
 import peewee
 import pytest
 import logging
 import api.pwmodels
+import api.items
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -24,3 +26,12 @@ def dbtables():
         api.pwmodels.create_all_tables()
         logging.getLogger("peewee").setLevel(logging.DEBUG)
         yield None
+
+
+@pytest.fixture
+def fakestorage(monkeypatch):
+    tmpdir = tempfile.TemporaryDirectory()
+    os.makedirs(f"{tmpdir.name}/img")
+    monkeypatch.setattr(api.items, "LUDO_STORAGE", tmpdir.name)
+    yield tmpdir.name
+    tmpdir.cleanup()
