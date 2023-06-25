@@ -58,7 +58,9 @@ export function Item(props: ItemProps) {
           objectFit: "contain",
         }}
         src={
-          item.picture ? `/storage/img/${item.picture}` : "/notavailable.png"
+          item.pictures?.length
+            ? `/storage/img/${item.pictures[0]}`
+            : "/notavailable.png"
         }
       />
       <Typography

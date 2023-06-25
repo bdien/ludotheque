@@ -37,17 +37,21 @@ export async function deleteItem(itemId: number) {
   });
 }
 
-export async function deleteItemPicture(itemId: number) {
-  await fetch(`${SERVER_URL}/items/${itemId}/picture`, {
+export async function deleteItemPicture(itemId: number, pictureIdx: number) {
+  await fetch(`${SERVER_URL}/items/${itemId}/picture/${pictureIdx}`, {
     method: "DELETE",
   });
 }
 
-export async function updateItemPicture(itemId: number, file: File) {
+export async function updateItemPicture(
+  itemId: number,
+  pictureIdx: number,
+  file: File,
+) {
   var data = new FormData();
   data.append("file", file);
 
-  await fetch(`${SERVER_URL}/items/${itemId}/picture`, {
+  await fetch(`${SERVER_URL}/items/${itemId}/picture/${pictureIdx}`, {
     method: "POST",
     body: data,
   });

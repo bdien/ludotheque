@@ -19,7 +19,7 @@ export interface ItemModel {
   id: number;
   name: string;
   description?: string;
-  picture?: string;
+  pictures?: string[];
   players_max?: number;
   players_min?: number;
   age?: number;
