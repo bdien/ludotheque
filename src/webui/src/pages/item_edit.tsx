@@ -3,10 +3,12 @@ import { useItem } from "../api/hooks";
 import { ItemModel } from "../api/models";
 import {
   createItem,
+  deleteItem,
   deleteItemPicture,
   updateItem,
   updateItemPicture,
 } from "../api/calls";
+import { useConfirm } from "../hooks/useConfirm";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -71,6 +73,11 @@ export function ItemEdit(props: ItemEditProps) {
   const [imgFile, setImgFile] = useState<File | null | undefined>(undefined);
   const { register, control, handleSubmit } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
+  const { ConfirmDialog, confirmPromise } = useConfirm(
+    "Suppression du jeu",
+    `Etes-vous sûr de vouloir supprimer le jeu '${item?.name}' ? Cela supprimera
+    définitivement tout son historique d'emprunts.`,
+  );
 
   async function onSubmit(item: ItemModel, data: FormValues) {
     item.players_min = data.players[0];
@@ -99,6 +106,13 @@ export function ItemEdit(props: ItemEditProps) {
       mutate({ ...item });
     }
     navigate(`/items/${item?.id}`);
+  }
+
+  async function onDelete(itemId: number) {
+    const answer = await confirmPromise();
+    if (!answer) return;
+
+    deleteItem(itemId).then(() => navigate("/items"));
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
@@ -220,11 +234,26 @@ export function ItemEdit(props: ItemEditProps) {
         <Button
           variant="contained"
           size="large"
-          style={{ marginTop: "20px" }}
+          sx={{ ml: 2, mt: "20px" }}
           onClick={handleSubmit((formdata) => onSubmit(item, formdata))}
         >
           {item.id == 0 ? "Créer" : "Modifier"}
         </Button>
+
+        {item.id != 0 && (
+          <>
+            <Button
+              variant="outlined"
+              size="large"
+              color="error"
+              sx={{ ml: 2, mt: "20px" }}
+              onClick={handleSubmit(() => onDelete(item.id))}
+            >
+              Supprimer
+            </Button>
+            <ConfirmDialog />
+          </>
+        )}
       </FormControl>
     </>
   );

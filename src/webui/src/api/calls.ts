@@ -31,6 +31,12 @@ export async function createItem(obj: Object): Promise<ItemModel> {
   return response.json();
 }
 
+export async function deleteItem(itemId: number) {
+  await fetch(`${SERVER_URL}/items/${itemId}`, {
+    method: "DELETE",
+  });
+}
+
 export async function deleteItemPicture(itemId: number) {
   await fetch(`${SERVER_URL}/items/${itemId}/picture`, {
     method: "DELETE",
