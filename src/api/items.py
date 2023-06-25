@@ -1,3 +1,4 @@
+import contextlib
 import peewee
 from api.pwmodels import Loan, Item, ItemPicture
 from fastapi import APIRouter, HTTPException, Request, UploadFile
@@ -148,7 +149,8 @@ async def modify_item_picture(item_id: int, picture_index: int, file: UploadFile
     else:
         if picture.filename != filename:
             print(f"Unlink {LUDO_STORAGE}/img/{picture.filename}")
-            os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
+            with contextlib.suppress(FileNotFoundError):
+                os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
 
             # Set new one in DB
             picture.filename = filename
@@ -161,14 +163,15 @@ def delete_item_picture(item_id: int, picture_index: int):
     if not picture:
         raise HTTPException(404)
 
-    os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
+    with contextlib.suppress(FileNotFoundError):
+        os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
     picture.delete()
 
 
 @router.delete("/items/{item_id}", tags=["users"])
 async def delete_item(item_id: int):
-    if FAKE_USER_ROLE in ("operator", "admin"):
-        HTTPException(403)
+    if FAKE_USER_ROLE not in ("operator", "admin"):
+        raise HTTPException(403)
 
     item = Item.get_or_none(Item.id == item_id)
     if not item:
@@ -177,7 +180,8 @@ async def delete_item(item_id: int):
 
     # Now remove every picture
     for p in ItemPicture.select().where(ItemPicture.item == item_id):
-        os.unlink(f"{LUDO_STORAGE}/img/{p.filename}")
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(f"{LUDO_STORAGE}/img/{p.filename}")
 
     return "OK"
 
