@@ -3,7 +3,7 @@ import os
 import pytest
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import Item, Loan, ItemPicture
+from api.pwmodels import Item, Loan, ItemPicture, User
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 
@@ -73,6 +73,7 @@ def test_delete_item_not_authenticated():
 
 
 def test_delete_item():
+    "Try to delete a loaned object"
     response = client.post(
         "/users", json={"name": "bob", "email": "bob@nomail"}, headers=AUTH_ADMIN
     )
@@ -91,8 +92,9 @@ def test_delete_item():
     assert response.status_code == 200
 
     # Check in DB
-    assert not Item.get_or_none(Item.id == item_id)
-    assert not Loan.get_or_none(Loan.id == loan_id)
+    assert not Item.get_or_none(id=item_id)
+    assert not Loan.get_or_none(id=loan_id)
+    assert User.get_or_none(id=item_id)
 
 
 def test_delete_unknown_item():

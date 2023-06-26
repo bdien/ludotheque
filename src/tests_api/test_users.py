@@ -1,7 +1,7 @@
 import pytest
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import User, Loan
+from api.pwmodels import Item, User, Loan
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 
@@ -41,8 +41,18 @@ def test_create_user_attributes():
     assert newjson.items() <= User.items()
 
 
+def test_create_user_invalid_credit():
+    newjson = {"name": "bob", "email": "bob@nomail", "credit": -33, "role": "admin"}
+    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
+    assert response.status_code == 400
+
+    newjson["credit"] = 40000
+    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
+    assert response.status_code == 400
+
+
 def test_delete_user():
-    "Create a user with loans, everything must be removed"
+    "Create a user with loans, everything must be removed (except item)"
     response = client.post(
         "/users", json={"name": "bob", "email": "bob@nomail"}, headers=AUTH_ADMIN
     )
@@ -63,6 +73,7 @@ def test_delete_user():
     # Check in DB
     assert not User.get_or_none(User.id == user_id)
     assert not Loan.get_or_none(Loan.id == loan_id)
+    assert Item.get_or_none(Item.id == item_id)
 
 
 def test_delete_unknown_user():

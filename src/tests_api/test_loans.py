@@ -48,6 +48,47 @@ def test_create_loan(dbitems):
     assert response.json()["status"] == "out"
 
 
+def test_create_loan_twice(dbitems):
+    "Try to loan the same object twice at the same time"
+
+    response = client.post(
+        "/loans",
+        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+
+    response = client.post(
+        "/loans",
+        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code != 200
+
+
+def test_create_loan_item_from_other_user(dbitems):
+    "Try to loan the object already loaned to another user (should work)"
+
+    response = client.post(
+        "/loans",
+        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+
+    u = User.create(name="User2", email="user2@email", credit=1)
+    response = client.post(
+        "/loans",
+        json={"user": u.id, "items": [ITEM_ID], "cost": 2},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+
+    # Check in DB
+    assert Loan.get(user=USER_ID, item=ITEM_ID).status == "in"
+    assert Loan.get(user=u.id, item=ITEM_ID).status == "out"
+
+
 def test_create_loan_not_authenticated(dbitems):
     response = client.post("/loans", json={"user": USER_ID})
     assert response.status_code == 403
@@ -105,3 +146,5 @@ def test_delete_loan():
 
     # Check in DB
     assert not Loan.get_or_none(Loan.id == loan_id)
+    assert Item.get_or_none(Item.id == item_id)
+    assert User.get_or_none(User.id == user_id)
