@@ -1,16 +1,18 @@
 import re
 import peewee
 from api.pwmodels import Loan, User
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
+from api.system import auth_user
+
 from playhouse.shortcuts import model_to_dict
 
-FAKE_USER = 1
-FAKE_USER_ROLE = "operator"  # Could be user, operator, admin
 router = APIRouter()
 
 
 @router.post("/users", tags=["users"])
-async def create_user(request: Request):
+async def create_user(request: Request, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
     body = await request.json()
 
     # Limit to selected properties
@@ -23,9 +25,11 @@ async def create_user(request: Request):
 
 
 @router.get("/users", tags=["users"])
-def get_users(nb: int = 0, sort: str | None = None, q: str | None = None):
-    if FAKE_USER_ROLE in ("operator", "admin"):
-        HTTPException(403)
+def get_users(
+    nb: int = 0, sort: str | None = None, q: str | None = None, auth=Depends(auth_user)
+):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
 
     query = (
         User.select(
@@ -50,16 +54,18 @@ def get_users(nb: int = 0, sort: str | None = None, q: str | None = None):
 
 
 @router.get("/users/me", tags=["users"])
-def get_myself():
-    if user := User.get_or_none(User.id == FAKE_USER):
-        return model_to_dict(user, recurse=False)
+def get_myself(auth=Depends(auth_user)):
+    if not auth:
+        return {}
+    if u := User.get_or_none(User.id == auth.id):
+        return model_to_dict(u, recurse=False)
     raise HTTPException(402)
 
 
 @router.get("/users/{user_id}", tags=["users"])
-def get_user(user_id: int):
-    if FAKE_USER_ROLE in ("operator", "admin"):
-        HTTPException(403)
+def get_user(user_id: int, auth=Depends(auth_user)):
+    if (not auth) or (auth.role != "admin" and (user_id != auth.id)):
+        raise HTTPException(403)
 
     user = User.get_or_none(user_id)
     if not user:
@@ -75,7 +81,10 @@ def get_user(user_id: int):
 
 
 @router.post("/users/{user_id}", tags=["users"])
-async def modify_user(user_id: int, request: Request):
+async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
     body = await request.json()
 
     # Limit to selected properties
@@ -87,9 +96,9 @@ async def modify_user(user_id: int, request: Request):
 
 
 @router.delete("/users/{user_id}", tags=["users"])
-async def delete_user(user_id: int):
-    if FAKE_USER_ROLE in ("operator", "admin"):
-        HTTPException(403)
+async def delete_user(user_id: int, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
 
     user = User.get_or_none(User.id == user_id)
     if not user:
@@ -99,9 +108,9 @@ async def delete_user(user_id: int):
 
 
 @router.get("/users/qsearch/{txt}", tags=["users"])
-def qsearch_user(txt: str):
-    if FAKE_USER_ROLE in ("operator", "admin"):
-        HTTPException(403)
+def qsearch_user(txt: str, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
 
     # Replace accents
     txt = re.sub("[eéèaàcçuù]", "_", txt)
