@@ -6,6 +6,9 @@ import logging
 import api.pwmodels
 import api.items
 
+AUTH_USER = {"Authorization": "0,alice,user"}
+AUTH_ADMIN = {"Authorization": "1,bob,admin"}
+
 
 @pytest.fixture(autouse=True, scope="module")
 def maxlogging():

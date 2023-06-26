@@ -5,7 +5,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { useItem } from "../api/hooks";
+import { useAccount, useItem } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
 import { ItemModel } from "../api/models";
 import Fab from "@mui/material/Fab";
@@ -42,6 +42,7 @@ function playerDisplay(item: ItemModel) {
 }
 
 export function Item(props: ItemProps) {
+  const { account } = useAccount();
   const { item, error } = useItem(props.id);
 
   if (error) return <div>Server error: {error.cause}</div>;
@@ -128,19 +129,21 @@ export function Item(props: ItemProps) {
       )}
 
       {/* Edit button */}
-      <Link href={`/items/${item.id}/edit`}>
-        <Fab
-          color="primary"
-          aria-label="edit"
-          sx={{
-            position: "fixed",
-            bottom: (theme) => theme.spacing(2),
-            right: (theme) => theme.spacing(2),
-          }}
-        >
-          <Icon>edit</Icon>
-        </Fab>
-      </Link>
+      {account?.id && (
+        <Link href={`/items/${item.id}/edit`}>
+          <Fab
+            color="primary"
+            aria-label="edit"
+            sx={{
+              position: "fixed",
+              bottom: (theme) => theme.spacing(2),
+              right: (theme) => theme.spacing(2),
+            }}
+          >
+            <Icon>edit</Icon>
+          </Fab>
+        </Link>
+      )}
     </>
   );
 }

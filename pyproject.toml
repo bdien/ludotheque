@@ -43,7 +43,9 @@ max-complexity = 28
 
 [tool.ruff.per-file-ignores]
 "src/tests_api/*.py" = ["S101"]
+"src/api/*.py" = ["B008"]
 # S101: Use of assert
+# B008: Do not perform function call `Depends` in argument defaults
 
 [tool.pdm.scripts]
 build = {shell = "cd src/webui && pnpm run build"}

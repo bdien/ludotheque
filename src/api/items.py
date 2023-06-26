@@ -1,7 +1,8 @@
 import contextlib
 import peewee
 from api.pwmodels import Loan, Item, ItemPicture
-from fastapi import APIRouter, HTTPException, Request, UploadFile
+from api.system import auth_user
+from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
 from playhouse.shortcuts import model_to_dict
 import os
 import hashlib
@@ -9,15 +10,16 @@ from PIL import Image
 
 
 IMAGE_MAX_DIM = 800
-FAKE_USER = 1
-FAKE_USER_ROLE = "operator"  # Could be user, operator, admin
 LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 
 router = APIRouter()
 
 
 @router.post("/items", tags=["items"])
-async def create_item(request: Request):
+async def create_item(request: Request, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
     body = await request.json()
 
     # Limit to selected properties
@@ -52,9 +54,9 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
 
 
 @router.get("/items/{item_id}", tags=["items"])
-def get_item(item_id: int, history: int | None = 10):
-    if FAKE_USER_ROLE == "user":
-        history = 1
+def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        history = 1  # noqa: F841
 
     # Retrieve item + pictrres + status
     items = (
@@ -64,7 +66,6 @@ def get_item(item_id: int, history: int | None = 10):
         .join(Loan, peewee.JOIN.LEFT_OUTER)
         .where(Item.id == item_id)
         .order_by(ItemPicture.index, -Loan.stop)
-        .limit(history)
         .execute()
     )
 
@@ -80,14 +81,17 @@ def get_item(item_id: int, history: int | None = 10):
         if loans:
             base["status"] = loans[0].status
             base["return"] = loans[0].stop
-            if FAKE_USER_ROLE in ("operator", "admin"):
+            if auth and auth.role == "admin":
                 base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
         return base
     raise HTTPException(404)
 
 
 @router.post("/items/{item_id}", tags=["items"])
-async def modify_item(item_id: int, request: Request):
+async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
     body = await request.json()
 
     # Limit to selected properties
@@ -110,8 +114,11 @@ async def modify_item(item_id: int, request: Request):
 
 
 @router.post("/items/{item_id}/picture", tags=["items"])
-async def create_item_picture(item_id: int, file: UploadFile):
+async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_user)):
     "Add new picture"
+
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
 
     # Convert (and maybe resize) new image to webP
     img = Image.open(file.file)
@@ -132,7 +139,12 @@ async def create_item_picture(item_id: int, file: UploadFile):
 
 
 @router.post("/items/{item_id}/picture/{picture_index}", tags=["items"])
-async def modify_item_picture(item_id: int, picture_index: int, file: UploadFile):
+async def modify_item_picture(
+    item_id: int, picture_index: int, file: UploadFile, auth=Depends(auth_user)
+):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
     # Convert (and maybe resize) new image to webP
     img = Image.open(file.file)
     if (img.width > IMAGE_MAX_DIM) or (img.height > IMAGE_MAX_DIM):
@@ -158,7 +170,10 @@ async def modify_item_picture(item_id: int, picture_index: int, file: UploadFile
 
 
 @router.delete("/items/{item_id}/picture/{picture_index}", tags=["items"])
-def delete_item_picture(item_id: int, picture_index: int):
+def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
     picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
     if not picture:
         raise HTTPException(404)
@@ -169,8 +184,8 @@ def delete_item_picture(item_id: int, picture_index: int):
 
 
 @router.delete("/items/{item_id}", tags=["users"])
-async def delete_item(item_id: int):
-    if FAKE_USER_ROLE not in ("operator", "admin"):
+async def delete_item(item_id: int, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
         raise HTTPException(403)
 
     item = Item.get_or_none(Item.id == item_id)

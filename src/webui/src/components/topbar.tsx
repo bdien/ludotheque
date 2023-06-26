@@ -44,7 +44,6 @@ export function TopBar(props: TopBarProps) {
     <>
       <img src="/logosmall.webp" />
       <List>
-        <hr />
         <ListItem
           component={Link}
           to="/"
@@ -65,60 +64,63 @@ export function TopBar(props: TopBarProps) {
           </ListItemIcon>
           <ListItemText primary="Liste des Jeux" />
         </ListItem>
-        {account && (
-          <ListItem
-            component={Link}
-            to={`/users/${account.id}`}
-            onClick={() => setIsDrawerOpen(false)}
-          >
-            <ListItemIcon>
-              <Icon>account_circle</Icon>
-            </ListItemIcon>
-            <ListItemText primary="Mes emprunts" />
-          </ListItem>
+        {account?.id && (
+          <>
+            <ListItem
+              component={Link}
+              to={`/users/${account.id}`}
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ListItemIcon>
+                <Icon>account_circle</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Mes emprunts" />
+            </ListItem>
+
+            <hr />
+            <ListItem
+              component={Link}
+              to="/loans/new"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ListItemIcon>
+                <Icon>playlist_add</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Nouvel emprunt" />
+            </ListItem>
+            <hr />
+            <ListItem
+              component={Link}
+              to="/users"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ListItemIcon>
+                <Icon>list</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Liste adhérents" />
+            </ListItem>
+            <ListItem
+              component={Link}
+              to="/users/new"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ListItemIcon>
+                <Icon>person_add_alt1</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Nouvel adhérent" />
+            </ListItem>
+            <ListItem
+              component={Link}
+              to="/items/new"
+              onClick={() => setIsDrawerOpen(false)}
+            >
+              <ListItemIcon>
+                <Icon>post_add</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Nouveau jeu" />
+            </ListItem>
+          </>
         )}
-        <hr />
-        <ListItem
-          component={Link}
-          to="/loans/new"
-          onClick={() => setIsDrawerOpen(false)}
-        >
-          <ListItemIcon>
-            <Icon>playlist_add</Icon>
-          </ListItemIcon>
-          <ListItemText primary="Nouvel emprunt" />
-        </ListItem>
-        <hr />
-        <ListItem
-          component={Link}
-          to="/users"
-          onClick={() => setIsDrawerOpen(false)}
-        >
-          <ListItemIcon>
-            <Icon>list</Icon>
-          </ListItemIcon>
-          <ListItemText primary="Liste adhérents" />
-        </ListItem>
-        <ListItem
-          component={Link}
-          to="/users/new"
-          onClick={() => setIsDrawerOpen(false)}
-        >
-          <ListItemIcon>
-            <Icon>person_add_alt1</Icon>
-          </ListItemIcon>
-          <ListItemText primary="Nouvel adhérent" />
-        </ListItem>
-        <ListItem
-          component={Link}
-          to="/items/new"
-          onClick={() => setIsDrawerOpen(false)}
-        >
-          <ListItemIcon>
-            <Icon>post_add</Icon>
-          </ListItemIcon>
-          <ListItemText primary="Nouveau jeu" />
-        </ListItem>
       </List>
     </>
   );
@@ -148,7 +150,7 @@ export function TopBar(props: TopBarProps) {
               {logotxt}
             </Typography>
 
-            {account && (
+            {account?.id && (
               <div>
                 {/* <IconButton color="inherit">
                   <Icon color="warning">warning</Icon>
@@ -183,7 +185,7 @@ export function TopBar(props: TopBarProps) {
                 </Menu>
               </div>
             )}
-            {!account && <Button color="inherit">Login</Button>}
+            {!account?.id && <Button color="inherit">Login</Button>}
           </Toolbar>
         </AppBar>
 

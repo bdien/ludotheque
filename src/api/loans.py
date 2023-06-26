@@ -1,10 +1,9 @@
 import datetime
 from api.pwmodels import Loan, User, Item, db
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
+from api.system import auth_user
 from playhouse.shortcuts import model_to_dict
 
-FAKE_USER = 1
-FAKE_USER_ROLE = "operator"  # Could be user, operator, admin
 LOAN_COST = 0.5
 LOAN_TIME_DAYS = 7 * 3
 
@@ -12,18 +11,21 @@ router = APIRouter()
 
 
 @router.get("/loans", tags=["loans"])
-def get_loans(all: str | None = None, user: str | None = None):
-    if user is None:
-        user = FAKE_USER
+def get_loans(user_id: int, all: str | None = None, auth=Depends(auth_user)):
+    if (not auth) or (auth.role != "admin" and (user_id != auth.id)):
+        raise HTTPException(403)
 
-    loans = Loan.select().where(Loan.user == user)
+    loans = Loan.select().where(Loan.user == user_id)
     if all is None:
         loans = loans.where(Loan.status == "out")
     return list(loans.dicts())
 
 
 @router.post("/loans", tags=["loans"])
-async def create_loan(request: Request):
+async def create_loan(request: Request, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
     body = await request.json()
     for i in "user", "items", "cost":
         if i not in body:
@@ -67,14 +69,20 @@ async def create_loan(request: Request):
 
 
 @router.get("/loans/{loan_id}", tags=["loans"])
-def get_loan(loan_id: int):
+def get_loan(loan_id: int, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
     if loan := Loan.get_or_none(loan_id):
         return model_to_dict(loan, recurse=False)
     raise HTTPException(404)
 
 
 @router.get("/loans/{loan_id}/close", tags=["loans"])
-def close_loan(loan_id: int):
+def close_loan(loan_id: int, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
     loan = Loan.get_or_none(Loan.id == loan_id)
     if not loan:
         raise HTTPException(400, "No such loan")
@@ -88,9 +96,9 @@ def close_loan(loan_id: int):
 
 
 @router.delete("/loans/{loan_id}", tags=["loans"])
-async def delete_loan(loan_id: int):
-    if FAKE_USER_ROLE in ("operator", "admin"):
-        HTTPException(403)
+async def delete_loan(loan_id: int, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
 
     loan = Loan.get_or_none(Loan.id == loan_id)
     if not loan:

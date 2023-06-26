@@ -4,6 +4,7 @@ import pytest
 from api.main import app
 from api.pwmodels import Item, Loan, ItemPicture
 from fastapi.testclient import TestClient
+from conftest import AUTH_ADMIN, AUTH_USER
 
 client = TestClient(app)
 
@@ -11,10 +12,7 @@ IMG_FILE = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\
 
 
 def test_create_item():
-    response = client.post(
-        "/items",
-        json={"name": "objet"},
-    )
+    response = client.post("/items", json={"name": "objet"}, headers=AUTH_ADMIN)
     assert response.status_code == 200
     newitem = response.json()
     assert "id" in newitem
@@ -38,10 +36,7 @@ def test_create_item_attributes():
         "players_max": 7,
         "description": "Desc",
     }
-    response = client.post(
-        "/items",
-        json=newjson,
-    )
+    response = client.post("/items", json=newjson, headers=AUTH_ADMIN)
     newitem = response.json()
 
     # Check in API
@@ -56,6 +51,7 @@ def test_create_item_bigoutside(big, outside):
     response = client.post(
         "/items",
         json={"name": "objet", "big": big, "outside": outside},
+        headers=AUTH_ADMIN,
     )
     newitem = response.json()
 
@@ -66,18 +62,30 @@ def test_create_item_bigoutside(big, outside):
     assert item["outside"] == outside
 
 
+def test_delete_item_not_authenticated():
+    response = client.delete("/items/0")
+    assert response.status_code == 403
+
+    response = client.delete("/items/0", headers=AUTH_USER)
+    assert response.status_code == 403
+
+
 def test_delete_item():
-    response = client.post("/users", json={"name": "bob", "email": "bob@nomail"})
+    response = client.post(
+        "/users", json={"name": "bob", "email": "bob@nomail"}, headers=AUTH_ADMIN
+    )
     user_id = response.json()["id"]
-    response = client.post("/items", json={"name": "obj"})
+    response = client.post("/items", json={"name": "obj"}, headers=AUTH_ADMIN)
     item_id = response.json()["id"]
     response = client.post(
-        "/loans", json={"user": user_id, "items": [item_id], "cost": 0}
+        "/loans",
+        json={"user": user_id, "items": [item_id], "cost": 0},
+        headers=AUTH_ADMIN,
     )
     loan_id = response.json()[0]["id"]
 
     # Delete via API
-    response = client.delete(f"/items/{item_id}")
+    response = client.delete(f"/items/{item_id}", headers=AUTH_ADMIN)
     assert response.status_code == 200
 
     # Check in DB
@@ -87,7 +95,7 @@ def test_delete_item():
 
 def test_delete_unknown_item():
     # Delete via API
-    response = client.delete("/items/7")
+    response = client.delete("/items/7", headers=AUTH_ADMIN)
     assert response.status_code == 404
 
 
@@ -112,15 +120,12 @@ def test_edit_item_attributes(toedit: dict):
         "players_max": 7,
         "description": "Desc",
     }
-    response = client.post(
-        "/items",
-        json=newjson,
-    )
+    response = client.post("/items", json=newjson, headers=AUTH_ADMIN)
     newitem = response.json()
 
     # Edit with APi
     newjson |= toedit
-    response = client.post(f"/items/{newitem['id']}", json=newjson)
+    response = client.post(f"/items/{newitem['id']}", json=newjson, headers=AUTH_ADMIN)
     assert response.status_code == 200
 
     # Check in API
@@ -133,8 +138,8 @@ def test_get_items():
     # Create items
     item1 = {"name": "obj1", "age": 10, "players_min": 2, "players_max": 7}
     item2 = {"name": "obj2", "description": "Desc"}
-    response = client.post("/items", json=item1)
-    response = client.post("/items", json=item2)
+    response = client.post("/items", json=item1, headers=AUTH_ADMIN)
+    response = client.post("/items", json=item2, headers=AUTH_ADMIN)
 
     # Check in API
     response = client.get("/items")
@@ -158,7 +163,9 @@ def test_item_add_picture(fakestorage):
 
     # Create the first one
     response = client.post(
-        f"/items/{item.id}/picture", files={"file": ("filename", f, "image/jpeg")}
+        f"/items/{item.id}/picture",
+        files={"file": ("filename", f, "image/jpeg")},
+        headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
 
@@ -169,7 +176,9 @@ def test_item_add_picture(fakestorage):
 
     # Now create a second one
     response = client.post(
-        f"/items/{item.id}/picture", files={"file": ("filename", f, "image/jpeg")}
+        f"/items/{item.id}/picture",
+        files={"file": ("filename", f, "image/jpeg")},
+        headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
     ItemPicture.get(item=item, index=2)
@@ -184,7 +193,9 @@ def test_item_modify_picture(fakestorage):
 
     f = io.BytesIO(IMG_FILE)
     response = client.post(
-        f"/items/{item.id}/picture/0", files={"file": ("filename", f, "image/jpeg")}
+        f"/items/{item.id}/picture/0",
+        files={"file": ("filename", f, "image/jpeg")},
+        headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
 
@@ -201,7 +212,9 @@ def test_item_modify_picture_nonexistent(fakestorage):
 
     f = io.BytesIO(IMG_FILE)
     response = client.post(
-        f"/items/{item.id}/picture/0", files={"file": ("filename", f, "image/jpeg")}
+        f"/items/{item.id}/picture/0",
+        files={"file": ("filename", f, "image/jpeg")},
+        headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
 
@@ -217,10 +230,12 @@ def test_picture_remove_existent(fakestorage):
 
     f = io.BytesIO(IMG_FILE)
     response = client.post(
-        f"/items/{item.id}/picture", files={"file": ("filename", f, "image/jpeg")}
+        f"/items/{item.id}/picture",
+        files={"file": ("filename", f, "image/jpeg")},
+        headers=AUTH_ADMIN,
     )
 
-    response = client.delete(f"/items/{item.id}/picture/0")
+    response = client.delete(f"/items/{item.id}/picture/0", headers=AUTH_ADMIN)
     assert response.status_code == 200
     assert not os.path.isfile(
         f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
@@ -230,7 +245,7 @@ def test_picture_remove_existent(fakestorage):
 
 def test_picture_remove_nonexistent():
     item = Item.create(name="jeu")
-    response = client.delete(f"/items/{item.id}/picture/5")
+    response = client.delete(f"/items/{item.id}/picture/5", headers=AUTH_ADMIN)
     assert response.status_code == 404
 
 
