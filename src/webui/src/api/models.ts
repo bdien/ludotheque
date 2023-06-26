@@ -1,3 +1,15 @@
+export interface InfoModel {
+  nbitems: number;
+  domain: string;
+  pricing: {
+    regular: number;
+    big: number;
+    big_associations: number;
+    yearly: number;
+    card: number;
+  };
+}
+
 export interface UserModel {
   id: number;
   name: string;

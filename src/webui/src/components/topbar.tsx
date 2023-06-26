@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -8,6 +8,7 @@ import Icon from "@mui/material/Icon";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { useAccount } from "../api/hooks";
+import { useAuth0 } from "@auth0/auth0-react";
 import Drawer from "@mui/material/Drawer";
 import ListItem from "@mui/material/ListItem";
 import List from "@mui/material/List";
@@ -16,6 +17,8 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import { Link } from "wouter";
 import Box from "@mui/material/Box";
 import { RandomColors } from "./random_colors";
+import Avatar from "@mui/material/Avatar";
+import { setToken } from "../api/calls";
 
 interface TopBarProps {
   width: number;
@@ -26,11 +29,18 @@ export function TopBar(props: TopBarProps) {
     () => <RandomColors txt="Ludo du Poisson-Lune" />,
     [],
   );
-  const { account } = useAccount();
+  const { account, mutate } = useAccount();
   const [anchorUserMenu, setAnchorUserMenu] = useState<null | HTMLElement>(
     null,
   );
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const {
+    user,
+    isAuthenticated,
+    loginWithRedirect,
+    logout,
+    getAccessTokenSilently,
+  } = useAuth0();
 
   const handleUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorUserMenu(event.currentTarget);
@@ -39,6 +49,17 @@ export function TopBar(props: TopBarProps) {
   const handleUserMenuClose = () => {
     setAnchorUserMenu(null);
   };
+
+  // Authentication checks
+  useEffect(() => {
+    console.log("auth check", isAuthenticated);
+    if (isAuthenticated) {
+      getAccessTokenSilently().then((token) => {
+        setToken(token);
+        mutate();
+      });
+    }
+  }, [isAuthenticated]);
 
   const drawer = (
     <>
@@ -65,18 +86,19 @@ export function TopBar(props: TopBarProps) {
           <ListItemText primary="Liste des Jeux" />
         </ListItem>
         {account?.id && (
+          <ListItem
+            component={Link}
+            to={`/users/${account.id}`}
+            onClick={() => setIsDrawerOpen(false)}
+          >
+            <ListItemIcon>
+              <Icon>account_circle</Icon>
+            </ListItemIcon>
+            <ListItemText primary="Mes emprunts" />
+          </ListItem>
+        )}
+        {account?.role == "admin" && (
           <>
-            <ListItem
-              component={Link}
-              to={`/users/${account.id}`}
-              onClick={() => setIsDrawerOpen(false)}
-            >
-              <ListItemIcon>
-                <Icon>account_circle</Icon>
-              </ListItemIcon>
-              <ListItemText primary="Mes emprunts" />
-            </ListItem>
-
             <hr />
             <ListItem
               component={Link}
@@ -150,18 +172,15 @@ export function TopBar(props: TopBarProps) {
               {logotxt}
             </Typography>
 
-            {account?.id && (
+            {isAuthenticated && user && (
               <div>
-                {/* <IconButton color="inherit">
-                  <Icon color="warning">warning</Icon>
-                </IconButton> */}
                 <IconButton
                   aria-label="account of current user"
                   aria-haspopup="true"
                   onClick={handleUserMenu}
                   color="inherit"
                 >
-                  <Icon>account_circle</Icon>
+                  <Avatar alt={user.name} src={user.picture} />
                 </IconButton>
                 <Menu
                   id="usermenu-appbar"
@@ -178,14 +197,26 @@ export function TopBar(props: TopBarProps) {
                   open={Boolean(anchorUserMenu)}
                   onClose={handleUserMenuClose}
                 >
-                  <MenuItem onClick={handleUserMenuClose}>Mon profil</MenuItem>
                   <MenuItem onClick={handleUserMenuClose}>
+                    {user?.name}
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() =>
+                      logout({
+                        logoutParams: { returnTo: window.location.origin },
+                      })
+                    }
+                  >
                     Se déconnecter
                   </MenuItem>
                 </Menu>
               </div>
             )}
-            {!account?.id && <Button color="inherit">Login</Button>}
+            {!isAuthenticated && (
+              <Button color="inherit" onClick={() => loginWithRedirect()}>
+                Login
+              </Button>
+            )}
           </Toolbar>
         </AppBar>
 
