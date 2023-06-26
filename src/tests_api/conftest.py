@@ -1,3 +1,5 @@
+from typing import Annotated
+from fastapi import Header
 import os
 import tempfile
 import peewee
@@ -5,6 +7,7 @@ import pytest
 import logging
 import api.pwmodels
 import api.items
+import api.system
 
 AUTH_USER = {"Authorization": "0,alice,user"}
 AUTH_ADMIN = {"Authorization": "1,bob,admin"}
@@ -38,3 +41,11 @@ def fakestorage(monkeypatch):
     monkeypatch.setattr(api.items, "LUDO_STORAGE", tmpdir.name)
     yield tmpdir.name
     tmpdir.cleanup()
+
+
+def fake_auth_user(
+    authorization: Annotated[str | None, Header()] = None
+) -> api.system.AuthUser:
+    if not authorization:
+        return None
+    return api.system.AuthUser(*authorization.split(","))

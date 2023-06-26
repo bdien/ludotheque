@@ -1,8 +1,23 @@
 import Box from "@mui/material/Box";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useInfo, useAccount } from "../api/hooks";
+import Alert from "@mui/material/Alert";
 
 export function Main() {
+  const { info } = useInfo();
+  const { isAuthenticated, user } = useAuth0();
+  const { account } = useAccount();
+
   return (
     <>
+      {isAuthenticated && !account?.id && (
+        <Alert severity="error">
+          Nous n'arrivons pas à trouver l'adhérent correspondant à votre email (
+          {user?.email}).
+          <br />
+          Pourriez-vous nous contacter afin de résoudre ce problème ?
+        </Alert>
+      )}
       <Box sx={{ pb: 2 }}>
         <p>
           Pour passer un bon moment en famille ou avec les copains...
@@ -16,8 +31,9 @@ export function Main() {
           Acigné.
         </p>
         <p>
-          La Ludo, c'est un choix de près de <b>950 jeux</b> pour tout public
-          (de 9 mois à 99 ans), pour jouer sur place ou à la maison.
+          La Ludo, c'est un choix de{" "}
+          <b>{info ? info.nbitems : "près de 995"} jeux</b> pour tout public (de
+          9 mois à 99 ans), pour jouer sur place ou à la maison.
         </p>
         <p>
           Vous pouvez nous contacter via l'adresse suivante :<br />{" "}
@@ -28,22 +44,31 @@ export function Main() {
           </b>
         </p>
         <img src="/photomain.jpg" alt="Logo Picture" />
-        <p>
-          <b>Tarifs:</b>
-          <br />
-        </p>
-        <ul>
-          <li>Adhésion annuelle familiale de 10 euros.</li>
-          <li>Un jeu: 0,50 euro.</li>
-          <li>Carte d'abonnement: 12 euros. (24 jeux + 1 gratuit)</li>
-          <li>
-            Jeux surdimensionnés:
+        {info?.pricing && (
+          <>
+            <p>
+              <b>Tarifs:</b>
+              <br />
+            </p>
             <ul>
-              <li>5 euros pour les adhérents</li>
-              <li>7 euros pour les associations</li>
+              <li>Adhésion annuelle familiale de {info.pricing.yearly}€.</li>
+              <li>Un jeu: {info.pricing.regular}€.</li>
+              <li>
+                Carte d'abonnement: {info.pricing.card}€ (
+                {info.pricing.card / info.pricing.regular} jeux + 1 gratuit).
+              </li>
+              <li>
+                Jeux surdimensionnés:
+                <ul>
+                  <li>{info.pricing.big}€ pour les adhérents</li>
+                  <li>
+                    {info.pricing.big_associations}€ pour les associations
+                  </li>
+                </ul>
+              </li>
             </ul>
-          </li>
-        </ul>
+          </>
+        )}
       </Box>
     </>
   );

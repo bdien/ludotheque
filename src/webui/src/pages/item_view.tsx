@@ -129,7 +129,7 @@ export function Item(props: ItemProps) {
       )}
 
       {/* Edit button */}
-      {account?.id && (
+      {account?.role == "admin" && (
         <Link href={`/items/${item.id}/edit`}>
           <Fab
             color="primary"

@@ -58,7 +58,9 @@ def get_myself(auth=Depends(auth_user)):
     if not auth:
         return {}
     if u := User.get_or_none(User.id == auth.id):
-        return model_to_dict(u, recurse=False)
+        ret = model_to_dict(u, recurse=False)
+        del ret["notes"]  # Notes are private to admins
+        return ret
     raise HTTPException(402)
 
 

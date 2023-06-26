@@ -1,21 +1,23 @@
 import useSWR from "swr";
-import { Account, ItemModel, UserModel, Users } from "./models";
-import { SERVER_URL } from "./calls";
+import useSWRImmutable from "swr/immutable";
+import { Account, InfoModel, ItemModel, UserModel, Users } from "./models";
+import { SERVER_URL, fetcher } from "./calls";
 
-async function fetcher<JSON = any>(
-  input: RequestInfo,
-  init?: RequestInit,
-): Promise<JSON> {
-  const res = await fetch(input, init);
+export function useInfo() {
+  const { data, error, isLoading } = useSWRImmutable<InfoModel>(
+    `${SERVER_URL}/info`,
+    fetcher,
+  );
 
-  if (res.status >= 400)
-    throw new Error(await res.text(), { cause: res.status });
-
-  return res.json();
+  return {
+    info: data,
+    isLoading,
+    error,
+  };
 }
 
 export function useAccount() {
-  const { data, error, isLoading } = useSWR<Account>(
+  const { data, error, isLoading, mutate } = useSWR<Account>(
     `${SERVER_URL}/users/me`,
     fetcher,
   );
@@ -24,6 +26,7 @@ export function useAccount() {
     account: data,
     isLoading,
     error,
+    mutate,
   };
 }
 

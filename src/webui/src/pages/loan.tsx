@@ -8,12 +8,14 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 import Typography from "@mui/material/Typography";
+import { useInfo } from "../api/hooks";
 
 function submitLoan(user_id: number, objs_id: number[], topay: number) {
   return createLoan(user_id, objs_id, topay);
 }
 
 export function Loan() {
+  const { info } = useInfo();
   const [_location, setLocation] = useLocation();
   const [user, setUser] = useState<UserModel | null>(null);
   const [items, setItems] = useState<ItemModel[]>([]);
@@ -29,11 +31,15 @@ export function Loan() {
     </>
   );
 
-  if (!user) {
+  if (!user || !info) {
     return html;
   }
 
-  const topay = items.length * 0.5;
+  console.log(items);
+  const nbbig = items.filter((i) => i.big).length;
+  const nbregular = items.length - nbbig;
+  console.log(nbregular, nbbig);
+  const topay = nbregular * info.pricing.regular + nbbig * info.pricing.big;
   const topay_fromcredit = Math.min(topay, user.credit);
 
   return (

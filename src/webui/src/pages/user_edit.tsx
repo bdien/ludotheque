@@ -105,7 +105,6 @@ export function UserEdit(props: UserEditProps) {
         select
       >
         <MenuItem value={"user"}>Adhérent</MenuItem>
-        <MenuItem value={"operator"}>Opérateur</MenuItem>
         <MenuItem value={"admin"}>Administrateur</MenuItem>
       </TextField>
 

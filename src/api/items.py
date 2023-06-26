@@ -204,7 +204,7 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
 @router.get("/items/qsearch/{txt}", tags=["items"])
 def qsearch_item(txt: str):
     return list(
-        Item.select(Item.id, Item.name)
+        Item.select(Item.id, Item.name, Item.big)
         .where((Item.name ** f"%{txt}%") | (Item.id ** f"%{txt}%"))
         .order_by(Item.id)
         .limit(10)
