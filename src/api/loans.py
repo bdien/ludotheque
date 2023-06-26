@@ -39,6 +39,13 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
     if not all(items):
         raise HTTPException(400, "Cannot find some items")
 
+    # Check if any item was already borrowed by the same user
+    already_borrowed = (
+        Loan.select().where(Loan.user == user, Loan.item.in_(items)).count()
+    )
+    if already_borrowed:
+        raise HTTPException(400, "Some items are already borrowed by the same user")
+
     topay_fromcredit = min(body["cost"], user.credit)
 
     loans = []
@@ -48,7 +55,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         # For each item, forget any other loan and create a new one
         for i in items:
             Loan.update({"status": "in", "stop": today}).where(
-                Loan.id == i, Loan.status == "out"
+                Loan.item == i, Loan.status == "out"
             ).execute()
 
             loan = Loan.create(
