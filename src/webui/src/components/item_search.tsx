@@ -5,6 +5,9 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { debounce } from "@mui/material/utils";
 
+// ItemSearch allow to search for items
+// Note: It will NOT displayed items already loaned !
+
 interface ItemSearchProps {
   setItems: any;
 }
