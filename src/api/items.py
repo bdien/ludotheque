@@ -1,5 +1,4 @@
 import contextlib
-import peewee
 from api.pwmodels import Loan, Item, ItemPicture
 from api.system import auth_user
 from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
@@ -61,9 +60,9 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
     # Retrieve item + pictrres + status
     items = (
         Item.select(Item, Loan, ItemPicture)
-        .join(ItemPicture, peewee.JOIN.LEFT_OUTER)
+        .left_outer_join(ItemPicture)
         .switch(Item)
-        .join(Loan, peewee.JOIN.LEFT_OUTER)
+        .left_outer_join(Loan)
         .where(Item.id == item_id)
         .order_by(ItemPicture.index, -Loan.stop)
         .execute()
@@ -203,9 +202,13 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
 
 @router.get("/items/qsearch/{txt}", tags=["items"])
 def qsearch_item(txt: str):
+    "Return a list of max 10 items matching filter (and not already loaned)"
+
+    loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
     return list(
         Item.select(Item.id, Item.name, Item.big)
         .where((Item.name ** f"%{txt}%") | (Item.id ** f"%{txt}%"))
+        .where(Item.id.not_in(loaned_items))
         .order_by(Item.id)
         .limit(10)
         .dicts()

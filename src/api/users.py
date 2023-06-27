@@ -39,11 +39,7 @@ def get_users(
             peewee.fn.Count(Loan.id).alias("loans"),
             peewee.fn.Min(Loan.stop).alias("oldest_loan"),
         )
-        .join(
-            Loan,
-            peewee.JOIN.LEFT_OUTER,
-            on=((Loan.user == User.id) & (Loan.status == "out")),
-        )
+        .left_outer_join(Loan, on=((Loan.user == User.id) & (Loan.status == "out")))
         .group_by(User.id)
     )
 

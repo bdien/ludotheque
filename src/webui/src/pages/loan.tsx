@@ -55,9 +55,13 @@ export function Loan() {
           Règlement:
           <br />
           <ul>
-            <li>Total: {topay}€</li>
             <li>
-              Carte: {topay_fromcredit}€ (Il restera{" "}
+              Total: <b>{topay}€</b> ({nbbig > 0 && `${nbbig} gros`}
+              {nbbig > 0 && nbregular > 0 && " et "}
+              {nbregular > 0 && `${nbregular} taille normale`})
+            </li>
+            <li>
+              Pris sur la carte: {topay_fromcredit}€ (Il restera{" "}
               {user.credit - topay_fromcredit}€)
             </li>
             <li>
