@@ -39,6 +39,7 @@ export function MiniItem(props: MiniItemProps) {
       sx={{
         display: "flex",
         height: "clamp(100px, 15vw, 200px)",
+        width: "clamp(300px, 40vw, 500px)",
         mb: 1,
         p: 0.5,
         borderBottom: "1px solid #EEEEEE",
@@ -52,7 +53,11 @@ export function MiniItem(props: MiniItemProps) {
       >
         <Link href={`/items/${item.id}`}>
           <img
-            style={{ maxHeight: "100%", maxWidth: "100%" }}
+            style={{
+              maxHeight: "100%",
+              maxWidth: "100%",
+              borderRadius: "10px",
+            }}
             src={
               item.pictures?.length
                 ? `/storage/img/${item.pictures[0]}`
@@ -67,7 +72,6 @@ export function MiniItem(props: MiniItemProps) {
           sx={{
             whiteSpace: "nowrap",
             textOverflow: "ellipsis",
-            textDecoration: "none",
           }}
           fontWeight={600}
         >

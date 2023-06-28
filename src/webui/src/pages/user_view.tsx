@@ -3,7 +3,8 @@ import { useUser } from "../api/hooks";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
-import { Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import Fab from "@mui/material/Fab";
 import { Link } from "wouter";
 
@@ -34,9 +35,6 @@ export function UserView(props: UserViewProps) {
         component={Paper}
         sx={{ m: 0, mt: 1, mb: 2, p: 2 }}
       >
-        {/* <Grid textAlign={"center"}>
-          <Icon>person</Icon>
-        </Grid> */}
         <Grid>
           <Typography variant="h4">{user.name}</Typography>
           {user?.email}
@@ -45,7 +43,9 @@ export function UserView(props: UserViewProps) {
         </Grid>
       </Grid>
 
-      {user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)}
+      <Box display="flex" flexWrap="wrap" width="100%">
+        {user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)}
+      </Box>
 
       {/* Edit button */}
       <Link href={`/users/${user.id}/edit`}>
