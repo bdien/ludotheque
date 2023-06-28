@@ -17,9 +17,11 @@ async def create_user(request: Request, auth=Depends(auth_user)):
 
     # Limit to selected properties
     create_params = {
-        k: v for k, v in body.items() if k in ("name", "email", "role", "credit")
+        k: v
+        for k, v in body.items()
+        if k in ("name", "email", "role", "credit", "notes")
     }
-    if not (0 <= create_params.get("credit", 0) <= 100):
+    if not (0 <= int(create_params.get("credit", 0)) <= 100):
         raise HTTPException(400, "Invalid credit")
 
     user = User.create(**create_params)
@@ -89,9 +91,11 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
 
     # Limit to selected properties
     update_params = {
-        k: v for k, v in body.items() if k in ("name", "email", "role", "credit")
+        k: v
+        for k, v in body.items()
+        if k in ("name", "email", "role", "credit", "notes")
     }
-    if not (0 <= update_params.get("credit", 0) <= 100):
+    if not (0 <= int(update_params.get("credit", 0)) <= 100):
         raise HTTPException(400, "Invalid credit")
 
     User.update(**update_params).where(User.id == user_id).execute()
@@ -115,7 +119,7 @@ def qsearch_user(txt: str, auth=Depends(auth_user)):
         raise HTTPException(403)
 
     # Replace accents
-    txt = re.sub("[eéèaàcçuù]", "_", txt)
+    txt = re.sub("[eéèaàcçuùî]", "_", txt)
 
     return list(
         User.select(User.id, User.name)

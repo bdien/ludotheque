@@ -4,30 +4,17 @@ import Box from "@mui/material/Box";
 import { UserModel } from "../api/models";
 import { Link } from "wouter";
 import { GridColDef } from "@mui/x-data-grid/models";
-import Chip from "@mui/material/Chip";
+import Icon from "@mui/material/Icon";
 import { useMediaQuery, useTheme } from "@mui/material";
 
 function nameDisplay(user: UserModel) {
   return (
     <>
       <Link href={`/users/${user.id}`}>{user.name}</Link>
-      {user.role == "operator" && (
-        <Chip
-          label="Ops"
-          size="small"
-          color="primary"
-          variant="outlined"
-          sx={{ ml: 1 }}
-        />
-      )}
       {user.role == "admin" && (
-        <Chip
-          label="Admin"
-          size="small"
-          color="primary"
-          variant="outlined"
-          sx={{ ml: 1 }}
-        />
+        <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
+          local_police
+        </Icon>
       )}
     </>
   );
