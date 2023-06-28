@@ -32,16 +32,16 @@ export function UserView(props: UserViewProps) {
         spacing={0}
         columns={16}
         component={Paper}
-        sx={{ m: 0, mt: 1, mb: 2 }}
+        sx={{ m: 0, mt: 1, mb: 2, p: 2 }}
       >
         {/* <Grid textAlign={"center"}>
           <Icon>person</Icon>
         </Grid> */}
         <Grid>
           <Typography variant="h4">{user.name}</Typography>
-          {/* {user.created_time && <div>Créé le {user.created_time}</div>} */}
+          {user?.email}
           <div>{user?.loans?.length} Prêts</div>
-          <div>Credit sur la carte: {user?.credit}€</div>
+          {user?.credit > 0 && <div>{user?.credit}€ sur la carte</div>}
         </Grid>
       </Grid>
 
