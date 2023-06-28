@@ -13,7 +13,7 @@ import { Main } from "./pages/main";
 function App() {
   return (
     <Box height="100vh" display="flex">
-      <TopBar width={220} />
+      <TopBar width={225} />
 
       <Box
         component="main"

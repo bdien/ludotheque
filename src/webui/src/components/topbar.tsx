@@ -63,17 +63,13 @@ export function TopBar(props: TopBarProps) {
 
   const drawer = (
     <>
-      <img src="/logosmall.webp" />
       <List>
         <ListItem
           component={Link}
           to="/"
           onClick={() => setIsDrawerOpen(false)}
         >
-          <ListItemIcon>
-            <Icon>home</Icon>
-          </ListItemIcon>
-          <ListItemText primary="Accueil" />
+          <img src="/logosmall.webp" style={{ maxWidth: "100%" }} />
         </ListItem>
         <ListItem
           component={Link}

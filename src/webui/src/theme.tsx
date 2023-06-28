@@ -4,6 +4,9 @@ import { frFR } from "@mui/x-data-grid";
 // A custom theme for this app
 const theme = createTheme(
   {
+    typography: {
+      fontSize: 13,
+    },
     palette: {
       primary: {
         main: "#556cd6",
