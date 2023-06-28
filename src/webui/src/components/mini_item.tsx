@@ -38,7 +38,7 @@ export function MiniItem(props: MiniItemProps) {
     <Box
       sx={{
         display: "flex",
-        height: "clamp(100px, 15vw, 300px)",
+        height: "clamp(100px, 15vw, 200px)",
         mb: 1,
         p: 0.5,
         borderBottom: "1px solid #EEEEEE",
