@@ -95,18 +95,21 @@ export function TopBar(props: TopBarProps) {
         )}
         {account?.role == "admin" && (
           <>
-            <hr />
             <ListItem
               component={Link}
               to="/loans/new"
               onClick={() => setIsDrawerOpen(false)}
+              sx={{
+                borderTop: "1px solid #E5E5E5",
+                borderBottom: "1px solid #E5E5E5",
+                mt: 1,
+              }}
             >
               <ListItemIcon>
                 <Icon>playlist_add</Icon>
               </ListItemIcon>
               <ListItemText primary="Nouvel emprunt" />
             </ListItem>
-            <hr />
             <ListItem
               component={Link}
               to="/users"

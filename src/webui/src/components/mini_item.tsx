@@ -50,14 +50,16 @@ export function MiniItem(props: MiniItemProps) {
         justifyContent="center"
         alignItems="center"
       >
-        <img
-          style={{ maxHeight: "100%", maxWidth: "100%" }}
-          src={
-            item.pictures?.length
-              ? `/storage/img/${item.pictures[0]}`
-              : "/notavailable.png"
-          }
-        ></img>
+        <Link href={`/items/${item.id}`}>
+          <img
+            style={{ maxHeight: "100%", maxWidth: "100%" }}
+            src={
+              item.pictures?.length
+                ? `/storage/img/${item.pictures[0]}`
+                : "/notavailable.png"
+            }
+          />
+        </Link>
       </Box>
       <Box>
         <Typography
