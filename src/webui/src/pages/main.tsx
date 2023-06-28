@@ -18,12 +18,12 @@ export function Main() {
           Pourriez-vous nous contacter afin de résoudre ce problème ?
         </Alert>
       )}
-      <Box sx={{ pb: 2 }}>
+      <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
           Pour passer un bon moment en famille ou avec les copains...
           <br />
           <br />
-          La<b> Ludo du Poisson Lune</b> vous propose un espace jeux,
+          La<b> Ludo du Poisson Lune</b> vous propose un espace jeux.
           <br />
           Nous sommes ouverts <b> tous les samedis de 10h30 à 12h00</b>, hors
           les samedis du milieu des vacances scolaires, au{" "}
@@ -43,7 +43,11 @@ export function Main() {
             </a>
           </b>
         </p>
-        <img src="/photomain.jpg" alt="Logo Picture" />
+        <img
+          src="/photomain.jpg"
+          alt="Logo Picture"
+          style={{ maxWidth: "100%" }}
+        />
         {info?.pricing && (
           <>
             <p>
