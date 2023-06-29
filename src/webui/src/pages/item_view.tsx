@@ -72,6 +72,8 @@ export function Item(props: ItemProps) {
       >
         {item.name}
       </Typography>
+
+      {/* Description */}
       {item.description && (
         <Typography
           variant="subtitle1"
@@ -82,6 +84,26 @@ export function Item(props: ItemProps) {
         >
           {item.description}
         </Typography>
+      )}
+
+      {/* Contenu */}
+      {item.content && (
+        <Box border="1px solid #E5E5E5" borderRadius="10px">
+          <Typography
+            variant="subtitle1"
+            color="text.secondary"
+            component="div"
+            style={{ whiteSpace: "pre-line" }}
+            sx={{ p: 1 }}
+          >
+            Contenu:
+            <ul>
+              {item.content.map((row) => (
+                <li>{row}</li>
+              ))}
+            </ul>
+          </Typography>
+        </Box>
       )}
 
       {/* Item details */}
@@ -97,6 +119,12 @@ export function Item(props: ItemProps) {
                 <TableCell>Joueurs</TableCell>
                 <TableCell>{playerDisplay(item)}</TableCell>
               </TableRow>
+              {item.gametime && (
+                <TableRow>
+                  <TableCell>Temps d'une partie</TableCell>
+                  <TableCell>{item.gametime} minutes</TableCell>
+                </TableRow>
+              )}
               {item.age !== undefined && (
                 <TableRow>
                   <TableCell>Age (A partir de)</TableCell>

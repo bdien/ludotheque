@@ -27,6 +27,7 @@ import { useState } from "react";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
+import InputAdornment from "@mui/material/InputAdornment";
 
 interface ItemEditProps {
   id?: number;
@@ -64,6 +65,7 @@ type FormValues = {
   name: string;
   description: string;
   age: number;
+  gametime: number;
   big: boolean;
   outside: boolean;
 };
@@ -85,6 +87,7 @@ export function ItemEdit(props: ItemEditProps) {
     item.name = data.name;
     item.description = data.description;
     item.age = data.age;
+    item.gametime = data.gametime;
     item.big = data.big;
     item.outside = data.outside;
 
@@ -121,12 +124,13 @@ export function ItemEdit(props: ItemEditProps) {
   // render data
   return (
     <>
-      <FormControl sx={{ width: "100%", p: 2 }}>
+      <FormControl sx={{ width: "100%", pt: 2 }}>
         <Box
           sx={{
             width: "100%",
             height: "40vh",
             objectFit: "contain",
+            mb: 1,
           }}
         >
           <ImageChooser
@@ -148,10 +152,13 @@ export function ItemEdit(props: ItemEditProps) {
           >
             <TableBody>
               <TableRow>
-                <TableCell>Nom</TableCell>
+                <TableCell sx={{ width: "clamp(80px, 20vw, 300px)" }}>
+                  Nom
+                </TableCell>
                 <TableCell>
                   <TextField
                     fullWidth
+                    label="Nom"
                     defaultValue={item.name}
                     spellCheck={true}
                     {...register("name")}
@@ -163,6 +170,7 @@ export function ItemEdit(props: ItemEditProps) {
                 <TableCell>
                   <TextField
                     fullWidth
+                    label="Description"
                     spellCheck={true}
                     multiline
                     minRows={2}
@@ -181,6 +189,22 @@ export function ItemEdit(props: ItemEditProps) {
                       </MenuItem>
                     ))}
                   </Select>
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Temps d'une partie</TableCell>
+                <TableCell>
+                  <TextField
+                    defaultValue={item.gametime}
+                    label="Temps d'une partie"
+                    type="number"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">min</InputAdornment>
+                      ),
+                    }}
+                    {...register("gametime")}
+                  />
                 </TableCell>
               </TableRow>
               <TableRow>

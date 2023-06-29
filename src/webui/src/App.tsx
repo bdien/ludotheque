@@ -20,7 +20,7 @@ function App() {
         sx={{
           height: "calc(100vh - 130px)",
           flexGrow: 1,
-          p: 2,
+          p: 1,
           width: { sm: `calc(100% - 240px)` },
           overflowX: "clip",
         }}
