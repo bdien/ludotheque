@@ -23,12 +23,15 @@ export function MiniItem(props: MiniItemProps) {
   }
 
   const rtf = new Intl.RelativeTimeFormat();
-  const today = new Date().valueOf();
+  const today = new Date();
   function relTime(txt: string) {
     const days: number = Math.round(
-      (new Date(txt).valueOf() - today) / (3600000 * 24),
+      (new Date(txt).valueOf() - today.valueOf()) / (3600000 * 24),
     );
-    return rtf.format(days, "days");
+    return days;
+  }
+  function relTimeTxt(txt: string) {
+    return rtf.format(relTime(txt), "days");
   }
 
   const last_loan = item.loans ? item.loans[0] : undefined;
@@ -81,13 +84,19 @@ export function MiniItem(props: MiniItemProps) {
         </Typography>
         {last_loan && (
           <>
-            <Typography
-              variant="subtitle2"
-              color="text.secondary"
-              component="div"
-            >
-              Date de retour {relTime(last_loan.stop)}
-            </Typography>
+            {new Date(last_loan.stop) < today ? (
+              <Typography variant="subtitle2" color="red">
+                En retard de {-relTime(last_loan.stop)} jours
+              </Typography>
+            ) : (
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                component="div"
+              >
+                A rendre {relTimeTxt(last_loan.stop)}
+              </Typography>
+            )}
             {last_loan.status == "out" && (
               <Button
                 size="small"

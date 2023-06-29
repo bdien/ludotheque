@@ -13,19 +13,17 @@ export interface InfoModel {
 export interface UserModel {
   id: number;
   name: string;
-  email?: string;
+  email: string;
   role: string;
   credit: number;
+  oldest_loan?: string;
   loans?: Loan[];
+  nbloans?: number;
+  notes?: string;
   created_time?: string;
 }
 
-export interface UsersItem {
-  id: number;
-  name: string;
-}
-
-export interface Users extends Array<UsersItem> {}
+export interface Users extends Array<UserModel> {}
 
 export interface ItemModel {
   id: number;
@@ -34,9 +32,13 @@ export interface ItemModel {
   pictures?: string[];
   players_max?: number;
   players_min?: number;
+  gametime?: number;
   age?: number;
   big?: boolean;
   outside?: boolean;
+  content?: object;
+  notes?: string;
+  created_time?: string;
   status?: string;
   return?: string;
   loans?: Loan[];
