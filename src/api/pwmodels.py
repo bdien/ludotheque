@@ -1,12 +1,13 @@
 import os
 import datetime
 import peewee
+from playhouse.sqlite_ext import SqliteExtDatabase, JSONField
 
 
 db = peewee.DatabaseProxy()
 dbpath = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 db.initialize(
-    peewee.SqliteDatabase(
+    SqliteExtDatabase(
         f"{dbpath}/ludotheque.db", pragmas={"foreign_keys": 1, "journal_mode": "wal"}
     )
 )
@@ -45,7 +46,7 @@ class Item(BaseModel):
     age = peewee.IntegerField(null=True)
     big = peewee.BooleanField(default=False)
     outside = peewee.BooleanField(default=False)
-    content = peewee.TextField(null=True)
+    content = JSONField(null=True)
     notes = peewee.TextField(null=True)
     created_time = peewee.DateTimeField(default=datetime.datetime.utcnow)
 
