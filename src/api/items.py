@@ -22,9 +22,10 @@ async def create_item(request: Request, auth=Depends(auth_user)):
     body = await request.json()
 
     # Avoid some properties
-    create_params = {k: v for k, v in body.items() if k not in ("id", "created_time")}
+    params = {k: v for k, v in body.items() if k in Item._meta.fields}
+    params = {k: v for k, v in params.items() if k not in ("id", "created_time")}
 
-    item = Item.create(**create_params)
+    item = Item.create(**params)
     return model_to_dict(item)
 
 
@@ -81,9 +82,10 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
     body = await request.json()
 
     # Avoid some properties
-    update_params = {k: v for k, v in body.items() if k not in ("id", "created_time")}
+    params = {k: v for k, v in body.items() if k in Item._meta.fields}
+    params = {k: v for k, v in params.items() if k not in ("id", "created_time")}
 
-    Item.update(**update_params).where(Item.id == item_id).execute()
+    Item.update(**params).where(Item.id == item_id).execute()
 
 
 @router.post("/items/{item_id}/picture", tags=["items"])
