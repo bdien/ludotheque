@@ -36,7 +36,7 @@ export interface ItemModel {
   age?: number;
   big?: boolean;
   outside?: boolean;
-  content?: object;
+  content?: string[];
   notes?: string;
   created_time?: string;
   status?: string;
