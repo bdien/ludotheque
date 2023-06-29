@@ -113,8 +113,8 @@ def test_edit_user_attributes(toedit: dict):
 
 def test_get_users():
     # Create Users
-    User1 = {"name": "bob", "email": "bob@nomail", "credit": 3, "role": "admin"}
-    User2 = {"name": "alice", "email": "alice@nomail"}
+    User1 = {"name": "alice", "email": "alice@nomail"}
+    User2 = {"name": "bob", "email": "bob@nomail", "credit": 3, "role": "admin"}
     response = client.post("/users", json=User1, headers=AUTH_ADMIN)
     response = client.post("/users", json=User2, headers=AUTH_ADMIN)
 
