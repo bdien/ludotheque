@@ -50,7 +50,7 @@ def get_users(
     if q:
         query = query.where((User.name ** f"%{q}%") | (User.email ** f"%{q}%"))
 
-    return list(query.order_by(User.id).dicts())
+    return list(query.order_by(User.name).dicts())
 
 
 @router.get("/users/me", tags=["users"])

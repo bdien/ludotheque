@@ -90,7 +90,7 @@ const DEFAULT_USER: UserModel = {
 export function useUser(id?: number) {
   if (!id) {
     return {
-      user: DEFAULT_USER,
+      user: { ...DEFAULT_USER },
       isLoading: false,
       error: false,
       mutate: undefined,

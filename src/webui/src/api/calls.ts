@@ -1,4 +1,4 @@
-import { UserModel, ItemModel, UsersItem } from "./models";
+import { UserModel, ItemModel } from "./models";
 export const SERVER_URL = "/api";
 
 let access_token: string | null = null;
@@ -114,7 +114,7 @@ export async function fetchUser(userId: number): Promise<UserModel> {
   return response.json();
 }
 
-export async function qsearchUser(txt: string): Promise<UsersItem[]> {
+export async function qsearchUser(txt: string): Promise<UserModel[]> {
   if (!txt || txt.length < 2) return Promise.resolve([]);
   const response = await fetchWithToken(`${SERVER_URL}/users/qsearch/${txt}`);
   return response.json();
