@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 
 interface MiniItemProps {
   id: number;
+  onLoanClose: (obj_id: number) => void;
 }
 
 export function MiniItem(props: MiniItemProps) {
@@ -19,6 +20,7 @@ export function MiniItem(props: MiniItemProps) {
   function close_loan(loanId: number) {
     closeLoan(loanId).then((data) => {
       mutate && mutate(data);
+      props.onLoanClose(data.id);
     });
   }
 
