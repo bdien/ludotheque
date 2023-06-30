@@ -42,14 +42,14 @@ export function MiniItem(props: MiniItemProps) {
       sx={{
         display: "flex",
         height: "clamp(100px, 15vw, 200px)",
-        width: "clamp(300px, 40vw, 500px)",
+        width: "min(100%, 500px)",
         mb: 1,
         p: 0.5,
         borderBottom: "1px solid #EEEEEE",
       }}
     >
       <Box
-        sx={{ width: "clamp(80px, 20vw, 200px)", mr: 2 }}
+        sx={{ width: "40%", mr: 2 }}
         display="flex"
         justifyContent="center"
         alignItems="center"
@@ -59,6 +59,7 @@ export function MiniItem(props: MiniItemProps) {
             style={{
               maxHeight: "100%",
               maxWidth: "100%",
+              minWidth: "80px",
               borderRadius: "10px",
             }}
             src={
@@ -69,12 +70,13 @@ export function MiniItem(props: MiniItemProps) {
           />
         </Link>
       </Box>
-      <Box>
+      <Box width="60%">
         <Typography
           component="div"
           sx={{
             whiteSpace: "nowrap",
             textOverflow: "ellipsis",
+            overflow: "hidden",
           }}
           fontWeight={600}
         >

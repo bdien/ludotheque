@@ -119,7 +119,7 @@ def qsearch_user(txt: str, auth=Depends(auth_user)):
         raise HTTPException(403)
 
     # Replace accents
-    txt = re.sub("[eéèaàcçuùî]", "_", txt)
+    txt = re.sub("[eéèaàcçuùîiï]", "_", txt)
 
     return list(
         User.select(User.id, User.name)

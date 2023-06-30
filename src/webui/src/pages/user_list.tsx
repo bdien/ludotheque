@@ -78,9 +78,11 @@ export function UserList() {
                       >
                         {row.name}
                       </Link>
-                      <Icon fontSize="small" sx={{ ml: 0.3 }}>
-                        star
-                      </Icon>
+                      {row.role == "admin" && (
+                        <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                          star
+                        </Icon>
+                      )}
                     </div>
                   </Typography>
                   <Box display={displaysm}>{row.email}</Box>
