@@ -159,6 +159,7 @@ export function ItemEdit(props: ItemEditProps) {
                   <TextField
                     fullWidth
                     label="Nom"
+                    inputProps={{ maxLength: 128 }}
                     defaultValue={item.name}
                     spellCheck={true}
                     {...register("name")}
@@ -199,6 +200,7 @@ export function ItemEdit(props: ItemEditProps) {
                     label="Temps d'une partie"
                     type="number"
                     InputProps={{
+                      inputProps: { min: 0, max: 360 },
                       endAdornment: (
                         <InputAdornment position="end">min</InputAdornment>
                       ),

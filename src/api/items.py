@@ -25,6 +25,10 @@ async def create_item(request: Request, auth=Depends(auth_user)):
     params = {k: v for k, v in body.items() if k in Item._meta.fields}
     params = {k: v for k, v in params.items() if k not in ("id", "created_time")}
 
+    # Checks
+    if not (0 <= int(params.get("gametime") or 1) <= 360):
+        raise HTTPException(400, "Invalid gametime")
+
     item = Item.create(**params)
     return model_to_dict(item)
 
@@ -84,6 +88,10 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in Item._meta.fields}
     params = {k: v for k, v in params.items() if k not in ("id", "created_time")}
+
+    # Checks
+    if not (0 <= int(params.get("gametime") or 1) <= 360):
+        raise HTTPException(400, "Invalid gametime")
 
     Item.update(**params).where(Item.id == item_id).execute()
 

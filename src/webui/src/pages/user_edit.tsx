@@ -92,6 +92,7 @@ export function UserEdit(props: UserEditProps) {
         defaultValue={user.credit}
         {...register("credit")}
         InputProps={{
+          inputProps: { min: 0, max: 100 },
           endAdornment: <InputAdornment position="end">€</InputAdornment>,
         }}
       />
