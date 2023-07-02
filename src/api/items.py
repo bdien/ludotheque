@@ -1,5 +1,5 @@
 import contextlib
-from api.pwmodels import Loan, Item, ItemPicture
+from api.pwmodels import Loan, Item, ItemPicture, User
 from api.system import auth_user
 from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
 from playhouse.shortcuts import model_to_dict
@@ -49,18 +49,21 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
     if not auth or auth.role != "admin":
         history = 1  # noqa: F841
 
-    # Retrieve item + pictrres + status
+    # Retrieve item + pictures + status (Limit to the last 10 loans)
     items = (
-        Item.select(Item, Loan, ItemPicture)
+        Item.select(Item, Loan, ItemPicture, User.name, User.id)
         .left_outer_join(ItemPicture)
         .switch(Item)
         .left_outer_join(Loan)
+        .limit(10)
+        .left_outer_join(User)
         .where(Item.id == item_id)
         .order_by(ItemPicture.index, -Loan.stop)
         .execute()
     )
 
     if items:
+        # First item is the latest loan
         item = items[0]
         base = model_to_dict(item, recurse=False)
         loans = [i.loan for i in items] if hasattr(item, "loan") else []
@@ -73,7 +76,16 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
             base["status"] = loans[0].status
             base["return"] = loans[0].stop
             if auth and auth.role == "admin":
-                base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
+                # Return all loans + user
+                base["loans"] = [
+                    model_to_dict(i, recurse=False)
+                    | {
+                        "user": model_to_dict(
+                            i.user, recurse=False, only=[User.id, User.name]
+                        )
+                    }
+                    for i in loans
+                ]
         return base
     raise HTTPException(404)
 

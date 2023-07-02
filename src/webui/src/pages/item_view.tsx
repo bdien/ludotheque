@@ -8,9 +8,12 @@ import Typography from "@mui/material/Typography";
 import { useAccount, useItem } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
 import { ItemModel } from "../api/models";
-import Fab from "@mui/material/Fab";
 import Icon from "@mui/material/Icon";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import TableHead from "@mui/material/TableHead";
+import SpeedDial from "@mui/material/SpeedDial";
+import SpeedDialAction from "@mui/material/SpeedDialAction";
+import { SpeedDialIcon } from "@mui/material";
 
 interface ItemProps {
   id: number;
@@ -44,6 +47,7 @@ function playerDisplay(item: ItemModel) {
 export function Item(props: ItemProps) {
   const { account } = useAccount();
   const { item, error } = useItem(props.id);
+  const [_location, navigate] = useLocation();
 
   if (error) return <div>Server error: {error.cause}</div>;
   if (!item) return <></>;
@@ -113,7 +117,18 @@ export function Item(props: ItemProps) {
             <TableBody>
               <TableRow>
                 <TableCell>Status</TableCell>
-                <TableCell>{displayStatus(item)}</TableCell>
+                <TableCell>
+                  {displayStatus(item)}
+                  {item.loans?.length && (
+                    <>
+                      <span> (</span>
+                      <Link href={`/users/${item.loans[0].user?.id}`}>
+                        {item.loans[0].user?.name}
+                      </Link>
+                      )
+                    </>
+                  )}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>Joueurs</TableCell>
@@ -144,33 +159,78 @@ export function Item(props: ItemProps) {
 
       {/* Loan history */}
       {item?.loans?.length && (
-        <div>
+        <Box sx={{ p: 1, pt: 2 }}>
           Emprunts:
-          <br />
-          {item.loans.map((i) => (
-            <span>
-              {i.start} ➜ {i.stop}
-              <br />
-            </span>
-          ))}
-        </div>
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Adhérent</TableCell>
+                  <TableCell>Début</TableCell>
+                  <TableCell>Fin</TableCell>
+                  <TableCell>Durée</TableCell>
+                </TableRow>
+              </TableHead>
+              {item.loans.map((i) => (
+                <TableRow>
+                  <TableCell>{i.user?.name}</TableCell>
+                  <TableCell>{i.start}</TableCell>
+                  <TableCell>{i.stop}</TableCell>
+                  <TableCell>
+                    {i.status == "out"
+                      ? "En cours"
+                      : `${
+                          (new Date(i.stop).valueOf() -
+                            new Date(i.start).valueOf()) /
+                          (3600000 * 24)
+                        } jours`}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </Table>
+          </TableContainer>
+        </Box>
       )}
 
       {/* Edit button */}
       {account?.role == "admin" && (
-        <Link href={`/items/${item.id}/edit`}>
-          <Fab
-            color="primary"
-            aria-label="edit"
-            sx={{
-              position: "fixed",
-              bottom: (theme) => theme.spacing(2),
-              right: (theme) => theme.spacing(2),
-            }}
-          >
-            <Icon>edit</Icon>
-          </Fab>
-        </Link>
+        <SpeedDial
+          ariaLabel="Actions"
+          sx={{
+            position: "fixed",
+            bottom: (theme) => theme.spacing(2),
+            right: (theme) => theme.spacing(2),
+          }}
+          icon={<SpeedDialIcon />}
+        >
+          <SpeedDialAction
+            key="edit"
+            tooltipOpen={true}
+            icon={<Icon>edit</Icon>}
+            tooltipTitle="Edition"
+            onClick={() => navigate(`/items/${item.id}/edit`)}
+          />
+
+          {item.status == "out" ? (
+            <SpeedDialAction
+              key="rendre"
+              tooltipOpen={true}
+              icon={<Icon>file_download</Icon>}
+              tooltipTitle="Rendre"
+              onClick={() =>
+                navigate(`/loans/${item.loans ? item.loans[0].id : 0}/close`)
+              }
+            />
+          ) : (
+            <SpeedDialAction
+              key="emprunter"
+              tooltipOpen={true}
+              icon={<Icon>file_upload</Icon>}
+              tooltipTitle="Emprunter"
+              onClick={() => alert("TODO")}
+            />
+          )}
+        </SpeedDial>
       )}
     </>
   );

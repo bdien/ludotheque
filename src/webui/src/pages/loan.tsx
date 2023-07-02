@@ -35,10 +35,8 @@ export function Loan() {
     return html;
   }
 
-  console.log(items);
   const nbbig = items.filter((i) => i.big).length;
   const nbregular = items.length - nbbig;
-  console.log(nbregular, nbbig);
   const topay = nbregular * info.pricing.regular + nbbig * info.pricing.big;
   const topay_fromcredit = Math.min(topay, user.credit);
 

@@ -9,6 +9,7 @@ import { UserEdit } from "./pages/user_edit";
 import { UserView } from "./pages/user_view";
 import { Box, Toolbar } from "@mui/material";
 import { Main } from "./pages/main";
+import { LoanClose } from "./pages/loan_close";
 
 function App() {
   return (
@@ -62,6 +63,11 @@ function App() {
           </Route>
 
           <Route path="/loans/new" component={Loan} />
+          <Route path="/loans/:id/close">
+            {(params) => {
+              return <LoanClose id={parseInt(params.id)} />;
+            }}
+          </Route>
 
           <Route path="/" component={Main} />
         </Switch>

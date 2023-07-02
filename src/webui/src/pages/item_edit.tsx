@@ -197,6 +197,7 @@ export function ItemEdit(props: ItemEditProps) {
                 <TableCell>
                   <TextField
                     defaultValue={item.gametime}
+                    sx={{ minWidth: "200px" }}
                     label="Temps d'une partie"
                     type="number"
                     InputProps={{
