@@ -52,7 +52,6 @@ export function TopBar(props: TopBarProps) {
 
   // Authentication checks
   useEffect(() => {
-    console.log("auth check", isAuthenticated);
     if (isAuthenticated) {
       getAccessTokenSilently().then((token) => {
         setToken(token);

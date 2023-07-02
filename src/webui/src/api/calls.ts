@@ -12,7 +12,6 @@ export async function fetcher(url: string): Promise<any> {
   if (access_token)
     options = { headers: { authorization: `bearer ${access_token}` } };
 
-  console.log(options);
   const res = await fetch(url, options);
 
   if (res.status >= 400)

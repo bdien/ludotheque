@@ -61,7 +61,6 @@ export function MiniItem(props: MiniItemProps) {
             style={{
               maxHeight: "100%",
               maxWidth: "100%",
-              minWidth: "80px",
               borderRadius: "10px",
             }}
             src={

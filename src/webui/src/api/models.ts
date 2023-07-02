@@ -47,10 +47,13 @@ export interface ItemModel {
 export interface Loan {
   id: number;
   item: number;
-  user: number;
   start: string;
   stop: string;
   status: string;
+  user?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface Account {

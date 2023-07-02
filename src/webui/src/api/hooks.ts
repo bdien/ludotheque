@@ -1,12 +1,20 @@
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
-import { Account, InfoModel, ItemModel, UserModel, Users } from "./models";
+import {
+  Account,
+  InfoModel,
+  ItemModel,
+  Loan,
+  UserModel,
+  Users,
+} from "./models";
 import { SERVER_URL, fetcher } from "./calls";
 
 export function useInfo() {
   const { data, error, isLoading } = useSWRImmutable<InfoModel>(
     `${SERVER_URL}/info`,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   return {
@@ -20,6 +28,7 @@ export function useAccount() {
   const { data, error, isLoading, mutate } = useSWR<Account>(
     `${SERVER_URL}/users/me`,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   return {
@@ -54,6 +63,7 @@ export function useItem(id?: number) {
   const { data, error, isLoading, mutate } = useSWR<ItemModel>(
     `${SERVER_URL}/items/${id}`,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   return {
@@ -70,6 +80,7 @@ export function useItems(filter?: string) {
   const { data, error, isLoading } = useSWR<ItemModel[]>(
     `${SERVER_URL}/items${qs}`,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   return {
@@ -100,6 +111,7 @@ export function useUser(id?: number) {
   const { data, error, isLoading, mutate } = useSWR<UserModel>(
     `${SERVER_URL}/users/${id}`,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   return {
@@ -114,11 +126,27 @@ export function useUsers() {
   const { data, error, isLoading } = useSWR<Users>(
     `${SERVER_URL}/users`,
     fetcher,
+    { revalidateOnFocus: false },
   );
 
   return {
     users: data,
     isLoading,
     error,
+  };
+}
+
+export function useLoan(id: number) {
+  const { data, error, isLoading, mutate } = useSWR<Loan>(
+    `${SERVER_URL}/loans/${id}`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
+
+  return {
+    loan: data,
+    isLoading,
+    error,
+    mutate,
   };
 }

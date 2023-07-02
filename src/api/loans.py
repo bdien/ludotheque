@@ -1,4 +1,5 @@
 import datetime
+import logging
 from api.pwmodels import Loan, User, Item, db
 from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user
@@ -29,21 +30,27 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
     body = await request.json()
     for i in "user", "items", "cost":
         if i not in body:
+            logging.error("Missing parameter '%s'", i)
             raise HTTPException(400, f"Missing parameter '{i}'")
 
     user = User.get_or_none(User.id == body["user"])
     if not user:
+        logging.error("User '%s' not matching", body["user"])
         raise HTTPException(400, "No such user")
 
     items = [Item.get_or_none(Item.id == i) for i in body["items"]]
     if not all(items):
+        logging.error("Cannot find some items")
         raise HTTPException(400, "Cannot find some items")
 
     # Check if any item was already borrowed by the same user
     already_borrowed = (
-        Loan.select().where(Loan.user == user, Loan.item.in_(items)).count()
+        Loan.select()
+        .where(Loan.user == user, Loan.item.in_(items), Loan.status == "out")
+        .count()
     )
     if already_borrowed:
+        logging.error("%d items are already borrowed by the user", already_borrowed)
         raise HTTPException(400, "Some items are already borrowed by the same user")
 
     topay_fromcredit = min(body["cost"], user.credit)
