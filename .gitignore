@@ -162,3 +162,4 @@ cython_debug/
 
 # VScode added
 src/webui/public/img/
+storage
