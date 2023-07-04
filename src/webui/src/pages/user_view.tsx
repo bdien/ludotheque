@@ -37,7 +37,15 @@ export function UserView(props: UserViewProps) {
           <Typography variant="h4">{user.name}</Typography>
           {user?.email}
           <div>{user?.loans?.length} Prêts</div>
-          {user?.credit > 0 && <div>{user?.credit}€ sur la carte</div>}
+          <div>
+            {user?.credit > 0 && <span>{user?.credit}€ sur la carte, </span>}
+            {user?.subscription && (
+              <span>
+                l'abonnement se termine le{" "}
+                {new Date(user.subscription).toLocaleDateString()}
+              </span>
+            )}
+          </div>
         </Grid>
       </Grid>
 

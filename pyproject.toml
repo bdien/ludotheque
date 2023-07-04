@@ -30,8 +30,8 @@ dynamic = [ "version" ]
 
 [project.optional-dependencies]
 cli = [
-    "rich>=13.4.2",
     "questionary>=1.10.0",
+    "oidc-client>=0.2.6",
 ]
 
 [tool.pdm.version]

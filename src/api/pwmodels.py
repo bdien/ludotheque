@@ -42,6 +42,7 @@ class User(BaseModel):
     credit = peewee.IntegerField(default=0)
     notes = peewee.TextField(null=True)
     subscription = peewee.DateField(default=today_plus_1y)  # End of
+    apikey = peewee.CharField(null=True)
     created_at = peewee.DateField(default=date.today)
 
 

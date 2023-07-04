@@ -175,8 +175,12 @@ export function Item(props: ItemProps) {
                 {item.loans.map((i) => (
                   <TableRow key={i.id}>
                     <TableCell>{i.user?.name}</TableCell>
-                    <TableCell>{i.start}</TableCell>
-                    <TableCell>{i.stop}</TableCell>
+                    <TableCell>
+                      {new Date(i.start).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(i.stop).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>
                       {i.status == "out"
                         ? "En cours"
