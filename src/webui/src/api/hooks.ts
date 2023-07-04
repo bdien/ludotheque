@@ -90,6 +90,23 @@ export function useItems(filter?: string) {
   };
 }
 
+interface CategoryDict {
+  [id: number]: string;
+}
+
+export function useCategories() {
+  const { data, error, isLoading } = useSWRImmutable<CategoryDict>(
+    `${SERVER_URL}/categories`,
+    fetcher,
+  );
+
+  return {
+    categories: data,
+    isLoading,
+    error,
+  };
+}
+
 const DEFAULT_USER: UserModel = {
   id: 0,
   name: "",

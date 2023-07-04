@@ -1,5 +1,5 @@
 import contextlib
-from api.pwmodels import Loan, Item, ItemPicture, User
+from api.pwmodels import Category, ItemCategory, ItemLink, Loan, Item, ItemPicture, User
 from api.system import auth_user
 from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
 from playhouse.shortcuts import model_to_dict
@@ -23,13 +23,24 @@ async def create_item(request: Request, auth=Depends(auth_user)):
 
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in Item._meta.fields}
-    params = {k: v for k, v in params.items() if k not in ("id", "created_time")}
+    params = {k: v for k, v in params.items() if k not in ("id", "created_at")}
 
     # Checks
     if not (0 <= int(params.get("gametime") or 1) <= 360):
         raise HTTPException(400, "Invalid gametime")
 
     item = Item.create(**params)
+
+    # Modify item links
+    for i in body.get("links", []):
+        ItemLink.insert(
+            item=item, name=i["name"], ref=i["ref"]
+        ).on_conflict_replace().execute()
+
+    # Modify item category
+    for i in body.get("categories", []):
+        ItemCategory.insert(item=item, category=i).on_conflict_ignore().execute()
+
     return model_to_dict(item)
 
 
@@ -50,8 +61,11 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
         history = 1  # noqa: F841
 
     # Retrieve item + pictures + status (Limit to the last 10 loans)
+    # sourcery skip: use-named-expression
     items = (
-        Item.select(Item, Loan, ItemPicture, User.name, User.id)
+        Item.select(Item, Loan, ItemCategory, ItemPicture, User.name, User.id)
+        .left_outer_join(ItemCategory)
+        .switch(Item)
         .left_outer_join(ItemPicture)
         .switch(Item)
         .left_outer_join(Loan)
@@ -71,6 +85,10 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
 
         pics = [i.itempicture for i in items] if hasattr(item, "itempicture") else []
         base["pictures"] = [p.filename for p in pics]
+
+        base["categories"] = [
+            i.itemcategory.category_id for i in items if hasattr(i, "itemcategory")
+        ]
 
         if loans:
             base["status"] = loans[0].status
@@ -99,13 +117,25 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
 
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in Item._meta.fields}
-    params = {k: v for k, v in params.items() if k not in ("id", "created_time")}
+    params = {k: v for k, v in params.items() if k not in ("id", "created_at")}
 
     # Checks
     if not (0 <= int(params.get("gametime") or 1) <= 360):
         raise HTTPException(400, "Invalid gametime")
 
-    Item.update(**params).where(Item.id == item_id).execute()
+    # Modify main object
+    if params:
+        Item.update(**params).where(Item.id == item_id).execute()
+
+    # Modify item links
+    for i in body.get("links", []):
+        ItemLink.insert(
+            item=item_id, name=i["name"], ref=i["ref"]
+        ).on_conflict_replace().execute()
+
+    # Modify item category
+    for i in body.get("categories", []):
+        ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
 
 
 @router.post("/items/{item_id}/picture", tags=["items"])
@@ -209,3 +239,28 @@ def qsearch_item(txt: str):
         .limit(10)
         .dicts()
     )
+
+
+@router.get("/categories", tags=["categories"])
+def get_categories():
+    "Return all categories"
+    return list(Category.select().dicts())
+
+
+@router.post("/categories", tags=["categories"])
+async def create_category(request: Request, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
+    body = await request.json()
+    c = Category.create(name=body["name"])
+    return model_to_dict(c)
+
+
+@router.post("/categories/{cat_id}", tags=["categories"])
+async def update_category(cat_id: int, request: Request, auth=Depends(auth_user)):
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
+    body = await request.json()
+    Category.update(name=body["name"]).where(Category.id == cat_id).execute()

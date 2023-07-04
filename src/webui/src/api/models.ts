@@ -20,7 +20,7 @@ export interface UserModel {
   loans?: Loan[];
   nbloans?: number;
   notes?: string;
-  created_time?: string;
+  created_at?: string;
 }
 
 export interface Users extends Array<UserModel> {}
@@ -38,7 +38,8 @@ export interface ItemModel {
   outside?: boolean;
   content?: string[];
   notes?: string;
-  created_time?: string;
+  categories?: number[];
+  created_at?: string;
   status?: string;
   return?: string;
   loans?: Loan[];

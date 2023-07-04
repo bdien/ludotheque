@@ -1,8 +1,8 @@
 import os
-import datetime
+from datetime import date, timedelta
 import peewee
 from playhouse.sqlite_ext import SqliteExtDatabase, JSONField
-
+from api.config import LOAN_DAYS
 
 db = peewee.DatabaseProxy()
 dbpath = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
@@ -27,13 +27,22 @@ class BaseModel(peewee.Model):
         only_save_dirty = True
 
 
+def today_plus_1y():
+    return date.today() + timedelta(days=365)
+
+
+def today_plus_loantime():
+    return date.today() + timedelta(days=LOAN_DAYS)
+
+
 class User(BaseModel):
     name = peewee.CharField()
     email = peewee.CharField(unique=True)
     role = peewee.CharField(default="user")
     credit = peewee.IntegerField(default=0)
     notes = peewee.TextField(null=True)
-    created_time = peewee.DateTimeField(default=datetime.datetime.utcnow)
+    subscription = peewee.DateField(default=today_plus_1y)  # End of
+    created_at = peewee.DateField(default=date.today)
 
 
 class Item(BaseModel):
@@ -48,7 +57,7 @@ class Item(BaseModel):
     outside = peewee.BooleanField(default=False)
     content = JSONField(null=True)
     notes = peewee.TextField(null=True)
-    created_time = peewee.DateTimeField(default=datetime.datetime.utcnow)
+    created_at = peewee.DateField(default=date.today)
 
 
 class Category(BaseModel):
@@ -56,14 +65,20 @@ class Category(BaseModel):
 
 
 class ItemCategory(BaseModel):
-    item = peewee.ForeignKeyField(model=Item)
+    item = peewee.ForeignKeyField(model=Item, primary_key=True)
     category = peewee.ForeignKeyField(model=Category)
+
+    class Meta:
+        indexes = ((("item", "category"), True),)
 
 
 class ItemLink(BaseModel):
     item = peewee.ForeignKeyField(model=Item)
     name = peewee.CharField()
     url = peewee.CharField()
+
+    class Meta:
+        primary_key = peewee.CompositeKey("item", "name")
 
 
 class ItemPicture(BaseModel):
@@ -78,6 +93,6 @@ class ItemPicture(BaseModel):
 class Loan(BaseModel):
     user = peewee.ForeignKeyField(model=User)
     item = peewee.ForeignKeyField(model=Item)
-    start = peewee.DateField(default=datetime.date.today)
-    stop = peewee.DateField()
-    status = peewee.CharField()
+    start = peewee.DateField(default=date.today)
+    stop = peewee.DateField(default=today_plus_loantime, index=True)
+    status = peewee.CharField(default="out", index=True)

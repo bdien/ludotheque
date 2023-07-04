@@ -5,9 +5,6 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user
 from playhouse.shortcuts import model_to_dict
 
-LOAN_COST = 0.5
-LOAN_TIME_DAYS = 7 * 3
-
 router = APIRouter()
 
 
@@ -65,13 +62,8 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                 Loan.item == i, Loan.status == "out"
             ).execute()
 
-            loan = Loan.create(
-                user=user,
-                item=i,
-                start=today,
-                stop=today + datetime.timedelta(days=LOAN_TIME_DAYS),
-                status="out",
-            )
+            # Loan start/stop/status are set as default in pwmodels
+            loan = Loan.create(user=user, item=i)
             loans.append(model_to_dict(loan))
 
         # Update user credit
