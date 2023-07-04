@@ -10,7 +10,7 @@ export function Main() {
 
   return (
     <>
-      {isAuthenticated && !account?.id && (
+      {isAuthenticated && account && !account?.id && (
         <Alert severity="error">
           Nous n'arrivons pas à trouver l'adhérent correspondant à votre email (
           {user?.email}).

@@ -171,22 +171,24 @@ export function Item(props: ItemProps) {
                   <TableCell>Durée</TableCell>
                 </TableRow>
               </TableHead>
-              {item.loans.map((i) => (
-                <TableRow>
-                  <TableCell>{i.user?.name}</TableCell>
-                  <TableCell>{i.start}</TableCell>
-                  <TableCell>{i.stop}</TableCell>
-                  <TableCell>
-                    {i.status == "out"
-                      ? "En cours"
-                      : `${
-                          (new Date(i.stop).valueOf() -
-                            new Date(i.start).valueOf()) /
-                          (3600000 * 24)
-                        } jours`}
-                  </TableCell>
-                </TableRow>
-              ))}
+              <TableBody>
+                {item.loans.map((i) => (
+                  <TableRow key={i.id}>
+                    <TableCell>{i.user?.name}</TableCell>
+                    <TableCell>{i.start}</TableCell>
+                    <TableCell>{i.stop}</TableCell>
+                    <TableCell>
+                      {i.status == "out"
+                        ? "En cours"
+                        : `${
+                            (new Date(i.stop).valueOf() -
+                              new Date(i.start).valueOf()) /
+                            (3600000 * 24)
+                          } jours`}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
             </Table>
           </TableContainer>
         </Box>
