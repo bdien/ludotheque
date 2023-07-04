@@ -12,12 +12,6 @@ interface UserViewProps {
   id: number;
 }
 
-/*
-function groupBy(x, f) {
-  return x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {})
-}
-*/
-
 export function UserView(props: UserViewProps) {
   const { user, isLoading, error, mutate } = useUser(props.id);
 

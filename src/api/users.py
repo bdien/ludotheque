@@ -56,7 +56,7 @@ def get_users(
 @router.get("/users/me", tags=["users"])
 def get_myself(auth=Depends(auth_user)):
     if not auth:
-        return {}
+        raise HTTPException(401)
     if u := User.get_or_none(User.id == auth.id):
         ret = model_to_dict(u, recurse=False)
         del ret["notes"]  # Notes are private to admins

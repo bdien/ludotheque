@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -18,7 +18,6 @@ import { Link } from "wouter";
 import Box from "@mui/material/Box";
 import { RandomColors } from "./random_colors";
 import Avatar from "@mui/material/Avatar";
-import { setToken } from "../api/calls";
 
 interface TopBarProps {
   width: number;
@@ -29,18 +28,12 @@ export function TopBar(props: TopBarProps) {
     () => <RandomColors txt="Ludo du Poisson-Lune" />,
     [],
   );
-  const { account, mutate } = useAccount();
+  const { account } = useAccount();
   const [anchorUserMenu, setAnchorUserMenu] = useState<null | HTMLElement>(
     null,
   );
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const {
-    user,
-    isAuthenticated,
-    loginWithRedirect,
-    logout,
-    getAccessTokenSilently,
-  } = useAuth0();
+  const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
 
   const handleUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorUserMenu(event.currentTarget);
@@ -49,16 +42,6 @@ export function TopBar(props: TopBarProps) {
   const handleUserMenuClose = () => {
     setAnchorUserMenu(null);
   };
-
-  // Authentication checks
-  useEffect(() => {
-    if (isAuthenticated) {
-      getAccessTokenSilently().then((token) => {
-        setToken(token);
-        mutate();
-      });
-    }
-  }, [isAuthenticated]);
 
   const drawer = (
     <>

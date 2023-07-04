@@ -10,8 +10,31 @@ import { UserView } from "./pages/user_view";
 import { Box, Toolbar } from "@mui/material";
 import { Main } from "./pages/main";
 import { LoanClose } from "./pages/loan_close";
+import { setToken } from "./api/calls";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useState } from "react";
 
 function App() {
+  const [authdone, setAuthDone] = useState(false);
+  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+
+  // Wait for authentication to be finished (including token)
+  if (!isLoading) {
+    if (!isAuthenticated) {
+      setAuthDone(true);
+    } else {
+      getAccessTokenSilently().then((token) => {
+        setToken(token);
+        setAuthDone(true);
+      });
+    }
+  }
+
+  if (!authdone) {
+    console.timeStamp("Auth start");
+    return <></>;
+  }
+
   return (
     <Box height="100vh" display="flex">
       <TopBar width={225} />
