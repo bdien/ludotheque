@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Header
 from api.pwmodels import Item, User
-from api.config import AUTH_DOMAIN, PRICING
+from api.config import AUTH_DOMAIN, PRICING, APIKEY_PREFIX
 
 router = APIRouter()
 auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 5)
@@ -45,6 +45,16 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
     "Authenticate the user and return id/email/role"
     if (not authorization) or (not authorization.lower().startswith("bearer")):
         return None
+
+    # API-Key ?
+    if f" {APIKEY_PREFIX}" in authorization.lower():
+        apikey = authorization.lower().removeprefix("bearer ")
+        user = User.get_or_none(apikey=apikey)
+        if not user:
+            logging.warning("Cannot find user in DB with APIKey")
+            return None
+
+        return AuthUser(user.id, user.email, user.role)
 
     # Fetch user configuration (it will validate the token as well)
     r = requests.get(

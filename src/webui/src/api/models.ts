@@ -21,6 +21,8 @@ export interface UserModel {
   nbloans?: number;
   notes?: string;
   created_at?: string;
+  subscription?: string;
+  apikey?: string;
 }
 
 export interface Users extends Array<UserModel> {}

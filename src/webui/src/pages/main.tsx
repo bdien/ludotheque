@@ -46,7 +46,7 @@ export function Main() {
         <img
           src="/photomain.jpg"
           alt="Logo Picture"
-          style={{ maxWidth: "100%" }}
+          style={{ maxWidth: "100%", borderRadius: "2%" }}
         />
         {info?.pricing && (
           <>

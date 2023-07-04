@@ -13,8 +13,10 @@ import { LoanClose } from "./pages/loan_close";
 import { setToken } from "./api/calls";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
+import { useInfo } from "./api/hooks";
 
 function App() {
+  const { isLoading: infoIsLoading } = useInfo();
   const [authdone, setAuthDone] = useState(false);
   const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
 
@@ -30,8 +32,7 @@ function App() {
     }
   }
 
-  if (!authdone) {
-    console.timeStamp("Auth start");
+  if (!authdone || infoIsLoading) {
     return <></>;
   }
 
