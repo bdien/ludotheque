@@ -15,16 +15,17 @@ async def create_user(request: Request, auth=Depends(auth_user)):
         raise HTTPException(403)
     body = await request.json()
 
-    # Limit to selected properties
-    create_params = {
-        k: v
-        for k, v in body.items()
-        if k in ("name", "email", "role", "credit", "notes")
-    }
-    if not (0 <= int(create_params.get("credit", 0)) <= 100):
+    # Avoid some properties
+    params = {k: v for k, v in body.items() if k in User._meta.fields}
+    params = {k: v for k, v in params.items() if k not in ("id", "created_at")}
+
+    # Checks
+    if not params:
+        raise HTTPException(400, "Nothing to create")
+    if not (0 <= int(params.get("credit", 0)) <= 100):
         raise HTTPException(400, "Invalid credit")
 
-    user = User.create(**create_params)
+    user = User.create(**params)
     return model_to_dict(user)
 
 
@@ -89,16 +90,17 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
 
     body = await request.json()
 
-    # Limit to selected properties
-    update_params = {
-        k: v
-        for k, v in body.items()
-        if k in ("name", "email", "role", "credit", "notes")
-    }
-    if not (0 <= int(update_params.get("credit", 0)) <= 100):
+    # Avoid some properties
+    params = {k: v for k, v in body.items() if k in User._meta.fields}
+    params = {k: v for k, v in params.items() if k not in ("id", "created_at")}
+
+    # Checks
+    if not params:
+        raise HTTPException(400, "Nothing to update")
+    if not (0 <= int(params.get("credit", 0)) <= 100):
         raise HTTPException(400, "Invalid credit")
 
-    User.update(**update_params).where(User.id == user_id).execute()
+    User.update(**params).where(User.id == user_id).execute()
 
 
 @router.delete("/users/{user_id}", tags=["users"])
