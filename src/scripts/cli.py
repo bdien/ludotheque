@@ -37,6 +37,15 @@ class Ludotheque:
         r.raise_for_status()
         return r.json()
 
+    def __json_postfile(self, path: str, filename: str, timeout=120):
+        self.__check_auth()
+        with open(filename, "rb") as f:
+            r = self._session.post(
+                f"{self.__url}/api/{path}", files={"file": f}, timeout=timeout
+            )
+            r.raise_for_status()
+            return r.json()
+
     @functools.lru_cache(maxsize=1)  # noqa: B019 can lead to memory leaks
     def get_info(self) -> dict:
         r = requests.get(f"{self.__url}/api/info", timeout=20)
@@ -87,6 +96,17 @@ class Ludotheque:
 
     def create_item(self, params: dict) -> dict:
         return self.__json_post("items", params)
+
+    # Item pictures
+
+    def get_item_picture(self, item_id: int, index: int):
+        return self.__json_get(f"items/{item_id}/picture/{index}")
+
+    def update_item_picture(self, item_id: int, index: int, filename: str):
+        return self.__json_postfile(f"items/{item_id}/picture/{index}", filename)
+
+    def create_item_picture(self, item_id: int, filename: str):
+        return self.__json_postfile(f"items/{item_id}/picture", filename)
 
     def _generate_oidc_config(self, authority_url):
         r = requests.get(
