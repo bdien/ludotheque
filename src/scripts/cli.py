@@ -108,6 +108,14 @@ class Ludotheque:
     def create_item_picture(self, item_id: int, filename: str):
         return self.__json_postfile(f"items/{item_id}/picture", filename)
 
+    def delete_item_picture(self, item_id: int, index: int):
+        self.__check_auth()
+        r = self._session.delete(
+            f"{self.__url}/api/items/{item_id}/picture/{index}", timeout=120
+        )
+        r.raise_for_status()
+        return r.json()
+
     def _generate_oidc_config(self, authority_url):
         r = requests.get(
             f"{authority_url}/.well-known/openid-configuration", timeout=20
