@@ -63,19 +63,12 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
     # Retrieve item + pictures + status (Limit to the last 10 loans)
     # sourcery skip: use-named-expression
     items = (
-        Item.select(Item, Loan, ItemLink, ItemCategory, ItemPicture, User.name, User.id)
-        .left_outer_join(ItemLink)
-        .switch(Item)
-        .left_outer_join(ItemCategory)
-        .switch(Item)
-        .left_outer_join(ItemPicture)
-        .switch(Item)
+        Item.select(Item, Loan, User.name, User.id)
         .left_outer_join(Loan)
         .limit(10)
         .left_outer_join(User)
         .where(Item.id == item_id)
-        .order_by(ItemPicture.index, -Loan.stop)
-        .execute()
+        .order_by(-Loan.stop)
     )
 
     if items:
@@ -85,16 +78,20 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
         loans = [i.loan for i in items] if hasattr(item, "loan") else []
         base["status"] = "in"
 
-        pics = [i.itempicture for i in items] if hasattr(item, "itempicture") else []
-        base["pictures"] = [p.filename for p in pics]
+        base["pictures"] = [
+            p.filename
+            for p in ItemPicture.select()
+            .where(ItemPicture.item == item_id)
+            .order_by(ItemPicture.index)
+        ]
+        base["categories"] = [
+            i.category_id
+            for i in ItemCategory.select().where(ItemCategory.item == item_id)
+        ]
 
-        base["categories"] = {
-            i.itemcategory.category_id for i in items if hasattr(i, "itemcategory")
-        }
         base["links"] = [
-            {"name": i.itemlink.name, "ref": i.itemlink.ref}
-            for i in items
-            if hasattr(i, "itemlink")
+            {"name": i.name, "ref": i.ref}
+            for i in ItemLink.select().where(ItemLink.item == item_id)
         ]
 
         if loans:
