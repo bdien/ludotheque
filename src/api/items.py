@@ -209,7 +209,7 @@ def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user
 
     with contextlib.suppress(FileNotFoundError):
         os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
-    picture.delete()
+    picture.delete().execute()
 
 
 @router.delete("/items/{item_id}", tags=["users"])

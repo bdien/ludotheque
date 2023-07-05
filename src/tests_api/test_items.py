@@ -244,7 +244,7 @@ def test_picture_remove_existent(fakestorage):
     assert not os.path.isfile(
         f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
-    assert not ItemPicture.get_or_none(item=item, index=1)
+    assert not ItemPicture.get_or_none(item=item, index=0)
 
 
 def test_picture_remove_nonexistent():
