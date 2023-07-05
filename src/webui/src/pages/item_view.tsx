@@ -172,7 +172,7 @@ export function Item(props: ItemProps) {
                 <TableCell>Status</TableCell>
                 <TableCell>
                   {displayStatus(item)}
-                  {item.loans?.length && (
+                  {item.status == "out" && item.loans?.length && (
                     <>
                       <span> (</span>
                       <Link href={`/users/${item.loans[0].user?.id}`}>

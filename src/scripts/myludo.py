@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
+import os
+import re
 import json
 import pathlib
+import tempfile
 import questionary
 import requests
 import argparse
-import re
+from cli import Ludotheque
 
 
 class MyLudo:
@@ -55,22 +58,118 @@ class MyLudo:
 
 def main():
     parser = argparse.ArgumentParser(description="")
-    parser.add_argument("name", help="Game name to search")
-    parser.add_argument("--output", "-o", help="Output JSON", type=pathlib.Path)
+    parser.add_argument("game_id", help="Game ID to search")
+    parser.add_argument("--apikey", default=os.getenv("LUDOTHEQUE_APIKEY"))
+    parser.add_argument("--json", "-j", help="Use JSON", type=pathlib.Path)
+    parser.add_argument("--force", action="store_true")
+    parser.add_argument("--dryrun", action="store_true")
     args = parser.parse_args()
 
-    myludo = MyLudo()
-    entries = myludo.search(args.name)
+    if not args.apikey:
+        parser.error("Please define LUDOTHEQUE_APIKEY or use --apikey")
 
-    entry = questionary.select("Which game?", choices=entries.keys()).ask()
+    # Original game
+    ludo = Ludotheque("https://ludotheque.fly.dev")
+    ludo.auth_apikey("akld7f836c4c2c3a49aa871d968b2efc2c1e")
+    game = ludo.get_item(args.game_id)
+    # Reverse categories
+    categories = {i["name"].lower(): i["id"] for i in ludo.get_categories()}
 
-    game_info = myludo.game(entries[entry])
-
-    if args.output:
-        args.output.write_text(json.dumps(game_info, indent=2))
-        print(f"'{args.output.as_posix()}' written")
+    # Game from myludo
+    if args.json and args.json.exists():
+        myludo_game = json.loads(args.json.read_text())
     else:
-        print(json.dumps(json.dumps(game_info, indent=2)))
+        myludo = MyLudo()
+
+        myludo_id = next(
+            (i["ref"] for i in game.get("links") if i["name"] == "myludo"), None
+        )
+        # Search in MyLudo
+        if not myludo_id:
+            entries = myludo.search(game["name"])
+            entry = questionary.select("Which game?", choices=entries.keys()).ask()
+            myludo_id = entries[entry]
+
+        # Query MyLudo
+        myludo_game = myludo.game(myludo_id)
+
+        if args.json:
+            args.json.write_text(json.dumps(myludo_game, indent=2))
+            print(f"'{args.json.as_posix()}' written")
+
+    to_update = {}
+
+    # Name
+    if args.force:
+        to_update["name"] = myludo_game["title"]
+
+    # Description
+    if args.force or not game.get("description"):
+        desc = myludo_game["description"]
+        desc = re.sub(r"<u>(.*?)</u>", r"*\1*", desc)
+        desc = re.sub(r"<b>(.*?)</b>", r"**\1**", desc)
+        desc = desc.replace("<h5>", "<h5>#").replace("<p>", "\n").replace("<br>", "\n")
+        desc = re.sub("<.*?>", "", desc)
+        to_update["description"] = desc.strip()
+
+    # Links
+    if args.force or not game.get("links"):
+        to_update["links"] = [{"name": "myludo", "ref": myludo_game["id"]}]
+
+    # Categories
+    if args.force or not game.get("categories"):
+        myludo_categories = myludo_game.get("themes", {}).get("categorie").values()
+        new_categories = []
+        for cat in myludo_categories:
+            if cat.lower() not in categories:
+                print(f"Creating category '{cat}'")
+                if not args.dryrun:
+                    created = ludo.create_category({"name": cat})
+                else:
+                    created = {"id": "bogus", "name": cat}
+                categories[created["name"].lower()] = created["id"]
+            new_categories.append(categories[cat.lower()])
+        to_update["categories"] = new_categories
+
+    # Content
+    if args.force or not game.get("content"):
+        content = re.sub("<.*?>", "", myludo_game.get("content").replace("</li>", "\n"))
+        content = [line.strip() for line in content.split("\n") if line.strip()]
+        to_update["content"] = content
+
+    # Gametime
+    if args.force or not game.get("gametime"):
+        # First use community
+        gametime = myludo_game.get("community", {}).get("duration")
+        # Otherwise use main card, but could be a string
+        if not gametime:
+            gametime = myludo_game.get("duration")
+            if "-" in str(gametime):
+                (low, high) = (int(i) for i in gametime.split("-"))
+                gametime = (high - low) // 2
+        to_update["gametime"] = gametime
+
+    # Filter everything empty
+    to_update = {k: v for k, v in to_update.items() if v}
+
+    if to_update:
+        print("Updating item")
+        print(to_update)
+        if not args.dryrun:
+            ludo.update_item(args.game_id, to_update)
+
+    # Pictures
+    if (not game.get("pictures")) and myludo_game.get("image"):
+        for i in "S300", "S160", "S80":
+            if uri := myludo_game["image"].get(i):
+                print("Creating new item picture")
+                if not args.dryrun:
+                    with tempfile.NamedTemporaryFile(mode="wb") as tmpf:
+                        r = requests.get(uri, timeout=120)
+                        tmpf.write(r.content)
+                        tmpf.flush()
+                        ludo.create_item_picture(args.game_id, tmpf.name)
+                break
 
 
 if __name__ == "__main__":
