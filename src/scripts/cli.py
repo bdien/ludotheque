@@ -165,3 +165,7 @@ if __name__ == "__main__":
     ludo.auth_apikey(apikey)
     print(ludo.get_info())
     print(ludo.get_account())
+
+    import code
+
+    code.interact(local=locals())

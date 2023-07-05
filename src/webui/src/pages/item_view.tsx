@@ -144,7 +144,7 @@ export function Item(props: ItemProps) {
       )}
 
       {/* Contenu */}
-      {item.content && (
+      {item.content && item.content.length > 0 && (
         <Box border="1px solid #E5E5E5" borderRadius="10px">
           <Typography
             variant="subtitle1"

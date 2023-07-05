@@ -31,13 +31,13 @@ async def create_item(request: Request, auth=Depends(auth_user)):
 
     item = Item.create(**params)
 
-    # Modify item links
+    # Insert item links
     for i in body.get("links", []):
         ItemLink.insert(
             item=item, name=i["name"], ref=i["ref"]
         ).on_conflict_replace().execute()
 
-    # Modify item category
+    # Insert item category
     for i in body.get("categories", []):
         ItemCategory.insert(item=item, category=i).on_conflict_ignore().execute()
 
@@ -133,12 +133,20 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
 
     # Modify item links
     for i in body.get("links", []):
+        names = [i["name"] for i in body["links"]]
+        ItemLink.delete().where(
+            ItemLink.item == item_id, ItemLink.name.not_in(names)
+        ).execute()
         ItemLink.insert(
             item=item_id, name=i["name"], ref=i["ref"]
         ).on_conflict_replace().execute()
 
-    # Modify item category
+    # Modify item categories
     for i in body.get("categories", []):
+        ItemCategory.delete().where(
+            ItemCategory.item == item_id,
+            ItemCategory.category.not_in(body["categories"]),
+        ).execute()
         ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
 
 
@@ -209,7 +217,7 @@ def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user
 
     with contextlib.suppress(FileNotFoundError):
         os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
-    picture.delete().execute()
+    picture.delete_instance()
 
 
 @router.delete("/items/{item_id}", tags=["users"])
