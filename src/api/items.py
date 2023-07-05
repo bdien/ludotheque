@@ -63,7 +63,9 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
     # Retrieve item + pictures + status (Limit to the last 10 loans)
     # sourcery skip: use-named-expression
     items = (
-        Item.select(Item, Loan, ItemCategory, ItemPicture, User.name, User.id)
+        Item.select(Item, Loan, ItemLink, ItemCategory, ItemPicture, User.name, User.id)
+        .left_outer_join(ItemLink)
+        .switch(Item)
         .left_outer_join(ItemCategory)
         .switch(Item)
         .left_outer_join(ItemPicture)
@@ -86,8 +88,13 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
         pics = [i.itempicture for i in items] if hasattr(item, "itempicture") else []
         base["pictures"] = [p.filename for p in pics]
 
-        base["categories"] = [
+        base["categories"] = {
             i.itemcategory.category_id for i in items if hasattr(i, "itemcategory")
+        }
+        base["links"] = [
+            {"name": i.itemlink.name, "ref": i.itemlink.ref}
+            for i in items
+            if hasattr(i, "itemlink")
         ]
 
         if loans:

@@ -66,7 +66,7 @@ class Category(BaseModel):
 
 
 class ItemCategory(BaseModel):
-    item = peewee.ForeignKeyField(model=Item, primary_key=True)
+    item = peewee.ForeignKeyField(model=Item)
     category = peewee.ForeignKeyField(model=Category)
 
     class Meta:
@@ -76,7 +76,7 @@ class ItemCategory(BaseModel):
 class ItemLink(BaseModel):
     item = peewee.ForeignKeyField(model=Item)
     name = peewee.CharField()
-    url = peewee.CharField()
+    ref = peewee.CharField()
 
     class Meta:
         primary_key = peewee.CompositeKey("item", "name")

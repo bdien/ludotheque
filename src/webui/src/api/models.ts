@@ -27,6 +27,11 @@ export interface UserModel {
 
 export interface Users extends Array<UserModel> {}
 
+export interface ItemLinkModel {
+  name: string;
+  ref: string;
+}
+
 export interface ItemModel {
   id: number;
   name: string;
@@ -41,6 +46,7 @@ export interface ItemModel {
   content?: string[];
   notes?: string;
   categories?: number[];
+  links?: ItemLinkModel[];
   created_at?: string;
   status?: string;
   return?: string;

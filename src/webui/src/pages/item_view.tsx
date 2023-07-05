@@ -7,7 +7,7 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { useAccount, useCategories, useItem } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
-import { ItemModel } from "../api/models";
+import { ItemLinkModel, ItemModel } from "../api/models";
 import Icon from "@mui/material/Icon";
 import { Link, useLocation } from "wouter";
 import TableHead from "@mui/material/TableHead";
@@ -18,6 +18,38 @@ import Chip from "@mui/material/Chip";
 
 interface ItemProps {
   id: number;
+}
+
+function renderItemLink(link: ItemLinkModel) {
+  if (link.name == "myludo")
+    return (
+      <Chip
+        key={link.name}
+        sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
+        variant="outlined"
+        color="primary"
+        size="small"
+        icon={<Icon>link</Icon>}
+        label="MyLudo"
+        onClick={() =>
+          window.open(`https://www.myludo.fr/#!/game/${link.ref}`, "_blank")
+        }
+      />
+    );
+  if (link.name == "manuel")
+    return (
+      <Chip
+        key={link.name}
+        sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
+        variant="outlined"
+        color="primary"
+        size="small"
+        icon={<Icon>book</Icon>}
+        label="Règles"
+        onClick={() => window.open(link.ref, "_blank")}
+      />
+    );
+  return <></>;
 }
 
 function displayStatus(item: ItemModel) {
@@ -92,19 +124,24 @@ export function Item(props: ItemProps) {
         </Typography>
       )}
 
-      {/* Categories */}
-      {item.categories &&
-        categories &&
-        item.categories.map((cat) => (
-          <Chip
-            sx={{ p: 1, borderRadius: "8px" }}
-            variant="outlined"
-            color="primary"
-            size="small"
-            icon={<Icon>category</Icon>}
-            label={categories.get(cat)}
-          />
-        ))}
+      {/* Categories / Link */}
+      {(item.categories || item.links) && (
+        <Box sx={{ pb: 1 }}>
+          {item.links && item.links.map((lnk) => renderItemLink(lnk))}
+          {item.categories &&
+            categories &&
+            item.categories.map((cat) => (
+              <Chip
+                key={cat}
+                sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
+                color="primary"
+                size="small"
+                icon={<Icon>category</Icon>}
+                label={categories.get(cat)}
+              />
+            ))}
+        </Box>
+      )}
 
       {/* Contenu */}
       {item.content && (
@@ -118,8 +155,8 @@ export function Item(props: ItemProps) {
           >
             Contenu:
             <ul>
-              {item.content.map((row) => (
-                <li>{row}</li>
+              {item.content.map((row, idx) => (
+                <li key={idx}>{row}</li>
               ))}
             </ul>
           </Typography>
