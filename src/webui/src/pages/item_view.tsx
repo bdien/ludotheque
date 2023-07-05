@@ -5,7 +5,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { useAccount, useItem } from "../api/hooks";
+import { useAccount, useCategories, useItem } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
 import { ItemModel } from "../api/models";
 import Icon from "@mui/material/Icon";
@@ -14,6 +14,7 @@ import TableHead from "@mui/material/TableHead";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { SpeedDialIcon } from "@mui/material";
+import Chip from "@mui/material/Chip";
 
 interface ItemProps {
   id: number;
@@ -47,6 +48,7 @@ function playerDisplay(item: ItemModel) {
 export function Item(props: ItemProps) {
   const { account } = useAccount();
   const { item, error } = useItem(props.id);
+  const { categories } = useCategories();
   const [_location, navigate] = useLocation();
 
   if (error) return <div>Server error: {error.cause}</div>;
@@ -89,6 +91,20 @@ export function Item(props: ItemProps) {
           {item.description}
         </Typography>
       )}
+
+      {/* Categories */}
+      {item.categories &&
+        categories &&
+        item.categories.map((cat) => (
+          <Chip
+            sx={{ p: 1, borderRadius: "8px" }}
+            variant="outlined"
+            color="primary"
+            size="small"
+            icon={<Icon>category</Icon>}
+            label={categories.get(cat)}
+          />
+        ))}
 
       {/* Contenu */}
       {item.content && (

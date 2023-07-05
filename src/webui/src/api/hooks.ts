@@ -90,18 +90,19 @@ export function useItems(filter?: string) {
   };
 }
 
-interface CategoryDict {
-  [id: number]: string;
+interface Category {
+  id: number;
+  name: string;
 }
 
 export function useCategories() {
-  const { data, error, isLoading } = useSWRImmutable<CategoryDict>(
+  const { data, error, isLoading } = useSWRImmutable<Category[]>(
     `${SERVER_URL}/categories`,
     fetcher,
   );
 
   return {
-    categories: data,
+    categories: new Map(data ? data.map((i) => [i["id"], i["name"]]) : null),
     isLoading,
     error,
   };
