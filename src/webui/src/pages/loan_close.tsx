@@ -1,8 +1,8 @@
 import Typography from "@mui/material/Typography";
 import { useLoan } from "../api/hooks";
-import { closeLoan, fetchItem, fetchUser } from "../api/calls";
+import { closeLoan, fetchItem } from "../api/calls";
 import { useEffect, useState } from "react";
-import { ItemModel, UserModel } from "../api/models";
+import { ItemModel } from "../api/models";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-location";
@@ -13,14 +13,12 @@ interface LoanCloseProps {
 
 export function LoanClose(props: LoanCloseProps) {
   const { loan } = useLoan(props.id);
-  const [user, setUser] = useState<UserModel | null>(null);
   const [item, setItem] = useState<ItemModel | null>(null);
   const queryParameters = new URLSearchParams(window.location.search);
   const returnPath = queryParameters.get("return");
 
   useEffect(() => {
     if (!loan) return;
-    if (loan.user) fetchUser(loan.user as any).then((i) => setUser(i)); // TODO: Fix type
     if (loan?.item) fetchItem(loan.item).then((i) => setItem(i));
   }, [loan]);
 
@@ -29,30 +27,42 @@ export function LoanClose(props: LoanCloseProps) {
   return (
     <>
       <Typography variant="h5" gutterBottom>
-        Rendre objet (TODO)
-        {user && user.name}
+        Retour de jeu
       </Typography>
-      <div>
-        Merci de vérifier le contenu du jeu
+      {item && item.pictures && (
+        <Box
+          component="img"
+          sx={{
+            width: "100%",
+            height: "20vh",
+            objectFit: "contain",
+          }}
+          src={
+            item.pictures?.length
+              ? `/storage/img/${item.pictures[0]}`
+              : "/notavailable.png"
+          }
+        />
+      )}
+      <Box sx={{ pt: 2 }}>
+        <Typography fontWeight={500}>
+          Merci de vérifier le contenu du jeu
+        </Typography>
         {item?.content && (
-          <Box border="1px solid #E5E5E5" borderRadius="10px">
-            <Typography
-              variant="subtitle1"
-              color="text.secondary"
-              component="div"
-              style={{ whiteSpace: "pre-line" }}
-              sx={{ p: 1 }}
-            >
-              Contenu:
-              <ul>
-                {item.content.map((row, idx) => (
-                  <li key={idx}>{row}</li>
-                ))}
-              </ul>
-            </Typography>
-          </Box>
+          <Typography
+            color="text.secondary"
+            component="div"
+            style={{ whiteSpace: "pre-line" }}
+            sx={{ p: 0 }}
+          >
+            <ul>
+              {item.content.map((row, idx) => (
+                <li key={idx}>{row}</li>
+              ))}
+            </ul>
+          </Typography>
         )}
-      </div>
+      </Box>
       <div>
         <Button
           variant="contained"

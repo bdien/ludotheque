@@ -164,8 +164,8 @@ export function Item(props: ItemProps) {
       )}
 
       {/* Item details */}
-      <Box sx={{ p: 1 }}>
-        <TableContainer sx={{ pt: 2 }}>
+      <Box sx={{ pt: 2, pb: 1 }}>
+        <TableContainer>
           <Table size="small">
             <TableBody>
               <TableRow>
@@ -174,11 +174,10 @@ export function Item(props: ItemProps) {
                   {displayStatus(item)}
                   {item.status == "out" && item.loans?.length && (
                     <>
-                      <span> (</span>
+                      <br />
                       <Link href={`/users/${item.loans[0].user?.id}`}>
                         {item.loans[0].user?.name}
                       </Link>
-                      )
                     </>
                   )}
                 </TableCell>
@@ -212,7 +211,7 @@ export function Item(props: ItemProps) {
 
       {/* Loan history */}
       {item?.loans?.length && (
-        <Box sx={{ p: 1, pt: 2 }}>
+        <Box sx={{ pb: 1, pt: 2 }}>
           Emprunts:
           <TableContainer>
             <Table size="small">
