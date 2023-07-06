@@ -70,7 +70,7 @@ class ItemCategory(BaseModel):
     category = peewee.ForeignKeyField(model=Category)
 
     class Meta:
-        indexes = ((("item", "category"), True),)
+        primary_key = peewee.CompositeKey("item", "category")
 
 
 class ItemLink(BaseModel):

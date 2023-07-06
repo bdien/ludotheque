@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import contextlib
+import html
 import os
 import re
 import json
 import pathlib
+import sys
 import tempfile
 import questionary
 import requests
@@ -70,7 +73,7 @@ def main():
 
     # Original game
     ludo = Ludotheque("https://ludotheque.fly.dev")
-    ludo.auth_apikey("akld7f836c4c2c3a49aa871d968b2efc2c1e")
+    ludo.auth_apikey(args.apikey)
     game = ludo.get_item(args.game_id)
     # Reverse categories
     categories = {i["name"].lower(): i["id"] for i in ludo.get_categories()}
@@ -87,6 +90,8 @@ def main():
         # Search in MyLudo
         if not myludo_id:
             entries = myludo.search(game["name"])
+            if not entries:
+                sys.exit(f"Nothing found in myludo for '{game['name']}'")
             entry = questionary.select("Which game?", choices=entries.keys()).ask()
             myludo_id = entries[entry]
 
@@ -105,7 +110,7 @@ def main():
 
     # Description
     if args.force or not game.get("description"):
-        desc = myludo_game["description"]
+        desc = html.unescape(myludo_game["description"])
         desc = re.sub(r"<u>(.*?)</u>", r"*\1*", desc)
         desc = re.sub(r"<b>(.*?)</b>", r"**\1**", desc)
         desc = desc.replace("<h5>", "<h5>#").replace("<p>", "\n").replace("<br>", "\n")
@@ -133,20 +138,28 @@ def main():
 
     # Content
     if args.force or not game.get("content"):
-        content = re.sub("<.*?>", "", myludo_game.get("content").replace("</li>", "\n"))
+        content = html.unescape(myludo_game.get("content"))
+        content = re.sub("<.*?>", "", content.replace("</li>", "\n"))
         content = [line.strip() for line in content.split("\n") if line.strip()]
         to_update["content"] = content
 
     # Gametime
     if args.force or not game.get("gametime"):
-        # First use community
-        gametime = myludo_game.get("community", {}).get("duration")
+        gametime = None
+        with contextlib.suppress(ValueError):
+            gametime = int(myludo_game.get("duration"))
+
+        # Otherwise use community
+        if not gametime:
+            gametime = myludo_game.get("community", {}).get("duration")
+
         # Otherwise use main card, but could be a string
         if not gametime:
             gametime = myludo_game.get("duration")
             if "-" in str(gametime):
                 (low, high) = (int(i) for i in gametime.split("-"))
                 gametime = (high - low) // 2
+
         to_update["gametime"] = gametime
 
     # Filter everything empty
