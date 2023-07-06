@@ -13,17 +13,12 @@ interface UserViewProps {
 }
 
 export function UserView(props: UserViewProps) {
-  const { user, isLoading, error, mutate } = useUser(props.id);
+  const { user, isLoading, error } = useUser(props.id);
 
   if (error) return <div>failed to load</div>;
   if (isLoading) return <div>loading...</div>;
   if (!user) return <div>Server error...</div>;
 
-  function onLoanClose(_obj_id: number): void {
-    mutate && mutate();
-  }
-
-  // render data
   return (
     <>
       <Grid
@@ -50,9 +45,7 @@ export function UserView(props: UserViewProps) {
       </Grid>
 
       <Box display="flex" flexWrap="wrap" width="100%">
-        {user?.loans?.map((obj) => (
-          <MiniItem key={obj.id} id={obj.item} onLoanClose={onLoanClose} />
-        ))}
+        {user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)}
       </Box>
 
       {/* Edit button */}

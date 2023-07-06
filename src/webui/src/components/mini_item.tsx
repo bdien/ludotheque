@@ -1,28 +1,20 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useItem } from "../api/hooks";
-import { closeLoan } from "../api/calls";
 import { Link } from "wouter";
 import Button from "@mui/material/Button";
+import { navigate } from "wouter/use-location";
 
 interface MiniItemProps {
   id: number;
-  onLoanClose: (obj_id: number) => void;
 }
 
 export function MiniItem(props: MiniItemProps) {
-  const { item, error, isLoading, mutate } = useItem(props.id);
+  const { item, error, isLoading } = useItem(props.id);
 
   if (error) return <div>failed to load</div>;
   if (isLoading) return <div>loading...</div>;
   if (!item) return <div>Server error...</div>;
-
-  function close_loan(loanId: number) {
-    closeLoan(loanId).then((data) => {
-      mutate && mutate(data);
-      props.onLoanClose(data.id);
-    });
-  }
 
   const rtf = new Intl.RelativeTimeFormat();
   const today = new Date();
@@ -104,7 +96,11 @@ export function MiniItem(props: MiniItemProps) {
               <Button
                 size="small"
                 variant="contained"
-                onClick={() => close_loan(last_loan.id)}
+                onClick={() =>
+                  navigate(
+                    `/loans/${last_loan.id}/close?return=${window.location.pathname}`,
+                  )
+                }
               >
                 Rendre
               </Button>

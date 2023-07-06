@@ -277,7 +277,11 @@ export function Item(props: ItemProps) {
               icon={<Icon>file_download</Icon>}
               tooltipTitle="Rendre"
               onClick={() =>
-                navigate(`/loans/${item.loans ? item.loans[0].id : 0}/close`)
+                navigate(
+                  `/loans/${item.loans ? item.loans[0].id : 0}/close?return=${
+                    window.location.pathname
+                  }`,
+                )
               }
             />
           ) : (
