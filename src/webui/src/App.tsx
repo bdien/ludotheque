@@ -21,7 +21,7 @@ function App() {
   const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
 
   // Wait for authentication to be finished (including token)
-  if (!isLoading) {
+  if (!authdone && !isLoading) {
     if (!isAuthenticated) {
       setAuthDone(true);
     } else {
