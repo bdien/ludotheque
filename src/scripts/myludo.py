@@ -113,7 +113,9 @@ def main():
         desc = html.unescape(myludo_game["description"])
         desc = re.sub(r"<u>(.*?)</u>", r"*\1*", desc)
         desc = re.sub(r"<b>(.*?)</b>", r"**\1**", desc)
-        desc = desc.replace("<h5>", "<h5>#").replace("<p>", "\n").replace("<br>", "\n")
+        desc = (
+            desc.replace("<h5>", "<h5>#").replace("<p>", "\n\n").replace("<br>", "\n")
+        )
         desc = re.sub("<.*?>", "", desc)
         to_update["description"] = desc.strip()
 
@@ -123,7 +125,7 @@ def main():
 
     # Categories
     if args.force or not game.get("categories"):
-        myludo_categories = myludo_game.get("themes", {}).get("categorie").values()
+        myludo_categories = myludo_game.get("themes", {}).get("categorie", {}).values()
         new_categories = []
         for cat in myludo_categories:
             if cat.lower() not in categories:
@@ -155,7 +157,7 @@ def main():
 
         # Otherwise use main card, but could be a string
         if not gametime:
-            gametime = myludo_game.get("duration")
+            gametime = myludo_game.get("duration").replace("—", "-")
             if "-" in str(gametime):
                 (low, high) = (int(i) for i in gametime.split("-"))
                 gametime = (high - low) // 2
