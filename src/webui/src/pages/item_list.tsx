@@ -1,14 +1,21 @@
 import { useItems } from "../api/hooks";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { ItemModel } from "../api/models";
 import { Link } from "wouter";
 import { AgeChip } from "../components/age_chip";
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableRow from "@mui/material/TableRow";
+import TableHead from "@mui/material/TableHead";
+import Paper from "@mui/material/Paper";
+import { TableVirtuoso, TableComponents } from "react-virtuoso";
 
 function nameDisplay(item: ItemModel) {
   return (
@@ -39,32 +46,19 @@ function playerDisplay(item: ItemModel) {
   );
 }
 
-const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", type: "number", minWidth: 56, flex: 0.1 },
-  {
-    field: "name",
-    headerName: "Nom",
-    flex: 1,
-    renderCell: (i) => nameDisplay(i.row),
-  },
-  {
-    field: "players_min",
-    headerName: "Joueurs",
-    flex: 0.3,
-    renderCell: (i) => playerDisplay(i.row),
-    headerAlign: "center",
-    align: "center",
-  },
-  {
-    field: "age",
-    headerName: "Age",
-    renderCell: (i) => <AgeChip age={i.value} />,
-    flex: 0.3,
-    headerAlign: "center",
-    align: "center",
-    minWidth: 60,
-  },
-];
+const TableComps: TableComponents<ItemModel> = {
+  Scroller: forwardRef((props, ref) => (
+    <TableContainer component={Paper} {...props} ref={ref} />
+  )),
+  Table: (props) => (
+    <Table {...props} size="small" style={{ borderCollapse: "separate" }} />
+  ),
+  TableHead: TableHead,
+  TableRow: TableRow,
+  TableBody: forwardRef<HTMLTableSectionElement>((props, ref) => (
+    <TableBody {...props} ref={ref} />
+  )),
+};
 
 interface ItemListFilters {
   text: string;
@@ -121,7 +115,7 @@ export function ItemList() {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setFilter({ ...filter, text: event.target.value });
           }}
-          sx={{ flexGrow: 0.5 }}
+          sx={{ flexGrow: 0.5, backgroundColor: "white" }}
         />
 
         <Select
@@ -131,6 +125,7 @@ export function ItemList() {
             ml: 1,
             pt: 1,
             maxWidth: "66px",
+            backgroundColor: "white",
           }}
           displayEmpty
           defaultValue=""
@@ -155,6 +150,7 @@ export function ItemList() {
           sx={{
             height: "40px",
             ml: 1,
+            backgroundColor: "white",
           }}
           defaultValue={99}
           onChange={(event) =>
@@ -172,13 +168,56 @@ export function ItemList() {
         </Select>
       </Box>
 
-      <DataGrid
-        rows={displayed}
-        columns={columns}
-        autoPageSize
-        rowHeight={40}
-        disableRowSelectionOnClick
-        sx={{ height: "100%" }}
+      <TableVirtuoso
+        style={{ height: "100%" }}
+        data={displayed}
+        components={TableComps}
+        fixedHeaderContent={() => (
+          <TableRow sx={{ background: "#F9FBFC" }}>
+            <TableCell sx={{ textAlign: "right", color: "#6B7582" }}>
+              #
+            </TableCell>
+            <TableCell sx={{ p: 0.5, color: "#6B7582" }}>Nom</TableCell>
+            <TableCell
+              sx={{
+                width: "clamp(66px, 10vw, 240px)",
+                textAlign: "center",
+                color: "#6B7582",
+              }}
+            >
+              <Icon>people_alt</Icon>
+            </TableCell>
+            <TableCell
+              sx={{
+                width: "clamp(56px, 10vw, 240px)",
+                textAlign: "center",
+                color: "#6B7582",
+              }}
+            >
+              Age
+            </TableCell>
+          </TableRow>
+        )}
+        itemContent={(_index, row) => (
+          <>
+            <TableCell
+              sx={{ width: "clamp(56px, 10vw, 90px)", textAlign: "right" }}
+            >
+              {row.id}
+            </TableCell>
+            <TableCell sx={{ p: 0.5 }}>{nameDisplay(row)}</TableCell>
+            <TableCell
+              sx={{ width: "clamp(66px, 10vw, 240px)", textAlign: "center" }}
+            >
+              {playerDisplay(row)}
+            </TableCell>
+            <TableCell
+              sx={{ width: "clamp(56px, 10vw, 240px)", textAlign: "center" }}
+            >
+              <AgeChip age={row.age || 0} />
+            </TableCell>
+          </>
+        )}
       />
     </>
   );
