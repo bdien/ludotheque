@@ -115,7 +115,7 @@ export function ItemList() {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setFilter({ ...filter, text: event.target.value });
           }}
-          sx={{ flexGrow: 0.5, backgroundColor: "white" }}
+          sx={{ flexGrow: 1, backgroundColor: "white", maxWidth: "500px" }}
         />
 
         <Select
@@ -189,9 +189,10 @@ export function ItemList() {
             </TableCell>
             <TableCell
               sx={{
-                width: "clamp(56px, 10vw, 240px)",
+                width: "clamp(50px, 10vw, 240px)",
                 textAlign: "center",
                 color: "#6B7582",
+                p: 0.75,
               }}
             >
               Age
@@ -211,9 +212,7 @@ export function ItemList() {
             >
               {playerDisplay(row)}
             </TableCell>
-            <TableCell
-              sx={{ width: "clamp(56px, 10vw, 240px)", textAlign: "center" }}
-            >
+            <TableCell sx={{ textAlign: "center", p: 0.75 }}>
               <AgeChip age={row.age || 0} />
             </TableCell>
           </>
