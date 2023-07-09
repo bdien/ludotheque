@@ -2,6 +2,7 @@ import pytest
 from api.main import app
 from api.system import auth_user
 from api.pwmodels import Loan, User, Item
+from api.config import PRICING
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 
@@ -24,7 +25,7 @@ def dbitems():
 def test_create_loan(dbitems):
     response = client.post(
         "/loans",
-        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        json={"user": USER_ID, "items": [ITEM_ID]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
@@ -53,7 +54,7 @@ def test_create_loan_twice(dbitems):
 
     response = client.post(
         "/loans",
-        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        json={"user": USER_ID, "items": [ITEM_ID]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
@@ -61,7 +62,7 @@ def test_create_loan_twice(dbitems):
 
     response = client.post(
         "/loans",
-        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        json={"user": USER_ID, "items": [ITEM_ID]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code != 200
@@ -70,7 +71,7 @@ def test_create_loan_twice(dbitems):
     client.get(f"/loans/{loan_id}/close", headers=AUTH_ADMIN)
     response = client.post(
         "/loans",
-        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        json={"user": USER_ID, "items": [ITEM_ID]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
@@ -81,7 +82,7 @@ def test_create_loan_item_from_other_user(dbitems):
 
     response = client.post(
         "/loans",
-        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        json={"user": USER_ID, "items": [ITEM_ID]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
@@ -89,7 +90,7 @@ def test_create_loan_item_from_other_user(dbitems):
     u = User.create(name="User2", email="user2@email", credit=1)
     response = client.post(
         "/loans",
-        json={"user": u.id, "items": [ITEM_ID], "cost": 2},
+        json={"user": u.id, "items": [ITEM_ID]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
@@ -111,7 +112,7 @@ def test_close_loan(dbitems):
     # Create loan
     response = client.post(
         "/loans",
-        json={"user": USER_ID, "items": [ITEM_ID], "cost": 2},
+        json={"user": USER_ID, "items": [ITEM_ID]},
         headers=AUTH_ADMIN,
     )
 
@@ -145,7 +146,7 @@ def test_delete_loan():
     item_id = response.json()["id"]
     response = client.post(
         "/loans",
-        json={"user": user_id, "items": [item_id], "cost": 0},
+        json={"user": user_id, "items": [item_id]},
         headers=AUTH_ADMIN,
     )
     loan_id = response.json()[0]["id"]
@@ -158,3 +159,20 @@ def test_delete_loan():
     assert not Loan.get_or_none(Loan.id == loan_id)
     assert Item.get_or_none(Item.id == item_id)
     assert User.get_or_none(User.id == user_id)
+
+
+def test_loan_cost():
+    user = User.create(name="Bob", email="bob", credit=10)
+    item_big = Item.create(name="big", big=True)
+    item_reg = Item.create(name="reg", big=False)
+
+    client.post(
+        "/loans",
+        json={"user": user.id, "items": [item_big.id, item_reg.id]},
+        headers=AUTH_ADMIN,
+    )
+
+    # Check in DB
+    assert Loan.get(user=user, item=item_big).cost == PRICING["big"]
+    assert Loan.get(user=user, item=item_reg).cost == PRICING["regular"]
+    assert User.get(id=user).credit == 10 - PRICING["big"] - PRICING["regular"]

@@ -4,6 +4,7 @@ from api.pwmodels import Loan, User, Item, db
 from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user
 from playhouse.shortcuts import model_to_dict
+from api.config import PRICING
 
 router = APIRouter()
 
@@ -25,7 +26,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         raise HTTPException(403)
 
     body = await request.json()
-    for i in "user", "items", "cost":
+    for i in "user", "items":
         if i not in body:
             logging.error("Missing parameter '%s'", i)
             raise HTTPException(400, f"Missing parameter '{i}'")
@@ -50,20 +51,26 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         logging.error("%d items are already borrowed by the user", already_borrowed)
         raise HTTPException(400, "Some items are already borrowed by the same user")
 
-    topay_fromcredit = min(body["cost"], user.credit)
+    # Calculate cost
+    costs = [PRICING["big" if i.big else "regular"] for i in items]
+    cost = sum(costs)
+    topay_fromcredit = min(cost, user.credit)
+    print(costs)
+    print(cost, topay_fromcredit)
+    print(user.credit)
 
     loans = []
     with db.transaction():
         today = datetime.date.today()
 
         # For each item, forget any other loan and create a new one
-        for i in items:
+        for i, cost in zip(items, costs, strict=True):
             Loan.update({"status": "in", "stop": today}).where(
                 Loan.item == i, Loan.status == "out"
             ).execute()
 
             # Loan start/stop/status are set as default in pwmodels
-            loan = Loan.create(user=user, item=i)
+            loan = Loan.create(user=user, item=i, cost=cost)
             loans.append(model_to_dict(loan))
 
         # Update user credit
