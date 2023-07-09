@@ -39,7 +39,7 @@ class User(BaseModel):
     name = peewee.CharField()
     email = peewee.CharField(unique=True)
     role = peewee.CharField(default="user")
-    credit = peewee.IntegerField(default=0)
+    credit = peewee.FloatField(default=0)
     notes = peewee.TextField(null=True)
     subscription = peewee.DateField(default=today_plus_1y)  # End of
     apikey = peewee.CharField(null=True)
@@ -94,6 +94,7 @@ class ItemPicture(BaseModel):
 class Loan(BaseModel):
     user = peewee.ForeignKeyField(model=User)
     item = peewee.ForeignKeyField(model=Item)
+    cost = peewee.FloatField()
     start = peewee.DateField(default=date.today)
     stop = peewee.DateField(default=today_plus_loantime, index=True)
     status = peewee.CharField(default="out", index=True)
