@@ -108,7 +108,7 @@ export function ItemEdit(props: ItemEditProps) {
     if (mutate) {
       mutate({ ...item });
     }
-    navigate(`/items/${item?.id}`);
+    window.history.back();
   }
 
   async function onDelete(itemId: number) {
