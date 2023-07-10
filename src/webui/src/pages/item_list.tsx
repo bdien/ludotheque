@@ -16,6 +16,7 @@ import TableRow from "@mui/material/TableRow";
 import TableHead from "@mui/material/TableHead";
 import Paper from "@mui/material/Paper";
 import { TableVirtuoso, TableComponents } from "react-virtuoso";
+import useSessionStorage from "../hooks/useSessionStorage";
 
 function nameDisplay(item: ItemModel) {
   return (
@@ -73,6 +74,7 @@ export function ItemList() {
     age: 99,
   });
   const { items, isLoading } = useItems();
+  const [topIndex, setTopIndex] = useSessionStorage<number>("topItemIndex", 0);
 
   if (isLoading) return <div>Loading</div>;
   if (!items) return <div>Empty</div>;
@@ -172,6 +174,10 @@ export function ItemList() {
         style={{ height: "100%" }}
         data={displayed}
         components={TableComps}
+        initialTopMostItemIndex={topIndex}
+        rangeChanged={(range) => {
+          setTopIndex(range.startIndex);
+        }}
         fixedHeaderContent={() => (
           <TableRow sx={{ background: "#F9FBFC" }}>
             <TableCell sx={{ textAlign: "right", color: "#6B7582" }}>
