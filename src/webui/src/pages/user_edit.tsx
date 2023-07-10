@@ -46,7 +46,7 @@ export function UserEdit(props: UserEditProps) {
     if (mutate) {
       mutate({ ...user });
     }
-    navigate(`/users/${user?.id}`);
+    window.history.back();
   }
 
   async function onDelete(user_id: number) {
