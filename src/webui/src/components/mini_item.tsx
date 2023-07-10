@@ -58,7 +58,7 @@ export function MiniItem(props: MiniItemProps) {
             src={
               item.pictures?.length
                 ? `/storage/img/${item.pictures[0]}`
-                : "/notavailable.png"
+                : "/notavailable.webp"
             }
           />
         </Link>

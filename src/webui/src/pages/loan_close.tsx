@@ -40,7 +40,7 @@ export function LoanClose(props: LoanCloseProps) {
           src={
             item.pictures?.length
               ? `/storage/img/${item.pictures[0]}`
-              : "/notavailable.png"
+              : "/notavailable.webp"
           }
         />
       )}

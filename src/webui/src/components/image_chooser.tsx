@@ -58,7 +58,7 @@ export function ImageChooser(props: ImageChooserProps) {
         />
         <label htmlFor="file_uploader">
           <img
-            src={img ?? "/notavailable_edit.png"}
+            src={img ?? "/notavailable_edit.webp"}
             style={{ width: "100%", height: "100%", objectFit: "contain" }}
           />
         </label>

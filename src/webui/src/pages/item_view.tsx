@@ -99,7 +99,7 @@ export function Item(props: ItemProps) {
         src={
           item.pictures?.length
             ? `/storage/img/${item.pictures[0]}`
-            : "/notavailable.png"
+            : "/notavailable.webp"
         }
       />
       <Typography

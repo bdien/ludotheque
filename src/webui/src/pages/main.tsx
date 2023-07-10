@@ -44,7 +44,7 @@ export function Main() {
           </b>
         </p>
         <img
-          src="/photomain.jpg"
+          src="/photomain.webp"
           alt="Logo Picture"
           style={{ maxWidth: "100%", borderRadius: "2%" }}
         />
