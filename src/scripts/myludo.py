@@ -111,6 +111,8 @@ def main():
     # Description
     if args.force or not game.get("description"):
         desc = html.unescape(myludo_game["description"])
+        desc = re.sub(r"<ul>(.*?)</ul>", r"\n\1", desc)
+        desc = re.sub(r"<li>(.*?)</li>", r" - \1\n", desc)
         desc = re.sub(r"<u>(.*?)</u>", r"*\1*", desc)
         desc = re.sub(r"<b>(.*?)</b>", r"**\1**", desc)
         desc = (

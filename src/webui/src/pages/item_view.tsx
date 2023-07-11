@@ -13,12 +13,32 @@ import { Link, useLocation } from "wouter";
 import TableHead from "@mui/material/TableHead";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
-import { SpeedDialIcon } from "@mui/material";
+import {
+  AccordionDetails,
+  SpeedDialIcon,
+  Accordion,
+  styled,
+} from "@mui/material";
+import MuiAccordionSummary, {
+  AccordionSummaryProps,
+} from "@mui/material/AccordionSummary";
 import Chip from "@mui/material/Chip";
+import ReactMarkdown from "react-markdown";
 
 interface ItemProps {
   id: number;
 }
+
+const AccordionSummary = styled((props: AccordionSummaryProps) => (
+  <MuiAccordionSummary {...props} />
+))(({ theme }) => ({
+  backgroundColor: "#F9FBFC",
+  flexDirection: "row-reverse",
+
+  "& .MuiAccordionSummary-content": {
+    marginLeft: theme.spacing(1),
+  },
+}));
 
 function renderItemLink(link: ItemLinkModel) {
   if (link.name == "myludo")
@@ -111,56 +131,59 @@ export function Item(props: ItemProps) {
         {item.name}
       </Typography>
 
-      {/* Description */}
-      {item.description && (
-        <Typography
-          variant="subtitle1"
-          color="text.secondary"
-          component="div"
-          style={{ whiteSpace: "pre-line" }}
-          sx={{ p: 1 }}
-        >
-          {item.description}
-        </Typography>
-      )}
+      <Accordion defaultExpanded={true}>
+        <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+          Description
+        </AccordionSummary>
+        <AccordionDetails>
+          {/* Description */}
+          {item.description && (
+            <ReactMarkdown>{item.description}</ReactMarkdown>
+          )}
 
-      {/* Categories / Link */}
-      {(item.categories || item.links) && (
-        <Box sx={{ pb: 1 }}>
-          {item.links && item.links.map((lnk) => renderItemLink(lnk))}
-          {item.categories &&
-            categories &&
-            item.categories.map((cat) => (
-              <Chip
-                key={cat}
-                sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
-                color="primary"
-                size="small"
-                icon={<Icon>category</Icon>}
-                label={categories.get(cat)}
-              />
-            ))}
-        </Box>
-      )}
+          {/* Categories / Link */}
+          {(item.categories || item.links) && (
+            <Box sx={{ pb: 1 }}>
+              {item.links && item.links.map((lnk) => renderItemLink(lnk))}
+              {item.categories &&
+                categories &&
+                item.categories.map((cat) => (
+                  <Chip
+                    key={cat}
+                    sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
+                    color="primary"
+                    size="small"
+                    icon={<Icon>category</Icon>}
+                    label={categories.get(cat)}
+                  />
+                ))}
+            </Box>
+          )}
+        </AccordionDetails>
+      </Accordion>
 
       {/* Contenu */}
       {item.content && item.content.length > 0 && (
-        <Box border="1px solid #E5E5E5" borderRadius="10px">
-          <Typography
-            variant="subtitle1"
-            color="text.secondary"
-            component="div"
-            style={{ whiteSpace: "pre-line" }}
-            sx={{ p: 1 }}
-          >
-            Contenu:
-            <ul>
-              {item.content.map((row, idx) => (
-                <li key={idx}>{row}</li>
-              ))}
-            </ul>
-          </Typography>
-        </Box>
+        <Accordion>
+          <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+            Contenu du jeu
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              component="div"
+              style={{ whiteSpace: "pre-line" }}
+              sx={{ pl: 1 }}
+            >
+              <ul>
+                {item.content.map((row, idx) => (
+                  <li key={idx}>{row}</li>
+                ))}
+              </ul>
+            </Typography>
+          </AccordionDetails>
+        </Accordion>
       )}
 
       {/* Item details */}
@@ -211,42 +234,48 @@ export function Item(props: ItemProps) {
 
       {/* Loan history */}
       {item?.loans?.length && (
-        <Box sx={{ pb: 1, pt: 2 }}>
-          Emprunts:
-          <TableContainer>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Adhérent</TableCell>
-                  <TableCell>Début</TableCell>
-                  <TableCell>Fin</TableCell>
-                  <TableCell>Durée</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {item.loans.map((i) => (
-                  <TableRow key={i.id}>
-                    <TableCell>{i.user?.name}</TableCell>
-                    <TableCell>
-                      {new Date(i.start).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(i.stop).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {i.status == "out"
-                        ? "En cours"
-                        : `${
-                            (new Date(i.stop).valueOf() -
-                              new Date(i.start).valueOf()) /
-                            (3600000 * 24)
-                          } jours`}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+        <Box sx={{ pb: 1 }}>
+          <Accordion>
+            <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+              Historique des emprunts
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: 0 }}>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Adhérent</TableCell>
+                      <TableCell>Début</TableCell>
+                      <TableCell>Fin</TableCell>
+                      <TableCell>Durée</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {item.loans.map((i) => (
+                      <TableRow key={i.id}>
+                        <TableCell>{i.user?.name}</TableCell>
+                        <TableCell>
+                          {new Date(i.start).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(i.stop).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          {i.status == "out"
+                            ? "En cours"
+                            : `${
+                                (new Date(i.stop).valueOf() -
+                                  new Date(i.start).valueOf()) /
+                                (3600000 * 24)
+                              } jours`}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </AccordionDetails>
+          </Accordion>
         </Box>
       )}
 
