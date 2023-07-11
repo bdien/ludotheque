@@ -18,6 +18,7 @@ import {
   SpeedDialIcon,
   Accordion,
   styled,
+  Paper,
 } from "@mui/material";
 import MuiAccordionSummary, {
   AccordionSummaryProps,
@@ -131,36 +132,29 @@ export function Item(props: ItemProps) {
         {item.name}
       </Typography>
 
-      <Accordion defaultExpanded={true}>
-        <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-          Description
-        </AccordionSummary>
-        <AccordionDetails>
-          {/* Description */}
-          {item.description && (
-            <ReactMarkdown>{item.description}</ReactMarkdown>
-          )}
+      <Box component={Paper} sx={{ p: 2, mb: 1 }}>
+        {/* Description */}
+        {item.description && <ReactMarkdown>{item.description}</ReactMarkdown>}
 
-          {/* Categories / Link */}
-          {(item.categories || item.links) && (
-            <Box sx={{ pb: 1 }}>
-              {item.links && item.links.map((lnk) => renderItemLink(lnk))}
-              {item.categories &&
-                categories &&
-                item.categories.map((cat) => (
-                  <Chip
-                    key={cat}
-                    sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
-                    color="primary"
-                    size="small"
-                    icon={<Icon>category</Icon>}
-                    label={categories.get(cat)}
-                  />
-                ))}
-            </Box>
-          )}
-        </AccordionDetails>
-      </Accordion>
+        {/* Categories / Link */}
+        {(item.categories || item.links) && (
+          <Box sx={{ pb: 1 }}>
+            {item.links && item.links.map((lnk) => renderItemLink(lnk))}
+            {item.categories &&
+              categories &&
+              item.categories.map((cat) => (
+                <Chip
+                  key={cat}
+                  sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
+                  color="primary"
+                  size="small"
+                  icon={<Icon>category</Icon>}
+                  label={categories.get(cat)}
+                />
+              ))}
+          </Box>
+        )}
+      </Box>
 
       {/* Contenu */}
       {item.content && item.content.length > 0 && (
@@ -302,7 +296,7 @@ export function Item(props: ItemProps) {
             <SpeedDialAction
               key="rendre"
               tooltipOpen={true}
-              icon={<Icon>file_download</Icon>}
+              icon={<Icon>login</Icon>}
               tooltipTitle="Rendre"
               onClick={() =>
                 navigate(
@@ -316,7 +310,7 @@ export function Item(props: ItemProps) {
             <SpeedDialAction
               key="emprunter"
               tooltipOpen={true}
-              icon={<Icon>file_upload</Icon>}
+              icon={<Icon>logout</Icon>}
               tooltipTitle="Emprunter"
               onClick={() => alert("TODO")}
             />
