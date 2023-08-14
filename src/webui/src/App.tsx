@@ -18,17 +18,23 @@ import { useInfo } from "./api/hooks";
 function App() {
   const { isLoading: infoIsLoading } = useInfo();
   const [authdone, setAuthDone] = useState(false);
-  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated, isLoading, getAccessTokenSilently, logout } =
+    useAuth0();
 
   // Wait for authentication to be finished (including token)
   if (!authdone && !isLoading) {
     if (!isAuthenticated) {
       setAuthDone(true);
     } else {
-      getAccessTokenSilently().then((token) => {
-        setToken(token);
-        setAuthDone(true);
-      });
+      getAccessTokenSilently()
+        .then((token) => {
+          setToken(token);
+          setAuthDone(true);
+        })
+        .catch(() => {
+          logout();
+          setAuthDone(true);
+        });
     }
   }
 
