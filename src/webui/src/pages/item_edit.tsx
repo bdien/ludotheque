@@ -68,6 +68,7 @@ type FormValues = {
   gametime: number;
   big: boolean;
   outside: boolean;
+  content: string;
 };
 
 export function ItemEdit(props: ItemEditProps) {
@@ -90,6 +91,12 @@ export function ItemEdit(props: ItemEditProps) {
     item.gametime = data.gametime;
     item.big = data.big;
     item.outside = data.outside;
+    item.content = data.content.trim()
+      ? data.content
+          .trim()
+          .split("\n")
+          .map((i) => i.trim())
+      : [];
 
     if (item?.id) {
       await updateItem(item?.id ?? 0, item);
@@ -177,6 +184,21 @@ export function ItemEdit(props: ItemEditProps) {
                     minRows={2}
                     defaultValue={item.description}
                     {...register("description")}
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Contenu</TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    label="Contenu"
+                    helperText="Format: Une ligne par morceau"
+                    spellCheck={true}
+                    multiline
+                    minRows={2}
+                    defaultValue={item.content ? item.content.join("\n") : []}
+                    {...register("content")}
                   />
                 </TableCell>
               </TableRow>

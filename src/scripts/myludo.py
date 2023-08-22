@@ -116,7 +116,10 @@ def main():
         desc = re.sub(r"<u>(.*?)</u>", r"*\1*", desc)
         desc = re.sub(r"<b>(.*?)</b>", r"**\1**", desc)
         desc = (
-            desc.replace("<h5>", "<h5>#").replace("<p>", "\n\n").replace("<br>", "\n")
+            desc.replace("<h5>", "<h5>#")
+            .replace("<p>", "\n\n")
+            .replace("<br>", "\n")
+            .replace("\t", "")
         )
         desc = re.sub("<.*?>", "", desc)
         to_update["description"] = desc.strip()
