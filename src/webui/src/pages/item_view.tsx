@@ -188,21 +188,36 @@ export function Item(props: ItemProps) {
               <TableRow>
                 <TableCell>Status</TableCell>
                 <TableCell>
-                  {displayStatus(item)}
-                  {item.status == "out" && item.loans?.length && (
+                  {item.enabled ? (
                     <>
-                      <br />
-                      <Link href={`/users/${item.loans[0].user?.id}`}>
-                        {item.loans[0].user?.name}
-                      </Link>
+                      {displayStatus(item)}
+                      {item.status == "out" && item.loans?.length && (
+                        <>
+                          <br />
+                          <Link href={`/users/${item.loans[0].user?.id}`}>
+                            {item.loans[0].user?.name}
+                          </Link>
+                        </>
+                      )}{" "}
                     </>
+                  ) : (
+                    "Retiré du prêt"
                   )}
                 </TableCell>
               </TableRow>
+
+              {item.notes && (
+                <TableRow>
+                  <TableCell>Notes</TableCell>
+                  <TableCell>{item.notes}</TableCell>
+                </TableRow>
+              )}
+
               <TableRow>
                 <TableCell>Joueurs</TableCell>
                 <TableCell>{playerDisplay(item)}</TableCell>
               </TableRow>
+
               {item.gametime && (
                 <TableRow>
                   <TableCell>Temps d'une partie</TableCell>
