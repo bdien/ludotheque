@@ -1,5 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
-import { useItem } from "../api/hooks";
+import { useItem, useCategories } from "../api/hooks";
 import { ItemModel } from "../api/models";
 import {
   createItem,
@@ -28,6 +28,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import InputAdornment from "@mui/material/InputAdornment";
+import InputLabel from "@mui/material/InputLabel";
 
 interface ItemEditProps {
   id?: number;
@@ -64,6 +65,7 @@ type FormValues = {
   players: number[];
   name: string;
   description: string;
+  categories: number[];
   age: number;
   gametime: number;
   big: boolean;
@@ -73,6 +75,7 @@ type FormValues = {
 
 export function ItemEdit(props: ItemEditProps) {
   const { item, error, mutate } = useItem(props.id);
+  const { categories } = useCategories();
   const [imgFile, setImgFile] = useState<File | null | undefined>(undefined);
   const { register, control, handleSubmit } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
@@ -86,7 +89,8 @@ export function ItemEdit(props: ItemEditProps) {
     item.players_min = data.players[0];
     item.players_max = data.players[1];
     item.name = data.name;
-    item.description = data.description;
+    item.description = data.description.trim();
+    item.categories = data.categories;
     item.age = data.age;
     item.gametime = data.gametime;
     item.big = data.big;
@@ -159,7 +163,7 @@ export function ItemEdit(props: ItemEditProps) {
           >
             <TableBody>
               <TableRow>
-                <TableCell sx={{ width: "clamp(80px, 20vw, 300px)" }}>
+                <TableCell sx={{ width: "clamp(10ch, 10vw, 300px)" }}>
                   Nom
                 </TableCell>
                 <TableCell>
@@ -187,40 +191,78 @@ export function ItemEdit(props: ItemEditProps) {
                   />
                 </TableCell>
               </TableRow>
+
+              {/* Categories */}
+              <TableRow>
+                <TableCell>Catégories</TableCell>
+                <TableCell>
+                  <FormControl fullWidth>
+                    <InputLabel id="item-categories-label">
+                      Catégories
+                    </InputLabel>
+                    <Select
+                      label="Catégories"
+                      multiple
+                      defaultValue={item.categories}
+                      sx={{ minWidth: "200px" }}
+                      {...register("categories")}
+                    >
+                      {categories &&
+                        Array.from(categories, ([id, name]) => (
+                          <MenuItem key={id} value={id}>
+                            {name}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                  </FormControl>
+                </TableCell>
+              </TableRow>
+
+              {/* Contenu du jeu */}
               <TableRow>
                 <TableCell>Contenu</TableCell>
                 <TableCell>
                   <TextField
                     fullWidth
                     label="Contenu"
-                    helperText="Format: Une ligne par morceau"
+                    placeholder="Une ligne par objet ou groupe d'objet"
+                    helperText="Une ligne par objet ou groupe d'objet"
                     spellCheck={true}
                     multiline
-                    minRows={2}
                     defaultValue={item.content ? item.content.join("\n") : []}
                     {...register("content")}
                   />
                 </TableCell>
               </TableRow>
+
+              {/* Age pour le jeu */}
               <TableRow>
                 <TableCell>Age</TableCell>
                 <TableCell>
-                  <Select defaultValue={item.age} {...register("age")}>
-                    {[0, 2, 4, 6, 8, 10].map((i) => (
-                      <MenuItem dense key={i} value={i}>
-                        <AgeChip age={i} size="medium" />
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <FormControl fullWidth>
+                    <InputLabel id="item-age-label">Age</InputLabel>
+                    <Select
+                      label="Age"
+                      defaultValue={item.age}
+                      sx={{ minWidth: "200px" }}
+                      {...register("age")}
+                    >
+                      {[0, 2, 4, 6, 8, 10].map((i) => (
+                        <MenuItem dense key={i} value={i}>
+                          <AgeChip age={i} size="medium" />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>Temps d'une partie</TableCell>
+                <TableCell>Durée de jeu</TableCell>
                 <TableCell>
                   <TextField
                     defaultValue={item.gametime}
                     sx={{ minWidth: "200px" }}
-                    label="Temps d'une partie"
+                    label="Durée de jeu"
                     type="number"
                     InputProps={{
                       inputProps: { min: 0, max: 360 },
