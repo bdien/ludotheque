@@ -93,7 +93,7 @@ export function ItemEdit(props: ItemEditProps) {
     item.name = data.name.trim();
     item.description = data.description.trim();
     if (Array.isArray(data.categories)) item.categories = data.categories;
-    else item.categories = [data.categories];
+    else item.categories = data.categories ? [data.categories] : [];
     item.age = data.age;
     item.gametime = data.gametime;
     item.big = data.big;
