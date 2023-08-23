@@ -13,6 +13,7 @@ export interface InfoModel {
 export interface UserModel {
   id: number;
   name: string;
+  enabled: boolean;
   email: string;
   role: string;
   credit: number;
@@ -35,6 +36,7 @@ export interface ItemLinkModel {
 export interface ItemModel {
   id: number;
   name: string;
+  enabled: boolean;
   description?: string;
   pictures?: string[];
   players_max?: number;

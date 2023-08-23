@@ -70,7 +70,9 @@ type FormValues = {
   gametime: number;
   big: boolean;
   outside: boolean;
+  enabled: boolean;
   content: string;
+  notes: string;
 };
 
 export function ItemEdit(props: ItemEditProps) {
@@ -88,13 +90,16 @@ export function ItemEdit(props: ItemEditProps) {
   async function onSubmit(item: ItemModel, data: FormValues) {
     item.players_min = data.players[0];
     item.players_max = data.players[1];
-    item.name = data.name;
+    item.name = data.name.trim();
     item.description = data.description.trim();
-    item.categories = data.categories;
+    if (Array.isArray(data.categories)) item.categories = data.categories;
+    else item.categories = [data.categories];
     item.age = data.age;
     item.gametime = data.gametime;
     item.big = data.big;
     item.outside = data.outside;
+    item.enabled = data.enabled;
+    item.notes = data.notes.trim();
     item.content = data.content.trim()
       ? data.content
           .trim()
@@ -162,6 +167,7 @@ export function ItemEdit(props: ItemEditProps) {
             }}
           >
             <TableBody>
+              {/* Nom du jeu */}
               <TableRow>
                 <TableCell sx={{ width: "clamp(10ch, 10vw, 300px)" }}>
                   Nom
@@ -177,6 +183,8 @@ export function ItemEdit(props: ItemEditProps) {
                   />
                 </TableCell>
               </TableRow>
+
+              {/* Description du jeu */}
               <TableRow>
                 <TableCell>Description</TableCell>
                 <TableCell>
@@ -256,6 +264,8 @@ export function ItemEdit(props: ItemEditProps) {
                   </FormControl>
                 </TableCell>
               </TableRow>
+
+              {/* Durée d'une partie */}
               <TableRow>
                 <TableCell>Durée de jeu</TableCell>
                 <TableCell>
@@ -274,6 +284,8 @@ export function ItemEdit(props: ItemEditProps) {
                   />
                 </TableCell>
               </TableRow>
+
+              {/* Nombre de joueurs */}
               <TableRow>
                 <TableCell>Joueurs</TableCell>
                 <TableCell>
@@ -296,6 +308,23 @@ export function ItemEdit(props: ItemEditProps) {
                   />
                 </TableCell>
               </TableRow>
+
+              {/* Notes */}
+              <TableRow>
+                <TableCell>Notes</TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    label="Notes"
+                    spellCheck={true}
+                    multiline
+                    defaultValue={item.notes}
+                    {...register("notes")}
+                  />
+                </TableCell>
+              </TableRow>
+
+              {/* Cases à cocher */}
               <TableRow>
                 <TableCell>Extra</TableCell>
                 <TableCell>
@@ -317,6 +346,16 @@ export function ItemEdit(props: ItemEditProps) {
                       />
                     }
                     label="Surdimensionné"
+                  />
+                  <br />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        defaultChecked={item.enabled}
+                        {...register("enabled")}
+                      />
+                    }
+                    label="Disponible au prêt"
                   />
                 </TableCell>
               </TableRow>

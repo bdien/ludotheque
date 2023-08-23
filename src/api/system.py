@@ -49,7 +49,7 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
     # API-Key ?
     if f" {APIKEY_PREFIX}" in authorization.lower():
         apikey = authorization.lower().removeprefix("bearer ")
-        user = User.get_or_none(apikey=apikey)
+        user = User.get_or_none(apikey=apikey, enabled=True)
         if not user:
             logging.warning("Cannot find user in DB with APIKey")
             return None
@@ -71,7 +71,7 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
         return None
 
     # Look into DB
-    user = User.get_or_none(email=email)
+    user = User.get_or_none(email=email, enabled=True)
     if not user:
         logging.warning("Cannot find user %s in DB", email)
         return None

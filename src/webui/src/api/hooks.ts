@@ -48,6 +48,8 @@ const DEFAULT_ITEM: ItemModel = {
   outside: false,
   players_max: 4,
   players_min: 1,
+  notes: "",
+  enabled: true,
 };
 
 export function useItem(id?: number) {
@@ -114,6 +116,8 @@ const DEFAULT_USER: UserModel = {
   email: "",
   role: "user",
   credit: 0,
+  notes: "",
+  enabled: true,
 };
 
 export function useUser(id?: number) {

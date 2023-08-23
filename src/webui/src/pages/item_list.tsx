@@ -20,7 +20,13 @@ import useSessionStorage from "../hooks/useSessionStorage";
 
 function nameDisplay(item: ItemModel) {
   return (
-    <>
+    <Box
+      style={{
+        display: "flex",
+        alignItems: "center",
+        flexWrap: "wrap",
+      }}
+    >
       <Link href={`/items/${item.id}`}>{item.name}</Link>
       {item.big && (
         <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
@@ -32,7 +38,12 @@ function nameDisplay(item: ItemModel) {
           park
         </Icon>
       )}
-    </>
+      {!item.enabled && (
+        <Icon fontSize="small" color="error" sx={{ ml: 0.5 }}>
+          construction
+        </Icon>
+      )}
+    </Box>
   );
 }
 
