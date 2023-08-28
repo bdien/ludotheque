@@ -4,6 +4,7 @@ import { UserModel } from "../api/models";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 import { debounce } from "@mui/material/utils";
+import { MiniUser } from "./mini_user";
 
 interface UserSearchProps {
   user?: UserModel | null;
@@ -18,6 +19,9 @@ export function UserSearch(props: UserSearchProps) {
     qsearchUser(userInput).then((res) => setUserChoices(res));
   }, [userInput]);
 
+  if (props.user)
+    return <MiniUser user={props.user} onRemove={() => props.setUser(null)} />;
+
   return (
     <Autocomplete
       disablePortal
@@ -28,7 +32,7 @@ export function UserSearch(props: UserSearchProps) {
       sx={{ width: "100%", pl: 2, pr: 2 }}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       filterOptions={(x) => x}
-      renderInput={(params) => <TextField {...params} label="" />}
+      renderInput={(params) => <TextField {...params} label="Adhérent" />}
       onChange={async (_event: any, newValue: UserModel | null) => {
         if (!newValue) {
           props.setUser(undefined);
