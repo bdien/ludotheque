@@ -89,7 +89,10 @@ export function UserList() {
                 </TableCell>
 
                 <TableCell sx={{ p: 1 }}>
-                  {row?.loans ? `${row?.loans} prêts` : ""}
+                  {row?.loans ? `${row?.loans} prêt` : ""}
+                  {row?.loans && (row?.loans as unknown as number) > 1
+                    ? "s"
+                    : ""}
                 </TableCell>
 
                 <TableCell width="16px" sx={{ p: 0.5 }}>
@@ -99,9 +102,7 @@ export function UserList() {
                     </Icon>
                   )}
                   {row.oldest_loan && new Date(row.oldest_loan) < today && (
-                    <Icon fontSize="large" color="warning">
-                      alarm
-                    </Icon>
+                    <Icon color="warning">alarm</Icon>
                   )}
                 </TableCell>
               </TableRow>

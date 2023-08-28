@@ -1,12 +1,10 @@
 import MiniItem from "../components/mini_item";
 import { useUser } from "../api/hooks";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Fab from "@mui/material/Fab";
 import { Link } from "wouter";
+import { MiniUser } from "../components/mini_user";
 
 interface UserViewProps {
   id: number;
@@ -21,28 +19,7 @@ export function UserView(props: UserViewProps) {
 
   return (
     <>
-      <Grid
-        container
-        spacing={0}
-        columns={16}
-        component={Paper}
-        sx={{ m: 0, mt: 1, mb: 2, p: 2 }}
-      >
-        <Grid>
-          <Typography variant="h4">{user.name}</Typography>
-          {user?.email}
-          <div>{user?.loans?.length} Prêts</div>
-          <div>
-            {user?.credit > 0 && <span>{user?.credit}€ sur la carte, </span>}
-            {user?.subscription && (
-              <span>
-                l'abonnement se termine le{" "}
-                {new Date(user.subscription).toLocaleDateString()}
-              </span>
-            )}
-          </div>
-        </Grid>
-      </Grid>
+      <MiniUser fullDetails={true} user={user} />
 
       <Box display="flex" flexWrap="wrap" width="100%">
         {user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)}

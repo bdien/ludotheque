@@ -26,7 +26,7 @@ export function Loan() {
         Nouvel emprunt
       </Typography>
       <Box sx={{ mb: 2 }}>
-        Adhérent: <UserSearch user={user} setUser={setUser} />
+        <UserSearch user={user} setUser={setUser} />
       </Box>
     </>
   );
