@@ -64,7 +64,7 @@ def test_delete_user():
         json={"user": user_id, "items": [item_id], "cost": 0},
         headers=AUTH_ADMIN,
     )
-    loan_id = response.json()[0]["id"]
+    loan_id = response.json()["loans"][0]["id"]
 
     # Delete via API
     response = client.delete(f"/users/{user_id}", headers=AUTH_ADMIN)
@@ -152,7 +152,7 @@ def test_get_users_loancount():
         json={"user": user_id, "items": [item_id], "cost": 0},
         headers=AUTH_ADMIN,
     )
-    response.json()[0]["id"]
+    response.json()["loans"][0]["id"]
 
     # Check API
     response = client.get("/users", headers=AUTH_ADMIN)

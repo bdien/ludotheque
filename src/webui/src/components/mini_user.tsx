@@ -24,7 +24,7 @@ export function MiniUser(props: MiniUserProps) {
       columns={16}
       component={Paper}
       display="flex"
-      sx={{ m: 0, mt: 1, mb: 2, p: 2 }}
+      sx={{ m: 0, mt: 0.5, p: 1.6 }}
     >
       <Grid flexGrow={1}>
         <Typography variant="h5" fontWeight={500}>
@@ -38,8 +38,8 @@ export function MiniUser(props: MiniUserProps) {
               <Typography component="span" fontWeight={500}>
                 {props.user?.loans?.length}{" "}
               </Typography>
-              prêts
-              {late_loans && (
+              emprunts
+              {late_loans ? (
                 <Box
                   sx={{ ml: "0.3em", color: "warning.main" }}
                   component="span"
@@ -50,6 +50,8 @@ export function MiniUser(props: MiniUserProps) {
                   </Typography>{" "}
                   en retard)
                 </Box>
+              ) : (
+                ""
               )}
             </Box>
           )}

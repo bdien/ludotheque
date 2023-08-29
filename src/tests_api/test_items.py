@@ -81,7 +81,8 @@ def test_delete_item():
         json={"user": user_id, "items": [item_id], "cost": 0},
         headers=AUTH_ADMIN,
     )
-    loan_id = response.json()[0]["id"]
+    print(response.json())
+    loan_id = response.json()["loans"][0]["id"]
 
     # Delete via API
     response = client.delete(f"/items/{item_id}", headers=AUTH_ADMIN)

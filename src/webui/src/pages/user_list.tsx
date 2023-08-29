@@ -89,7 +89,7 @@ export function UserList() {
                 </TableCell>
 
                 <TableCell sx={{ p: 1 }}>
-                  {row?.loans ? `${row?.loans} prêt` : ""}
+                  {row?.loans ? `${row?.loans} emprunt` : ""}
                   {row?.loans && (row?.loans as unknown as number) > 1
                     ? "s"
                     : ""}
