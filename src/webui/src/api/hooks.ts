@@ -44,6 +44,7 @@ const DEFAULT_ITEM: ItemModel = {
   age: 8,
   big: false,
   description: "",
+  categories: [],
   name: "",
   outside: false,
   players_max: 4,

@@ -43,7 +43,7 @@ function App() {
   }
 
   return (
-    <Box height="100vh" display="flex">
+    <Box height="100vh" display="flex" sx={{ mx: "auto", maxWidth: 1500 }}>
       <TopBar width={225} />
 
       <Box
