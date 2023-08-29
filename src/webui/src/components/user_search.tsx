@@ -27,9 +27,11 @@ export function UserSearch(props: UserSearchProps) {
       disablePortal
       defaultValue={props.user}
       options={userChoices}
-      noOptionsText={"Pas d'utilisateur sélectionné"}
+      noOptionsText={
+        userInput ? "Pas d'adhérent trouvé" : "Entrez un nom pour chercher"
+      }
       getOptionLabel={(option: UserModel) => option.name}
-      sx={{ width: "100%", pl: 2, pr: 2 }}
+      sx={{ width: "100%" }}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       filterOptions={(x) => x}
       renderInput={(params) => <TextField {...params} label="Adhérent" />}

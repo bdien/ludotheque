@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { createLoan } from "../api/calls";
-import { useState } from "react";
-import { UserModel, ItemModel } from "../api/models";
+import { useEffect, useState } from "react";
+import { UserModel, ItemModel, LoanCreateResult } from "../api/models";
 import { UserSearch } from "../components/user_search";
 import { ItemSearch } from "../components/item_search";
 import Button from "@mui/material/Button";
@@ -9,68 +9,133 @@ import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 import Typography from "@mui/material/Typography";
 import { useInfo } from "../api/hooks";
+import {
+  LoanItemTable,
+  LoanItemTableEntry,
+} from "../components/loan_item_table";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Checkbox from "@mui/material/Checkbox";
 
-function submitLoan(user_id: number, objs_id: number[], topay: number) {
-  return createLoan(user_id, objs_id, topay);
+function submitLoan(
+  user_id: number,
+  objs_id: number[],
+  benevole: boolean,
+  simulation: boolean,
+) {
+  return createLoan(user_id, objs_id, benevole, simulation);
 }
+
+const fakeItemAbonnement: ItemModel = { id: -1, name: "Abonnement" };
+const fakeItemCarte: ItemModel = { id: -2, name: "Remplissage carte" };
 
 export function Loan() {
   const { info } = useInfo();
   const [_location, setLocation] = useLocation();
   const [user, setUser] = useState<UserModel | null>(null);
   const [items, setItems] = useState<ItemModel[]>([]);
+  const [benevole, setBenevole] = useState<boolean>(false);
+  const [loanResult, setLoanResult] = useState<LoanCreateResult | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const openAdd = Boolean(anchorEl);
+  const menuAddLoanOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const menuAddLoanClose = () => {
+    setAnchorEl(null);
+  };
 
-  const nbbig = items.filter((i) => i.big).length;
-  const nbregular = items.length - nbbig;
-  const topay =
-    nbregular * (info ? info.pricing.regular : -1) +
-    nbbig * (info ? info.pricing.big : -1);
-  const topay_fromcredit = user ? Math.min(topay, user.credit) : 0;
+  useEffect(() => {
+    if (!user || !items.length) return setLoanResult(null);
+
+    submitLoan(
+      user.id,
+      items.map((i) => i.id),
+      benevole,
+      true,
+    ).then((result) => setLoanResult(result));
+  }, [user, items, benevole]);
+
+  function itemPrice(item: ItemModel) {
+    if (!info) return 0;
+    if (item.id == -1) return info.pricing.yearly;
+    if (item.id == -2) return info.pricing.card;
+    if (item.big) return info.pricing.big;
+    return info.pricing.regular;
+  }
+
+  function addItem(item: ItemModel) {
+    if (!items.includes(item)) setItems((items) => [...items, item]);
+  }
+
+  // Transform items into LoanItemTableEntry
+  const loanItems: LoanItemTableEntry[] = items.map((i) => ({
+    name: i.id > 0 ? `[${i.id}] ${i.name}` : i.name,
+    price: itemPrice(i),
+  }));
+
+  // Function to remove a specific index
+  function removeItem(idx: number) {
+    setItems((items) => [...items.slice(0, idx), ...items.slice(idx + 1)]);
+  }
 
   return (
-    <>
-      <Typography variant="h5" gutterBottom>
-        Nouvel emprunt
-      </Typography>
+    <Box sx={{ m: 0.5 }}>
       <Box sx={{ mb: 2 }}>
+        <Typography variant="h6">Adhérent</Typography>
         <UserSearch user={user} setUser={setUser} />
       </Box>
 
-      <Box sx={{ mb: 2 }}>
-        <ItemSearch setItems={setItems} />
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h6">Emprunts</Typography>
+        <Box display="flex">
+          <ItemSearch setItem={addItem} excludesIds={items.map((i) => i.id)} />
+          <Button onClick={menuAddLoanOpen}>
+            <Icon>add</Icon>
+          </Button>
+          <Menu
+            id="menu-add-loan"
+            anchorEl={anchorEl}
+            open={openAdd}
+            onClose={menuAddLoanClose}
+          >
+            <MenuItem
+              onClick={() => {
+                addItem(fakeItemAbonnement);
+                menuAddLoanClose();
+              }}
+            >
+              Abonnement
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                addItem(fakeItemCarte);
+                menuAddLoanClose();
+              }}
+            >
+              Remplissage carte
+            </MenuItem>
+            <MenuItem onClick={() => setBenevole((benevole) => !benevole)}>
+              Bénévole
+              <Checkbox sx={{ py: 0 }} checked={benevole} />
+            </MenuItem>
+          </Menu>
+        </Box>
+        <LoanItemTable items={loanItems} removeItem={removeItem} />
       </Box>
 
-      {items.length > 0 && (
+      {loanResult && (
         <Box sx={{ mb: 2, position: "relative" }}>
           Règlement:
           <br />
           <ul>
             <li>
-              Total: <b>{topay}€</b> ({nbbig > 0 && `${nbbig} gros`}
-              {nbbig > 0 && nbregular > 0 && " et "}
-              {nbregular > 0 && `${nbregular} taille normale`})
+              Total: <b>{loanResult.topay.real}€</b>
+              {loanResult.topay.credit
+                ? ` (${loanResult.topay.credit}€ pris sur la carte)`
+                : ""}
             </li>
-            {user && (
-              <>
-                <li>
-                  Pris sur la carte: {topay_fromcredit}€ (Il restera{" "}
-                  {user.credit - topay_fromcredit}€)
-                </li>
-                <li>
-                  Reste: <b>{topay - topay_fromcredit}€</b>
-                </li>
-              </>
-            )}
           </ul>
-          <Icon
-            sx={{
-              top: (theme) => theme.spacing(1),
-              right: (theme) => theme.spacing(2),
-              position: "absolute",
-            }}
-          >
-            settings
-          </Icon>
         </Box>
       )}
       <Button
@@ -83,7 +148,8 @@ export function Loan() {
           submitLoan(
             user.id,
             items.map((i) => i.id),
-            topay,
+            benevole,
+            false,
           ).then(() => {
             setLocation(`/users/${user.id}`);
           })
@@ -91,6 +157,6 @@ export function Loan() {
       >
         Valider
       </Button>
-    </>
+    </Box>
   );
 }

@@ -36,6 +36,14 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         logging.error("User '%s' not matching", body["user"])
         raise HTTPException(400, "No such user")
 
+    # Special cases (Yearly subscription (-1) / Fill loan card (-2))
+    if subscription := -1 in body["items"]:
+        body["items"].remove(-1)
+    if fillcard := -2 in body["items"]:
+        body["items"].remove(-2)
+    simulation = body.get("simulation", False)
+
+    # Regular items
     items = [Item.get_or_none(Item.id == i) for i in body["items"]]
     if not all(items):
         logging.error("Cannot find some items")
@@ -51,34 +59,53 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         logging.error("%d items are already borrowed by the user", already_borrowed)
         raise HTTPException(400, "Some items are already borrowed by the same user")
 
-    # Calculate cost
-    costs = [PRICING["big" if i.big else "regular"] for i in items]
-    cost = sum(costs)
-    topay_fromcredit = min(cost, user.credit)
-    print(costs)
-    print(cost, topay_fromcredit)
-    print(user.credit)
+    # Money to pay from "real" money in any case
+    topay_realmoney = PRICING["yearly"] if subscription else 0
+    if fillcard:
+        topay_realmoney += PRICING["card"]
 
+        # Simulate new user card
+        user.credit += PRICING["card_value"]
+
+    # Now calculate how much is taken from the card and how much is remaining
+    cost_items = [PRICING["big" if i.big else "regular"] for i in items]
+    # Benevole: nullify item prices
+    if body.get("benevole"):
+        cost_items = [0] * len(cost_items)
+    total_costitems = sum(cost_items)
+    cost = topay_realmoney + total_costitems
+    topay_fromcredit = min(total_costitems, user.credit)
+    topay_realmoney += total_costitems - topay_fromcredit
+
+    # Update user credit
+    user.credit -= topay_fromcredit
+
+    # Write in DB
     loans = []
-    with db.transaction():
-        today = datetime.date.today()
+    if not simulation:
+        with db.transaction():
+            today = datetime.date.today()
 
-        # For each item, forget any other loan and create a new one
-        for i, cost in zip(items, costs, strict=True):
-            Loan.update({"status": "in", "stop": today}).where(
-                Loan.item == i, Loan.status == "out"
-            ).execute()
+            # For each item, forget any other loan and create a new one
+            for i, c in zip(items, cost_items, strict=True):
+                Loan.update({"status": "in", "stop": today}).where(
+                    Loan.item == i, Loan.status == "out"
+                ).execute()
 
-            # Loan start/stop/status are set as default in pwmodels
-            loan = Loan.create(user=user, item=i, cost=cost)
-            loans.append(model_to_dict(loan))
+                # Loan start/stop/status are set as default in pwmodels
+                loans.append(model_to_dict(Loan.create(user=user, item=i, cost=c)))
 
-        # Update user credit
-        if topay_fromcredit:
-            user.credit -= topay_fromcredit
+            # Update user credit and subscription
+            if subscription:
+                user.subscription = datetime.date.today() + datetime.timedelta(days=365)
             user.save()
 
-    return loans
+    return {
+        "cost": cost,
+        "topay": {"credit": topay_fromcredit, "real": topay_realmoney},
+        "new_credit": user.credit,
+        "loans": loans,
+    }
 
 
 @router.get("/loans/{loan_id}", tags=["loans"])

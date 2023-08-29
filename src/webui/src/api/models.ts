@@ -36,7 +36,7 @@ export interface ItemLinkModel {
 export interface ItemModel {
   id: number;
   name: string;
-  enabled: boolean;
+  enabled?: boolean;
   description?: string;
   pictures?: string[];
   players_max?: number;
@@ -73,4 +73,14 @@ export interface Account {
   role: string;
   id: number;
   loans?: Loan[];
+}
+
+export interface LoanCreateResult {
+  cost: number;
+  topay: {
+    credit: number;
+    real: number;
+  };
+  new_credit: number;
+  loans: Loan[];
 }

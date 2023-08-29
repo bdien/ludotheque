@@ -1,4 +1,4 @@
-import { UserModel, ItemModel } from "./models";
+import { UserModel, ItemModel, LoanCreateResult } from "./models";
 export const SERVER_URL = "/api";
 
 let access_token: string | null = null;
@@ -30,7 +30,7 @@ function fetchWithToken(url: string, params: any = {}) {
 }
 
 export async function qsearchItem(txt: string): Promise<ItemModel[]> {
-  if (!txt || txt.length < 2) return Promise.resolve([]);
+  if (!txt || txt.length < 1) return Promise.resolve([]);
   const response = await fetchWithToken(`${SERVER_URL}/items/qsearch/${txt}`);
   return response.json();
 }
@@ -91,11 +91,12 @@ export async function updateItemPicture(
 export async function createLoan(
   user: number,
   items: number[],
-  cost: number,
-): Promise<ItemModel> {
+  benevole: boolean,
+  simulation: boolean,
+): Promise<LoanCreateResult> {
   const response = await fetchWithToken(`${SERVER_URL}/loans`, {
     method: "POST",
-    body: JSON.stringify({ user, items, cost }),
+    body: JSON.stringify({ user, items, benevole, simulation }),
   });
   return response.json();
 }

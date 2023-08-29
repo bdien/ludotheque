@@ -355,7 +355,7 @@ export function ItemEdit(props: ItemEditProps) {
                         {...register("enabled")}
                       />
                     }
-                    label="Disponible au prêt"
+                    label="Disponible à l'emprunt"
                   />
                 </TableCell>
               </TableRow>
