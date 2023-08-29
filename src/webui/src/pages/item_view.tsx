@@ -327,7 +327,7 @@ export function Item(props: ItemProps) {
               tooltipOpen={true}
               icon={<Icon>logout</Icon>}
               tooltipTitle="Emprunter"
-              onClick={() => alert("TODO")}
+              onClick={() => navigate(`/loans/new?item=${item.id}`)}
             />
           )}
         </SpeedDial>

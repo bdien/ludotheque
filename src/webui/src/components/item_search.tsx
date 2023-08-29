@@ -29,7 +29,9 @@ export function ItemSearch(props: ItemSearchProps) {
       sx={{ width: "100%", pl: 2, pr: 2 }}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       filterOptions={(x) => x}
-      renderInput={(params) => <TextField {...params} label="" />}
+      renderInput={(params) => (
+        <TextField {...params} label="Objet à emprunter" />
+      )}
       multiple={true}
       onChange={async (_event: any, newValue: ItemModel[] | null) => {
         if (!newValue) {

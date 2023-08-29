@@ -20,7 +20,14 @@ export function Loan() {
   const [user, setUser] = useState<UserModel | null>(null);
   const [items, setItems] = useState<ItemModel[]>([]);
 
-  let html = (
+  const nbbig = items.filter((i) => i.big).length;
+  const nbregular = items.length - nbbig;
+  const topay =
+    nbregular * (info ? info.pricing.regular : -1) +
+    nbbig * (info ? info.pricing.big : -1);
+  const topay_fromcredit = user ? Math.min(topay, user.credit) : 0;
+
+  return (
     <>
       <Typography variant="h5" gutterBottom>
         Nouvel emprunt
@@ -28,23 +35,8 @@ export function Loan() {
       <Box sx={{ mb: 2 }}>
         <UserSearch user={user} setUser={setUser} />
       </Box>
-    </>
-  );
 
-  if (!user || !info) {
-    return html;
-  }
-
-  const nbbig = items.filter((i) => i.big).length;
-  const nbregular = items.length - nbbig;
-  const topay = nbregular * info.pricing.regular + nbbig * info.pricing.big;
-  const topay_fromcredit = Math.min(topay, user.credit);
-
-  return (
-    <>
-      {html}
       <Box sx={{ mb: 2 }}>
-        Emprunts:
         <ItemSearch setItems={setItems} />
       </Box>
 
@@ -58,13 +50,17 @@ export function Loan() {
               {nbbig > 0 && nbregular > 0 && " et "}
               {nbregular > 0 && `${nbregular} taille normale`})
             </li>
-            <li>
-              Pris sur la carte: {topay_fromcredit}€ (Il restera{" "}
-              {user.credit - topay_fromcredit}€)
-            </li>
-            <li>
-              Reste: <b>{topay - topay_fromcredit}€</b>
-            </li>
+            {user && (
+              <>
+                <li>
+                  Pris sur la carte: {topay_fromcredit}€ (Il restera{" "}
+                  {user.credit - topay_fromcredit}€)
+                </li>
+                <li>
+                  Reste: <b>{topay - topay_fromcredit}€</b>
+                </li>
+              </>
+            )}
           </ul>
           <Icon
             sx={{
@@ -79,10 +75,11 @@ export function Loan() {
       )}
       <Button
         variant="contained"
-        disabled={!items.length}
+        disabled={!items.length || !user}
         color="primary"
         sx={{ width: "100%", p: 2 }}
         onClick={() =>
+          user &&
           submitLoan(
             user.id,
             items.map((i) => i.id),
