@@ -29,7 +29,7 @@ export function UserList() {
     displayed = users.filter(
       (i) =>
         i.name.toLowerCase().includes(lw_filter) ||
-        i.email.toString().includes(lw_filter),
+        (i.email && i.email.toString().includes(lw_filter)),
     );
   }
 

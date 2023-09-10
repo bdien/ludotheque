@@ -14,7 +14,7 @@ export interface UserModel {
   id: number;
   name: string;
   enabled: boolean;
-  email: string;
+  email?: string;
   role: string;
   credit: number;
   oldest_loan?: string;
