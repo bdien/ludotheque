@@ -38,7 +38,7 @@ def today_plus_loantime():
 class User(BaseModel):
     name = peewee.CharField()
     enabled = peewee.BooleanField(default=True)
-    email = peewee.CharField(unique=True)
+    email = peewee.CharField(unique=True, null=True)
     role = peewee.CharField(default="user")
     credit = peewee.FloatField(default=0)
     notes = peewee.TextField(null=True)

@@ -59,7 +59,7 @@ build = {shell = "cd src/webui && pnpm run build"}
 api = {shell = "cd src/api && uvicorn main:app --reload"}
 api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
 webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
-restore = { shell = "rm -rf storage/img storage/ludotheque.db; curl -s https://ludotheque.fly.dev/api/backup | tar x" }
+restore = { shell = "rm -rf storage/img storage/ludotheque.db; curl -H 'Authorization: Bearer $LUDOTHEQUE_APIKEY' -s https://ludotheque.fly.dev/api/backup | tar x" }
 
 [tool.pytest.ini_options]
 addopts = "--ignore=__pypackages__ --cov=api --cov-report html"
