@@ -34,9 +34,7 @@ export function ItemSearch(props: ItemSearchProps) {
         key={completeKey}
         options={itemChoices}
         noOptionsText={
-          itemInput
-            ? "Pas d'objet trouvé"
-            : "Entrez un nom/nombre pour chercher"
+          itemInput ? "Pas d'objet trouvé" : "Entrez un nom pour chercher"
         }
         getOptionLabel={(option: ItemModel) => `[${option.id}] ${option.name}`}
         sx={{ flexGrow: 1 }}

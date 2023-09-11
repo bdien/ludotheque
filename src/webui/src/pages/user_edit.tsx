@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useLocation } from "wouter";
 import { useUser } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
@@ -9,6 +9,8 @@ import Button from "@mui/material/Button";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
 
 interface UserEditProps {
   id?: number;
@@ -19,11 +21,13 @@ type FormValues = {
   email: string;
   credit: number;
   role: string;
+  notes: string;
+  subscription: Dayjs;
 };
 
 export function UserEdit(props: UserEditProps) {
   const { user, error, mutate } = useUser(props.id);
-  const { register, handleSubmit } = useForm<FormValues>();
+  const { register, handleSubmit, control } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du compte",
@@ -36,6 +40,8 @@ export function UserEdit(props: UserEditProps) {
     user.email = data.email;
     user.credit = data.credit;
     user.role = data.role;
+    user.notes = data.notes;
+    user.subscription = data.subscription.format("YYYY-MM-DD");
 
     if (user?.id) {
       await updateUser(user.id, user);
@@ -68,28 +74,41 @@ export function UserEdit(props: UserEditProps) {
       <TextField
         fullWidth
         label="Nom du compte"
-        required={true}
         margin="normal"
+        required={true}
         defaultValue={user.name}
         {...register("name")}
       />
 
       <TextField
-        label="Email"
         fullWidth
+        label="Email"
         margin="normal"
         defaultValue={user.email}
-        required={true}
         autoCorrect="off"
         {...register("email")}
       />
 
+      <Controller
+        control={control}
+        defaultValue={dayjs(user.subscription)}
+        name="subscription"
+        render={({ field }) => (
+          <DatePicker
+            label="Expiration abonnement"
+            sx={{ my: 2 }}
+            format="D MMM YYYY"
+            {...field}
+          />
+        )}
+      />
+
       <TextField
         fullWidth
-        margin="normal"
         label="Crédit sur la carte"
-        type="number"
+        margin="normal"
         defaultValue={user.credit}
+        type="number"
         {...register("credit")}
         InputProps={{
           inputProps: { min: 0, max: 100 },
@@ -99,8 +118,8 @@ export function UserEdit(props: UserEditProps) {
 
       <TextField
         fullWidth
-        margin="normal"
         label="Rôle"
+        margin="normal"
         defaultValue={user.role}
         {...register("role")}
         select
@@ -108,6 +127,16 @@ export function UserEdit(props: UserEditProps) {
         <MenuItem value={"user"}>Adhérent</MenuItem>
         <MenuItem value={"admin"}>Administrateur</MenuItem>
       </TextField>
+
+      <TextField
+        fullWidth
+        margin="normal"
+        label="Notes"
+        defaultValue={user.notes}
+        multiline
+        minRows={2}
+        {...register("notes")}
+      />
 
       <Button
         variant="contained"

@@ -97,7 +97,7 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
     # Checks
     if not params:
         raise HTTPException(400, "Nothing to update")
-    if not (0 <= int(params.get("credit", 0)) <= 100):
+    if not (0 <= float(params.get("credit", 0)) <= 100):
         raise HTTPException(400, "Invalid credit")
 
     User.update(**params).where(User.id == user_id).execute()
