@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { createLoan } from "../api/calls";
+import { createLoan, fetchItem } from "../api/calls";
 import { useEffect, useState } from "react";
 import { UserModel, ItemModel, LoanCreateResult } from "../api/models";
 import { UserSearch } from "../components/user_search";
@@ -30,6 +30,8 @@ const fakeItemAbonnement: ItemModel = { id: -1, name: "Abonnement" };
 const fakeItemCarte: ItemModel = { id: -2, name: "Remplissage carte" };
 
 export function Loan() {
+  const queryParameters = new URLSearchParams(window.location.search);
+  const initialItem = queryParameters.get("item");
   const { info } = useInfo();
   const [_location, setLocation] = useLocation();
   const [user, setUser] = useState<UserModel | null>(null);
@@ -65,7 +67,8 @@ export function Loan() {
   }
 
   function addItem(item: ItemModel) {
-    if (!items.includes(item)) setItems((items) => [...items, item]);
+    const isthere = items.some((i) => i.id == item.id);
+    if (!isthere) setItems((items) => [...items, item]);
   }
 
   // Transform items into LoanItemTableEntry
@@ -77,6 +80,17 @@ export function Loan() {
   // Function to remove a specific index
   function removeItem(idx: number) {
     setItems((items) => [...items.slice(0, idx), ...items.slice(idx + 1)]);
+  }
+
+  // Initial Item (If present in URL)
+  if (initialItem) {
+    fetchItem(parseInt(initialItem)).then((item) => {
+      addItem(item);
+
+      // Remove URL parameter without reloading
+      const newURL = location.href.split("?")[0];
+      window.history.replaceState({}, document.title, newURL);
+    });
   }
 
   return (

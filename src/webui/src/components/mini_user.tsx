@@ -90,6 +90,13 @@ export function MiniUser(props: MiniUserProps) {
             )}
           </Box>
         </Box>
+        {props.user.notes ? (
+          <Box sx={{ backgroundColor: "#EEEEEE", my: 1, p: 1 }}>
+            {props.user.notes}
+          </Box>
+        ) : (
+          ""
+        )}
       </Grid>
       {props.onRemove && (
         <Box>
