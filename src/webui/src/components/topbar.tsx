@@ -149,7 +149,10 @@ export function TopBar(props: TopBarProps) {
               <Icon>menu</Icon>
             </IconButton>
 
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            <Typography
+              variant="h4"
+              sx={{ flexGrow: 1, fontFamily: "Satisfy" }}
+            >
               {logotxt}
             </Typography>
 
@@ -195,7 +198,7 @@ export function TopBar(props: TopBarProps) {
             )}
             {!isAuthenticated && (
               <Button color="inherit" onClick={() => loginWithRedirect()}>
-                Login
+                Connexion
               </Button>
             )}
           </Toolbar>
