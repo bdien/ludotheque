@@ -80,6 +80,11 @@ def get_user(user_id: int, auth=Depends(auth_user)):
         .order_by(Loan.stop)
         .dicts()
     )
+
+    if auth.role != "admin":
+        del ret["notes"]
+        del ret["apikey"]
+
     return ret
 
 
