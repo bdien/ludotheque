@@ -67,7 +67,7 @@ export function UserEdit(props: UserEditProps) {
 
   return (
     <>
-      <Typography variant="h5">
+      <Typography variant="h5" color="primary.main">
         {user.id ? "Edition d'un adhérent" : "Nouvel adhérent"}
       </Typography>
 

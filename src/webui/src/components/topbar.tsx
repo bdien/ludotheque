@@ -14,7 +14,7 @@ import ListItem from "@mui/material/ListItem";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import Box from "@mui/material/Box";
 import { RandomColors } from "./random_colors";
 import Avatar from "@mui/material/Avatar";
@@ -24,6 +24,8 @@ interface TopBarProps {
 }
 
 export function TopBar(props: TopBarProps) {
+  const [location] = useLocation();
+
   const logotxt = useMemo(
     () => <RandomColors txt="Ludo du Poisson-Lune" />,
     [],
@@ -43,6 +45,15 @@ export function TopBar(props: TopBarProps) {
     setAnchorUserMenu(null);
   };
 
+  function styleUrl(url: string) {
+    if (location == url)
+      return { backgroundColor: "primary.main", color: "white" };
+    return {
+      "&:hover": { backgroundColor: "#E5E7F9", color: "text.primary" },
+      color: "text.secondary",
+    };
+  }
+
   const drawer = (
     <>
       <List>
@@ -57,8 +68,9 @@ export function TopBar(props: TopBarProps) {
           component={Link}
           to="/items"
           onClick={() => setIsDrawerOpen(false)}
+          sx={{ ...styleUrl("/items") }}
         >
-          <ListItemIcon>
+          <ListItemIcon sx={{ color: "inherit" }}>
             <Icon>list</Icon>
           </ListItemIcon>
           <ListItemText primary="Liste des Jeux" />
@@ -68,8 +80,9 @@ export function TopBar(props: TopBarProps) {
             component={Link}
             to={`/users/${account.id}`}
             onClick={() => setIsDrawerOpen(false)}
+            sx={{ ...styleUrl(`/users/${account.id}`) }}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={{ color: "inherit" }}>
               <Icon>account_circle</Icon>
             </ListItemIcon>
             <ListItemText primary="Mes emprunts" />
@@ -85,9 +98,10 @@ export function TopBar(props: TopBarProps) {
                 borderTop: "1px solid #E5E5E5",
                 borderBottom: "1px solid #E5E5E5",
                 mt: 1,
+                ...styleUrl("/loans/new"),
               }}
             >
-              <ListItemIcon>
+              <ListItemIcon sx={{ color: "inherit" }}>
                 <Icon>playlist_add</Icon>
               </ListItemIcon>
               <ListItemText primary="Nouvel emprunt" />
@@ -96,8 +110,9 @@ export function TopBar(props: TopBarProps) {
               component={Link}
               to="/users"
               onClick={() => setIsDrawerOpen(false)}
+              sx={{ ...styleUrl("/users") }}
             >
-              <ListItemIcon>
+              <ListItemIcon sx={{ color: "inherit" }}>
                 <Icon>list</Icon>
               </ListItemIcon>
               <ListItemText primary="Liste adhérents" />
@@ -106,8 +121,9 @@ export function TopBar(props: TopBarProps) {
               component={Link}
               to="/users/new"
               onClick={() => setIsDrawerOpen(false)}
+              sx={{ ...styleUrl("/users/new") }}
             >
-              <ListItemIcon>
+              <ListItemIcon sx={{ color: "inherit" }}>
                 <Icon>person_add_alt1</Icon>
               </ListItemIcon>
               <ListItemText primary="Nouvel adhérent" />
@@ -116,8 +132,9 @@ export function TopBar(props: TopBarProps) {
               component={Link}
               to="/items/new"
               onClick={() => setIsDrawerOpen(false)}
+              sx={{ ...styleUrl("/items/new") }}
             >
-              <ListItemIcon>
+              <ListItemIcon sx={{ color: "inherit" }}>
                 <Icon>post_add</Icon>
               </ListItemIcon>
               <ListItemText primary="Nouveau jeu" />
@@ -154,6 +171,7 @@ export function TopBar(props: TopBarProps) {
                 flexGrow: 1,
                 fontFamily: "Satisfy",
                 fontSize: "clamp(5px, 7vw, 36px)",
+                textShadow: "1px 1px 5px rgba(0,0,0,0.5)",
               }}
             >
               {logotxt}

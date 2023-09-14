@@ -168,7 +168,12 @@ export function ItemEdit(props: ItemEditProps) {
             <TableBody>
               {/* Nom du jeu */}
               <TableRow>
-                <TableCell sx={{ width: "clamp(10ch, 10vw, 300px)" }}>
+                <TableCell
+                  sx={{
+                    width: "clamp(10ch, 10vw, 300px)",
+                    color: "primary.main",
+                  }}
+                >
                   Nom
                 </TableCell>
                 <TableCell>
@@ -185,7 +190,9 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Description du jeu */}
               <TableRow>
-                <TableCell>Description</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>
+                  Description
+                </TableCell>
                 <TableCell>
                   <TextField
                     fullWidth
@@ -201,7 +208,7 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Categories */}
               <TableRow>
-                <TableCell>Catégories</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Catégories</TableCell>
                 <TableCell>
                   <FormControl fullWidth>
                     <InputLabel id="item-categories-label">
@@ -227,7 +234,7 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Contenu du jeu */}
               <TableRow>
-                <TableCell>Contenu</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Contenu</TableCell>
                 <TableCell>
                   <TextField
                     fullWidth
@@ -244,7 +251,7 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Age pour le jeu */}
               <TableRow>
-                <TableCell>Age</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Age</TableCell>
                 <TableCell>
                   <FormControl fullWidth>
                     <InputLabel id="item-age-label">Age</InputLabel>
@@ -266,7 +273,9 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Durée d'une partie */}
               <TableRow>
-                <TableCell>Durée de jeu</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>
+                  Durée de jeu
+                </TableCell>
                 <TableCell>
                   <TextField
                     defaultValue={item.gametime}
@@ -286,7 +295,7 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Nombre de joueurs */}
               <TableRow>
-                <TableCell>Joueurs</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Joueurs</TableCell>
                 <TableCell>
                   <Controller
                     defaultValue={
@@ -310,7 +319,7 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Notes */}
               <TableRow>
-                <TableCell>Notes</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Notes</TableCell>
                 <TableCell>
                   <TextField
                     fullWidth
@@ -325,7 +334,7 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Cases à cocher */}
               <TableRow>
-                <TableCell>Extra</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Extra</TableCell>
                 <TableCell>
                   <FormControlLabel
                     control={

@@ -27,7 +27,12 @@ export function MiniUser(props: MiniUserProps) {
       sx={{ m: 0, mt: 0.5, p: 1.6 }}
     >
       <Grid flexGrow={1}>
-        <Typography variant="h5" fontWeight={500} sx={{ mb: 0.5 }}>
+        <Typography
+          color="primary.main"
+          variant="h5"
+          fontWeight={500}
+          sx={{ mb: 0.5 }}
+        >
           {props.user.name}
         </Typography>
         <Box sx={{ color: "text.secondary" }}>

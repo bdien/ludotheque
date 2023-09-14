@@ -63,64 +63,76 @@ export function UserList() {
                 key={row.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell scope="row" sx={{ p: 1 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                    }}
+                <TableCell
+                  scope="row"
+                  sx={{
+                    p: 1,
+                    "&:hover": { backgroundColor: "#F9FBFC" },
+                    cursor: "pointer",
+                  }}
+                >
+                  <Link
+                    href={`/users/${row.id}`}
+                    style={{ textDecoration: "none" }}
                   >
-                    <Box flexGrow={1}>
-                      <Typography component="div" fontWeight={500}>
-                        <Link
-                          href={`/users/${row.id}`}
-                          style={{ textDecoration: "none" }}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <Box flexGrow={1}>
+                        <Typography
+                          component="div"
+                          color="primary.main"
+                          fontWeight={500}
                         >
                           {row.name}
-                        </Link>
-                        {row.role == "admin" && (
-                          <Icon fontSize="small" sx={{ ml: 0.3 }}>
-                            star
-                          </Icon>
-                        )}
-                      </Typography>
-                      <Box display={displaysm}>{row.email}</Box>
-                    </Box>
+                          {row.role == "admin" && (
+                            <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                              star
+                            </Icon>
+                          )}
+                        </Typography>
+                        <Box display={displaysm}>{row.email}</Box>
+                      </Box>
 
-                    <Box flexGrow={0.3}>
-                      {row?.loans ? `${row?.loans} emprunt` : ""}
-                      {row?.loans && (row?.loans as unknown as number) > 1
-                        ? "s"
-                        : ""}
-                    </Box>
+                      <Box flexGrow={0.3}>
+                        {row?.loans ? `${row?.loans} emprunt` : ""}
+                        {row?.loans && (row?.loans as unknown as number) > 1
+                          ? "s"
+                          : ""}
+                      </Box>
 
-                    <Box>
-                      {row?.notes && (
-                        <Tooltip title={row.notes}>
-                          <Icon color="warning" sx={{ mx: 0.5 }}>
-                            notes
-                          </Icon>
-                        </Tooltip>
-                      )}
-                      {row.subscription &&
-                        new Date(row.subscription) <= today && (
-                          <Tooltip title="Abonnement en retard">
+                      <Box>
+                        {row?.notes && (
+                          <Tooltip title={row.notes}>
                             <Icon color="warning" sx={{ mx: 0.5 }}>
-                              sell
+                              notes
                             </Icon>
                           </Tooltip>
                         )}
+                        {row.subscription &&
+                          new Date(row.subscription) <= today && (
+                            <Tooltip title="Abonnement en retard">
+                              <Icon color="warning" sx={{ mx: 0.5 }}>
+                                sell
+                              </Icon>
+                            </Tooltip>
+                          )}
 
-                      {row.oldest_loan && new Date(row.oldest_loan) < today && (
-                        <Tooltip title="Jeux en retard">
-                          <Icon color="warning" sx={{ mx: 0.5 }}>
-                            alarm
-                          </Icon>
-                        </Tooltip>
-                      )}
-                    </Box>
-                  </div>
+                        {row.oldest_loan &&
+                          new Date(row.oldest_loan) < today && (
+                            <Tooltip title="Jeux en retard">
+                              <Icon color="warning" sx={{ mx: 0.5 }}>
+                                alarm
+                              </Icon>
+                            </Tooltip>
+                          )}
+                      </Box>
+                    </div>
+                  </Link>
                 </TableCell>
               </TableRow>
             ))}
