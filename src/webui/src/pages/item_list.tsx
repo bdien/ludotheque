@@ -20,30 +20,35 @@ import useSessionStorage from "../hooks/useSessionStorage";
 
 function nameDisplay(item: ItemModel) {
   return (
-    <Box
-      style={{
-        display: "flex",
-        alignItems: "center",
-        flexWrap: "wrap",
-      }}
-    >
-      <Link href={`/items/${item.id}`}>{item.name}</Link>
-      {item.big && (
-        <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
-          inventory
-        </Icon>
-      )}
-      {item.outside && (
-        <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
-          park
-        </Icon>
-      )}
-      {!item.enabled && (
-        <Icon fontSize="small" color="error" sx={{ ml: 0.5 }}>
-          construction
-        </Icon>
-      )}
-    </Box>
+    <Link href={`/items/${item.id}`}>
+      <Box
+        style={{
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          cursor: "pointer",
+        }}
+      >
+        <Box sx={{ color: "primary.main", fontSize: 14, fontWeight: "500" }}>
+          {item.name}
+        </Box>
+        {item.big && (
+          <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
+            inventory
+          </Icon>
+        )}
+        {item.outside && (
+          <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
+            park
+          </Icon>
+        )}
+        {!item.enabled && (
+          <Icon fontSize="small" color="error" sx={{ ml: 0.5 }}>
+            construction
+          </Icon>
+        )}
+      </Box>
+    </Link>
   );
 }
 

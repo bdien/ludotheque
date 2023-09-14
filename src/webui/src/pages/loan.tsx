@@ -96,12 +96,16 @@ export function Loan() {
   return (
     <Box sx={{ m: 0.5 }}>
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6">Adhérent</Typography>
+        <Typography variant="h6" color="primary.main">
+          Adhérent
+        </Typography>
         <UserSearch user={user} setUser={setUser} />
       </Box>
 
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h6">Emprunts</Typography>
+        <Typography variant="h6" color="primary.main">
+          Emprunts
+        </Typography>
         <Box display="flex">
           <ItemSearch setItem={addItem} excludesIds={items.map((i) => i.id)} />
           <Button onClick={menuAddLoanOpen}>

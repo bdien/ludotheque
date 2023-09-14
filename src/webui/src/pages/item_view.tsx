@@ -126,8 +126,8 @@ export function Item(props: ItemProps) {
       <Typography
         variant="h5"
         textAlign="center"
-        fontWeight="medium"
-        sx={{ p: 2 }}
+        fontWeight="bold"
+        sx={{ p: 2, color: "primary.main" }}
       >
         {item.name}
       </Typography>
@@ -186,7 +186,7 @@ export function Item(props: ItemProps) {
           <Table size="small">
             <TableBody>
               <TableRow>
-                <TableCell>Status</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Status</TableCell>
                 <TableCell>
                   {item.enabled ? (
                     <>
@@ -208,32 +208,38 @@ export function Item(props: ItemProps) {
 
               {item.notes && (
                 <TableRow>
-                  <TableCell>Notes</TableCell>
+                  <TableCell sx={{ color: "primary.main" }}>Notes</TableCell>
                   <TableCell>{item.notes}</TableCell>
                 </TableRow>
               )}
 
               <TableRow>
-                <TableCell>Joueurs</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Joueurs</TableCell>
                 <TableCell>{playerDisplay(item)}</TableCell>
               </TableRow>
 
               {item.gametime && (
                 <TableRow>
-                  <TableCell>Temps d'une partie</TableCell>
+                  <TableCell sx={{ color: "primary.main" }}>
+                    Temps d'une partie
+                  </TableCell>
                   <TableCell>{item.gametime} minutes</TableCell>
                 </TableRow>
               )}
               {item.age !== undefined && (
                 <TableRow>
-                  <TableCell>Age (A partir de)</TableCell>
+                  <TableCell sx={{ color: "primary.main" }}>
+                    Age (A partir de)
+                  </TableCell>
                   <TableCell>
                     <AgeChip age={item.age} />
                   </TableCell>
                 </TableRow>
               )}
               <TableRow>
-                <TableCell>Numéro d'inventaire</TableCell>
+                <TableCell sx={{ color: "primary.main" }}>
+                  Numéro d'inventaire
+                </TableCell>
                 <TableCell>{item.id}</TableCell>
               </TableRow>
             </TableBody>
