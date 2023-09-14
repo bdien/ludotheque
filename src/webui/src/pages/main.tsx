@@ -51,12 +51,15 @@ export function Main() {
         {info?.pricing && (
           <>
             <p>
-              <b>Tarifs:</b>
+              <b>Conditions:</b>
               <br />
             </p>
             <ul>
               <li>Adhésion annuelle familiale de {info.pricing.yearly}€.</li>
-              <li>Un jeu: {info.pricing.regular}€.</li>
+              <li>
+                Un jeu: {info.pricing.regular}€ pour {info.loan.days / 7}{" "}
+                semaines.
+              </li>
               <li>
                 Carte d'abonnement: {info.pricing.card}€ (
                 {info.pricing.card / info.pricing.regular} jeux + 1 gratuit).

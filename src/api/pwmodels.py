@@ -28,7 +28,7 @@ class BaseModel(peewee.Model):
 
 
 def today_plus_1y():
-    return date.today() + timedelta(days=365)
+    return date.today() + timedelta(days=366)
 
 
 def today_plus_loantime():

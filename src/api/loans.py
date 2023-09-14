@@ -97,7 +97,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
 
             # Update user credit and subscription
             if subscription:
-                user.subscription = datetime.date.today() + datetime.timedelta(days=365)
+                user.subscription = datetime.date.today() + datetime.timedelta(days=366)
             user.save()
 
     return {
