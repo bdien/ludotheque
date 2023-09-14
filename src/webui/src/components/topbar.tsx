@@ -166,6 +166,7 @@ export function TopBar(props: TopBarProps) {
                   aria-haspopup="true"
                   onClick={handleUserMenu}
                   color="inherit"
+                  sx={{ p: 0 }}
                 >
                   <Avatar alt={user.name} src={user.picture} />
                 </IconButton>
@@ -200,8 +201,12 @@ export function TopBar(props: TopBarProps) {
               </div>
             )}
             {!isAuthenticated && (
-              <Button color="inherit" onClick={() => loginWithRedirect()}>
-                Connexion
+              <Button
+                sx={{ minWidth: 0 }}
+                color="inherit"
+                onClick={() => loginWithRedirect()}
+              >
+                <Icon>person_outline</Icon>
               </Button>
             )}
           </Toolbar>
