@@ -21,8 +21,18 @@ export function UserView(props: UserViewProps) {
     <>
       <MiniUser fullDetails={true} user={user} />
 
-      <Box display="flex" flexWrap="wrap" width="100%">
-        {user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)}
+      <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 1 }}>
+        {user?.loans?.length ? (
+          user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)
+        ) : (
+          <Box sx={{ mx: "auto", textAlign: "center" }}>
+            <Icon sx={{ opacity: 0.1, fontSize: "min(50vw, 300px)", mt: 4 }}>
+              info
+            </Icon>
+            <br />
+            Pas d'emprunts en cours
+          </Box>
+        )}
       </Box>
 
       {/* Edit button */}
