@@ -143,7 +143,6 @@ export function ItemEdit(props: ItemEditProps) {
       <FormControl sx={{ width: "100%", pt: 2 }}>
         <Box
           sx={{
-            width: "100%",
             height: "40vh",
             objectFit: "contain",
             mb: 1,
@@ -365,20 +364,32 @@ export function ItemEdit(props: ItemEditProps) {
 
         <Button
           variant="contained"
+          fullWidth
           size="large"
-          sx={{ ml: 2, mt: "20px" }}
+          sx={{ mt: "20px", p: 1.5 }}
           onClick={handleSubmit((formdata) => onSubmit(item, formdata))}
         >
           {item.id == 0 ? "Créer" : "Modifier"}
+        </Button>
+
+        <Button
+          variant="outlined"
+          fullWidth
+          size="large"
+          sx={{ mt: "15px" }}
+          onClick={handleSubmit(() => history.back())}
+        >
+          Annuler
         </Button>
 
         {item.id != 0 && (
           <>
             <Button
               variant="outlined"
+              fullWidth
               size="large"
               color="error"
-              sx={{ ml: 2, mt: "20px" }}
+              sx={{ mt: "15px" }}
               onClick={handleSubmit(() => onDelete(item.id))}
             >
               Supprimer

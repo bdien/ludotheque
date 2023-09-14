@@ -27,7 +27,7 @@ export function MiniUser(props: MiniUserProps) {
       sx={{ m: 0, mt: 0.5, p: 1.6 }}
     >
       <Grid flexGrow={1}>
-        <Typography variant="h5" fontWeight={500}>
+        <Typography variant="h5" fontWeight={500} sx={{ mb: 0.5 }}>
           {props.user.name}
         </Typography>
         <Box sx={{ color: "text.secondary" }}>
@@ -38,7 +38,7 @@ export function MiniUser(props: MiniUserProps) {
               <Typography component="span" fontWeight={500}>
                 {props.user?.loans?.length}{" "}
               </Typography>
-              emprunts
+              emprunt{props.user?.loans?.length > 1 ? "s" : ""}
               {late_loans ? (
                 <Box
                   sx={{ ml: "0.3em", color: "warning.main" }}
