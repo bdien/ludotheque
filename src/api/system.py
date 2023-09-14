@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
 from api.pwmodels import Item, User
-from api.config import AUTH_DOMAIN, PRICING, APIKEY_PREFIX
+from api.config import AUTH_DOMAIN, PRICING, APIKEY_PREFIX, LOAN_DAYS
 
 router = APIRouter()
 auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 5)
@@ -86,4 +86,9 @@ def create_backup(auth=Depends(auth_user)):
 def info():
     "Return global information about the system"
 
-    return {"nbitems": Item.select().count(), "domain": AUTH_DOMAIN, "pricing": PRICING}
+    return {
+        "nbitems": Item.select().count(),
+        "domain": AUTH_DOMAIN,
+        "pricing": PRICING,
+        "loan": {"days": LOAN_DAYS},
+    }

@@ -8,6 +8,9 @@ export interface InfoModel {
     yearly: number;
     card: number;
   };
+  loan: {
+    days: number;
+  };
 }
 
 export interface UserModel {
