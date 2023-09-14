@@ -140,20 +140,32 @@ export function UserEdit(props: UserEditProps) {
 
       <Button
         variant="contained"
+        fullWidth
         size="large"
-        sx={{ ml: 2, mt: "20px" }}
+        sx={{ mt: "20px", p: 1.5 }}
         onClick={handleSubmit((formdata) => onSubmit(user, formdata))}
       >
         {user.id == 0 ? "Créer" : "Modifier"}
+      </Button>
+
+      <Button
+        variant="outlined"
+        fullWidth
+        size="large"
+        sx={{ mt: "15px" }}
+        onClick={handleSubmit(() => history.back())}
+      >
+        Annuler
       </Button>
 
       {user.id != 0 && (
         <>
           <Button
             variant="outlined"
+            fullWidth
             size="large"
             color="error"
-            sx={{ ml: 2, mt: "20px" }}
+            sx={{ mt: "15px" }}
             onClick={handleSubmit(() => onDelete(user.id))}
           >
             Supprimer

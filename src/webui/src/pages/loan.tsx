@@ -152,11 +152,14 @@ export function Loan() {
           </ul>
         </Box>
       )}
+
       <Button
         variant="contained"
+        fullWidth
+        size="large"
         disabled={!items.length || !user}
         color="primary"
-        sx={{ width: "100%", p: 2 }}
+        sx={{ mt: "15px", p: 1.5 }}
         onClick={() =>
           user &&
           submitLoan(
@@ -170,6 +173,16 @@ export function Loan() {
         }
       >
         Valider
+      </Button>
+
+      <Button
+        variant="outlined"
+        fullWidth
+        size="large"
+        sx={{ mt: "15px" }}
+        onClick={() => history.back()}
+      >
+        Annuler
       </Button>
     </Box>
   );

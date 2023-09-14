@@ -150,8 +150,11 @@ export function TopBar(props: TopBarProps) {
             </IconButton>
 
             <Typography
-              variant="h4"
-              sx={{ flexGrow: 1, fontFamily: "Satisfy" }}
+              sx={{
+                flexGrow: 1,
+                fontFamily: "Satisfy",
+                fontSize: "clamp(5px, 7vw, 36px)",
+              }}
             >
               {logotxt}
             </Typography>
