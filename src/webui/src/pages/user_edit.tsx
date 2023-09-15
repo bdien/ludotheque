@@ -1,6 +1,6 @@
 import { Controller, useForm } from "react-hook-form";
 import { useLocation } from "wouter";
-import { useUser } from "../api/hooks";
+import { useAccount, useUser } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
 import { UserModel } from "../api/models";
 import { useConfirm } from "../hooks/useConfirm";
@@ -27,6 +27,7 @@ type FormValues = {
 
 export function UserEdit(props: UserEditProps) {
   const { user, error, mutate } = useUser(props.id);
+  const { account } = useAccount();
   const { register, handleSubmit, control } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
   const { ConfirmDialog, confirmPromise } = useConfirm(
@@ -125,6 +126,7 @@ export function UserEdit(props: UserEditProps) {
         select
       >
         <MenuItem value={"user"}>Adhérent</MenuItem>
+        <MenuItem value={"benevole"}>Bénévole</MenuItem>
         <MenuItem value={"admin"}>Administrateur</MenuItem>
       </TextField>
 
@@ -158,7 +160,7 @@ export function UserEdit(props: UserEditProps) {
         Annuler
       </Button>
 
-      {user.id != 0 && (
+      {user.id != 0 && account?.role == "admin" && (
         <>
           <Button
             variant="outlined"

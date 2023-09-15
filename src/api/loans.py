@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/loans", tags=["loans"])
 def get_loans(user_id: int, all: str | None = None, auth=Depends(auth_user)):
-    if (not auth) or (auth.role != "admin" and (user_id != auth.id)):
+    if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
         raise HTTPException(403)
 
     loans = Loan.select().where(Loan.user == user_id)
@@ -22,7 +22,7 @@ def get_loans(user_id: int, all: str | None = None, auth=Depends(auth_user)):
 
 @router.post("/loans", tags=["loans"])
 async def create_loan(request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         raise HTTPException(403)
 
     body = await request.json()
@@ -110,7 +110,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
 
 @router.get("/loans/{loan_id}", tags=["loans"])
 def get_loan(loan_id: int, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         raise HTTPException(403)
 
     if loan := Loan.get_or_none(loan_id):
@@ -120,7 +120,7 @@ def get_loan(loan_id: int, auth=Depends(auth_user)):
 
 @router.get("/loans/{loan_id}/close", tags=["loans"])
 def close_loan(loan_id: int, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         raise HTTPException(403)
 
     loan = Loan.get_or_none(Loan.id == loan_id)

@@ -94,6 +94,11 @@ export function UserList() {
                               star
                             </Icon>
                           )}
+                          {row.role == "benevole" && (
+                            <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                              star_half
+                            </Icon>
+                          )}
                         </Typography>
                         <Box display={displaysm}>{row.email}</Box>
                       </Box>

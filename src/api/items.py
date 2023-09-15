@@ -57,7 +57,7 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
 
 @router.get("/items/{item_id}", tags=["items"])
 def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         history = 1  # noqa: F841
 
     # Retrieve item + pictures + status (Limit to the last 10 loans)
@@ -97,7 +97,7 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
         if loans:
             base["status"] = loans[0].status
             base["return"] = loans[0].stop
-            if auth and auth.role == "admin":
+            if auth and auth.role in ("admin", "benevole"):
                 # Return all loans + user
                 base["loans"] = [
                     model_to_dict(i, recurse=False)
@@ -114,7 +114,7 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
 
 @router.post("/items/{item_id}", tags=["items"])
 async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         raise HTTPException(403)
 
     body = await request.json()

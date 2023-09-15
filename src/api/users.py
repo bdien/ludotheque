@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.post("/users", tags=["users"])
 async def create_user(request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         raise HTTPException(403)
     body = await request.json()
 
@@ -33,7 +33,7 @@ async def create_user(request: Request, auth=Depends(auth_user)):
 def get_users(
     nb: int = 0, sort: str | None = None, q: str | None = None, auth=Depends(auth_user)
 ):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         raise HTTPException(403)
 
     query = (
@@ -67,7 +67,7 @@ def get_myself(auth=Depends(auth_user)):
 
 @router.get("/users/{user_id}", tags=["users"])
 def get_user(user_id: int, auth=Depends(auth_user)):
-    if (not auth) or (auth.role != "admin" and (user_id != auth.id)):
+    if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
         raise HTTPException(403)
 
     user = User.get_or_none(user_id)
@@ -81,7 +81,7 @@ def get_user(user_id: int, auth=Depends(auth_user)):
         .dicts()
     )
 
-    if auth.role != "admin":
+    if auth.role not in ("admin", "benevole"):
         del ret["notes"]
         del ret["apikey"]
 
@@ -90,10 +90,14 @@ def get_user(user_id: int, auth=Depends(auth_user)):
 
 @router.post("/users/{user_id}", tags=["users"])
 async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         raise HTTPException(403)
 
     body = await request.json()
+
+    # Prevent benevole from changing any role
+    if (auth.role == "benevole") and ("role" in body):
+        del body["role"]
 
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in User._meta.fields}
@@ -122,7 +126,7 @@ async def delete_user(user_id: int, auth=Depends(auth_user)):
 
 @router.get("/users/qsearch/{txt}", tags=["users"])
 def qsearch_user(txt: str, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
+    if not auth or auth.role not in ("admin", "benevole"):
         raise HTTPException(403)
 
     # Replace accents

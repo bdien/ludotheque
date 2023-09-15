@@ -34,6 +34,16 @@ export function MiniUser(props: MiniUserProps) {
           sx={{ mb: 0.5 }}
         >
           {props.user.name}
+          {props.user.role == "admin" && (
+            <Icon fontSize="small" sx={{ ml: 0.3 }}>
+              star
+            </Icon>
+          )}
+          {props.user.role == "benevole" && (
+            <Icon fontSize="small" sx={{ ml: 0.3 }}>
+              star_half
+            </Icon>
+          )}
         </Typography>
         <Box sx={{ color: "text.secondary" }}>
           {props.fullDetails && <Box>{props.user?.email}</Box>}
