@@ -1,5 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
-import { useItem, useCategories } from "../api/hooks";
+import { useItem, useCategories, useAccount } from "../api/hooks";
 import { ItemModel } from "../api/models";
 import {
   createItem,
@@ -81,6 +81,7 @@ export function ItemEdit(props: ItemEditProps) {
   const [imgFile, setImgFile] = useState<File | null | undefined>(undefined);
   const { register, control, handleSubmit } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
+  const { account } = useAccount();
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du jeu",
     `Etes-vous sûr de vouloir supprimer le jeu '${item?.name}' ? Cela supprimera
@@ -391,7 +392,7 @@ export function ItemEdit(props: ItemEditProps) {
           Annuler
         </Button>
 
-        {item.id != 0 && (
+        {item.id != 0 && account?.role == "admin" && (
           <>
             <Button
               variant="outlined"

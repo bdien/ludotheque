@@ -295,7 +295,7 @@ export function Item(props: ItemProps) {
       )}
 
       {/* Edit button */}
-      {account?.role == "admin" && (
+      {(account?.role == "admin" || account?.role == "benevole") && (
         <SpeedDial
           ariaLabel="Actions"
           sx={{

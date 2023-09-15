@@ -88,7 +88,7 @@ export function TopBar(props: TopBarProps) {
             <ListItemText primary="Mes emprunts" />
           </ListItem>
         )}
-        {account?.role == "admin" && (
+        {(account?.role == "admin" || account?.role == "benevole") && (
           <>
             <ListItem
               component={Link}
@@ -128,18 +128,20 @@ export function TopBar(props: TopBarProps) {
               </ListItemIcon>
               <ListItemText primary="Nouvel adhérent" />
             </ListItem>
-            <ListItem
-              component={Link}
-              to="/items/new"
-              onClick={() => setIsDrawerOpen(false)}
-              sx={{ ...styleUrl("/items/new") }}
-            >
-              <ListItemIcon sx={{ color: "inherit" }}>
-                <Icon>post_add</Icon>
-              </ListItemIcon>
-              <ListItemText primary="Nouveau jeu" />
-            </ListItem>
           </>
+        )}
+        {account?.role == "admin" && (
+          <ListItem
+            component={Link}
+            to="/items/new"
+            onClick={() => setIsDrawerOpen(false)}
+            sx={{ ...styleUrl("/items/new") }}
+          >
+            <ListItemIcon sx={{ color: "inherit" }}>
+              <Icon>post_add</Icon>
+            </ListItemIcon>
+            <ListItemText primary="Nouveau jeu" />
+          </ListItem>
         )}
       </List>
     </>
