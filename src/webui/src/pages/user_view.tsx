@@ -2,9 +2,11 @@ import MiniItem from "../components/mini_item";
 import { useUser } from "../api/hooks";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
-import Fab from "@mui/material/Fab";
-import { Link } from "wouter";
 import { MiniUser } from "../components/mini_user";
+import SpeedDial from "@mui/material/SpeedDial";
+import SpeedDialIcon from "@mui/material/SpeedDialIcon";
+import SpeedDialAction from "@mui/material/SpeedDialAction";
+import { useLocation } from "wouter";
 
 interface UserViewProps {
   id: number;
@@ -12,6 +14,7 @@ interface UserViewProps {
 
 export function UserView(props: UserViewProps) {
   const { user, isLoading, error } = useUser(props.id);
+  const [_location, navigate] = useLocation();
 
   if (error) return <div>failed to load</div>;
   if (isLoading) return <div>loading...</div>;
@@ -36,19 +39,30 @@ export function UserView(props: UserViewProps) {
       </Box>
 
       {/* Edit button */}
-      <Link href={`/users/${user.id}/edit`}>
-        <Fab
-          color="primary"
-          aria-label="edit"
-          sx={{
-            position: "fixed",
-            bottom: (theme) => theme.spacing(2),
-            right: (theme) => theme.spacing(2),
-          }}
-        >
-          <Icon>edit</Icon>
-        </Fab>
-      </Link>
+      <SpeedDial
+        ariaLabel="Actions"
+        sx={{
+          position: "fixed",
+          bottom: (theme) => theme.spacing(2),
+          right: (theme) => theme.spacing(2),
+        }}
+        icon={<SpeedDialIcon />}
+      >
+        <SpeedDialAction
+          key="edit"
+          tooltipOpen={true}
+          icon={<Icon>edit</Icon>}
+          tooltipTitle="Edition"
+          onClick={() => navigate(`/users/${user.id}/edit`)}
+        />
+        <SpeedDialAction
+          key="emprunter"
+          tooltipOpen={true}
+          icon={<Icon>logout</Icon>}
+          tooltipTitle="Faire un emprunt"
+          onClick={() => navigate(`/loans/new?user=${user.id}`)}
+        />
+      </SpeedDial>
     </>
   );
 }

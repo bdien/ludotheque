@@ -207,6 +207,28 @@ export function ItemEdit(props: ItemEditProps) {
                 </TableCell>
               </TableRow>
 
+              {/* Age pour le jeu */}
+              <TableRow>
+                <TableCell sx={{ color: "primary.main" }}>Age</TableCell>
+                <TableCell>
+                  <FormControl fullWidth>
+                    <InputLabel id="item-age-label">Age</InputLabel>
+                    <Select
+                      label="Age"
+                      defaultValue={item.age}
+                      sx={{ minWidth: "200px" }}
+                      {...register("age")}
+                    >
+                      {[0, 2, 4, 6, 8, 10].map((i) => (
+                        <MenuItem dense key={i} value={i}>
+                          <AgeChip age={i} size="medium" />
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </TableCell>
+              </TableRow>
+
               {/* Categories */}
               <TableRow>
                 <TableCell sx={{ color: "primary.main" }}>Catégories</TableCell>
@@ -247,28 +269,6 @@ export function ItemEdit(props: ItemEditProps) {
                     defaultValue={item.content ? item.content.join("\n") : []}
                     {...register("content")}
                   />
-                </TableCell>
-              </TableRow>
-
-              {/* Age pour le jeu */}
-              <TableRow>
-                <TableCell sx={{ color: "primary.main" }}>Age</TableCell>
-                <TableCell>
-                  <FormControl fullWidth>
-                    <InputLabel id="item-age-label">Age</InputLabel>
-                    <Select
-                      label="Age"
-                      defaultValue={item.age}
-                      sx={{ minWidth: "200px" }}
-                      {...register("age")}
-                    >
-                      {[0, 2, 4, 6, 8, 10].map((i) => (
-                        <MenuItem dense key={i} value={i}>
-                          <AgeChip age={i} size="medium" />
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
                 </TableCell>
               </TableRow>
 
