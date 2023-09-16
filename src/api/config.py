@@ -9,6 +9,6 @@ PRICING = {
     "yearly": 10,
 }
 
-LOAN_DAYS = 28
+LOAN_DAYS = 21
 
 APIKEY_PREFIX = "akld"
