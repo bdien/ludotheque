@@ -132,29 +132,31 @@ export function Item(props: ItemProps) {
         {item.name}
       </Typography>
 
-      <Box component={Paper} sx={{ p: 2, mb: 1 }}>
-        {/* Description */}
-        {item.description && <ReactMarkdown>{item.description}</ReactMarkdown>}
+      {item.description && (
+        <Box component={Paper} sx={{ p: 2, mb: 1 }}>
+          {/* Description */}
+          <ReactMarkdown>{item.description}</ReactMarkdown>
 
-        {/* Categories / Link */}
-        {(item.categories || item.links) && (
-          <Box sx={{ pb: 1 }}>
-            {item.links && item.links.map((lnk) => renderItemLink(lnk))}
-            {item.categories &&
-              categories &&
-              item.categories.map((cat) => (
-                <Chip
-                  key={cat}
-                  sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
-                  color="primary"
-                  size="small"
-                  icon={<Icon>category</Icon>}
-                  label={categories.get(cat)}
-                />
-              ))}
-          </Box>
-        )}
-      </Box>
+          {/* Categories / Link */}
+          {(item.categories || item.links) && (
+            <Box sx={{ pb: 1 }}>
+              {item.links && item.links.map((lnk) => renderItemLink(lnk))}
+              {item.categories &&
+                categories &&
+                item.categories.map((cat) => (
+                  <Chip
+                    key={cat}
+                    sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
+                    color="primary"
+                    size="small"
+                    icon={<Icon>category</Icon>}
+                    label={categories.get(cat)}
+                  />
+                ))}
+            </Box>
+          )}
+        </Box>
+      )}
 
       {/* Contenu */}
       {item.content && item.content.length > 0 && (
