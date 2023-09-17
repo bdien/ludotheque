@@ -8,7 +8,15 @@ db = peewee.DatabaseProxy()
 dbpath = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 db.initialize(
     SqliteExtDatabase(
-        f"{dbpath}/ludotheque.db", pragmas={"foreign_keys": 1, "journal_mode": "wal"}
+        f"{dbpath}/ludotheque.db",
+        autoconnect=False,
+        pragmas={
+            "foreign_keys": 1,
+            "journal_mode": "wal",
+            "temp_store": "MEMORY",
+            "synchronous": "NORMAL",
+            "cache_size": -64000,
+        },
     )
 )
 

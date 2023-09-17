@@ -1,7 +1,7 @@
 import pytest
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import Category, Item, ItemCategory, ItemLink, Loan, User
+from api.pwmodels import Category, Item, ItemCategory, ItemLink, Loan, User, db
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 
@@ -16,8 +16,9 @@ def test_create_item():
     assert "id" in newitem
 
     # Check in DB
-    item_db = Item.get_by_id(newitem["id"])
-    assert item_db.name == "objet"
+    with db:
+        item_db = Item.get_by_id(newitem["id"])
+        assert item_db.name == "objet"
 
     # Check in API
     response = client.get(f"/items/{newitem['id']}")
@@ -89,9 +90,10 @@ def test_delete_item():
     assert response.status_code == 200
 
     # Check in DB
-    assert not Item.get_or_none(id=item_id)
-    assert not Loan.get_or_none(id=loan_id)
-    assert User.get_or_none(id=item_id)
+    with db:
+        assert not Item.get_or_none(id=item_id)
+        assert not Loan.get_or_none(id=loan_id)
+        assert User.get_or_none(id=item_id)
 
 
 def test_delete_unknown_item():
@@ -157,18 +159,21 @@ def test_get_items():
 
 
 def test_modif_category():
-    item = Item.create(name="obj")
-    Category.create(id=1, name="cat1")
-    Category.create(id=2, name="cat2")
+    with db:
+        item = Item.create(name="obj")
+        Category.create(id=1, name="cat1")
+        Category.create(id=2, name="cat2")
 
     # Only one category
     response = client.post(
         f"/items/{item.id}", json={"categories": [1]}, headers=AUTH_ADMIN
     )
     assert response.status_code == 200
-    cats = [
-        i.category_id for i in ItemCategory.select().where(ItemCategory.item == item)
-    ]
+    with db:
+        cats = [
+            i.category_id
+            for i in ItemCategory.select().where(ItemCategory.item == item)
+        ]
     assert cats == [1]
 
     # Add a second one
@@ -176,9 +181,11 @@ def test_modif_category():
         f"/items/{item.id}", json={"categories": [1, 2]}, headers=AUTH_ADMIN
     )
     assert response.status_code == 200
-    cats = [
-        i.category_id for i in ItemCategory.select().where(ItemCategory.item == item)
-    ]
+    with db:
+        cats = [
+            i.category_id
+            for i in ItemCategory.select().where(ItemCategory.item == item)
+        ]
     assert cats == [1, 2]
 
     # Now remove the first one
@@ -186,14 +193,17 @@ def test_modif_category():
         f"/items/{item.id}", json={"categories": [2]}, headers=AUTH_ADMIN
     )
     assert response.status_code == 200
-    cats = [
-        i.category_id for i in ItemCategory.select().where(ItemCategory.item == item)
-    ]
+    with db:
+        cats = [
+            i.category_id
+            for i in ItemCategory.select().where(ItemCategory.item == item)
+        ]
     assert cats == [2]
 
 
 def test_modif_links():
-    item = Item.create(name="obj")
+    with db:
+        item = Item.create(name="obj")
 
     # Only one link
     response = client.post(
@@ -202,8 +212,9 @@ def test_modif_links():
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
-    links = [i.name for i in ItemLink.select().where(ItemLink.item == item)]
-    assert links == ["1"]
+    with db:
+        links = [i.name for i in ItemLink.select().where(ItemLink.item == item)]
+        assert links == ["1"]
 
     # Add a second one
     response = client.post(
@@ -212,8 +223,9 @@ def test_modif_links():
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
-    links = [i.name for i in ItemLink.select().where(ItemLink.item == item)]
-    assert links == ["1", "2"]
+    with db:
+        links = [i.name for i in ItemLink.select().where(ItemLink.item == item)]
+        assert links == ["1", "2"]
 
     # Now remove the first one
     response = client.post(
@@ -222,5 +234,7 @@ def test_modif_links():
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
-    links = [i.name for i in ItemLink.select().where(ItemLink.item == item)]
-    assert links == ["2"]
+
+    with db:
+        links = [i.name for i in ItemLink.select().where(ItemLink.item == item)]
+        assert links == ["2"]

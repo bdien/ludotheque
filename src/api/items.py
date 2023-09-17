@@ -1,5 +1,14 @@
 import contextlib
-from api.pwmodels import Category, ItemCategory, ItemLink, Loan, Item, ItemPicture, User
+from api.pwmodels import (
+    Category,
+    ItemCategory,
+    ItemLink,
+    Loan,
+    Item,
+    ItemPicture,
+    User,
+    db,
+)
 from api.system import auth_user
 from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
 from playhouse.shortcuts import model_to_dict
@@ -29,19 +38,20 @@ async def create_item(request: Request, auth=Depends(auth_user)):
     if not (0 <= int(params.get("gametime") or 1) <= 360):
         raise HTTPException(400, "Invalid gametime")
 
-    item = Item.create(**params)
+    with db:
+        item = Item.create(**params)
 
-    # Insert item links
-    for i in body.get("links", []):
-        ItemLink.insert(
-            item=item, name=i["name"], ref=i["ref"]
-        ).on_conflict_replace().execute()
+        # Insert item links
+        for i in body.get("links", []):
+            ItemLink.insert(
+                item=item, name=i["name"], ref=i["ref"]
+            ).on_conflict_replace().execute()
 
-    # Insert item category
-    for i in body.get("categories", []):
-        ItemCategory.insert(item=item, category=i).on_conflict_ignore().execute()
+        # Insert item category
+        for i in body.get("categories", []):
+            ItemCategory.insert(item=item, category=i).on_conflict_ignore().execute()
 
-    return model_to_dict(item)
+        return model_to_dict(item)
 
 
 @router.get("/items", tags=["items"])
@@ -52,7 +62,8 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
     if q:
         query = query.where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
 
-    return list(query.order_by(Item.id).dicts())
+    with db:
+        return list(query.order_by(Item.id).dicts())
 
 
 @router.get("/items/{item_id}", tags=["items"])
@@ -62,53 +73,54 @@ def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
 
     # Retrieve item + pictures + status (Limit to the last 10 loans)
     # sourcery skip: use-named-expression
-    items = (
-        Item.select(Item, Loan, User.name, User.id)
-        .left_outer_join(Loan)
-        .limit(10)
-        .left_outer_join(User)
-        .where(Item.id == item_id)
-        .order_by(-Loan.stop)
-    )
+    with db:
+        items = (
+            Item.select(Item, Loan, User.name, User.id)
+            .left_outer_join(Loan)
+            .limit(10)
+            .left_outer_join(User)
+            .where(Item.id == item_id)
+            .order_by(-Loan.stop)
+        )
 
-    if items:
-        # First item is the latest loan
-        item = items[0]
-        base = model_to_dict(item, recurse=False)
-        loans = [i.loan for i in items] if hasattr(item, "loan") else []
-        base["status"] = "in"
+        if items:
+            # First item is the latest loan
+            item = items[0]
+            base = model_to_dict(item, recurse=False)
+            loans = [i.loan for i in items] if hasattr(item, "loan") else []
+            base["status"] = "in"
 
-        base["pictures"] = [
-            p.filename
-            for p in ItemPicture.select()
-            .where(ItemPicture.item == item_id)
-            .order_by(ItemPicture.index)
-        ]
-        base["categories"] = [
-            i.category_id
-            for i in ItemCategory.select().where(ItemCategory.item == item_id)
-        ]
+            base["pictures"] = [
+                p.filename
+                for p in ItemPicture.select()
+                .where(ItemPicture.item == item_id)
+                .order_by(ItemPicture.index)
+            ]
+            base["categories"] = [
+                i.category_id
+                for i in ItemCategory.select().where(ItemCategory.item == item_id)
+            ]
 
-        base["links"] = [
-            {"name": i.name, "ref": i.ref}
-            for i in ItemLink.select().where(ItemLink.item == item_id)
-        ]
+            base["links"] = [
+                {"name": i.name, "ref": i.ref}
+                for i in ItemLink.select().where(ItemLink.item == item_id)
+            ]
 
-        if loans:
-            base["status"] = loans[0].status
-            base["return"] = loans[0].stop
-            if auth and auth.role in ("admin", "benevole"):
-                # Return all loans + user
-                base["loans"] = [
-                    model_to_dict(i, recurse=False)
-                    | {
-                        "user": model_to_dict(
-                            i.user, recurse=False, only=[User.id, User.name]
-                        )
-                    }
-                    for i in loans
-                ]
-        return base
+            if loans:
+                base["status"] = loans[0].status
+                base["return"] = loans[0].stop
+                if auth and auth.role in ("admin", "benevole"):
+                    # Return all loans + user
+                    base["loans"] = [
+                        model_to_dict(i, recurse=False)
+                        | {
+                            "user": model_to_dict(
+                                i.user, recurse=False, only=[User.id, User.name]
+                            )
+                        }
+                        for i in loans
+                    ]
+            return base
     raise HTTPException(404)
 
 
@@ -128,26 +140,27 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
         raise HTTPException(400, "Invalid gametime")
 
     # Modify main object
-    if params:
-        Item.update(**params).where(Item.id == item_id).execute()
+    with db:
+        if params:
+            Item.update(**params).where(Item.id == item_id).execute()
 
-    # Modify item links
-    for i in body.get("links", []):
-        names = [i["name"] for i in body["links"]]
-        ItemLink.delete().where(
-            ItemLink.item == item_id, ItemLink.name.not_in(names)
-        ).execute()
-        ItemLink.insert(
-            item=item_id, name=i["name"], ref=i["ref"]
-        ).on_conflict_replace().execute()
+        # Modify item links
+        for i in body.get("links", []):
+            names = [i["name"] for i in body["links"]]
+            ItemLink.delete().where(
+                ItemLink.item == item_id, ItemLink.name.not_in(names)
+            ).execute()
+            ItemLink.insert(
+                item=item_id, name=i["name"], ref=i["ref"]
+            ).on_conflict_replace().execute()
 
-    # Modify item categories
-    for i in body.get("categories", []):
-        ItemCategory.delete().where(
-            ItemCategory.item == item_id,
-            ItemCategory.category.not_in(body["categories"]),
-        ).execute()
-        ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
+        # Modify item categories
+        for i in body.get("categories", []):
+            ItemCategory.delete().where(
+                ItemCategory.item == item_id,
+                ItemCategory.category.not_in(body["categories"]),
+            ).execute()
+            ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
 
 
 @router.post("/items/{item_id}/picture", tags=["items"])
@@ -168,11 +181,12 @@ async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_
     img.save(f"{LUDO_STORAGE}/img/{filename}")
 
     # Find first non allocated indexes
-    query = ItemPicture.select(ItemPicture.index).where(ItemPicture.item == item_id)
-    indexes = [i["index"] for i in query.dicts()]
-    newindex = next(idx for idx in range(30) if idx not in indexes)
+    with db:
+        query = ItemPicture.select(ItemPicture.index).where(ItemPicture.item == item_id)
+        indexes = [i["index"] for i in query.dicts()]
+        newindex = next(idx for idx in range(30) if idx not in indexes)
 
-    ItemPicture.create(item=item_id, index=newindex, filename=filename)
+        ItemPicture.create(item=item_id, index=newindex, filename=filename)
 
 
 @router.post("/items/{item_id}/picture/{picture_index}", tags=["items"])
@@ -192,18 +206,19 @@ async def modify_item_picture(
     img.save(f"{LUDO_STORAGE}/img/{filename}")
 
     # Delete previous image
-    picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
-    if not picture:
-        ItemPicture.create(item=item_id, index=picture_index, filename=filename)
-    else:
-        if picture.filename != filename:
-            print(f"Unlink {LUDO_STORAGE}/img/{picture.filename}")
-            with contextlib.suppress(FileNotFoundError):
-                os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
+    with db:
+        picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
+        if not picture:
+            ItemPicture.create(item=item_id, index=picture_index, filename=filename)
+        else:
+            if picture.filename != filename:
+                print(f"Unlink {LUDO_STORAGE}/img/{picture.filename}")
+                with contextlib.suppress(FileNotFoundError):
+                    os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
 
-            # Set new one in DB
-            picture.filename = filename
-            picture.save()
+                # Set new one in DB
+                picture.filename = filename
+                picture.save()
 
 
 @router.delete("/items/{item_id}/picture/{picture_index}", tags=["items"])
@@ -211,13 +226,14 @@ def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user
     if not auth or auth.role != "admin":
         raise HTTPException(403)
 
-    picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
-    if not picture:
-        raise HTTPException(404)
+    with db:
+        picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
+        if not picture:
+            raise HTTPException(404)
 
-    with contextlib.suppress(FileNotFoundError):
-        os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
-    picture.delete_instance()
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
+        picture.delete_instance()
 
 
 @router.delete("/items/{item_id}", tags=["users"])
@@ -225,38 +241,41 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
     if not auth or auth.role != "admin":
         raise HTTPException(403)
 
-    item = Item.get_or_none(Item.id == item_id)
-    if not item:
-        raise HTTPException(404)
-    item.delete_instance(recursive=True)
+    with db:
+        item = Item.get_or_none(Item.id == item_id)
+        if not item:
+            raise HTTPException(404)
+        item.delete_instance(recursive=True)
 
-    # Now remove every picture
-    for p in ItemPicture.select().where(ItemPicture.item == item_id):
-        with contextlib.suppress(FileNotFoundError):
-            os.unlink(f"{LUDO_STORAGE}/img/{p.filename}")
+        # Now remove every picture
+        for p in ItemPicture.select().where(ItemPicture.item == item_id):
+            with contextlib.suppress(FileNotFoundError):
+                os.unlink(f"{LUDO_STORAGE}/img/{p.filename}")
 
-    return "OK"
+        return "OK"
 
 
 @router.get("/items/qsearch/{txt}", tags=["items"])
 def qsearch_item(txt: str):
     "Return a list of max 10 items matching filter (and not already loaned)"
 
-    loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
-    return list(
-        Item.select(Item.id, Item.name, Item.big)
-        .where((Item.name ** f"%{txt}%") | (Item.id ** f"%{txt}%"))
-        .where(Item.id.not_in(loaned_items))
-        .order_by(Item.id)
-        .limit(10)
-        .dicts()
-    )
+    with db:
+        loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
+        return list(
+            Item.select(Item.id, Item.name, Item.big)
+            .where((Item.name ** f"%{txt}%") | (Item.id ** f"%{txt}%"))
+            .where(Item.id.not_in(loaned_items))
+            .order_by(Item.id)
+            .limit(10)
+            .dicts()
+        )
 
 
 @router.get("/categories", tags=["categories"])
 def get_categories():
     "Return all categories"
-    return list(Category.select().dicts())
+    with db:
+        return list(Category.select().dicts())
 
 
 @router.post("/categories", tags=["categories"])
@@ -265,8 +284,9 @@ async def create_category(request: Request, auth=Depends(auth_user)):
         raise HTTPException(403)
 
     body = await request.json()
-    c = Category.create(name=body["name"])
-    return model_to_dict(c)
+    with db:
+        c = Category.create(name=body["name"])
+        return model_to_dict(c)
 
 
 @router.post("/categories/{cat_id}", tags=["categories"])
@@ -275,4 +295,5 @@ async def update_category(cat_id: int, request: Request, auth=Depends(auth_user)
         raise HTTPException(403)
 
     body = await request.json()
-    Category.update(name=body["name"]).where(Category.id == cat_id).execute()
+    with db:
+        Category.update(name=body["name"]).where(Category.id == cat_id).execute()

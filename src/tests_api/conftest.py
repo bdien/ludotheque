@@ -26,10 +26,13 @@ def dbtables():
     # Note: Memory does not seem to exists for multiple connections
     with tempfile.NamedTemporaryFile() as tmpfile:
         logging.getLogger("peewee").setLevel(logging.INFO)
-        database = SqliteExtDatabase(tmpfile.name, pragmas={"foreign_keys": 1})
+        database = SqliteExtDatabase(
+            tmpfile.name, pragmas={"foreign_keys": 1}, autoconnect=False
+        )
         api.pwmodels.db.initialize(database)
 
-        api.pwmodels.create_all_tables()
+        with database:
+            api.pwmodels.create_all_tables()
         logging.getLogger("peewee").setLevel(logging.DEBUG)
         yield None
 
