@@ -56,7 +56,7 @@ const DEFAULT_ITEM: ItemModel = {
 export function useItem(id?: number) {
   if (!id) {
     return {
-      item: DEFAULT_ITEM,
+      item: { ...DEFAULT_ITEM },
       isLoading: false,
       error: false,
       mutate: undefined,
