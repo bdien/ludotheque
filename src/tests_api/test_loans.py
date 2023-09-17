@@ -1,7 +1,7 @@
 import pytest
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import Loan, User, Item
+from api.pwmodels import Loan, User, Item, db
 from api.config import PRICING
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
@@ -17,8 +17,9 @@ ITEM_ID = 158
 @pytest.fixture()
 def dbitems():
     "Create basic DB items"
-    u = User.create(id=USER_ID, name="User", email="user@email", credit=1)
-    i = Item.create(id=ITEM_ID, name="Item")
+    with db:
+        u = User.create(id=USER_ID, name="User", email="user@email", credit=1)
+        i = Item.create(id=ITEM_ID, name="Item")
     yield {"user": u, "items": [i]}
 
 
@@ -87,7 +88,8 @@ def test_create_loan_item_from_other_user(dbitems):
     )
     assert response.status_code == 200
 
-    u = User.create(name="User2", email="user2@email", credit=1)
+    with db:
+        u = User.create(name="User2", email="user2@email", credit=1)
     response = client.post(
         "/loans",
         json={"user": u.id, "items": [ITEM_ID]},
@@ -96,8 +98,9 @@ def test_create_loan_item_from_other_user(dbitems):
     assert response.status_code == 200
 
     # Check in DB
-    assert Loan.get(user=USER_ID, item=ITEM_ID).status == "in"
-    assert Loan.get(user=u.id, item=ITEM_ID).status == "out"
+    with db:
+        assert Loan.get(user=USER_ID, item=ITEM_ID).status == "in"
+        assert Loan.get(user=u.id, item=ITEM_ID).status == "out"
 
 
 def test_create_loan_not_authenticated(dbitems):
@@ -156,15 +159,17 @@ def test_delete_loan():
     assert response.status_code == 200
 
     # Check in DB
-    assert not Loan.get_or_none(Loan.id == loan_id)
-    assert Item.get_or_none(Item.id == item_id)
-    assert User.get_or_none(User.id == user_id)
+    with db:
+        assert not Loan.get_or_none(Loan.id == loan_id)
+        assert Item.get_or_none(Item.id == item_id)
+        assert User.get_or_none(User.id == user_id)
 
 
 def test_loan_cost():
-    user = User.create(name="Bob", email="bob", credit=10)
-    item_big = Item.create(name="big", big=True)
-    item_reg = Item.create(name="reg", big=False)
+    with db:
+        user = User.create(name="Bob", email="bob", credit=10)
+        item_big = Item.create(name="big", big=True)
+        item_reg = Item.create(name="reg", big=False)
 
     response = client.post(
         "/loans",
@@ -176,13 +181,15 @@ def test_loan_cost():
     assert response["cost"] == PRICING["big"] + PRICING["regular"]
 
     # Check in DB
-    assert Loan.get(user=user, item=item_big).cost == PRICING["big"]
-    assert Loan.get(user=user, item=item_reg).cost == PRICING["regular"]
-    assert User.get(id=user).credit == 10 - PRICING["big"] - PRICING["regular"]
+    with db:
+        assert Loan.get(user=user, item=item_big).cost == PRICING["big"]
+        assert Loan.get(user=user, item=item_reg).cost == PRICING["regular"]
+        assert User.get(id=user).credit == 10 - PRICING["big"] - PRICING["regular"]
 
 
 def test_loan_subscription():
-    user = User.create(name="Bob", email="bob", credit=100)
+    with db:
+        user = User.create(name="Bob", email="bob", credit=100)
 
     response = client.post(
         "/loans",
@@ -199,7 +206,8 @@ def test_loan_subscription():
 
 
 def test_loan_fillcard():
-    user = User.create(name="Bob", email="bob", credit=100)
+    with db:
+        user = User.create(name="Bob", email="bob", credit=100)
 
     response = client.post(
         "/loans",
@@ -214,12 +222,14 @@ def test_loan_fillcard():
         "loans": [],
     }
 
-    newuser = User.get(name="Bob")
-    assert newuser.credit == 100 + PRICING["card_value"]
+    with db:
+        newuser = User.get(name="Bob")
+        assert newuser.credit == 100 + PRICING["card_value"]
 
 
 def test_loan_fillcard_simulation():
-    user = User.create(name="Bob", email="bob", credit=100)
+    with db:
+        user = User.create(name="Bob", email="bob", credit=100)
 
     response = client.post(
         "/loans",
@@ -234,12 +244,14 @@ def test_loan_fillcard_simulation():
         "loans": [],
     }
 
-    newuser = User.get(name="Bob")
-    assert newuser.credit == 100
+    with db:
+        newuser = User.get(name="Bob")
+        assert newuser.credit == 100
 
 
 def test_loan_fillcard_plus_subscription():
-    user = User.create(name="Bob", email="bob", credit=100)
+    with db:
+        user = User.create(name="Bob", email="bob", credit=100)
 
     response = client.post(
         "/loans",
@@ -256,8 +268,9 @@ def test_loan_fillcard_plus_subscription():
 
 
 def test_loan_fillcard_plus_item():
-    user = User.create(name="Bob", email="bob", credit=1)  # User starts with 1
-    item_big = Item.create(name="big", big=True)
+    with db:
+        user = User.create(name="Bob", email="bob", credit=1)  # User starts with 1
+        item_big = Item.create(name="big", big=True)
 
     response = client.post(
         "/loans",
@@ -276,13 +289,15 @@ def test_loan_fillcard_plus_item():
         "loans": [],
     }
 
-    newuser = User.get(name="Bob")
-    assert newuser.credit == 1 + PRICING["card_value"] - PRICING["big"]
+    with db:
+        newuser = User.get(name="Bob")
+        assert newuser.credit == 1 + PRICING["card_value"] - PRICING["big"]
 
 
 def test_loan_fillcard_plus_item_benevole():
-    user = User.create(name="Bob", email="bob", credit=1)  # User starts with 1
-    item_big = Item.create(name="big", big=True)
+    with db:
+        user = User.create(name="Bob", email="bob", credit=1)  # User starts with 1
+        item_big = Item.create(name="big", big=True)
 
     response = client.post(
         "/loans",
@@ -305,5 +320,6 @@ def test_loan_fillcard_plus_item_benevole():
         "loans": [],
     }
 
-    newuser = User.get(name="Bob")
-    assert newuser.credit == 1 + PRICING["card_value"]
+    with db:
+        newuser = User.get(name="Bob")
+        assert newuser.credit == 1 + PRICING["card_value"]

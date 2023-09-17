@@ -1,6 +1,6 @@
 import re
 import peewee
-from api.pwmodels import Loan, User
+from api.pwmodels import Loan, User, db
 from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user
 
@@ -25,7 +25,8 @@ async def create_user(request: Request, auth=Depends(auth_user)):
     if not (0 <= int(params.get("credit", 0)) <= 100):
         raise HTTPException(400, "Invalid credit")
 
-    user = User.create(**params)
+    with db:
+        user = User.create(**params)
     return model_to_dict(user)
 
 
@@ -51,17 +52,19 @@ def get_users(
     if q:
         query = query.where((User.name ** f"%{q}%") | (User.email ** f"%{q}%"))
 
-    return list(query.order_by(User.name).dicts())
+    with db:
+        return list(query.order_by(User.name).dicts())
 
 
 @router.get("/users/me", tags=["users"])
 def get_myself(auth=Depends(auth_user)):
     if not auth:
         raise HTTPException(401)
-    if u := User.get_or_none(User.id == auth.id):
-        ret = model_to_dict(u, recurse=False)
-        del ret["notes"]  # Notes are private to admins
-        return ret
+    with db:
+        if u := User.get_or_none(User.id == auth.id):
+            ret = model_to_dict(u, recurse=False)
+            del ret["notes"]  # Notes are private to admins
+            return ret
     raise HTTPException(402)
 
 
@@ -70,16 +73,17 @@ def get_user(user_id: int, auth=Depends(auth_user)):
     if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
         raise HTTPException(403)
 
-    user = User.get_or_none(user_id)
-    if not user:
-        raise HTTPException(404)
-    ret = model_to_dict(user, recurse=False)
-    ret["loans"] = list(
-        Loan.select()
-        .where(Loan.user == user, Loan.status == "out")
-        .order_by(Loan.stop)
-        .dicts()
-    )
+    with db:
+        user = User.get_or_none(user_id)
+        if not user:
+            raise HTTPException(404)
+        ret = model_to_dict(user, recurse=False)
+        ret["loans"] = list(
+            Loan.select()
+            .where(Loan.user == user, Loan.status == "out")
+            .order_by(Loan.stop)
+            .dicts()
+        )
 
     if auth.role not in ("admin", "benevole"):
         del ret["notes"]
@@ -109,7 +113,8 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
     if not (0 <= float(params.get("credit", 0)) <= 100):
         raise HTTPException(400, "Invalid credit")
 
-    User.update(**params).where(User.id == user_id).execute()
+    with db:
+        User.update(**params).where(User.id == user_id).execute()
 
 
 @router.delete("/users/{user_id}", tags=["users"])
@@ -117,11 +122,12 @@ async def delete_user(user_id: int, auth=Depends(auth_user)):
     if not auth or auth.role != "admin":
         raise HTTPException(403)
 
-    user = User.get_or_none(User.id == user_id)
-    if not user:
-        raise HTTPException(404)
-    user.delete_instance(recursive=True)
-    return "OK"
+    with db:
+        user = User.get_or_none(User.id == user_id)
+        if not user:
+            raise HTTPException(404)
+        user.delete_instance(recursive=True)
+        return "OK"
 
 
 @router.get("/users/qsearch/{txt}", tags=["users"])
@@ -132,10 +138,11 @@ def qsearch_user(txt: str, auth=Depends(auth_user)):
     # Replace accents
     txt = re.sub("[eéèaàcçuùîiï]", "_", txt)
 
-    return list(
-        User.select(User.id, User.name)
-        .where((User.name ** f"%{txt}%") | (User.id ** f"%{txt}%"))
-        .order_by(User.id)
-        .limit(10)
-        .dicts()
-    )
+    with db:
+        return list(
+            User.select(User.id, User.name)
+            .where((User.name ** f"%{txt}%") | (User.id ** f"%{txt}%"))
+            .order_by(User.id)
+            .limit(10)
+            .dicts()
+        )

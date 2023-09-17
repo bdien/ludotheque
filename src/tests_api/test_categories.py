@@ -1,6 +1,6 @@
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import Category
+from api.pwmodels import Category, db
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, fake_auth_user
 
@@ -15,13 +15,15 @@ def test_create_category():
     assert "id" in newcat
 
     # Check in DB
-    cat_db = Category.get_by_id(newcat["id"])
-    assert cat_db.name == "cat1"
+    with db:
+        cat_db = Category.get_by_id(newcat["id"])
+        assert cat_db.name == "cat1"
 
 
 def test_create_item_with_category():
     # Create a category
-    Category.create(id=66, name="cat1")
+    with db:
+        Category.create(id=66, name="cat1")
 
     # Create a new item with category
     response = client.post(
