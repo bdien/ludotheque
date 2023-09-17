@@ -33,6 +33,7 @@ export function MiniUser(props: MiniUserProps) {
           fontWeight={500}
           sx={{ mb: 0.5 }}
         >
+          {props.fullDetails && `[${props.user.id}] `}
           {props.user.name}
           {props.user.role == "admin" && (
             <Icon fontSize="small" sx={{ ml: 0.3 }}>
