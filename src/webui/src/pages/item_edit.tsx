@@ -94,7 +94,10 @@ export function ItemEdit(props: ItemEditProps) {
     item.name = data.name.trim();
     item.description = data.description.trim();
     if (Array.isArray(data.categories)) item.categories = data.categories;
-    else item.categories = data.categories ? [data.categories] : [];
+    else
+      item.categories = (data.categories as string)
+        .split(",")
+        .map((i) => parseInt(i));
     item.age = data.age;
     item.gametime = data.gametime;
     item.big = data.big;
@@ -229,6 +232,23 @@ export function ItemEdit(props: ItemEditProps) {
                 </TableCell>
               </TableRow>
 
+              {/* Contenu du jeu */}
+              <TableRow>
+                <TableCell sx={{ color: "primary.main" }}>Contenu</TableCell>
+                <TableCell>
+                  <TextField
+                    fullWidth
+                    label="Contenu"
+                    placeholder="Une ligne par objet ou groupe d'objet"
+                    helperText="Une ligne par objet ou groupe d'objet"
+                    spellCheck={true}
+                    multiline
+                    defaultValue={item.content ? item.content.join("\n") : []}
+                    {...register("content")}
+                  />
+                </TableCell>
+              </TableRow>
+
               {/* Categories */}
               <TableRow>
                 <TableCell sx={{ color: "primary.main" }}>Catégories</TableCell>
@@ -252,23 +272,6 @@ export function ItemEdit(props: ItemEditProps) {
                         ))}
                     </Select>
                   </FormControl>
-                </TableCell>
-              </TableRow>
-
-              {/* Contenu du jeu */}
-              <TableRow>
-                <TableCell sx={{ color: "primary.main" }}>Contenu</TableCell>
-                <TableCell>
-                  <TextField
-                    fullWidth
-                    label="Contenu"
-                    placeholder="Une ligne par objet ou groupe d'objet"
-                    helperText="Une ligne par objet ou groupe d'objet"
-                    spellCheck={true}
-                    multiline
-                    defaultValue={item.content ? item.content.join("\n") : []}
-                    {...register("content")}
-                  />
                 </TableCell>
               </TableRow>
 
