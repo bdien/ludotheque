@@ -100,4 +100,5 @@ def info():
             "domain": AUTH_DOMAIN,
             "pricing": PRICING,
             "loan": {"days": LOAN_DAYS},
+            "version": "DEVDEV",
         }

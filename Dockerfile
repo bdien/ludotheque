@@ -8,6 +8,9 @@ ENV PATH="$PATH:/root/.local/share/pnpm"
 ADD . /app
 RUN cd /app/src/webui && pnpm install && pnpm run build
 
+# Write version to Python file
+RUN sed -i "s/DEVDEV/`date +%m%d%H%M`/" /app/src/api/system.py
+
 # Now build final image
 FROM alpine:3.18
 

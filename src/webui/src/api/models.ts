@@ -1,6 +1,7 @@
 export interface InfoModel {
   nbitems: number;
   domain: string;
+  version: string;
   pricing: {
     regular: number;
     big: number;
