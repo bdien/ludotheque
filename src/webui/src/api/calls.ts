@@ -29,6 +29,11 @@ function fetchWithToken(url: string, params: any = {}) {
   return fetch(url, params);
 }
 
+export async function exportItems(): Promise<string> {
+  const response = await fetchWithToken(`${SERVER_URL}/items/export`);
+  return response.text();
+}
+
 export async function qsearchItem(txt: string): Promise<ItemModel[]> {
   if (!txt || txt.length < 1) return Promise.resolve([]);
   const response = await fetchWithToken(`${SERVER_URL}/items/qsearch/${txt}`);
