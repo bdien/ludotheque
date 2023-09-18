@@ -11,12 +11,17 @@ import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
+import Alert from "@mui/material/Alert";
+import { useState } from "react";
+import ToggleButton from "@mui/material/ToggleButton";
+import Box from "@mui/material/Box";
 
 interface UserEditProps {
   id?: number;
 }
 
 type FormValues = {
+  id: number;
   name: string;
   email: string;
   credit: number;
@@ -28,7 +33,10 @@ type FormValues = {
 
 export function UserEdit(props: UserEditProps) {
   const { user, error, mutate } = useUser(props.id);
+  const initialUserId = user?.id;
   const { account } = useAccount();
+  const [autoId, setAutoId] = useState<boolean>(true);
+  const [apiError, setApiError] = useState<string | null>(null);
   const { register, handleSubmit, control } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
   const { ConfirmDialog, confirmPromise } = useConfirm(
@@ -38,6 +46,9 @@ export function UserEdit(props: UserEditProps) {
   );
 
   async function onSubmit(user: UserModel, data: FormValues) {
+    setApiError(null);
+
+    user.id ||= data.id;
     user.name = data.name;
     user.email = data.email;
     user.credit = data.credit;
@@ -46,16 +57,23 @@ export function UserEdit(props: UserEditProps) {
     user.informations = data.informations;
     user.subscription = data.subscription.format("YYYY-MM-DD");
 
-    if (user?.id) {
+    if (initialUserId) {
       await updateUser(user.id, user);
     } else {
-      user = await createUser(user);
+      // Create New User
+      const result = await createUser(user);
+      if ("detail" in result) {
+        setApiError(result.detail);
+        return;
+      }
+      user = result;
     }
 
     if (mutate) {
       mutate({ ...user });
     }
-    window.history.back();
+
+    navigate(`/users/${user.id}`);
   }
 
   async function onDelete(user_id: number) {
@@ -70,9 +88,42 @@ export function UserEdit(props: UserEditProps) {
 
   return (
     <>
-      <Typography variant="h5" color="primary.main">
+      <Typography variant="h5" color="primary.main" sx={{ pb: 2 }}>
         {user.id ? "Edition d'un adhérent" : "Nouvel adhérent"}
       </Typography>
+
+      {apiError && (
+        <Alert severity="error" variant="outlined" sx={{ mb: 2 }}>
+          {apiError}
+        </Alert>
+      )}
+
+      {user?.id ? (
+        <TextField type="number" label="Numéro" value={user.id} disabled />
+      ) : (
+        <Box sx={{ display: "flex" }}>
+          <ToggleButton
+            color="primary"
+            value="check"
+            selected={autoId}
+            onChange={() => {
+              setAutoId(!autoId);
+            }}
+            sx={{ py: 1.8 }}
+          >
+            Num Auto
+          </ToggleButton>
+          {!autoId && (
+            <TextField
+              label="Numéro"
+              type="number"
+              size="medium"
+              {...register("id")}
+              sx={{ ml: 2, flexGrow: "1" }}
+            />
+          )}
+        </Box>
+      )}
 
       <TextField
         fullWidth
@@ -87,6 +138,7 @@ export function UserEdit(props: UserEditProps) {
         fullWidth
         label="Email"
         margin="normal"
+        required={true}
         defaultValue={user.email}
         autoCorrect="off"
         {...register("email")}

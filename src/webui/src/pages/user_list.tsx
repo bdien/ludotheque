@@ -1,4 +1,4 @@
-import { useUsers } from "../api/hooks";
+import { useAccount, useUsers } from "../api/hooks";
 import { Link } from "wouter";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
@@ -9,10 +9,36 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import { TextField, Tooltip, useMediaQuery, useTheme } from "@mui/material";
+import {
+  IconButton,
+  TextField,
+  Tooltip,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { useState } from "react";
+import { exportUsers } from "../api/calls";
+
+function exportCSV() {
+  exportUsers().then((txt) => {
+    const file = new File(("\ufeff" + txt).split("\n"), "users.csv", {
+      type: "text/csv",
+    });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(file);
+
+    link.href = url;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  });
+}
 
 export function UserList() {
+  const { account } = useAccount();
   const [filter, setFilter] = useState<string>("");
   const { users, isLoading } = useUsers();
   const theme = useTheme();
@@ -53,6 +79,14 @@ export function UserList() {
           }}
           sx={{ flexGrow: 0.5 }}
         />
+        <Box sx={{ flexGrow: 0.5 }}></Box>
+        {account?.role == "admin" && (
+          <Tooltip title="Exporter en CSV">
+            <IconButton color="primary" onClick={exportCSV}>
+              <Icon fontSize="medium">file_download</Icon>
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
 
       <TableContainer component={Paper}>

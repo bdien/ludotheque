@@ -109,6 +109,11 @@ export async function closeLoan(loanId: number): Promise<ItemModel> {
 // User
 // -------------------
 
+export async function exportUsers(): Promise<string> {
+  const response = await fetchWithToken(`${SERVER_URL}/users/export`);
+  return response.text();
+}
+
 export async function fetchUser(userId: number): Promise<UserModel> {
   const response = await fetchWithToken(`${SERVER_URL}/users/${userId}`);
   return response.json();
@@ -120,7 +125,7 @@ export async function qsearchUser(txt: string): Promise<UserModel[]> {
   return response.json();
 }
 
-export async function createUser(obj: Object): Promise<UserModel> {
+export async function createUser(obj: Object): Promise<UserModel | ApiError> {
   const response = await fetchWithToken(`${SERVER_URL}/users`, {
     method: "POST",
     body: JSON.stringify(obj),

@@ -34,6 +34,9 @@ async def create_item(request: Request, auth=Depends(auth_user)):
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in Item._meta.fields}
     params = {k: v for k, v in params.items() if k not in ("created_at",)}
+    # Remove ID = None or ""
+    if ("id" in params) and not params["id"]:
+        del params["id"]
 
     # Checks
     if not (0 <= int(params.get("gametime") or 1) <= 360):

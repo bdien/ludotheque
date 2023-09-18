@@ -201,7 +201,7 @@ export function ItemEdit(props: ItemEditProps) {
                 >
                   Numéro
                 </TableCell>
-                <TableCell>
+                <TableCell style={{ display: "flex" }}>
                   {item?.id ? (
                     <TextField type="number" value={item.id} disabled />
                   ) : (
@@ -213,6 +213,7 @@ export function ItemEdit(props: ItemEditProps) {
                         onChange={() => {
                           setAutoId(!autoId);
                         }}
+                        sx={{ py: 1.8 }}
                       >
                         Auto
                       </ToggleButton>
@@ -220,7 +221,7 @@ export function ItemEdit(props: ItemEditProps) {
                         <TextField
                           type="number"
                           {...register("id")}
-                          sx={{ ml: 2 }}
+                          sx={{ ml: 2, flexGrow: "1", width: "120px" }}
                         />
                       )}
                     </>
