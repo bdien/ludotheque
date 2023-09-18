@@ -84,7 +84,7 @@ def export_users(auth=Depends(auth_user)):
     f = io.StringIO()
     csvwriter = csv.DictWriter(
         f,
-        ["id", "name", "email", "role", "subscription", "created_at"],
+        ["id", "name", "email", "enabled", "role", "subscription", "created_at"],
         extrasaction="ignore",
         delimiter=";",
     )

@@ -1,4 +1,7 @@
 import contextlib
+import csv
+import io
+from fastapi.responses import PlainTextResponse
 import peewee
 from api.pwmodels import (
     Category,
@@ -77,6 +80,26 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
 
     with db:
         return list(query.order_by(Item.id).dicts())
+
+
+@router.get("/items/export", tags=["items"], response_class=PlainTextResponse)
+def export_items(auth=Depends(auth_user)):
+    "Export CSV"
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
+    f = io.StringIO()
+    csvwriter = csv.DictWriter(
+        f,
+        ["id", "name", "enabled", "big", "outside", "created_at"],
+        extrasaction="ignore",
+        delimiter=";",
+    )
+    csvwriter.writeheader()
+    with db:
+        for u in Item.select().dicts():
+            csvwriter.writerow(u)
+        return f.getvalue()
 
 
 @router.get("/items/{item_id}", tags=["items"])

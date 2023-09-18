@@ -1,4 +1,4 @@
-import { useItems } from "../api/hooks";
+import { useAccount, useItems } from "../api/hooks";
 import { ItemModel } from "../api/models";
 import { Link } from "wouter";
 import { AgeChip } from "../components/age_chip";
@@ -17,6 +17,27 @@ import TableHead from "@mui/material/TableHead";
 import Paper from "@mui/material/Paper";
 import { TableVirtuoso, TableComponents } from "react-virtuoso";
 import useSessionStorage from "../hooks/useSessionStorage";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import { exportItems } from "../api/calls";
+
+function exportCSV() {
+  exportItems().then((txt) => {
+    const file = new File(("\ufeff" + txt).split("\n"), "jeux.csv", {
+      type: "text/csv",
+    });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(file);
+
+    link.href = url;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  });
+}
 
 function nameDisplay(item: ItemModel) {
   return (
@@ -84,6 +105,7 @@ interface ItemListFilters {
 }
 
 export function ItemList() {
+  const { account } = useAccount();
   const [filter, setFilter] = useState<ItemListFilters>({
     text: "",
     outside_air: "",
@@ -124,7 +146,6 @@ export function ItemList() {
           mb: 1,
           display: "flex",
           alignItems: "flex-start",
-          textAlign: "left",
         }}
       >
         <TextField
@@ -136,6 +157,7 @@ export function ItemList() {
           sx={{ flexGrow: 1, backgroundColor: "white", maxWidth: "500px" }}
         />
 
+        {/* Select kind of game (outside/big) */}
         <Select
           size="small"
           sx={{
@@ -163,6 +185,8 @@ export function ItemList() {
             </Icon>
           </MenuItem>
         </Select>
+
+        {/* Select Age */}
         <Select
           size="small"
           sx={{
@@ -184,6 +208,20 @@ export function ItemList() {
             </MenuItem>
           ))}
         </Select>
+
+        <Box sx={{ flexGrow: 1 }}></Box>
+
+        {/* Export CSV */}
+        {account?.role == "admin" && (
+          <Tooltip
+            title="Exporter en CSV"
+            sx={{ display: { xs: "none", sm: "block" } }}
+          >
+            <IconButton color="primary" onClick={exportCSV}>
+              <Icon fontSize="medium">file_download</Icon>
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
 
       <TableVirtuoso
