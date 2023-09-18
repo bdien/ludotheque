@@ -96,7 +96,7 @@ def info():
 
     with db:
         return {
-            "nbitems": Item.select().count(),
+            "nbitems": Item.select().where(Item.enabled).count(),
             "domain": AUTH_DOMAIN,
             "pricing": PRICING,
             "loan": {"days": LOAN_DAYS},
