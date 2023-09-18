@@ -29,6 +29,8 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControl from "@mui/material/FormControl";
 import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
+import ToggleButton from "@mui/material/ToggleButton";
+import Alert from "@mui/material/Alert";
 
 interface ItemEditProps {
   id?: number;
@@ -62,6 +64,7 @@ const marks = [
 ];
 
 type FormValues = {
+  id: number;
   players: number[];
   name: string;
   description: string;
@@ -77,7 +80,10 @@ type FormValues = {
 
 export function ItemEdit(props: ItemEditProps) {
   const { item, error, mutate } = useItem(props.id);
+  const initialItemId = item?.id;
   const { categories } = useCategories();
+  const [autoId, setAutoId] = useState<boolean>(true);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [imgFile, setImgFile] = useState<File | null | undefined>(undefined);
   const { register, control, handleSubmit } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
@@ -89,6 +95,9 @@ export function ItemEdit(props: ItemEditProps) {
   );
 
   async function onSubmit(item: ItemModel, data: FormValues) {
+    setApiError(null);
+
+    item.id ||= data.id;
     item.players_min = data.players[0];
     item.players_max = data.players[1];
     item.name = data.name.trim();
@@ -111,13 +120,19 @@ export function ItemEdit(props: ItemEditProps) {
           .map((i) => i.trim())
       : [];
 
-    if (item?.id) {
+    if (initialItemId) {
       await updateItem(item?.id ?? 0, item);
 
       // Remove previous picture
       if (imgFile === null && item?.pictures) deleteItemPicture(item.id, 0);
     } else {
-      item = await createItem(item);
+      // Create New Item
+      const result = await createItem(item);
+      if ("detail" in result) {
+        setApiError(result.detail);
+        return;
+      }
+      item = result;
     }
 
     // Upload new picture
@@ -128,7 +143,7 @@ export function ItemEdit(props: ItemEditProps) {
     if (mutate) {
       mutate({ ...item });
     }
-    window.history.back();
+    navigate(`/items/${item.id}`);
   }
 
   async function onDelete(itemId: number) {
@@ -144,7 +159,7 @@ export function ItemEdit(props: ItemEditProps) {
   // render data
   return (
     <>
-      <FormControl sx={{ width: "100%", pt: 2 }}>
+      <FormControl sx={{ width: "100%", py: 2 }}>
         <Box
           sx={{
             height: "40vh",
@@ -160,6 +175,12 @@ export function ItemEdit(props: ItemEditProps) {
           />
         </Box>
 
+        {apiError && (
+          <Alert severity="error" variant="outlined" sx={{ mb: 2 }}>
+            {apiError}
+          </Alert>
+        )}
+
         <TableContainer>
           <Table
             size="small"
@@ -170,6 +191,43 @@ export function ItemEdit(props: ItemEditProps) {
             }}
           >
             <TableBody>
+              {/* Numéro du jeu */}
+              <TableRow>
+                <TableCell
+                  sx={{
+                    width: "clamp(10ch, 10vw, 300px)",
+                    color: "primary.main",
+                  }}
+                >
+                  Numéro
+                </TableCell>
+                <TableCell>
+                  {item?.id ? (
+                    <TextField type="number" value={item.id} disabled />
+                  ) : (
+                    <>
+                      <ToggleButton
+                        color="primary"
+                        value="check"
+                        selected={autoId}
+                        onChange={() => {
+                          setAutoId(!autoId);
+                        }}
+                      >
+                        Auto
+                      </ToggleButton>
+                      {!autoId && (
+                        <TextField
+                          type="number"
+                          {...register("id")}
+                          sx={{ ml: 2 }}
+                        />
+                      )}
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+
               {/* Nom du jeu */}
               <TableRow>
                 <TableCell
