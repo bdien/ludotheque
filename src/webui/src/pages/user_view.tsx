@@ -24,7 +24,7 @@ export function UserView(props: UserViewProps) {
     <>
       <MiniUser fullDetails={true} user={user} />
 
-      <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 1 }}>
+      <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
         {user?.loans?.length ? (
           user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)
         ) : (

@@ -22,19 +22,20 @@ export function LoanClose(props: LoanCloseProps) {
     if (loan?.item) fetchItem(loan.item).then((i) => setItem(i));
   }, [loan]);
 
-  if (!loan) return <>Loading</>;
+  if (!loan || !item) return <>Loading</>;
 
   return (
     <>
-      <Typography variant="h5" gutterBottom>
+      <Typography variant="h5" color="primary.main">
         Retour de jeu
       </Typography>
-      {item && item.pictures && (
+
+      {item.pictures && (
         <Box
           component="img"
           sx={{
             width: "100%",
-            height: "20vh",
+            height: "30vh",
             objectFit: "contain",
           }}
           src={
@@ -44,6 +45,15 @@ export function LoanClose(props: LoanCloseProps) {
           }
         />
       )}
+      <Typography
+        variant="h5"
+        textAlign="center"
+        fontWeight="bold"
+        sx={{ p: 2, color: "primary.main" }}
+      >
+        [{item.id}] {item.name}
+      </Typography>
+
       <Box sx={{ pt: 2 }}>
         <Typography fontWeight={500}>
           Merci de vérifier le contenu du jeu

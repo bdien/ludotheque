@@ -24,6 +24,7 @@ export interface UserModel {
   loans?: Loan[];
   nbloans?: number;
   notes?: string;
+  informations?: string;
   created_at?: string;
   subscription?: string;
   apikey?: string;

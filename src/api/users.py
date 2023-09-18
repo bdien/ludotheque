@@ -63,7 +63,8 @@ def get_myself(auth=Depends(auth_user)):
     with db:
         if u := User.get_or_none(User.id == auth.id):
             ret = model_to_dict(u, recurse=False)
-            del ret["notes"]  # Notes are private to admins
+            del ret["notes"]  # Private to admins
+            del ret["informations"]  # Private to admins
             return ret
     raise HTTPException(402)
 
@@ -88,6 +89,8 @@ def get_user(user_id: int, auth=Depends(auth_user)):
     if auth.role not in ("admin", "benevole"):
         del ret["notes"]
         del ret["apikey"]
+    if auth.role != "admin":
+        del ret["informations"]
 
     return ret
 
