@@ -1,4 +1,8 @@
+import io
+import csv
+import logging
 import re
+from fastapi.responses import PlainTextResponse
 import peewee
 from api.pwmodels import Loan, User, db
 from fastapi import APIRouter, HTTPException, Request, Depends
@@ -17,7 +21,10 @@ async def create_user(request: Request, auth=Depends(auth_user)):
 
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in User._meta.fields}
-    params = {k: v for k, v in params.items() if k not in ("id", "created_at")}
+    params = {k: v for k, v in params.items() if k not in ("created_at",)}
+    # Remove ID = None or ""
+    if ("id" in params) and not params["id"]:
+        del params["id"]
 
     # Checks
     if not params:
@@ -26,7 +33,19 @@ async def create_user(request: Request, auth=Depends(auth_user)):
         raise HTTPException(400, "Invalid credit")
 
     with db:
-        user = User.create(**params)
+        try:
+            print(params)
+            user = User.create(**params)
+        except peewee.IntegrityError as e:
+            if e.args[0] == "UNIQUE constraint failed: user.id":
+                raise HTTPException(
+                    500, f"Le numéro '{params['id']}' est déjà utilisé"
+                ) from None
+            if e.args[0] == "UNIQUE constraint failed: user.email":
+                raise HTTPException(500, "L'email est vide ou déjà utilisé") from None
+            logging.exception("Create user")
+            raise HTTPException(500, str(e)) from None
+
     return model_to_dict(user)
 
 
@@ -54,6 +73,26 @@ def get_users(
 
     with db:
         return list(query.order_by(User.name).dicts())
+
+
+@router.get("/users/export", tags=["users"], response_class=PlainTextResponse)
+def export_users(auth=Depends(auth_user)):
+    "Export CSV"
+    if not auth or auth.role != "admin":
+        raise HTTPException(403)
+
+    f = io.StringIO()
+    csvwriter = csv.DictWriter(
+        f,
+        ["id", "name", "email", "role", "subscription", "created_at"],
+        extrasaction="ignore",
+        delimiter=";",
+    )
+    csvwriter.writeheader()
+    with db:
+        for u in User.select().dicts():
+            csvwriter.writerow(u)
+        return f.getvalue()
 
 
 @router.get("/users/me", tags=["users"])
