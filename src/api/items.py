@@ -1,4 +1,5 @@
 import contextlib
+import peewee
 from api.pwmodels import (
     Category,
     ItemCategory,
@@ -32,26 +33,35 @@ async def create_item(request: Request, auth=Depends(auth_user)):
 
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in Item._meta.fields}
-    params = {k: v for k, v in params.items() if k not in ("id", "created_at")}
+    params = {k: v for k, v in params.items() if k not in ("created_at",)}
 
     # Checks
     if not (0 <= int(params.get("gametime") or 1) <= 360):
         raise HTTPException(400, "Invalid gametime")
 
     with db:
-        item = Item.create(**params)
+        try:
+            item = Item.create(**params)
 
-        # Insert item links
-        for i in body.get("links", []):
-            ItemLink.insert(
-                item=item, name=i["name"], ref=i["ref"]
-            ).on_conflict_replace().execute()
+            # Insert item links
+            for i in body.get("links", []):
+                ItemLink.insert(
+                    item=item, name=i["name"], ref=i["ref"]
+                ).on_conflict_replace().execute()
 
-        # Insert item category
-        for i in body.get("categories", []):
-            ItemCategory.insert(item=item, category=i).on_conflict_ignore().execute()
+            # Insert item category
+            for i in body.get("categories", []):
+                ItemCategory.insert(
+                    item=item, category=i
+                ).on_conflict_ignore().execute()
 
-        return model_to_dict(item)
+            return model_to_dict(item)
+        except peewee.IntegrityError as e:
+            if e.args[0] == "UNIQUE constraint failed: item.id":
+                raise HTTPException(
+                    500, f"Le numéro '{params['id']}' est déjà utilisé"
+                ) from None
+            raise HTTPException(500, str(e)) from None
 
 
 @router.get("/items", tags=["items"])

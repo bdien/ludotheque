@@ -87,3 +87,7 @@ export interface LoanCreateResult {
   new_credit: number;
   loans: Loan[];
 }
+
+export interface ApiError {
+  detail: string;
+}

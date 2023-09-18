@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { createLoan, fetchItem } from "../api/calls";
+import { createLoan, fetchItem, fetchUser } from "../api/calls";
 import { useEffect, useState } from "react";
 import { UserModel, ItemModel, LoanCreateResult } from "../api/models";
 import { UserSearch } from "../components/user_search";
@@ -32,6 +32,7 @@ const fakeItemCarte: ItemModel = { id: -2, name: "Remplissage carte" };
 export function Loan() {
   const queryParameters = new URLSearchParams(window.location.search);
   const initialItem = queryParameters.get("item");
+  const initialUser = queryParameters.get("user");
   const { info } = useInfo();
   const [_location, setLocation] = useLocation();
   const [user, setUser] = useState<UserModel | null>(null);
@@ -83,15 +84,25 @@ export function Loan() {
   }
 
   // Initial Item (If present in URL)
-  if (initialItem) {
+  if (initialItem)
     fetchItem(parseInt(initialItem)).then((item) => {
       addItem(item);
-
-      // Remove URL parameter without reloading
-      const newURL = location.href.split("?")[0];
-      window.history.replaceState({}, document.title, newURL);
+      window.history.replaceState(
+        {},
+        document.title,
+        location.href.split("?")[0],
+      );
     });
-  }
+  // Initial User (if present in URL)
+  if (initialUser)
+    fetchUser(parseInt(initialUser)).then((user) => {
+      setUser(user);
+      window.history.replaceState(
+        {},
+        document.title,
+        location.href.split("?")[0],
+      );
+    });
 
   return (
     <Box sx={{ m: 0.5 }}>

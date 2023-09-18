@@ -1,4 +1,4 @@
-import { UserModel, ItemModel, LoanCreateResult } from "./models";
+import { UserModel, ItemModel, LoanCreateResult, ApiError } from "./models";
 export const SERVER_URL = "/api";
 
 let access_token: string | null = null;
@@ -51,7 +51,7 @@ export async function updateItem(
   return response.json();
 }
 
-export async function createItem(obj: Object): Promise<ItemModel> {
+export async function createItem(obj: Object): Promise<ItemModel | ApiError> {
   const response = await fetchWithToken(`${SERVER_URL}/items`, {
     method: "POST",
     body: JSON.stringify(obj),
