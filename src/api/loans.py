@@ -2,7 +2,7 @@ import datetime
 import logging
 from api.pwmodels import Loan, User, Item, db
 from fastapi import APIRouter, HTTPException, Request, Depends
-from api.system import auth_user
+from api.system import auth_user, log_event
 from playhouse.shortcuts import model_to_dict
 from api.config import PRICING
 
@@ -101,6 +101,8 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                 user.subscription = datetime.date.today() + datetime.timedelta(days=366)
             user.save()
 
+            log_event(auth, "loan.add", target_user=user)
+
         return {
             "cost": cost,
             "topay": {"credit": topay_fromcredit, "real": topay_realmoney},
@@ -135,6 +137,8 @@ def close_loan(loan_id: int, auth=Depends(auth_user)):
         loan.stop = datetime.date.today()
         loan.status = "in"
         loan.save()
+
+        log_event(auth, "loan.close", target=loan)
         return model_to_dict(loan, recurse=False)
 
 
@@ -148,4 +152,5 @@ async def delete_loan(loan_id: int, auth=Depends(auth_user)):
         if not loan:
             raise HTTPException(404)
         loan.delete_instance(recursive=True)
+        log_event(auth, "loan.delete", target=loan)
         return "OK"

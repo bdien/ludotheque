@@ -2,7 +2,7 @@ import re
 import peewee
 from api.pwmodels import Loan, User, db
 from fastapi import APIRouter, HTTPException, Request, Depends
-from api.system import auth_user
+from api.system import auth_user, log_event
 
 from playhouse.shortcuts import model_to_dict
 
@@ -27,6 +27,7 @@ async def create_user(request: Request, auth=Depends(auth_user)):
 
     with db:
         user = User.create(**params)
+    log_event(auth, "user.create", target=user)
     return model_to_dict(user)
 
 
@@ -118,6 +119,7 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
 
     with db:
         User.update(**params).where(User.id == user_id).execute()
+    log_event(auth, "user.modify", target_user=user_id)
 
 
 @router.delete("/users/{user_id}", tags=["users"])
@@ -130,6 +132,7 @@ async def delete_user(user_id: int, auth=Depends(auth_user)):
         if not user:
             raise HTTPException(404)
         user.delete_instance(recursive=True)
+        log_event(auth, "user.delete", target=user)
         return "OK"
 
 

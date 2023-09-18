@@ -10,7 +10,7 @@ from api.pwmodels import (
     User,
     db,
 )
-from api.system import auth_user
+from api.system import auth_user, log_event
 from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
 from playhouse.shortcuts import model_to_dict
 import os
@@ -55,6 +55,7 @@ async def create_item(request: Request, auth=Depends(auth_user)):
                     item=item, category=i
                 ).on_conflict_ignore().execute()
 
+            log_event(auth, "item.create", target=item)
             return model_to_dict(item)
         except peewee.IntegrityError as e:
             if e.args[0] == "UNIQUE constraint failed: item.id":
@@ -172,6 +173,8 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
             ).execute()
             ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
 
+        log_event(auth, "item.modify", target_item=item_id)
+
 
 @router.post("/items/{item_id}/picture", tags=["items"])
 async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_user)):
@@ -197,6 +200,8 @@ async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_
         newindex = next(idx for idx in range(30) if idx not in indexes)
 
         ItemPicture.create(item=item_id, index=newindex, filename=filename)
+
+        log_event(auth, "item.picture.add", target_item=item_id)
 
 
 @router.post("/items/{item_id}/picture/{picture_index}", tags=["items"])
@@ -230,6 +235,8 @@ async def modify_item_picture(
                 picture.filename = filename
                 picture.save()
 
+        log_event(auth, "item.picture.modify", target_item=item_id)
+
 
 @router.delete("/items/{item_id}/picture/{picture_index}", tags=["items"])
 def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user)):
@@ -244,6 +251,8 @@ def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user
         with contextlib.suppress(FileNotFoundError):
             os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
         picture.delete_instance()
+
+        log_event(auth, "item.picture.delete", target_item=item_id)
 
 
 @router.delete("/items/{item_id}", tags=["users"])
@@ -262,6 +271,7 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
             with contextlib.suppress(FileNotFoundError):
                 os.unlink(f"{LUDO_STORAGE}/img/{p.filename}")
 
+        log_event(auth, "item.delete", target=item)
         return "OK"
 
 

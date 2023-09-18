@@ -10,7 +10,8 @@ import tarfile
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
-from api.pwmodels import Item, User, db
+from fastapi_restful.tasks import repeat_every
+from api.pwmodels import Item, User, Loan, LogEvent, db
 from api.config import AUTH_DOMAIN, PRICING, APIKEY_PREFIX, LOAN_DAYS
 
 router = APIRouter()
@@ -72,6 +73,7 @@ def create_backup(auth=Depends(auth_user)):
     if not auth or auth.role != "admin":
         raise HTTPException(403)
 
+    log_event(auth, "backup", "Backup done")
     storage_path = os.getenv("LUDO_STORAGE", "../../storage")
 
     # Vaccuum table + Sync WAL journal to DB
@@ -102,3 +104,36 @@ def info():
             "loan": {"days": LOAN_DAYS},
             "version": "DEVDEV",
         }
+
+
+def log_event(
+    user: User,
+    summary: str,
+    target_user: int | None = None,
+    target_item: int | None = None,
+    target_loan: int | None = None,
+    target: Item | User | Loan | None = None,
+    details: str | None = None,
+):
+    params = {"user": user.id, "summary": summary, "details": details}
+    if target_user or isinstance(target, User):
+        params["target_user"] = target_user or target
+    if target_item or isinstance(target, Item):
+        params["target_item"] = target_item or target
+    if target_loan or isinstance(target, Loan):
+        params["target_loan"] = target_loan or target
+
+    try:
+        if db_need_opening := db.is_closed():
+            db.connect()
+        LogEvent.create(**params)
+    finally:
+        if db_need_opening:
+            db.close()
+
+
+@repeat_every(seconds=86400)
+def clear_logevent():
+    twoweeks_ago = datetime.date.today() - datetime.timedelta(days=15)
+    with db:
+        LogEvent.delete().where(LogEvent.created_at < twoweeks_ago).execute()
