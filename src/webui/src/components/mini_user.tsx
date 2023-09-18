@@ -5,6 +5,10 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Icon from "@mui/material/Icon";
+import Popover from "@mui/material/Popover";
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import Link from "@mui/material/Link";
 
 interface MiniUserProps {
   user: UserModel;
@@ -13,6 +17,8 @@ interface MiniUserProps {
 }
 
 export function MiniUser(props: MiniUserProps) {
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const popoverOpen = Boolean(anchorEl);
   const today = new Date();
   const late_loans = props.user?.loans?.filter((i) => new Date(i.stop) < today)
     .length;
@@ -29,26 +35,71 @@ export function MiniUser(props: MiniUserProps) {
       <Grid flexGrow={1}>
         <Typography
           color="primary.main"
+          component="span"
           variant="h5"
           fontWeight={500}
           sx={{ mb: 0.5 }}
         >
+          {/* User ID */}
           {props.fullDetails && `[${props.user.id}] `}
+
           {props.user.name}
+
+          {/* Icone admin */}
           {props.user.role == "admin" && (
             <Icon fontSize="small" sx={{ ml: 0.3 }}>
               star
             </Icon>
           )}
+
+          {/* Icone bénévole */}
           {props.user.role == "benevole" && (
             <Icon fontSize="small" sx={{ ml: 0.3 }}>
               star_half
             </Icon>
           )}
         </Typography>
-        <Box sx={{ color: "text.secondary" }}>
-          {props.fullDetails && <Box>{props.user?.email}</Box>}
 
+        <Box sx={{ color: "text.secondary" }}>
+          {/* Email + Additional information */}
+          {props.fullDetails && (
+            <Box>
+              {props.user?.email}
+              {props.user?.informations && (
+                <>
+                  <span> - </span>
+                  <Link
+                    component="button"
+                    onClick={(evt: React.MouseEvent<HTMLButtonElement>) =>
+                      setAnchorEl(evt.currentTarget)
+                    }
+                  >
+                    plus d'informations
+                  </Link>
+                </>
+              )}
+            </Box>
+          )}
+
+          {/* Pop-Over avec les infos additionnelles */}
+          <Popover
+            id="popover_moreinfo"
+            open={popoverOpen}
+            anchorEl={anchorEl}
+            onClose={() => setAnchorEl(null)}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+          >
+            <Box sx={{ mr: 2 }}>
+              <ReactMarkdown>
+                {props.user?.informations || "Vide"}
+              </ReactMarkdown>
+            </Box>
+          </Popover>
+
+          {/* Emprunts */}
           {props.user?.loans && props.user?.loans?.length > 0 && (
             <Box>
               <Typography component="span" fontWeight={500}>

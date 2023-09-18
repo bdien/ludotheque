@@ -22,6 +22,7 @@ type FormValues = {
   credit: number;
   role: string;
   notes: string;
+  informations: string;
   subscription: Dayjs;
 };
 
@@ -42,6 +43,7 @@ export function UserEdit(props: UserEditProps) {
     user.credit = data.credit;
     user.role = data.role;
     user.notes = data.notes;
+    user.informations = data.informations;
     user.subscription = data.subscription.format("YYYY-MM-DD");
 
     if (user?.id) {
@@ -133,7 +135,18 @@ export function UserEdit(props: UserEditProps) {
       <TextField
         fullWidth
         margin="normal"
-        label="Notes"
+        label="Informations (Adresses / Téléphones / ...)"
+        defaultValue={user.informations}
+        placeholder="Informations (Adresses / Enfants / Téléphones)"
+        multiline
+        minRows={2}
+        {...register("informations")}
+      />
+
+      <TextField
+        fullWidth
+        margin="normal"
+        label="Notes (Cheque de cautions...)"
         defaultValue={user.notes}
         multiline
         minRows={2}

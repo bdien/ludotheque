@@ -50,6 +50,7 @@ class User(BaseModel):
     role = peewee.CharField(default="user")
     credit = peewee.FloatField(default=0)
     notes = peewee.TextField(null=True)
+    informations = peewee.TextField(null=True)
     subscription = peewee.DateField(default=today_plus_1y)  # End of
     apikey = peewee.CharField(null=True)
     created_at = peewee.DateField(default=date.today)
