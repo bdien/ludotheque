@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Icon from "@mui/material/Icon";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
-import { useAccount } from "../api/hooks";
+import { useAccount, useInfo } from "../api/hooks";
 import { useAuth0 } from "@auth0/auth0-react";
 import Drawer from "@mui/material/Drawer";
 import ListItem from "@mui/material/ListItem";
@@ -25,6 +25,7 @@ interface TopBarProps {
 
 export function TopBar(props: TopBarProps) {
   const [location] = useLocation();
+  const { info } = useInfo();
 
   const logotxt = useMemo(
     () => <RandomColors txt="Ludo du Poisson-Lune" />,
@@ -55,8 +56,8 @@ export function TopBar(props: TopBarProps) {
   }
 
   const drawer = (
-    <>
-      <List>
+    <Box style={{ display: "flex", height: "100%", flexDirection: "column" }}>
+      <List sx={{ flexGrow: "1" }}>
         <ListItem
           component={Link}
           to="/"
@@ -144,7 +145,20 @@ export function TopBar(props: TopBarProps) {
           </ListItem>
         )}
       </List>
-    </>
+
+      {/* Version at the bottom of the sidebar */}
+      {info?.version && (
+        <Box>
+          <Typography
+            color="text.disabled"
+            fontSize="0.75em"
+            sx={{ m: 2, opacity: 0.3 }}
+          >
+            Version {info.version}
+          </Typography>
+        </Box>
+      )}
+    </Box>
   );
 
   return (
