@@ -1,5 +1,6 @@
 import Icon from "@mui/material/Icon";
 import { ChangeEvent, useState } from "react";
+import Resizer from "react-image-file-resizer";
 
 interface ImageChooserProps {
   onImageChange: (params: File | null) => any;
@@ -12,16 +13,31 @@ export function ImageChooser(props: ImageChooserProps) {
   const handleFilePicker = (e: ChangeEvent<HTMLInputElement>): void => {
     const { files } = e.target;
 
+    // Delete previous images
     if (img) {
       URL.revokeObjectURL(img);
     }
 
+    // New image, resize it and let the parent knows that it is there
     if (files != null && files.length > 0) {
+      // Immediatly display image
       let newimg = URL.createObjectURL(files[0]);
       setImg(newimg);
-      if (props.onImageChange) {
-        props.onImageChange(files[0]);
-      }
+
+      // Resize in background before alerting parent
+      if (props.onImageChange)
+        Resizer.imageFileResizer(
+          files[0],
+          1000,
+          1000,
+          "WEBP",
+          90,
+          0,
+          (uri) => {
+            props.onImageChange(uri as File);
+          },
+          "file",
+        );
     }
   };
 
