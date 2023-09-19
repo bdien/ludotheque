@@ -71,8 +71,8 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
 
         # Now calculate how much is taken from the card and how much is remaining
         cost_items = [PRICING["big" if i.big else "regular"] for i in items]
-        # Benevole: nullify item prices
-        if body.get("benevole"):
+        # Benevole/Admin: nullify item prices
+        if user.role in ("admin", "benevole"):
             cost_items = [0] * len(cost_items)
         total_costitems = sum(cost_items)
         cost = topay_realmoney + total_costitems

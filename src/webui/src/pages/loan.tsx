@@ -15,15 +15,9 @@ import {
 } from "../components/loan_item_table";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import Checkbox from "@mui/material/Checkbox";
 
-function submitLoan(
-  user_id: number,
-  objs_id: number[],
-  benevole: boolean,
-  simulation: boolean,
-) {
-  return createLoan(user_id, objs_id, benevole, simulation);
+function submitLoan(user_id: number, objs_id: number[], simulation: boolean) {
+  return createLoan(user_id, objs_id, simulation);
 }
 
 const fakeItemAbonnement: ItemModel = { id: -1, name: "Abonnement" };
@@ -37,7 +31,6 @@ export function Loan() {
   const [_location, setLocation] = useLocation();
   const [user, setUser] = useState<UserModel | null>(null);
   const [items, setItems] = useState<ItemModel[]>([]);
-  const [benevole, setBenevole] = useState<boolean>(false);
   const [loanResult, setLoanResult] = useState<LoanCreateResult | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openAdd = Boolean(anchorEl);
@@ -54,10 +47,9 @@ export function Loan() {
     submitLoan(
       user.id,
       items.map((i) => i.id),
-      benevole,
       true,
     ).then((result) => setLoanResult(result));
-  }, [user, items, benevole]);
+  }, [user, items]);
 
   function itemPrice(item: ItemModel) {
     if (!info) return 0;
@@ -144,10 +136,6 @@ export function Loan() {
             >
               Remplissage carte
             </MenuItem>
-            <MenuItem onClick={() => setBenevole((benevole) => !benevole)}>
-              Bénévole
-              <Checkbox sx={{ py: 0 }} checked={benevole} />
-            </MenuItem>
           </Menu>
         </Box>
         <LoanItemTable items={loanItems} removeItem={removeItem} />
@@ -163,6 +151,8 @@ export function Loan() {
               {loanResult.topay.credit
                 ? ` (${loanResult.topay.credit}€ pris sur la carte)`
                 : ""}
+              {user?.role == "benevole" && "  (Bénévole)"}
+              {user?.role == "admin" && "  (Admin)"}
             </li>
           </ul>
         </Box>
@@ -180,7 +170,6 @@ export function Loan() {
           submitLoan(
             user.id,
             items.map((i) => i.id),
-            benevole,
             false,
           ).then(() => {
             setLocation(`/users/${user.id}`);

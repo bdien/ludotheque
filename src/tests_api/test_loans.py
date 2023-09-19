@@ -294,18 +294,41 @@ def test_loan_fillcard_plus_item():
         assert newuser.credit == 1 + PRICING["card_value"] - PRICING["big"]
 
 
-def test_loan_fillcard_plus_item_benevole():
+def test_loan_fillcard_benevole():
     with db:
-        user = User.create(name="Bob", email="bob", credit=1)  # User starts with 1
+        user = User.create(name="Bob", email="bob", role="benevole", credit=1)
         item_big = Item.create(name="big", big=True)
 
     response = client.post(
         "/loans",
-        json={
-            "user": user.id,
-            "items": [item_big.id, -2],
-            "benevole": True,
-        },  # Item + Subscription
+        json={"user": user.id, "items": [item_big.id, -2]},  # Item + Subscription
+        headers=AUTH_ADMIN,
+    ).json()
+
+    # Check there is a loan, and remove it for comparison
+    assert response["loans"]
+    response["loans"] = []
+
+    assert response == {
+        "cost": PRICING["card"],
+        "topay": {"credit": 0, "real": PRICING["card"]},
+        "new_credit": 1 + PRICING["card_value"],
+        "loans": [],
+    }
+
+    with db:
+        newuser = User.get(name="Bob")
+        assert newuser.credit == 1 + PRICING["card_value"]
+
+
+def test_loan_fillcard_admin():
+    with db:
+        user = User.create(name="Bob", email="bob", role="admin", credit=1)
+        item_big = Item.create(name="big", big=True)
+
+    response = client.post(
+        "/loans",
+        json={"user": user.id, "items": [item_big.id, -2]},  # Item + Subscription
         headers=AUTH_ADMIN,
     ).json()
 

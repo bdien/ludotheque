@@ -6,10 +6,8 @@ RUN apk add nodejs
 RUN wget -qO- https://get.pnpm.io/install.sh  | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
 ENV PATH="$PATH:/root/.local/share/pnpm"
 ADD . /app
+RUN sed -i "s/DEVDEV/`date +%m%d%H%M`/" /app/src/api/system.py /app/src/webui/src/components/topbar.tsx
 RUN cd /app/src/webui && pnpm install && pnpm run build
-
-# Write version to Python file
-RUN sed -i "s/DEVDEV/`date +%m%d%H%M`/" /app/src/api/system.py
 
 # Now build final image
 FROM alpine:3.18

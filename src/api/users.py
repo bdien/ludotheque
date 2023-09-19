@@ -184,7 +184,7 @@ def qsearch_user(txt: str, auth=Depends(auth_user)):
         return list(
             User.select(User.id, User.name)
             .where((User.name ** f"%{txt}%") | (User.id ** f"%{txt}%"))
-            .order_by(User.id)
+            .order_by(User.name)
             .limit(10)
             .dicts()
         )
