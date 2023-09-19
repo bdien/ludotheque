@@ -96,12 +96,11 @@ export async function updateItemPicture(
 export async function createLoan(
   user: number,
   items: number[],
-  benevole: boolean,
   simulation: boolean,
 ): Promise<LoanCreateResult> {
   const response = await fetchWithToken(`${SERVER_URL}/loans`, {
     method: "POST",
-    body: JSON.stringify({ user, items, benevole, simulation }),
+    body: JSON.stringify({ user, items, simulation }),
   });
   return response.json();
 }

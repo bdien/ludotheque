@@ -154,7 +154,7 @@ export function TopBar(props: TopBarProps) {
             fontSize="0.75em"
             sx={{ m: 2, opacity: 0.3 }}
           >
-            Version {info.version}
+            Version {info.version} / DEVDEV
           </Typography>
         </Box>
       )}
