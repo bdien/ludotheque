@@ -61,13 +61,16 @@ export function Loan() {
 
   function addItem(item: ItemModel) {
     const isthere = items.some((i) => i.id == item.id);
-    if (!isthere) setItems((items) => [...items, item]);
+    if (!isthere) {
+      setItems((items) => [...items, item]);
+    }
   }
 
   // Transform items into LoanItemTableEntry
-  const loanItems: LoanItemTableEntry[] = items.map((i) => ({
+  const loanItems: LoanItemTableEntry[] = items.map((i, idx) => ({
     name: i.id > 0 ? `[${i.id}] ${i.name}` : i.name,
     price: itemPrice(i),
+    simulatedPrice: loanResult?.items_cost[idx],
   }));
 
   // Function to remove a specific index
@@ -99,17 +102,17 @@ export function Loan() {
   return (
     <Box sx={{ m: 0.5 }}>
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6" color="primary.main">
+        <Typography variant="h6" color="primary.main" sx={{ mb: 2 }}>
           Adhérent
         </Typography>
         <UserSearch user={user} setUser={setUser} />
       </Box>
 
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" color="primary.main">
+        <Typography variant="h6" color="primary.main" sx={{ mb: 2 }}>
           Emprunts
         </Typography>
-        <Box display="flex">
+        <Box display="flex" sx={{ mb: 1.5 }}>
           <ItemSearch setItem={addItem} excludesIds={items.map((i) => i.id)} />
           <Button onClick={menuAddLoanOpen}>
             <Icon>add</Icon>
@@ -151,9 +154,9 @@ export function Loan() {
               {loanResult.topay.credit
                 ? ` (${loanResult.topay.credit}€ pris sur la carte)`
                 : ""}
-              {user?.role == "benevole" && "  (Bénévole)"}
-              {user?.role == "admin" && "  (Admin)"}
             </li>
+            {user?.role == "benevole" && <li>Avantage Bénévole</li>}
+            {user?.role == "admin" && <li>Avantage Membre du Bureau</li>}
           </ul>
         </Box>
       )}

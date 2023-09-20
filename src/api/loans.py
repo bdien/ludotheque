@@ -38,10 +38,15 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
             logging.error("User '%s' not matching", body["user"])
             raise HTTPException(400, "No such user")
 
+        # Will contains the final prices for all items + subscription + card
+        final_prices = body["items"].copy()
+
         # Special cases (Yearly subscription (-1) / Fill loan card (-2))
         if subscription := -1 in body["items"]:
+            final_prices[final_prices.index(-1)] = PRICING["yearly"]
             body["items"].remove(-1)
         if fillcard := -2 in body["items"]:
+            final_prices[final_prices.index(-2)] = PRICING["card"]
             body["items"].remove(-2)
         simulation = body.get("simulation", False)
 
@@ -101,8 +106,13 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                 user.subscription = datetime.date.today() + datetime.timedelta(days=366)
             user.save()
 
+        # Update final prices to be sent back to the API caller
+        for i, c in zip(items, cost_items, strict=True):
+            final_prices[final_prices.index(i.id)] = c
+
         return {
             "cost": cost,
+            "items_cost": final_prices,
             "topay": {"credit": topay_fromcredit, "real": topay_realmoney},
             "new_credit": user.credit,
             "loans": loans,
