@@ -199,6 +199,7 @@ def test_loan_subscription():
 
     assert response == {
         "cost": PRICING["yearly"],
+        "items_cost": [PRICING["yearly"]],
         "topay": {"credit": 0, "real": PRICING["yearly"]},
         "new_credit": 100,
         "loans": [],
@@ -217,6 +218,7 @@ def test_loan_fillcard():
 
     assert response == {
         "cost": PRICING["card"],
+        "items_cost": [PRICING["card"]],
         "topay": {"credit": 0, "real": PRICING["card"]},
         "new_credit": 100 + PRICING["card_value"],
         "loans": [],
@@ -239,6 +241,7 @@ def test_loan_fillcard_simulation():
 
     assert response == {
         "cost": PRICING["card"],
+        "items_cost": [PRICING["card"]],
         "topay": {"credit": 0, "real": PRICING["card"]},
         "new_credit": 100 + PRICING["card_value"],
         "loans": [],
@@ -261,6 +264,7 @@ def test_loan_fillcard_plus_subscription():
 
     assert response == {
         "cost": PRICING["yearly"] + PRICING["card"],
+        "items_cost": [PRICING["yearly"], PRICING["card"]],
         "topay": {"credit": 0, "real": PRICING["yearly"] + PRICING["card"]},
         "new_credit": 100 + PRICING["card_value"],
         "loans": [],
@@ -284,6 +288,7 @@ def test_loan_fillcard_plus_item():
 
     assert response == {
         "cost": PRICING["big"] + PRICING["card"],
+        "items_cost": [PRICING["big"], PRICING["card"]],
         "topay": {"credit": PRICING["big"], "real": PRICING["card"]},
         "new_credit": 1 + PRICING["card_value"] - PRICING["big"],
         "loans": [],
@@ -311,6 +316,7 @@ def test_loan_fillcard_benevole():
 
     assert response == {
         "cost": PRICING["card"],
+        "items_cost": [0, PRICING["card"]],
         "topay": {"credit": 0, "real": PRICING["card"]},
         "new_credit": 1 + PRICING["card_value"],
         "loans": [],
@@ -338,6 +344,7 @@ def test_loan_fillcard_admin():
 
     assert response == {
         "cost": PRICING["card"],
+        "items_cost": [0, PRICING["card"]],
         "topay": {"credit": 0, "real": PRICING["card"]},
         "new_credit": 1 + PRICING["card_value"],
         "loans": [],

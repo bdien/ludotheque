@@ -82,6 +82,7 @@ export interface Account {
 
 export interface LoanCreateResult {
   cost: number;
+  items_cost: number[];
   topay: {
     credit: number;
     real: number;

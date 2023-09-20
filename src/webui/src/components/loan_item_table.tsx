@@ -10,6 +10,7 @@ import TableRow from "@mui/material/TableRow";
 export interface LoanItemTableEntry {
   name: string;
   price: number;
+  simulatedPrice?: number;
 }
 
 interface LoanItemTableProps {
@@ -20,15 +21,23 @@ interface LoanItemTableProps {
 export function LoanItemTable(props: LoanItemTableProps) {
   return (
     <TableContainer component={Paper} sx={{ mt: 1 }}>
-      <Table size="small">
+      <Table>
         <TableBody>
           {props.items.map((i, idx) => (
             <TableRow key={i.name}>
-              <TableCell>{i.name}</TableCell>
-              <TableCell align="right">{i.price}€</TableCell>
-              <TableCell sx={{ width: 10 }}>
-                <Button onClick={() => props.removeItem(idx)}>
-                  <Icon sx={{ color: "text.secondary" }}>close</Icon>
+              <TableCell sx={{ fontSize: "1em" }}>{i.name}</TableCell>
+              <TableCell sx={{ fontSize: "1em", p: 1 }} align="right">
+                {i.simulatedPrice ?? i.price}€
+              </TableCell>
+              <TableCell sx={{ width: 48, p: 0 }}>
+                <Button
+                  size="small"
+                  sx={{ minWidth: 48, p: 1 }}
+                  onClick={() => props.removeItem(idx)}
+                >
+                  <Icon sx={{ color: "text.secondary", opacity: 0.7 }}>
+                    delete
+                  </Icon>
                 </Button>
               </TableCell>
             </TableRow>

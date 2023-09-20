@@ -45,7 +45,7 @@ export function MiniUser(props: MiniUserProps) {
 
           {props.user.name}
 
-          {/* Icone admin */}
+          {/* Icone admin/bureau */}
           {props.user.role == "admin" && (
             <Icon fontSize="small" sx={{ ml: 0.3 }}>
               star
@@ -167,8 +167,8 @@ export function MiniUser(props: MiniUserProps) {
       </Grid>
       {props.onRemove && (
         <Box>
-          <IconButton onClick={props.onRemove}>
-            <Icon>close</Icon>
+          <IconButton onClick={props.onRemove} sx={{ p: 0 }}>
+            <Icon sx={{ color: "text.secondary", opacity: 0.7 }}>delete</Icon>
           </IconButton>
         </Box>
       )}
