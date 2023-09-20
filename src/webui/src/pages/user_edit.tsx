@@ -73,14 +73,14 @@ export function UserEdit(props: UserEditProps) {
       mutate({ ...user });
     }
 
-    navigate(`/users/${user.id}`);
+    navigate(`/users/${user.id}`, { replace: true });
   }
 
   async function onDelete(user_id: number) {
     const answer = await confirmPromise();
     if (!answer) return;
 
-    deleteUser(user_id).then(() => navigate("/users"));
+    deleteUser(user_id).then(() => navigate("/users", { replace: true }));
   }
 
   if (error) return <div>Server error: {error.cause}</div>;

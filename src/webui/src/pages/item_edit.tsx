@@ -143,14 +143,14 @@ export function ItemEdit(props: ItemEditProps) {
     if (mutate) {
       mutate({ ...item });
     }
-    navigate(`/items/${item.id}`);
+    navigate(`/items/${item.id}`, { replace: true });
   }
 
   async function onDelete(itemId: number) {
     const answer = await confirmPromise();
     if (!answer) return;
 
-    deleteItem(itemId).then(() => navigate("/items"));
+    deleteItem(itemId).then(() => navigate("/items", { replace: true }));
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
