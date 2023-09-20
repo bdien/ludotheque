@@ -209,18 +209,22 @@ export function ItemList() {
           ))}
         </Select>
 
-        <Box sx={{ flexGrow: 1 }}></Box>
-
         {/* Export CSV */}
         {account?.role == "admin" && (
-          <Tooltip
-            title="Exporter en CSV"
-            sx={{ display: { xs: "none", sm: "block" } }}
-          >
-            <IconButton color="primary" onClick={exportCSV}>
-              <Icon fontSize="medium">file_download</Icon>
-            </IconButton>
-          </Tooltip>
+          <>
+            <Box
+              sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
+            ></Box>
+
+            <Tooltip
+              title="Exporter en CSV"
+              sx={{ display: { xs: "none", sm: "block" } }}
+            >
+              <IconButton color="primary" onClick={exportCSV}>
+                <Icon fontSize="medium">file_download</Icon>
+              </IconButton>
+            </Tooltip>
+          </>
         )}
       </Box>
 

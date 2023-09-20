@@ -28,7 +28,7 @@ export function ItemSearch(props: ItemSearchProps) {
 
   return (
     <Box sx={{ width: "100%", display: "flex", alignItems: "flex-end" }}>
-      <Icon sx={{ mr: 1, my: 1 }}>search</Icon>
+      <Icon sx={{ mr: 1, my: "auto" }}>search</Icon>
       <Autocomplete
         disablePortal
         key={completeKey}
@@ -41,7 +41,7 @@ export function ItemSearch(props: ItemSearchProps) {
         isOptionEqualToValue={(option, value) => option.id === value.id}
         filterOptions={(x) => x}
         renderInput={(params) => (
-          <TextField {...params} size="small" placeholder="Ajouter un jeu" />
+          <TextField {...params} placeholder="Ajouter un jeu" />
         )}
         onChange={async (_event: any, newValue: ItemModel | null) => {
           if (newValue) {
