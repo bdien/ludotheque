@@ -16,19 +16,16 @@ export function MiniItem(props: MiniItemProps) {
   if (isLoading) return <div>loading...</div>;
   if (!item) return <div>Server error...</div>;
 
-  const rtf = new Intl.RelativeTimeFormat();
   const today = new Date();
-  function relTime(txt: string) {
+  function relTime(d: Date) {
     const days: number = Math.round(
-      (new Date(txt).valueOf() - today.valueOf()) / (3600000 * 24),
+      (d.valueOf() - today.valueOf()) / (3600000 * 24),
     );
     return days;
   }
-  function relTimeTxt(txt: string) {
-    return rtf.format(relTime(txt), "days");
-  }
 
   const last_loan = item.loans ? item.loans[0] : undefined;
+  const last_loan_stop = last_loan && new Date(last_loan.stop);
 
   // render data
   return (
@@ -64,24 +61,16 @@ export function MiniItem(props: MiniItemProps) {
         </Link>
       </Box>
       <Box width="60%">
-        <Typography
-          component="div"
-          sx={{
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-          }}
-          fontWeight={600}
-        >
+        <Typography component="div" fontWeight={600}>
           <Link href={`/items/${item.id}`} style={{ textDecoration: "none" }}>
             {item.name} ({item.id})
           </Link>
         </Typography>
-        {last_loan && (
+        {last_loan_stop && (
           <>
-            {new Date(last_loan.stop) < today ? (
+            {last_loan_stop < today ? (
               <Typography variant="subtitle2" color="red">
-                En retard de {-relTime(last_loan.stop)} jours
+                En retard de {-relTime(last_loan_stop)} jours
               </Typography>
             ) : (
               <Typography
@@ -89,7 +78,15 @@ export function MiniItem(props: MiniItemProps) {
                 color="text.secondary"
                 component="div"
               >
-                A rendre {relTimeTxt(last_loan.stop)}
+                A rendre le{" "}
+                {last_loan_stop.toLocaleDateString(undefined, {
+                  year:
+                    last_loan_stop.getFullYear() == today.getFullYear()
+                      ? undefined
+                      : "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
               </Typography>
             )}
             {last_loan.status == "out" && (

@@ -1,5 +1,5 @@
 import MiniItem from "../components/mini_item";
-import { useUser } from "../api/hooks";
+import { useAccount, useUser } from "../api/hooks";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
 import { MiniUser } from "../components/mini_user";
@@ -13,6 +13,7 @@ interface UserViewProps {
 }
 
 export function UserView(props: UserViewProps) {
+  const { account } = useAccount();
   const { user, isLoading, error } = useUser(props.id);
   const [_location, navigate] = useLocation();
 
@@ -39,30 +40,32 @@ export function UserView(props: UserViewProps) {
       </Box>
 
       {/* Edit button */}
-      <SpeedDial
-        ariaLabel="Actions"
-        sx={{
-          position: "fixed",
-          bottom: (theme) => theme.spacing(2),
-          right: (theme) => theme.spacing(2),
-        }}
-        icon={<SpeedDialIcon />}
-      >
-        <SpeedDialAction
-          key="edit"
-          tooltipOpen={true}
-          icon={<Icon>edit</Icon>}
-          tooltipTitle="Edition"
-          onClick={() => navigate(`/users/${user.id}/edit`)}
-        />
-        <SpeedDialAction
-          key="emprunter"
-          tooltipOpen={true}
-          icon={<Icon>logout</Icon>}
-          tooltipTitle="Faire un emprunt"
-          onClick={() => navigate(`/loans/new?user=${user.id}`)}
-        />
-      </SpeedDial>
+      {(account?.role == "admin" || account?.role == "benevole") && (
+        <SpeedDial
+          ariaLabel="Actions"
+          sx={{
+            position: "fixed",
+            bottom: (theme) => theme.spacing(2),
+            right: (theme) => theme.spacing(2),
+          }}
+          icon={<SpeedDialIcon />}
+        >
+          <SpeedDialAction
+            key="edit"
+            tooltipOpen={true}
+            icon={<Icon>edit</Icon>}
+            tooltipTitle="Edition"
+            onClick={() => navigate(`/users/${user.id}/edit`)}
+          />
+          <SpeedDialAction
+            key="emprunter"
+            tooltipOpen={true}
+            icon={<Icon>logout</Icon>}
+            tooltipTitle="Faire un emprunt"
+            onClick={() => navigate(`/loans/new?user=${user.id}`)}
+          />
+        </SpeedDial>
+      )}
     </>
   );
 }
