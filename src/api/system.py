@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
 from api.pwmodels import Item, User, db
-from api.config import AUTH_DOMAIN, PRICING, APIKEY_PREFIX, LOAN_DAYS
+from api.config import AUTH_DOMAIN, PRICING, APIKEY_PREFIX, LOAN_DAYS, IMAGE_MAX_DIM
 
 router = APIRouter()
 auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 5)
@@ -100,5 +100,6 @@ def info():
             "domain": AUTH_DOMAIN,
             "pricing": PRICING,
             "loan": {"days": LOAN_DAYS},
+            "image_max": IMAGE_MAX_DIM,
             "version": "DEVDEV",
         }

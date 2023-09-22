@@ -28,8 +28,8 @@ export function ImageChooser(props: ImageChooserProps) {
       if (props.onImageChange)
         Resizer.imageFileResizer(
           files[0],
-          1000,
-          1000,
+          800,
+          800,
           "WEBP",
           90,
           0,
