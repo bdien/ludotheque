@@ -14,6 +14,7 @@ from api.pwmodels import (
     db,
 )
 from api.system import auth_user
+from api.config import IMAGE_MAX_DIM
 from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
 from playhouse.shortcuts import model_to_dict
 import os
@@ -21,7 +22,6 @@ import hashlib
 from PIL import Image
 
 
-IMAGE_MAX_DIM = 800
 LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 
 router = APIRouter()
