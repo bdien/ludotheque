@@ -160,3 +160,35 @@ def test_get_users_loancount():
     response = client.get("/users", headers=AUTH_ADMIN)
     user = response.json()[0]
     assert user["loans"] == 1
+
+
+def test_user_use_lowest_id():
+    "Check if lowest possible ID is used"
+
+    newjson = {"name": "C", "email": "C", "id": 99}
+    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
+    newUser = response.json()
+    assert newUser["id"] == 99
+
+    newjson = {"name": "A", "email": "A"}
+    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
+    newUser = response.json()
+    assert newUser["id"] == 1
+
+    newjson = {"name": "B", "email": "B"}
+    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
+    newUser = response.json()
+    assert newUser["id"] == 2
+
+    newjson = {"name": "D", "email": "D"}
+    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
+    newUser = response.json()
+    assert newUser["id"] == 3
+
+    with db:
+        User.delete().where(User.id == 1).execute()
+
+    newjson = {"name": "E", "email": "E"}
+    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
+    newUser = response.json()
+    assert newUser["id"] == 1

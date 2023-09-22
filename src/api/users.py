@@ -34,6 +34,13 @@ async def create_user(request: Request, auth=Depends(auth_user)):
 
     with db:
         try:
+            # For users, try to find the lowest unused value (Starting from 1)
+            if not params.get("id"):
+                used_ids = [*sorted(i.id for i in User.select(User.id)), None]
+                print(used_ids)
+                next_id = next(idx for idx, val in enumerate(used_ids, 1) if idx != val)
+                params["id"] = next_id
+
             print(params)
             user = User.create(**params)
         except peewee.IntegrityError as e:
