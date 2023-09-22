@@ -1,0 +1,7 @@
+Jeu sans image
+
+SELECT item.id,item.name FROM item LEFT JOIN itempicture ON item.id==itempicture.item_id WHERE itempicture.filename IS NULL;
+
+Jeu jamais empruntés
+
+SELECT item.id,item.name FROM item LEFT JOIN loan ON item.id==loan.item_id WHERE loan.id IS NULL
