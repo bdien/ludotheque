@@ -1,0 +1,11 @@
+.redblink {
+  color: rgb(237, 108, 2);
+  animation: blink-animation 1.5s alternate infinite;
+}
+
+@keyframes blink-animation {
+  to {
+    color: red;
+    background-color: rgba(237, 108, 2, 0.2);
+  }
+}
