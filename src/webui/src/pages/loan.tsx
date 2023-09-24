@@ -20,7 +20,7 @@ function submitLoan(user_id: number, objs_id: number[], simulation: boolean) {
   return createLoan(user_id, objs_id, simulation);
 }
 
-const fakeItemAbonnement: ItemModel = { id: -1, name: "Abonnement" };
+const fakeItemAdhesion: ItemModel = { id: -1, name: "Adhésion" };
 const fakeItemCarte: ItemModel = { id: -2, name: "Remplissage carte" };
 
 export function Loan() {
@@ -125,11 +125,11 @@ export function Loan() {
           >
             <MenuItem
               onClick={() => {
-                addItem(fakeItemAbonnement);
+                addItem(fakeItemAdhesion);
                 menuAddLoanClose();
               }}
             >
-              Abonnement
+              Adhésion
             </MenuItem>
             <MenuItem
               onClick={() => {

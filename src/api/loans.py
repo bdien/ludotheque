@@ -103,7 +103,9 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
 
             # Update user credit and subscription
             if subscription:
-                user.subscription = datetime.date.today() + datetime.timedelta(days=366)
+                user.subscription = max(
+                    datetime.date.today(), user.subscription
+                ) + datetime.timedelta(days=366)
             user.save()
 
         # Update final prices to be sent back to the API caller

@@ -154,7 +154,7 @@ export function UserList() {
                         )}
                         {row.subscription &&
                           new Date(row.subscription) <= today && (
-                            <Tooltip title="Abonnement en retard">
+                            <Tooltip title="Adhésion en retard">
                               <Icon color="warning" sx={{ mx: 0.5 }}>
                                 sell
                               </Icon>

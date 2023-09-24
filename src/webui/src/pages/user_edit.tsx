@@ -150,7 +150,7 @@ export function UserEdit(props: UserEditProps) {
         name="subscription"
         render={({ field }) => (
           <DatePicker
-            label="Expiration abonnement"
+            label="Expiration adhésion"
             sx={{ my: 2 }}
             format="D MMM YYYY"
             {...field}

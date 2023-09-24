@@ -61,7 +61,7 @@ export function Main() {
                 semaines.
               </li>
               <li>
-                Carte d'abonnement: {info.pricing.card}€ (
+                Carte prépayée (Optionelle): {info.pricing.card}€ (
                 {info.pricing.card / info.pricing.regular} jeux + 1 gratuit).
               </li>
               <li>

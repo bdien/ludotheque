@@ -68,6 +68,11 @@ function nameDisplay(item: ItemModel) {
             construction
           </Icon>
         )}
+        {item.notes && (
+          <Icon fontSize="small" color="error" sx={{ ml: 0.5 }}>
+            notes
+          </Icon>
+        )}
       </Box>
     </Link>
   );
