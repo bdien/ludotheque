@@ -14,6 +14,7 @@ import { setToken } from "./api/calls";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
 import { useInfo } from "./api/hooks";
+import "./styles.css";
 
 function App() {
   const { isLoading: infoIsLoading } = useInfo();

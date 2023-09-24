@@ -12,9 +12,9 @@ interface MiniItemProps {
 export function MiniItem(props: MiniItemProps) {
   const { item, error, isLoading } = useItem(props.id);
 
-  if (error) return <div>failed to load</div>;
-  if (isLoading) return <div>loading...</div>;
-  if (!item) return <div>Server error...</div>;
+  if (error) return <div>Impossible de charger: {error}</div>;
+  if (isLoading) return <div>Chargement...</div>;
+  if (!item) return <div>Erreur du serveur</div>;
 
   const today = new Date();
   function relTime(d: Date) {

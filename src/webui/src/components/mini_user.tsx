@@ -110,6 +110,7 @@ export function MiniUser(props: MiniUserProps) {
                 <Box
                   sx={{ ml: "0.3em", color: "warning.main" }}
                   component="span"
+                  className="redblink"
                 >
                   (
                   <Typography component="span" fontWeight={500}>
@@ -142,9 +143,9 @@ export function MiniUser(props: MiniUserProps) {
                 <Icon sx={{ mr: "0.2em" }}>event</Icon>
                 <Box
                   component="span"
-                  color={
+                  className={
                     new Date(props.user?.subscription) <= today
-                      ? "warning.main"
+                      ? "redblink"
                       : ""
                   }
                 >

@@ -17,9 +17,9 @@ export function UserView(props: UserViewProps) {
   const { user, isLoading, error } = useUser(props.id);
   const [_location, navigate] = useLocation();
 
-  if (error) return <div>failed to load</div>;
-  if (isLoading) return <div>loading...</div>;
-  if (!user) return <div>Server error...</div>;
+  if (error) return <div>Impossible de charger: {error}</div>;
+  if (isLoading) return <div>Chargement...</div>;
+  if (!user) return <div>Erreur du serveur</div>;
 
   return (
     <>

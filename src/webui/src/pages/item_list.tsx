@@ -119,8 +119,8 @@ export function ItemList() {
   const { items, isLoading } = useItems();
   const [topIndex, setTopIndex] = useSessionStorage<number>("topItemIndex", 0);
 
-  if (isLoading) return <div>Loading</div>;
-  if (!items) return <div>Empty</div>;
+  if (isLoading) return <div>Chargement</div>;
+  if (!items) return <div>Aucun jeu</div>;
 
   // Filtering
   let displayed = items;
@@ -271,7 +271,11 @@ export function ItemList() {
         itemContent={(_index, row) => (
           <>
             <TableCell
-              sx={{ width: "clamp(56px, 10vw, 90px)", textAlign: "right" }}
+              sx={{
+                width: "clamp(56px, 10vw, 90px)",
+                py: 1.2,
+                textAlign: "right",
+              }}
             >
               {row.id}
             </TableCell>
