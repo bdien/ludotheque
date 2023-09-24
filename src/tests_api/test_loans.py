@@ -1,3 +1,4 @@
+import datetime
 import pytest
 from api.main import app
 from api.system import auth_user
@@ -12,6 +13,7 @@ app.dependency_overrides[auth_user] = fake_auth_user
 
 USER_ID = 66
 ITEM_ID = 158
+TODAY = datetime.date.today()
 
 
 @pytest.fixture()
@@ -204,6 +206,26 @@ def test_loan_subscription():
         "new_credit": 100,
         "loans": [],
     }
+
+
+@pytest.mark.parametrize(
+    "origdate, finaldate",
+    (
+        (TODAY - datetime.timedelta(days=60), TODAY + datetime.timedelta(days=366)),
+        (TODAY, TODAY + datetime.timedelta(days=366)),
+        (TODAY + datetime.timedelta(days=100), TODAY + datetime.timedelta(days=466)),
+    ),
+)
+def test_loan_subscription_finaldate(origdate, finaldate):
+    "Check with date in past, None and future"
+    with db:
+        user = User.create(name="Bob", email="bob", subscription=origdate)
+
+    client.post("/loans", json={"user": user.id, "items": [-1]}, headers=AUTH_ADMIN)
+
+    with db:
+        user = User.get(user)
+        assert user.subscription == finaldate
 
 
 def test_loan_fillcard():
