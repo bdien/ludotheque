@@ -44,33 +44,53 @@ function nameDisplay(item: ItemModel) {
     <Link href={`/items/${item.id}`}>
       <Box
         style={{
-          display: "flex",
-          alignItems: "center",
-          flexWrap: "wrap",
           cursor: "pointer",
         }}
       >
-        <Box sx={{ color: "primary.main", fontSize: 14, fontWeight: "500" }}>
+        <Box
+          component="span"
+          sx={{ color: "primary.main", fontSize: 14, fontWeight: "500", mr: 1 }}
+        >
           {item.name}
         </Box>
+        {item.status == "out" && (
+          <Icon
+            title="Emprunté"
+            fontSize="small"
+            color="secondary"
+            sx={{ pt: 0.2 }}
+          >
+            logout
+          </Icon>
+        )}
         {item.big && (
-          <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
+          <Icon
+            title="Encombrant"
+            fontSize="small"
+            color="secondary"
+            sx={{ pt: 0.2 }}
+          >
             inventory
           </Icon>
         )}
         {item.outside && (
-          <Icon fontSize="small" color="action" sx={{ ml: 0.5 }}>
+          <Icon
+            title="Jeu d'Extérieur"
+            fontSize="small"
+            color="secondary"
+            sx={{ pt: 0.2 }}
+          >
             park
           </Icon>
         )}
         {!item.enabled && (
-          <Icon fontSize="small" color="error" sx={{ ml: 0.5 }}>
+          <Icon
+            title="Indisponible au prêt"
+            fontSize="small"
+            color="warning"
+            sx={{ pt: 0.2 }}
+          >
             construction
-          </Icon>
-        )}
-        {item.notes && (
-          <Icon fontSize="small" color="error" sx={{ ml: 0.5 }}>
-            notes
           </Icon>
         )}
       </Box>

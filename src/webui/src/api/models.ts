@@ -38,6 +38,18 @@ export interface ItemLinkModel {
   ref: string;
 }
 
+export interface ItemListEntry {
+  id: number;
+  name: string;
+  enabled: boolean;
+  players_max: number;
+  players_min: number;
+  age: number;
+  big: boolean;
+  outside: boolean;
+  status: string;
+}
+
 export interface ItemModel {
   id: number;
   name: string;
