@@ -29,6 +29,9 @@ function fetchWithToken(url: string, params: any = {}) {
   return fetch(url, params);
 }
 
+// Loan
+// -------------------
+
 export async function exportItems(): Promise<string> {
   const response = await fetchWithToken(`${SERVER_URL}/items/export`);
   return response.text();

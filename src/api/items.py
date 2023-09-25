@@ -72,11 +72,29 @@ async def create_item(request: Request, auth=Depends(auth_user)):
 
 @router.get("/items", tags=["items"])
 def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
-    query = Item.select()
+    # Subquery, all item loaned
+    subquery = Loan.select(Loan.item_id, Loan.status).where(Loan.status == "out")
+
+    query = Item.select(
+        Item.id,
+        Item.name,
+        Item.enabled,
+        Item.players_min,
+        Item.players_max,
+        Item.age,
+        Item.big,
+        Item.outside,
+        subquery.c.status,
+    )
     if nb:
         query = query.limit(nb)
     if q:
         query = query.where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
+
+    # Left join with the subquery
+    query = query.join(
+        subquery, peewee.JOIN.LEFT_OUTER, on=subquery.c.item_id == Item.id
+    )
 
     with db:
         return list(query.order_by(Item.id).dicts())
@@ -91,13 +109,21 @@ def export_items(auth=Depends(auth_user)):
     f = io.StringIO()
     csvwriter = csv.DictWriter(
         f,
-        ["id", "name", "enabled", "big", "outside", "created_at"],
+        ["id", "name", "enabled", "big", "outside", "created_at", "status"],
         extrasaction="ignore",
         delimiter=";",
     )
     csvwriter.writeheader()
+
+    # Subquery, all item loaned
+    subquery = Loan.select(Loan.item_id, Loan.status).where(Loan.status == "out")
+    # Left join with the subquery
+    query = Item.select(Item, subquery.c.status).join(
+        subquery, peewee.JOIN.LEFT_OUTER, on=subquery.c.item_id == Item.id
+    )
+
     with db:
-        for u in Item.select().dicts():
+        for u in query.dicts():
             csvwriter.writerow(u)
         return f.getvalue()
 

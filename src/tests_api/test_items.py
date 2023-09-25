@@ -140,7 +140,7 @@ def test_edit_item_attributes(toedit: dict):
 def test_get_items():
     # Create items
     item1 = {"name": "obj1", "age": 10, "players_min": 2, "players_max": 7}
-    item2 = {"name": "obj2", "description": "Desc"}
+    item2 = {"name": "obj2", "age": 5}
     response = client.post("/items", json=item1, headers=AUTH_ADMIN)
     response = client.post("/items", json=item2, headers=AUTH_ADMIN)
 

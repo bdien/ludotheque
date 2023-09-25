@@ -3,6 +3,7 @@ import useSWRImmutable from "swr/immutable";
 import {
   Account,
   InfoModel,
+  ItemListEntry,
   ItemModel,
   Loan,
   UserModel,
@@ -80,7 +81,7 @@ export function useItem(id?: number) {
 export function useItems(filter?: string) {
   let qs = "";
   if (filter) qs = `?q=${filter}`;
-  const { data, error, isLoading } = useSWR<ItemModel[]>(
+  const { data, error, isLoading } = useSWR<ItemListEntry[]>(
     `${SERVER_URL}/items${qs}`,
     fetcher,
     { revalidateOnFocus: false },
