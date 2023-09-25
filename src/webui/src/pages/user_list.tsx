@@ -112,8 +112,6 @@ export function UserList() {
                     <div
                       style={{
                         display: "flex",
-                        alignItems: "center",
-                        flexWrap: "wrap",
                       }}
                     >
                       <Box flexGrow={1}>
@@ -137,14 +135,17 @@ export function UserList() {
                         <Box display={displaysm}>{row.email}</Box>
                       </Box>
 
-                      <Box flexGrow={0.3}>
-                        {row?.loans ? `${row?.loans} emprunt` : ""}
+                      <Box
+                        flexGrow={0.3}
+                        sx={{ textAlign: "right", my: "auto" }}
+                      >
+                        {row?.loans ? `${row?.loans} jeu` : ""}
                         {row?.loans && (row?.loans as unknown as number) > 1
-                          ? "s"
+                          ? "x"
                           : ""}
                       </Box>
 
-                      <Box>
+                      <Box sx={{ width: 64, textAlign: "right", my: "auto" }}>
                         {row?.notes && (
                           <Tooltip title={row.notes}>
                             <Icon color="warning" sx={{ mx: 0.5 }}>
@@ -156,11 +157,10 @@ export function UserList() {
                           new Date(row.subscription) <= today && (
                             <Tooltip title="Adhésion en retard">
                               <Icon color="warning" sx={{ mx: 0.5 }}>
-                                sell
+                                error_outline
                               </Icon>
                             </Tooltip>
                           )}
-
                         {row.oldest_loan &&
                           new Date(row.oldest_loan) < today && (
                             <Tooltip title="Jeux en retard">
@@ -169,6 +169,7 @@ export function UserList() {
                               </Icon>
                             </Tooltip>
                           )}
+                        &nbsp;
                       </Box>
                     </div>
                   </Link>
