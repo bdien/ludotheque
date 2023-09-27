@@ -134,6 +134,26 @@ def test_get_users():
     assert User1.items() <= users[0].items()
 
 
+@pytest.mark.parametrize("pattern", ("Hélène", "helen", "len"))
+def test_search_users(pattern):
+    User1 = {"name": "Hélène", "email": "alice@nomail"}
+    User2 = {"name": "bob", "email": "bob@nomail", "credit": 3, "role": "admin"}
+    response = client.post("/users", json=User1, headers=AUTH_ADMIN)
+    response = client.post("/users", json=User2, headers=AUTH_ADMIN)
+
+    # Check in API
+    response = client.get(f"/users?q={pattern}", headers=AUTH_ADMIN)
+    users = response.json()
+    assert len(users) == 1
+    assert users[0]["name"] == "Hélène"
+
+    # Check in API (QuickSearch)
+    response = client.get(f"/users/qsearch/{pattern}", headers=AUTH_ADMIN)
+    users = response.json()
+    assert len(users) == 1
+    assert users[0]["name"] == "Hélène"
+
+
 def test_get_users_loancount():
     # Create a user without loan
     response = client.post(
