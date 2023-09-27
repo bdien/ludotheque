@@ -12,17 +12,17 @@ RUN cd /app/src/webui && pnpm install && pnpm run build
 # Now build final image
 FROM alpine:3.18
 
+ENV TZ=Europe/Paris
 ENV LUDO_STORAGE /app/storage
 VOLUME /app/storage
 
-RUN apk add python3 py3-pip nginx
+RUN apk add --no-cache python3 py3-pip nginx sqlite tzdata
 RUN pip install --user pdm
 
 COPY --from=build /app/src/webui/dist /app/www
 COPY --from=build /app/src/api /app/src/api
 COPY --from=build /app/pyproject.toml /app/setup/start.sh /app
 COPY --from=build /app/setup/nginx.conf /etc/nginx/http.d/default.conf
-
 
 WORKDIR /app
 RUN python -m pdm install --prod
