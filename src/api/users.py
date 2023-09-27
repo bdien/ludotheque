@@ -25,6 +25,9 @@ async def create_user(request: Request, auth=Depends(auth_user)):
     # Remove ID = None or ""
     if ("id" in params) and not params["id"]:
         del params["id"]
+    # Lowercase email
+    if "email" in params:
+        params["email"] = params["email"].lower()
 
     # Checks
     if not params:
@@ -37,11 +40,9 @@ async def create_user(request: Request, auth=Depends(auth_user)):
             # For users, try to find the lowest unused value (Starting from 1)
             if not params.get("id"):
                 used_ids = [*sorted(i.id for i in User.select(User.id)), None]
-                print(used_ids)
                 next_id = next(idx for idx, val in enumerate(used_ids, 1) if idx != val)
                 params["id"] = next_id
 
-            print(params)
             user = User.create(**params)
         except peewee.IntegrityError as e:
             if e.args[0] == "UNIQUE constraint failed: user.id":
@@ -76,7 +77,10 @@ def get_users(
     if nb:
         query = query.limit(nb)
     if q:
-        query = query.where((User.name ** f"%{q}%") | (User.email ** f"%{q}%"))
+        q = re.sub("[eéèaàcçuùîiï]", "_", q).lower()
+        query = query.where(
+            (peewee.fn.Lower(User.name) ** f"%{q}%") | (User.email ** f"%{q}%")
+        )
 
     with db:
         return list(query.order_by(User.name).dicts())
@@ -155,6 +159,9 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in User._meta.fields}
     params = {k: v for k, v in params.items() if k not in ("id", "created_at")}
+    # Lowercase email
+    if "email" in params:
+        params["email"] = params["email"].lower()
 
     # Checks
     if not params:
@@ -185,12 +192,12 @@ def qsearch_user(txt: str, auth=Depends(auth_user)):
         raise HTTPException(403)
 
     # Replace accents
-    txt = re.sub("[eéèaàcçuùîiï]", "_", txt)
+    txt = re.sub("[eéèaàcçuùîiï]", "_", txt).lower()
 
     with db:
         return list(
             User.select(User.id, User.name)
-            .where((User.name ** f"%{txt}%") | (User.id ** f"%{txt}%"))
+            .where((peewee.fn.Lower(User.name) ** f"%{txt}%") | (User.id ** f"%{txt}%"))
             .order_by(User.name)
             .limit(10)
             .dicts()
