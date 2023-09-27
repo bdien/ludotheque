@@ -1,5 +1,5 @@
 import os
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 import peewee
 from playhouse.sqlite_ext import SqliteExtDatabase, JSONField
 from api.config import LOAN_DAYS
@@ -22,11 +22,10 @@ db.initialize(
 
 
 def create_all_tables(drop=False):
+    tbls = [User, Item, ItemLink, Category, ItemCategory, ItemPicture, Loan, Ledger]
     if drop:
-        db.drop_tables(
-            [User, Item, ItemLink, Category, ItemCategory, ItemPicture, Loan]
-        )
-    db.create_tables([User, Item, ItemLink, Category, ItemCategory, ItemPicture, Loan])
+        db.drop_tables(tbls)
+    db.create_tables(tbls)
 
 
 class BaseModel(peewee.Model):
@@ -104,7 +103,16 @@ class ItemPicture(BaseModel):
 class Loan(BaseModel):
     user = peewee.ForeignKeyField(model=User)
     item = peewee.ForeignKeyField(model=Item)
-    cost = peewee.FloatField()
     start = peewee.DateField(default=date.today)
     stop = peewee.DateField(default=today_plus_loantime, index=True)
     status = peewee.CharField(default="out", index=True)
+
+
+class Ledger(BaseModel):
+    operator_id = peewee.IntegerField()
+    user_id = peewee.IntegerField()  # Source of the transfer
+    loan_id = peewee.IntegerField(null=True)
+    item_id = peewee.IntegerField(null=True)
+    cost = peewee.FloatField()
+    day = peewee.DateField(default=date.today, index=True)
+    created_at = peewee.DateTimeField(default=datetime.now)

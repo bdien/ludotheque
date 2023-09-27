@@ -1,6 +1,6 @@
 import datetime
 import logging
-from api.pwmodels import Loan, User, Item, db
+from api.pwmodels import Loan, Ledger, User, Item, db
 from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user
 from playhouse.shortcuts import model_to_dict
@@ -99,13 +99,37 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                 ).execute()
 
                 # Loan start/stop/status are set as default in pwmodels
-                loans.append(model_to_dict(Loan.create(user=user, item=i, cost=c)))
+                loan = Loan.create(user=user, item=i)
+                loans.append(model_to_dict(loan))
+
+                # Money
+                Ledger.create(
+                    operator_id=auth.id,
+                    user_id=user.id,
+                    loan_id=loan.id,
+                    item_id=i.id,
+                    cost=c,
+                )
 
             # Update user credit and subscription
             if subscription:
+                Ledger.create(
+                    operator_id=auth.id,
+                    user_id=user.id,
+                    item_id=-1,
+                    cost=PRICING["yearly"],
+                )
                 user.subscription = max(
                     datetime.date.today(), user.subscription
                 ) + datetime.timedelta(days=366)
+            if fillcard:
+                Ledger.create(
+                    operator_id=auth.id,
+                    user_id=user.id,
+                    item_id=-2,
+                    cost=PRICING["card"],
+                )
+
             user.save()
 
         # Update final prices to be sent back to the API caller
