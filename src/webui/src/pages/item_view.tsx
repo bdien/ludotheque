@@ -116,6 +116,7 @@ export function Item(props: ItemProps) {
           width: "100%",
           height: "40vh",
           objectFit: "contain",
+          filter: "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
         }}
         src={
           item.pictures?.length

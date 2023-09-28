@@ -51,6 +51,7 @@ export function MiniItem(props: MiniItemProps) {
               maxHeight: "100%",
               maxWidth: "100%",
               borderRadius: "10px",
+              filter: "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
             }}
             src={
               item.pictures?.length
