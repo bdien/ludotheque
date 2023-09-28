@@ -130,7 +130,9 @@ def main():
 
     # Categories
     if args.force or not game.get("categories"):
-        myludo_categories = myludo_game.get("themes", {}).get("categorie", {}).values()
+        myludo_categories = (
+            (myludo_game.get("themes") or {}).get("categorie", {}).values()
+        )
         new_categories = []
         for cat in myludo_categories:
             if cat.lower() not in categories:

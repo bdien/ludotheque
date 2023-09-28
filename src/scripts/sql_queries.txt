@@ -1,7 +1,18 @@
-Jeu sans image
+# Jeu sans image
 
 SELECT item.id,item.name FROM item LEFT JOIN itempicture ON item.id==itempicture.item_id WHERE itempicture.filename IS NULL;
 
-Jeu jamais empruntés
+
+# Jeu jamais empruntés
 
 SELECT item.id,item.name FROM item LEFT JOIN loan ON item.id==loan.item_id WHERE loan.id IS NULL
+
+
+# Jeux et numbre d'emprunts
+
+SELECT item.id,item.name,COUNT(loan.id) FROM item LEFT JOIN loan ON item.id==loan.item_id WHERE loan.id IS NOT NULL GROUP BY item.id ORDER BY COUNT(loan.id) DESC
+
+
+# Somme encaissée par jour
+
+SELECT day,SUM(cost) FROM ledger GROUP BY day;
