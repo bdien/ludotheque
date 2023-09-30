@@ -29,7 +29,7 @@ function fetchWithToken(url: string, params: any = {}) {
   return fetch(url, params);
 }
 
-// Loan
+// Item
 // -------------------
 
 export async function exportItems(): Promise<string> {
@@ -105,6 +105,11 @@ export async function createLoan(
     method: "POST",
     body: JSON.stringify({ user, items, simulation }),
   });
+  return response.json();
+}
+
+export async function extendLoan(loanId: number): Promise<ItemModel> {
+  const response = await fetchWithToken(`${SERVER_URL}/loans/${loanId}/extend`);
   return response.json();
 }
 

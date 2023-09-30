@@ -4,7 +4,7 @@ from api.pwmodels import Loan, Ledger, User, Item, db
 from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user
 from playhouse.shortcuts import model_to_dict
-from api.config import PRICING
+from api.config import PRICING, LOAN_DAYS
 
 router = APIRouter()
 
@@ -170,6 +170,23 @@ def close_loan(loan_id: int, auth=Depends(auth_user)):
 
         loan.stop = datetime.date.today()
         loan.status = "in"
+        loan.save()
+        return model_to_dict(loan, recurse=False)
+
+
+@router.get("/loans/{loan_id}/extend", tags=["loans"])
+def extend_loan(loan_id: int, auth=Depends(auth_user)):
+    if not auth or auth.role not in ("admin", "benevole"):
+        raise HTTPException(403)
+
+    with db:
+        loan = Loan.get_or_none(Loan.id == loan_id)
+        if not loan:
+            raise HTTPException(400, "No such loan")
+        if loan.status != "out":
+            raise HTTPException(400, "Already closed")
+
+        loan.stop = datetime.date.today() + datetime.timedelta(days=LOAN_DAYS)
         loan.save()
         return model_to_dict(loan, recurse=False)
 
