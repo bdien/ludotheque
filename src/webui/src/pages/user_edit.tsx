@@ -144,45 +144,49 @@ export function UserEdit(props: UserEditProps) {
         {...register("email")}
       />
 
-      <Controller
-        control={control}
-        defaultValue={dayjs(user.subscription)}
-        name="subscription"
-        render={({ field }) => (
-          <DatePicker
-            label="Expiration adhésion"
-            sx={{ my: 2 }}
-            format="D MMM YYYY"
-            {...field}
+      {user?.id != 0 && (
+        <>
+          <Controller
+            control={control}
+            defaultValue={dayjs(user.subscription)}
+            name="subscription"
+            render={({ field }) => (
+              <DatePicker
+                label="Expiration adhésion"
+                sx={{ my: 2 }}
+                format="D MMM YYYY"
+                {...field}
+              />
+            )}
           />
-        )}
-      />
 
-      <TextField
-        fullWidth
-        label="Crédit sur la carte"
-        margin="normal"
-        defaultValue={user.credit}
-        type="number"
-        {...register("credit")}
-        InputProps={{
-          inputProps: { min: 0, max: 100 },
-          endAdornment: <InputAdornment position="end">€</InputAdornment>,
-        }}
-      />
+          <TextField
+            fullWidth
+            label="Crédit sur la carte"
+            margin="normal"
+            defaultValue={user.credit}
+            type="number"
+            {...register("credit")}
+            InputProps={{
+              inputProps: { min: 0, max: 100 },
+              endAdornment: <InputAdornment position="end">€</InputAdornment>,
+            }}
+          />
 
-      <TextField
-        fullWidth
-        label="Rôle"
-        margin="normal"
-        defaultValue={user.role}
-        {...register("role")}
-        select
-      >
-        <MenuItem value={"user"}>Adhérent</MenuItem>
-        <MenuItem value={"benevole"}>Bénévole</MenuItem>
-        <MenuItem value={"admin"}>Membre du Bureau</MenuItem>
-      </TextField>
+          <TextField
+            fullWidth
+            label="Rôle"
+            margin="normal"
+            defaultValue={user.role}
+            {...register("role")}
+            select
+          >
+            <MenuItem value={"user"}>Adhérent</MenuItem>
+            <MenuItem value={"benevole"}>Bénévole</MenuItem>
+            <MenuItem value={"admin"}>Membre du Bureau</MenuItem>
+          </TextField>
+        </>
+      )}
 
       <TextField
         fullWidth
