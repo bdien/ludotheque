@@ -4,25 +4,21 @@ import { useItem } from "../api/hooks";
 import { Link } from "wouter";
 import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-location";
+import { extendLoan } from "../api/calls";
 
 interface MiniItemProps {
   id: number;
 }
 
 export function MiniItem(props: MiniItemProps) {
-  const { item, error, isLoading } = useItem(props.id);
+  const { item, error, isLoading, mutate } = useItem(props.id);
 
   if (error) return <div>Impossible de charger: {error}</div>;
   if (isLoading) return <div>Chargement...</div>;
-  if (!item) return <div>Erreur du serveur</div>;
+  if (!item || !mutate) return <div>Erreur du serveur</div>;
 
   const today = new Date();
-  function relTime(d: Date) {
-    const days: number = Math.round(
-      (d.valueOf() - today.valueOf()) / (3600000 * 24),
-    );
-    return days;
-  }
+  const thisweek = new Date(Date.now() + 6 * 24 * 60 * 60 * 1000);
 
   const last_loan = item.loans ? item.loans[0] : undefined;
   const last_loan_stop = last_loan && new Date(last_loan.stop);
@@ -51,7 +47,10 @@ export function MiniItem(props: MiniItemProps) {
               maxHeight: "100%",
               maxWidth: "100%",
               borderRadius: "10px",
-              filter: "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
+              filter:
+                last_loan_stop && last_loan_stop < thisweek
+                  ? "drop-shadow(0px 0px 8px rgba(250,0,0,0.9))"
+                  : "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
             }}
             src={
               item.pictures?.length
@@ -69,27 +68,20 @@ export function MiniItem(props: MiniItemProps) {
         </Typography>
         {last_loan_stop && (
           <>
-            {last_loan_stop < today ? (
-              <Typography variant="subtitle2" color="red">
-                En retard de {-relTime(last_loan_stop)} jours
-              </Typography>
-            ) : (
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                component="div"
-              >
-                A rendre le{" "}
-                {last_loan_stop.toLocaleDateString(undefined, {
-                  year:
-                    last_loan_stop.getFullYear() == today.getFullYear()
-                      ? undefined
-                      : "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </Typography>
-            )}
+            <Typography
+              variant="subtitle2"
+              color={last_loan_stop < thisweek ? "red" : "text.secondary"}
+            >
+              A rendre le{" "}
+              {last_loan_stop.toLocaleDateString(undefined, {
+                year:
+                  last_loan_stop.getFullYear() == today.getFullYear()
+                    ? undefined
+                    : "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </Typography>
             {last_loan.status == "out" && (
               <Button
                 size="small"
@@ -101,6 +93,16 @@ export function MiniItem(props: MiniItemProps) {
                 }
               >
                 Rendre
+              </Button>
+            )}
+            {last_loan.status == "out" && last_loan_stop < thisweek && (
+              <Button
+                size="small"
+                variant="outlined"
+                sx={{ ml: 1 }}
+                onClick={() => extendLoan(last_loan.id).then(() => mutate())}
+              >
+                Prolonger
               </Button>
             )}
           </>

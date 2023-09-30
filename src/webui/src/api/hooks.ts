@@ -81,7 +81,7 @@ export function useItem(id?: number) {
 export function useItems(filter?: string) {
   let qs = "";
   if (filter) qs = `?q=${filter}`;
-  const { data, error, isLoading } = useSWR<ItemListEntry[]>(
+  const { data, error, isLoading, mutate } = useSWR<ItemListEntry[]>(
     `${SERVER_URL}/items${qs}`,
     fetcher,
     { revalidateOnFocus: false },
@@ -91,6 +91,7 @@ export function useItems(filter?: string) {
     items: data,
     isLoading,
     error,
+    mutate,
   };
 }
 
