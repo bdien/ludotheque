@@ -10,9 +10,14 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import {
+  Button,
   IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  MenuList,
   TextField,
-  Tooltip,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -40,19 +45,30 @@ function exportCSV() {
 export function UserList() {
   const { account } = useAccount();
   const [filter, setFilter] = useState<string>("");
+  const [filterDisabled, setFilterDisabled] = useState<boolean>(false);
   const { users, isLoading } = useUsers();
   const theme = useTheme();
   const displaysm = useMediaQuery(theme.breakpoints.up("md"))
     ? "block"
     : "none";
 
+  // Filter menu
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const filterMenuOpened = Boolean(anchorEl);
+  const filterMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const filterMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   if (isLoading || !users) return <div>Loading</div>;
 
   // Filtering
-  let displayed = users;
-  if (filter) {
+  let displayed = users.filter((i) => i.enabled || filterDisabled);
+  if (filter || filterDisabled) {
     const lw_filter = filter.toLowerCase();
-    displayed = users.filter(
+    displayed = displayed.filter(
       (i) =>
         i.name.toLowerCase().includes(lw_filter) ||
         (i.email && i.email.toString().includes(lw_filter)),
@@ -79,13 +95,41 @@ export function UserList() {
           }}
           sx={{ flexGrow: 0.5 }}
         />
+
+        <Button onClick={filterMenuOpen}>
+          <Icon>filter_list</Icon>
+        </Button>
+        <Menu
+          id="user-filter-menu"
+          anchorEl={anchorEl}
+          open={filterMenuOpened}
+          onClose={filterMenuClose}
+        >
+          <MenuList>
+            <MenuItem
+              onClick={() => {
+                setFilterDisabled((filterDisabled) => !filterDisabled);
+              }}
+            >
+              <ListItemIcon>
+                <Icon>
+                  {filterDisabled ? "check_box" : "check_box_outline_blank"}
+                </Icon>
+              </ListItemIcon>
+              <ListItemText>Afficher cachés</ListItemText>
+            </MenuItem>
+          </MenuList>
+        </Menu>
+
         <Box sx={{ flexGrow: 0.5 }}></Box>
         {account?.role == "admin" && (
-          <Tooltip title="Exporter en CSV">
-            <IconButton color="primary" onClick={exportCSV}>
-              <Icon fontSize="medium">file_download</Icon>
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            title="Exporter en CSV"
+            color="primary"
+            onClick={exportCSV}
+          >
+            <Icon fontSize="medium">file_download</Icon>
+          </IconButton>
         )}
       </Box>
 
@@ -147,28 +191,43 @@ export function UserList() {
 
                       <Box sx={{ width: 64, textAlign: "right", my: "auto" }}>
                         {row?.notes && (
-                          <Tooltip title={row.notes}>
-                            <Icon color="warning" sx={{ mx: 0.5 }}>
-                              notes
-                            </Icon>
-                          </Tooltip>
+                          <Icon
+                            title={row.notes}
+                            color="warning"
+                            sx={{ mx: 0.5 }}
+                          >
+                            notes
+                          </Icon>
                         )}
                         {row.subscription &&
                           new Date(row.subscription) <= today && (
-                            <Tooltip title="Adhésion en retard">
-                              <Icon color="warning" sx={{ mx: 0.5 }}>
-                                error_outline
-                              </Icon>
-                            </Tooltip>
+                            <Icon
+                              title="Adhésion en retard"
+                              color="warning"
+                              sx={{ mx: 0.5 }}
+                            >
+                              error_outline
+                            </Icon>
                           )}
                         {row.oldest_loan &&
                           new Date(row.oldest_loan) < today && (
-                            <Tooltip title="Jeux en retard">
-                              <Icon color="warning" sx={{ mx: 0.5 }}>
-                                alarm
-                              </Icon>
-                            </Tooltip>
+                            <Icon
+                              title="Jeux en retard"
+                              color="warning"
+                              sx={{ mx: 0.5 }}
+                            >
+                              alarm
+                            </Icon>
                           )}
+                        {row?.enabled || (
+                          <Icon
+                            title="Utilisateur caché"
+                            color="warning"
+                            sx={{ mx: 0.5 }}
+                          >
+                            visibility_off
+                          </Icon>
+                        )}
                         &nbsp;
                       </Box>
                     </div>
