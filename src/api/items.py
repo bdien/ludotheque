@@ -128,6 +128,22 @@ def export_items(auth=Depends(auth_user)):
         return f.getvalue()
 
 
+@router.get("/items/search", tags=["items"])
+def search_item(q: str | None = None):
+    "Return a list of max 10 items matching filter (and not already loaned)"
+
+    with db:
+        loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
+        return list(
+            Item.select(Item.id, Item.name, Item.big)
+            .where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
+            .where(Item.id.not_in(loaned_items))
+            .order_by(Item.id)
+            .limit(10)
+            .dicts()
+        )
+
+
 @router.get("/items/{item_id}", tags=["items"])
 def get_item(item_id: int, history: int | None = 10, auth=Depends(auth_user)):
     if not auth or auth.role not in ("admin", "benevole"):
@@ -315,22 +331,6 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
                 os.unlink(f"{LUDO_STORAGE}/img/{p.filename}")
 
         return "OK"
-
-
-@router.get("/items/qsearch/{txt}", tags=["items"])
-def qsearch_item(txt: str):
-    "Return a list of max 10 items matching filter (and not already loaned)"
-
-    with db:
-        loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
-        return list(
-            Item.select(Item.id, Item.name, Item.big)
-            .where((Item.name ** f"%{txt}%") | (Item.id ** f"%{txt}%"))
-            .where(Item.id.not_in(loaned_items))
-            .order_by(Item.id)
-            .limit(10)
-            .dicts()
-        )
 
 
 @router.get("/categories", tags=["categories"])

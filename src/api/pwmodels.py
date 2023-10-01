@@ -1,3 +1,4 @@
+import re
 import os
 from datetime import date, datetime, timedelta
 import peewee
@@ -19,6 +20,11 @@ db.initialize(
         },
     )
 )
+
+
+@db.func()
+def regexp(expr, s):
+    return re.search(expr, s, re.IGNORECASE) is not None
 
 
 def create_all_tables(drop=False):

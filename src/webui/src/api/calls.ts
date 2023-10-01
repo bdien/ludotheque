@@ -37,9 +37,11 @@ export async function exportItems(): Promise<string> {
   return response.text();
 }
 
-export async function qsearchItem(txt: string): Promise<ItemModel[]> {
-  if (!txt || txt.length < 1) return Promise.resolve([]);
-  const response = await fetchWithToken(`${SERVER_URL}/items/qsearch/${txt}`);
+export async function searchItem(txt: string): Promise<ItemModel[]> {
+  if (!txt) return Promise.resolve([]);
+  const response = await fetchWithToken(
+    encodeURI(`${SERVER_URL}/items/search?q=${txt}`),
+  );
   return response.json();
 }
 
@@ -131,9 +133,11 @@ export async function fetchUser(userId: number): Promise<UserModel> {
   return response.json();
 }
 
-export async function qsearchUser(txt: string): Promise<UserModel[]> {
-  if (!txt || txt.length < 2) return Promise.resolve([]);
-  const response = await fetchWithToken(`${SERVER_URL}/users/qsearch/${txt}`);
+export async function searchUser(txt: string): Promise<UserModel[]> {
+  if (!txt) return Promise.resolve([]);
+  const response = await fetchWithToken(
+    encodeURI(`${SERVER_URL}/users/search?q=${txt}`),
+  );
   return response.json();
 }
 

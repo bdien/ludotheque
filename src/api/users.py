@@ -57,6 +57,12 @@ async def create_user(request: Request, auth=Depends(auth_user)):
     return model_to_dict(user)
 
 
+def re_acc(txt):
+    for r in ("[éèëe]", "[aà]", "[cç]", "[uù]", "[îiï]"):
+        txt = re.sub(r, r, txt)
+    return txt
+
+
 @router.get("/users", tags=["users"])
 def get_users(
     nb: int = 0, sort: str | None = None, q: str | None = None, auth=Depends(auth_user)
@@ -77,10 +83,7 @@ def get_users(
     if nb:
         query = query.limit(nb)
     if q:
-        q = re.sub("[eéèaàcçuùîiï]", "_", q).lower()
-        query = query.where(
-            (peewee.fn.Lower(User.name) ** f"%{q}%") | (User.email ** f"%{q}%")
-        )
+        query = query.where(User.name.regexp(re_acc(q)) | (User.email ** f"%{q}%"))
 
     with db:
         return list(query.order_by(User.name).dicts())
@@ -117,6 +120,24 @@ def get_myself(auth=Depends(auth_user)):
             del ret["informations"]  # Private to admins
             return ret
     raise HTTPException(402)
+
+
+@router.get("/users/search", tags=["users"])
+def search_user(q: str | None = None, auth=Depends(auth_user)):
+    if not auth or auth.role not in ("admin", "benevole"):
+        raise HTTPException(403)
+
+    if not q:
+        return []
+
+    with db:
+        return list(
+            User.select(User.id, User.name)
+            .where(User.name.regexp(re_acc(q)) | (User.id ** f"%{q}%"))
+            .order_by(User.name)
+            .limit(10)
+            .dicts()
+        )
 
 
 @router.get("/users/{user_id}", tags=["users"])
@@ -184,21 +205,3 @@ async def delete_user(user_id: int, auth=Depends(auth_user)):
             raise HTTPException(404)
         user.delete_instance(recursive=True)
         return "OK"
-
-
-@router.get("/users/qsearch/{txt}", tags=["users"])
-def qsearch_user(txt: str, auth=Depends(auth_user)):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
-
-    # Replace accents
-    txt = re.sub("[eéèaàcçuùîiï]", "_", txt).lower()
-
-    with db:
-        return list(
-            User.select(User.id, User.name)
-            .where((peewee.fn.Lower(User.name) ** f"%{txt}%") | (User.id ** f"%{txt}%"))
-            .order_by(User.name)
-            .limit(10)
-            .dicts()
-        )
