@@ -15,6 +15,8 @@ import Alert from "@mui/material/Alert";
 import { useState } from "react";
 import ToggleButton from "@mui/material/ToggleButton";
 import Box from "@mui/material/Box";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
 
 interface UserEditProps {
   id?: number;
@@ -29,6 +31,7 @@ type FormValues = {
   notes: string;
   informations: string;
   subscription: Dayjs;
+  enabled: boolean;
 };
 
 export function UserEdit(props: UserEditProps) {
@@ -56,6 +59,7 @@ export function UserEdit(props: UserEditProps) {
     user.notes = data.notes;
     user.informations = data.informations;
     user.subscription = data.subscription.format("YYYY-MM-DD");
+    user.enabled = data.enabled;
 
     if (initialUserId) {
       await updateUser(user.id, user);
@@ -202,11 +206,18 @@ export function UserEdit(props: UserEditProps) {
       <TextField
         fullWidth
         margin="normal"
-        label="Notes (Cheque de cautions...)"
+        label="Notes (Cheque de caution...)"
         defaultValue={user.notes}
         multiline
         minRows={2}
         {...register("notes")}
+      />
+
+      <FormControlLabel
+        control={
+          <Checkbox defaultChecked={user.enabled} {...register("enabled")} />
+        }
+        label="Adhérent visible"
       />
 
       <Button
