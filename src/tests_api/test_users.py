@@ -148,7 +148,7 @@ def test_search_users(pattern):
     assert users[0]["name"] == "Hélène"
 
     # Check in API (QuickSearch)
-    response = client.get(f"/users/qsearch/{pattern}", headers=AUTH_ADMIN)
+    response = client.get(f"/users/search?q={pattern}", headers=AUTH_ADMIN)
     users = response.json()
     assert len(users) == 1
     assert users[0]["name"] == "Hélène"

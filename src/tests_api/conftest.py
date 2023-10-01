@@ -31,6 +31,8 @@ def dbtables():
         )
         api.pwmodels.db.initialize(database)
 
+        database.register_function(api.pwmodels.regexp, "regexp", 2)
+
         with database:
             api.pwmodels.create_all_tables()
         logging.getLogger("peewee").setLevel(logging.DEBUG)

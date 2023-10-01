@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchUser, qsearchUser } from "../api/calls";
+import { fetchUser, searchUser } from "../api/calls";
 import { UserModel } from "../api/models";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -16,7 +16,7 @@ export function UserSearch(props: UserSearchProps) {
   const [userInput, setUserInput] = useState("");
 
   useEffect(() => {
-    qsearchUser(userInput).then((res) => setUserChoices(res));
+    searchUser(userInput).then((res) => setUserChoices(res));
   }, [userInput]);
 
   if (props.user)
