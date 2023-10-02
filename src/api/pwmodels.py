@@ -40,10 +40,6 @@ class BaseModel(peewee.Model):
         only_save_dirty = True
 
 
-def today_plus_1y():
-    return date.today() + timedelta(days=366)
-
-
 def today_plus_loantime():
     return date.today() + timedelta(days=LOAN_DAYS)
 
@@ -56,7 +52,7 @@ class User(BaseModel):
     credit = peewee.FloatField(default=0)
     notes = peewee.TextField(null=True)
     informations = peewee.TextField(null=True)
-    subscription = peewee.DateField(default=today_plus_1y)  # End of
+    subscription = peewee.DateField(default=date.today)  # End of
     apikey = peewee.CharField(null=True)
     created_at = peewee.DateField(default=date.today)
 

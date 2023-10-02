@@ -85,7 +85,7 @@ function nameDisplay(item: ItemModel) {
         )}
         {!item.enabled && (
           <Icon
-            title="Indisponible au prêt"
+            title="Indisponible"
             fontSize="small"
             color="warning"
             sx={{ pt: 0.2 }}

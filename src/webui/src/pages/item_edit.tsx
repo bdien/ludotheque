@@ -73,7 +73,7 @@ type FormValues = {
   gametime: number;
   big: boolean;
   outside: boolean;
-  enabled: boolean;
+  disabled: boolean;
   content: string;
   notes: string;
 };
@@ -111,7 +111,7 @@ export function ItemEdit(props: ItemEditProps) {
     item.gametime = data.gametime;
     item.big = data.big;
     item.outside = data.outside;
-    item.enabled = data.enabled;
+    item.enabled = !data.disabled;
     item.notes = data.notes.trim();
     item.content = data.content.trim()
       ? data.content
@@ -402,6 +402,17 @@ export function ItemEdit(props: ItemEditProps) {
                   <FormControlLabel
                     control={
                       <Checkbox
+                        color="error"
+                        defaultChecked={!item.enabled}
+                        {...register("disabled")}
+                      />
+                    }
+                    label="Retiré de l'emprunt (Précisez la raison dans 'Notes')"
+                  />
+                  <br />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
                         defaultChecked={item.outside}
                         {...register("outside")}
                       />
@@ -417,16 +428,6 @@ export function ItemEdit(props: ItemEditProps) {
                       />
                     }
                     label="Surdimensionné"
-                  />
-                  <br />
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        defaultChecked={item.enabled}
-                        {...register("enabled")}
-                      />
-                    }
-                    label="Disponible à l'emprunt"
                   />
                 </TableCell>
               </TableRow>

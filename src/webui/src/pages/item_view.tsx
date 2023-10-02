@@ -204,7 +204,7 @@ export function Item(props: ItemProps) {
                       )}{" "}
                     </>
                   ) : (
-                    "Retiré du prêt"
+                    "Retiré de l'emprunt"
                   )}
                 </TableCell>
               </TableRow>
