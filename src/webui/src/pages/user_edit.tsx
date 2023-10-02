@@ -215,7 +215,7 @@ export function UserEdit(props: UserEditProps) {
             {...register("disabled")}
           />
         }
-        label="Cacher l'adhérent (Si besoin, précisez la raison dans 'Notes')"
+        label="Désactiver l'adhérent (Si besoin, précisez la raison dans 'Notes')"
       />
 
       <Button

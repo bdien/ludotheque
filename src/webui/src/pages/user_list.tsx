@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { exportUsers } from "../api/calls";
+import { Users } from "../api/models";
 
 function exportCSV() {
   exportUsers().then((txt) => {
@@ -64,16 +65,19 @@ export function UserList() {
 
   if (isLoading || !users) return <div>Loading</div>;
 
-  // Filtering
-  let displayed = users.filter((i) => i.enabled || filterDisabled);
+  // Filtering (According to text filter + hidden)
+  let displayed = users;
   if (filter || filterDisabled) {
     const lw_filter = filter.toLowerCase();
-    displayed = displayed.filter(
+    displayed = users.filter(
       (i) =>
         i.name.toLowerCase().includes(lw_filter) ||
         (i.email && i.email.toString().includes(lw_filter)),
     );
   }
+  let nbHidden = displayed.length;
+  displayed = displayed.filter((i) => i.enabled || filterDisabled);
+  nbHidden -= displayed.length;
 
   const today = new Date();
 
@@ -116,7 +120,7 @@ export function UserList() {
                   {filterDisabled ? "check_box" : "check_box_outline_blank"}
                 </Icon>
               </ListItemIcon>
-              <ListItemText>Afficher cachés</ListItemText>
+              <ListItemText>Afficher désactivés</ListItemText>
             </MenuItem>
           </MenuList>
         </Menu>
@@ -221,7 +225,7 @@ export function UserList() {
                           )}
                         {row?.enabled || (
                           <Icon
-                            title="Utilisateur caché"
+                            title="Utilisateur désactivé"
                             color="warning"
                             sx={{ mx: 0.5 }}
                           >
@@ -238,6 +242,15 @@ export function UserList() {
           </TableBody>
         </Table>
       </TableContainer>
+      <Box
+        sx={{ mt: 1, fontSize: "0.8em", textAlign: "center", opacity: 0.5 }}
+        onClick={() => {
+          setFilterDisabled((filterDisabled) => !filterDisabled);
+        }}
+      >
+        {nbHidden > 1 && `+${nbHidden} adhérents désactivés`}
+        {nbHidden == 1 && `+${nbHidden} adhérent désactivé`}
+      </Box>
     </Box>
   );
 }
