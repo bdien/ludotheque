@@ -13,10 +13,9 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { Dayjs } from "dayjs";
 import Alert from "@mui/material/Alert";
 import { useState } from "react";
-import ToggleButton from "@mui/material/ToggleButton";
-import Box from "@mui/material/Box";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import AlertTitle from "@mui/material/AlertTitle";
 
 interface UserEditProps {
   id?: number;
@@ -31,14 +30,13 @@ type FormValues = {
   notes: string;
   informations: string;
   subscription: Dayjs;
-  enabled: boolean;
+  disabled: boolean;
 };
 
 export function UserEdit(props: UserEditProps) {
   const { user, error, mutate } = useUser(props.id);
   const initialUserId = user?.id;
   const { account } = useAccount();
-  const [autoId, setAutoId] = useState<boolean>(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const { register, handleSubmit, control } = useForm<FormValues>();
   const [_location, navigate] = useLocation();
@@ -58,8 +56,8 @@ export function UserEdit(props: UserEditProps) {
     user.role = data.role;
     user.notes = data.notes;
     user.informations = data.informations;
-    user.subscription = data.subscription.format("YYYY-MM-DD");
-    user.enabled = data.enabled;
+    user.subscription = (data.subscription ?? dayjs()).format("YYYY-MM-DD");
+    user.enabled = !data.disabled;
 
     if (initialUserId) {
       await updateUser(user.id, user);
@@ -102,31 +100,27 @@ export function UserEdit(props: UserEditProps) {
         </Alert>
       )}
 
-      {user?.id ? (
-        <TextField type="number" label="Numéro" value={user.id} disabled />
-      ) : (
-        <Box sx={{ display: "flex" }}>
-          <ToggleButton
-            color="primary"
-            value="check"
-            selected={autoId}
-            onChange={() => {
-              setAutoId(!autoId);
-            }}
-            sx={{ py: 1.8 }}
-          >
-            Num Auto
-          </ToggleButton>
-          {!autoId && (
-            <TextField
-              label="Numéro"
-              type="number"
-              size="medium"
-              {...register("id")}
-              sx={{ ml: 2, flexGrow: "1" }}
-            />
-          )}
-        </Box>
+      <Alert
+        variant="outlined"
+        severity="info"
+        sx={{ backgroundColor: "rgba(85, 108, 214, 0.1)" }}
+      >
+        <AlertTitle>Adhésion et Remplissage de carte</AlertTitle>
+        Merci d'utiliser le formulaire d'emprunt pour encaisser l'adhésion et
+        (optionnellement) remplir la carte.
+        <br />
+        {user?.id != 0 &&
+          "Ne modifiez ces champs directement que pour corriger une erreur."}
+      </Alert>
+
+      {user?.id != 0 && (
+        <TextField
+          type="number"
+          label="Numéro"
+          value={user.id}
+          disabled
+          sx={{ mt: 2 }}
+        />
       )}
 
       <TextField
@@ -172,7 +166,7 @@ export function UserEdit(props: UserEditProps) {
             type="number"
             {...register("credit")}
             InputProps={{
-              inputProps: { min: 0, max: 100 },
+              inputProps: { min: 0, max: 100, step: 0.5 },
               endAdornment: <InputAdornment position="end">€</InputAdornment>,
             }}
           />
@@ -215,9 +209,13 @@ export function UserEdit(props: UserEditProps) {
 
       <FormControlLabel
         control={
-          <Checkbox defaultChecked={user.enabled} {...register("enabled")} />
+          <Checkbox
+            color="error"
+            defaultChecked={!user.enabled}
+            {...register("disabled")}
+          />
         }
-        label="Adhérent visible"
+        label="Cacher l'adhérent (Si besoin, précisez la raison dans 'Notes')"
       />
 
       <Button
