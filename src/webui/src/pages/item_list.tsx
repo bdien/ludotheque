@@ -130,14 +130,20 @@ interface ItemListFilters {
 }
 
 export function ItemList() {
+  const queryParameters = new URLSearchParams(window.location.search);
+  const initialSearchText = queryParameters.get("q") ?? "";
+
   const { account } = useAccount();
+  const { items, isLoading } = useItems();
+  const [searchIndex, SetSearchIndex] = useSessionStorage<number>(
+    "itemSearchIndex",
+    0,
+  );
   const [filter, setFilter] = useState<ItemListFilters>({
-    text: "",
+    text: initialSearchText,
     outside_air: "",
     age: 99,
   });
-  const { items, isLoading } = useItems();
-  const [topIndex, setTopIndex] = useSessionStorage<number>("topItemIndex", 0);
 
   if (isLoading) return <div>Chargement</div>;
   if (!items) return <div>Aucun jeu</div>;
@@ -176,8 +182,17 @@ export function ItemList() {
         <TextField
           size="small"
           label="Recherche"
+          type="search"
+          defaultValue={initialSearchText}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setFilter({ ...filter, text: event.target.value });
+            // Store search term in current window URL
+            window.history.replaceState(
+              {},
+              document.title,
+              location.href.split("?")[0] +
+                (event.target.value ? `?q=${event.target.value}` : ""),
+            );
           }}
           sx={{ flexGrow: 1, backgroundColor: "white", maxWidth: "500px" }}
         />
@@ -257,9 +272,9 @@ export function ItemList() {
         style={{ height: "100%" }}
         data={displayed}
         components={TableComps}
-        initialTopMostItemIndex={topIndex}
+        initialTopMostItemIndex={searchIndex}
         rangeChanged={(range) => {
-          setTopIndex(range.startIndex);
+          SetSearchIndex(range.startIndex);
         }}
         fixedHeaderContent={() => (
           <TableRow sx={{ background: "#F9FBFC" }}>
