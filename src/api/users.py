@@ -134,6 +134,7 @@ def search_user(q: str | None = None, auth=Depends(auth_user)):
         return list(
             User.select(User.id, User.name)
             .where(User.name.regexp(re_acc(q)) | (User.id ** f"%{q}%"))
+            .where(User.enabled)
             .order_by(User.name)
             .limit(10)
             .dicts()
