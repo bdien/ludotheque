@@ -23,7 +23,6 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { exportUsers } from "../api/calls";
-import { Users } from "../api/models";
 
 function exportCSV() {
   exportUsers().then((txt) => {
