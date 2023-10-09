@@ -31,7 +31,7 @@ export interface UserModel {
   apikey?: string;
 }
 
-export interface Users extends Array<UserModel> {}
+export type Users = Array<UserModel>;
 
 export interface ItemLinkModel {
   name: string;

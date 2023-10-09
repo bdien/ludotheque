@@ -14,7 +14,7 @@ export function useConfirm(title: string, message: string) {
   const [promise, setPromise] = useState<ResolveFunc | null>(null);
 
   const confirmPromise = () =>
-    new Promise<boolean>((resolve, _reject) => {
+    new Promise<boolean>((resolve) => {
       setPromise({ resolve: resolve });
     });
 

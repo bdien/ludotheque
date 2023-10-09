@@ -8,7 +8,7 @@ import { MiniUser } from "./mini_user";
 
 interface UserSearchProps {
   user?: UserModel | null;
-  setUser: any;
+  setUser: (params: UserModel | null) => void;
 }
 
 export function UserSearch(props: UserSearchProps) {
@@ -35,9 +35,9 @@ export function UserSearch(props: UserSearchProps) {
       isOptionEqualToValue={(option, value) => option.id === value.id}
       filterOptions={(x) => x}
       renderInput={(params) => <TextField {...params} label="Adhérent" />}
-      onChange={async (_event: any, newValue: UserModel | null) => {
+      onChange={async (_event, newValue: UserModel | null) => {
         if (!newValue) {
-          props.setUser(undefined);
+          props.setUser(null);
         } else {
           props.setUser(await fetchUser(newValue.id));
         }

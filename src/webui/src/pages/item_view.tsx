@@ -9,7 +9,8 @@ import { useAccount, useCategories, useItem } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
 import { ItemLinkModel, ItemModel } from "../api/models";
 import Icon from "@mui/material/Icon";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
+import { navigate } from "wouter/use-location";
 import TableHead from "@mui/material/TableHead";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
@@ -88,7 +89,7 @@ function displayStatus(item: ItemModel) {
 }
 
 function playerDisplay(item: ItemModel) {
-  let txt = item.players_min;
+  const txt = item.players_min;
   if (item.players_min == item.players_max) return <>{txt}</>;
   if (item.players_max == 99) return <>{txt}+</>;
   return (
@@ -102,7 +103,6 @@ export function Item(props: ItemProps) {
   const { account } = useAccount();
   const { item, error } = useItem(props.id);
   const { categories } = useCategories();
-  const [_location, navigate] = useLocation();
 
   if (error) return <div>Server error: {error.cause}</div>;
   if (!item) return <></>;

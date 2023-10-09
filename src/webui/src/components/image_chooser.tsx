@@ -3,7 +3,7 @@ import { ChangeEvent, useState } from "react";
 import Resizer from "react-image-file-resizer";
 
 interface ImageChooserProps {
-  onImageChange: (params: File | null) => any;
+  onImageChange: (params: File | null) => void;
   src: string | null | undefined;
 }
 
@@ -21,7 +21,7 @@ export function ImageChooser(props: ImageChooserProps) {
     // New image, resize it and let the parent knows that it is there
     if (files != null && files.length > 0) {
       // Immediatly display image
-      let newimg = URL.createObjectURL(files[0]);
+      const newimg = URL.createObjectURL(files[0]);
       setImg(newimg);
 
       // Resize in background before alerting parent

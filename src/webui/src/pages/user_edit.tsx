@@ -1,5 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
-import { useLocation } from "wouter";
+import { navigate } from "wouter/use-location";
 import { useAccount, useUser } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
 import { UserModel } from "../api/models";
@@ -39,7 +39,6 @@ export function UserEdit(props: UserEditProps) {
   const { account } = useAccount();
   const [apiError, setApiError] = useState<string | null>(null);
   const { register, handleSubmit, control } = useForm<FormValues>();
-  const [_location, navigate] = useLocation();
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du compte",
     `Etes-vous sûr de vouloir supprimer l'utilisateur '${user?.name}' ? Cela supprimera

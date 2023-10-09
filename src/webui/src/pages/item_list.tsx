@@ -99,7 +99,7 @@ function nameDisplay(item: ItemModel) {
 }
 
 function playerDisplay(item: ItemModel) {
-  let txt = item.players_min;
+  const txt = item.players_min;
   if (item.players_min == item.players_max) return <>{txt}</>;
   if (item.players_max == 99) return <>{txt}+</>;
   return (

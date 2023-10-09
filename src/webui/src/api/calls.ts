@@ -20,7 +20,7 @@ export async function fetcher(url: string): Promise<any> {
   return res.json();
 }
 
-function fetchWithToken(url: string, params: any = {}) {
+function fetchWithToken(url: string, params: object = {}) {
   if (access_token)
     params = {
       ...params,
@@ -52,7 +52,7 @@ export async function fetchItem(itemId: number): Promise<ItemModel> {
 
 export async function updateItem(
   itemId: number,
-  obj: Object,
+  obj: object,
 ): Promise<ItemModel> {
   const response = await fetchWithToken(`${SERVER_URL}/items/${itemId}`, {
     method: "POST",
@@ -61,7 +61,7 @@ export async function updateItem(
   return response.json();
 }
 
-export async function createItem(obj: Object): Promise<ItemModel | ApiError> {
+export async function createItem(obj: object): Promise<ItemModel | ApiError> {
   const response = await fetchWithToken(`${SERVER_URL}/items`, {
     method: "POST",
     body: JSON.stringify(obj),
@@ -86,7 +86,7 @@ export async function updateItemPicture(
   pictureIdx: number,
   file: File,
 ) {
-  var data = new FormData();
+  const data = new FormData();
   data.append("file", file);
 
   await fetchWithToken(`${SERVER_URL}/items/${itemId}/picture/${pictureIdx}`, {
@@ -141,7 +141,7 @@ export async function searchUser(txt: string): Promise<UserModel[]> {
   return response.json();
 }
 
-export async function createUser(obj: Object): Promise<UserModel | ApiError> {
+export async function createUser(obj: object): Promise<UserModel | ApiError> {
   const response = await fetchWithToken(`${SERVER_URL}/users`, {
     method: "POST",
     body: JSON.stringify(obj),
@@ -158,7 +158,7 @@ export async function deleteUser(userId: number) {
 
 export async function updateUser(
   userId: number,
-  obj: Object,
+  obj: object,
 ): Promise<UserModel> {
   const response = await fetchWithToken(`${SERVER_URL}/users/${userId}`, {
     method: "POST",

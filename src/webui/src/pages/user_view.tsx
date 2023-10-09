@@ -6,7 +6,7 @@ import { MiniUser } from "../components/mini_user";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
-import { useLocation } from "wouter";
+import { navigate } from "wouter/use-location";
 
 interface UserViewProps {
   id: number;
@@ -15,7 +15,6 @@ interface UserViewProps {
 export function UserView(props: UserViewProps) {
   const { account } = useAccount();
   const { user, isLoading, error } = useUser(props.id);
-  const [_location, navigate] = useLocation();
 
   if (error) return <div>Impossible de charger: {error}</div>;
   if (isLoading) return <div>Chargement...</div>;
