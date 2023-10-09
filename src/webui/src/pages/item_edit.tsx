@@ -21,7 +21,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { AgeChip } from "../components/age_chip";
 import Button from "@mui/material/Button";
-import { useLocation } from "wouter";
+import { navigate } from "wouter/use-location";
 import { ImageChooser } from "../components/image_chooser";
 import { useState } from "react";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -86,7 +86,6 @@ export function ItemEdit(props: ItemEditProps) {
   const [apiError, setApiError] = useState<string | null>(null);
   const [imgFile, setImgFile] = useState<File | null | undefined>(undefined);
   const { register, control, handleSubmit } = useForm<FormValues>();
-  const [_location, navigate] = useLocation();
   const { account } = useAccount();
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du jeu",

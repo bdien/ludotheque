@@ -11,7 +11,7 @@ import Box from "@mui/material/Box";
 // Note: It will NOT displayed items already loaned !
 
 interface ItemSearchProps {
-  setItem: any;
+  setItem: (params: ItemModel) => void;
   excludesIds: number[];
 }
 
@@ -24,7 +24,7 @@ export function ItemSearch(props: ItemSearchProps) {
     searchItem(itemInput).then((res) => {
       setItemChoices(res.filter((i) => !props.excludesIds.includes(i.id)));
     });
-  }, [itemInput]);
+  }, [itemInput, props.excludesIds]);
 
   return (
     <Box sx={{ width: "100%", display: "flex", alignItems: "flex-end" }}>
@@ -43,7 +43,7 @@ export function ItemSearch(props: ItemSearchProps) {
         renderInput={(params) => (
           <TextField {...params} placeholder="Ajouter un jeu" />
         )}
-        onChange={async (_event: any, newValue: ItemModel | null) => {
+        onChange={async (_event, newValue: ItemModel | null) => {
           if (newValue) {
             props.setItem(newValue);
             setCompleteKey(`${Math.random()}`);

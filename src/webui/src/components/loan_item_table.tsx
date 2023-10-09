@@ -15,7 +15,7 @@ export interface LoanItemTableEntry {
 
 interface LoanItemTableProps {
   items: LoanItemTableEntry[];
-  removeItem: any;
+  removeItem: (idx: number) => void;
 }
 
 export function LoanItemTable(props: LoanItemTableProps) {

@@ -13,7 +13,7 @@ import Link from "@mui/material/Link";
 interface MiniUserProps {
   user: UserModel;
   fullDetails?: boolean | null;
-  onRemove?: any | null;
+  onRemove?: ((event: React.MouseEvent<HTMLElement>) => void) | null;
 }
 
 export function MiniUser(props: MiniUserProps) {
