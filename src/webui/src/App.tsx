@@ -7,6 +7,7 @@ import { ItemEdit } from "./pages/item_edit";
 import { UserList } from "./pages/user_list";
 import { UserEdit } from "./pages/user_edit";
 import { UserView } from "./pages/user_view";
+import { Ledger } from "./pages/ledger";
 import { Box, Toolbar } from "@mui/material";
 import { Main } from "./pages/main";
 import { LoanClose } from "./pages/loan_close";
@@ -99,6 +100,8 @@ function App() {
               return <LoanClose id={parseInt(params.id)} />;
             }}
           </Route>
+
+          <Route path="/ledger" component={Ledger} />
 
           <Route path="/" component={Main} />
         </Switch>
