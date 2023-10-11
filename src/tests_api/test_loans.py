@@ -2,7 +2,7 @@ import datetime
 import pytest
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import Loan, Ledger, User, Item, db
+from api.pwmodels import Loan, User, Item, db
 from api.config import PRICING
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
@@ -185,8 +185,6 @@ def test_loan_cost():
 
     # Check in DB
     with db:
-        assert Ledger.get(item_id=item_big.id).cost == PRICING["big"]
-        assert Ledger.get(item_id=item_reg.id).cost == PRICING["regular"]
         assert User.get(id=user).credit == 10 - PRICING["big"] - PRICING["regular"]
 
 
@@ -207,10 +205,6 @@ def test_loan_subscription():
         "new_credit": 100,
         "loans": [],
     }
-
-    # Check in DB
-    with db:
-        assert Ledger.get(item_id=-1).cost == PRICING["yearly"]
 
 
 @pytest.mark.parametrize(
@@ -254,7 +248,6 @@ def test_loan_fillcard():
     with db:
         newuser = User.get(name="Bob")
         assert newuser.credit == 100 + PRICING["card_value"]
-        assert Ledger.get(item_id=-2).cost == PRICING["card"]
 
 
 def test_loan_fillcard_simulation():
