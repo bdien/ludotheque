@@ -16,10 +16,6 @@ import {
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 
-function submitLoan(user_id: number, objs_id: number[], simulation: boolean) {
-  return createLoan(user_id, objs_id, simulation);
-}
-
 const fakeItemAdhesion: ItemModel = { id: -1, name: "Adhésion" };
 const fakeItemCarte: ItemModel = { id: -2, name: "Remplissage carte" };
 
@@ -42,28 +38,31 @@ export function Loan() {
   };
 
   useEffect(() => {
-    if (!user || !items.length) return setLoanResult(null);
+    if (!user || !items.length) {
+      setLoanResult(null);
+      return;
+    }
 
-    submitLoan(
+    createLoan(
       user.id,
       items.map((i) => i.id),
       true,
-    ).then((result) => setLoanResult(result));
+    ).then(setLoanResult);
   }, [user, items]);
 
   function itemPrice(item: ItemModel) {
     if (!info) return 0;
-    if (item.id == -1) return info.pricing.yearly;
-    if (item.id == -2) return info.pricing.card;
+
+    if (item.id === -1) return info.pricing.yearly;
+    if (item.id === -2) return info.pricing.card;
     if (item.big) return info.pricing.big;
+
     return info.pricing.regular;
   }
 
   function addItem(item: ItemModel) {
-    const isthere = items.some((i) => i.id == item.id);
-    if (!isthere) {
-      setItems((items) => [...items, item]);
-    }
+    if (items.some((i) => i.id === item.id)) return;
+    setItems((current) => [...current, item]);
   }
 
   // Transform items into LoanItemTableEntry
@@ -170,7 +169,7 @@ export function Loan() {
         sx={{ mt: "15px", p: 1.5 }}
         onClick={() =>
           user &&
-          submitLoan(
+          createLoan(
             user.id,
             items.map((i) => i.id),
             false,
