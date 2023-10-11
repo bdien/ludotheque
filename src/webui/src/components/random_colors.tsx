@@ -15,17 +15,15 @@ const colors = [
   "#99cc00",
 ];
 
-export function RandomColors(props: RandomColorsProp) {
-  return (
-    <>
-      {[...props.txt].map((i, idx) => (
-        <span
-          key={idx}
-          style={{ color: colors[~~(Math.random() * colors.length)] }}
-        >
-          {i}
-        </span>
-      ))}
-    </>
-  );
-}
+export const RandomColors = ({ txt }: RandomColorsProp) => (
+  <>
+    {txt.split("").map((char, i) => (
+      <span
+        key={i}
+        style={{ color: colors[Math.floor(Math.random() * colors.length)] }}
+      >
+        {char}
+      </span>
+    ))}
+  </>
+);

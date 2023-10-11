@@ -19,7 +19,10 @@ export function LoanClose(props: LoanCloseProps) {
 
   useEffect(() => {
     if (!loan) return;
-    if (loan?.item) fetchItem(loan.item).then((i) => setItem(i));
+    const { item } = loan;
+    if (item) {
+      fetchItem(item).then(setItem);
+    }
   }, [loan]);
 
   if (!loan || !item) return <>Loading</>;
