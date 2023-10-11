@@ -1,35 +1,37 @@
 import Box from "@mui/material/Box";
-import { useItem, useLedger, useUser } from "../api/hooks";
+import { useLedger, useUser } from "../api/hooks";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Alert,
   Icon,
-  List,
-  ListItemText,
   Table,
   TableBody,
   TableCell,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { LedgerEntry } from "../api/models";
-import React, { ReactElement } from "react";
+import { ReactElement } from "react";
 import { Link } from "wouter";
 
-function ShortUser({ user_id }) {
+function ShortUser({ user_id }: { user_id: number }) {
   const { user } = useUser(user_id);
   return (
     <>
-      {user ? <Link href={`/users/${user.id}`}>{user.name}</Link> : "Unknown"}
-    </>
-  );
-}
-
-function ShortItem({ item_id }) {
-  const { item } = useItem(item_id);
-  return (
-    <>
-      {item ? <Link href={`/items/${item.id}`}>{item.name}</Link> : "Unknown"}
+      {user ? (
+        <Link href={`/users/${user.id}`}>
+          {user.name}
+          {user.role == "admin" ? (
+            <Icon sx={{ fontSize: "1em" }}>star</Icon>
+          ) : (
+            ""
+          )}
+        </Link>
+      ) : (
+        `User ${user_id}`
+      )}
     </>
   );
 }
@@ -49,37 +51,65 @@ function groupBy<K, V>(array: V[], grouper: (item: V) => K) {
 function highlevel_summary(entries: LedgerEntry[]) {
   const ret: string[] = [];
 
-  const items = entries.filter((i) => i.item_id > 0);
-  if (items.length) {
-    ret.push(`${items.length} jeux`);
+  const adherent = entries.filter((i) => i.item_id == -1).length;
+  if (adherent) {
+    ret.push(`${adherent} adhérent${adherent > 1 ? "s" : ""}`);
   }
 
   const carte = entries.filter((i) => i.item_id == -2).length;
   if (carte) {
-    ret.push(`${carte} carte`);
+    ret.push(`${carte} carte${carte > 1 ? "s" : ""}`);
   }
+
+  const items = entries.filter((i) => i.item_id > 0).length;
+  if (items) {
+    ret.push(`${items} jeu${items > 1 ? "x" : ""}`);
+  }
+
+  return ret.join(", ");
+}
+
+function summary(entries: LedgerEntry[]): ReactElement {
+  const per_user = groupBy(entries, (i) => i.user_id);
+
+  return (
+    <>
+      {[...per_user.keys()].map((u) => (
+        <TableRow>
+          <TableCell>
+            <ShortUser user_id={u} />
+          </TableCell>
+          <TableCell sx={{ textAlign: "right" }}>
+            {summary_peruser(per_user.get(u)!)}
+          </TableCell>
+          <TableCell sx={{ width: "3em", px: 0.5, textAlign: "right" }}>
+            {per_user.get(u)!.reduce((val, i) => i.money + val, 0)}€
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
+  );
+}
+
+function summary_peruser(entries: LedgerEntry[]): string {
+  const ret: string[] = [];
 
   const adherent = entries.filter((i) => i.item_id == -1).length;
   if (adherent) {
-    ret.push(`${adherent} adhérent`);
+    ret.push("Nouvel adhérent");
   }
 
-  const total_cost = entries.reduce((val, i) => i.cost + val, 0);
-  return `${total_cost}€ => ` + ret.join(", ");
-}
+  const carte = entries.filter((i) => i.item_id == -2).length;
+  if (carte) {
+    ret.push("Remplissage carte");
+  }
 
-function summary(entry: LedgerEntry): ReactElement {
-  return (
-    <TableRow>
-      <TableCell>
-        <ShortUser user_id={entry.user_id} />
-      </TableCell>
-      <TableCell>
-        <ShortItem item_id={entry.item_id} />
-      </TableCell>
-      <TableCell>{entry.cost ? `${entry.cost}€` : "Gratuit"}</TableCell>
-    </TableRow>
-  );
+  const items = entries.filter((i) => i.item_id > 0);
+  if (items.length) {
+    ret.push(`${items.length} jeu${items.length > 1 ? "x" : ""}`);
+  }
+
+  return ret.join(", ");
 }
 
 function localeDate(txt: string) {
@@ -100,16 +130,32 @@ export function Ledger() {
 
   return (
     <Box>
+      <Alert severity="warning" sx={{ m: 2, border: "1px solid orange" }}>
+        Experimental
+      </Alert>
+
       {[...ledger_day.keys()].map((d) => (
         <Accordion TransitionProps={{ unmountOnExit: true }} key={d}>
           <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-            {localeDate(d)} {highlevel_summary(ledger_day.get(d)!)}
+            <Typography
+              variant="subtitle1"
+              sx={{ textAlign: "right", width: "8em" }}
+            >
+              {localeDate(d)}
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{ textAlign: "right", width: "7em", fontWeight: 500 }}
+            >
+              {ledger_day.get(d)!.reduce((val, i) => i.money + val, 0)}€
+            </Typography>
+            <Typography variant="subtitle1" sx={{ pl: 4 }}>
+              {highlevel_summary(ledger_day.get(d)!)}
+            </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Table size="small">
-              <TableBody>
-                {ledger_day.get(d)!.map((entry) => summary(entry))}
-              </TableBody>
+              <TableBody>{summary(ledger_day.get(d)!)}</TableBody>
             </Table>
           </AccordionDetails>
         </Accordion>

@@ -113,6 +113,7 @@ export interface LedgerEntry {
   loan_id?: number;
   item_id: number;
   cost: number;
+  money: number;
   day: string;
   created_at: string;
 }
