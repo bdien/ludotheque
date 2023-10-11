@@ -5,6 +5,7 @@ import {
   InfoModel,
   ItemListEntry,
   ItemModel,
+  LedgerEntry,
   Loan,
   UserModel,
   Users,
@@ -173,5 +174,19 @@ export function useLoan(id: number) {
     isLoading,
     error,
     mutate,
+  };
+}
+
+export function useLedger() {
+  const { data, error, isLoading } = useSWR<LedgerEntry[]>(
+    `${SERVER_URL}/ledger`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
+
+  return {
+    ledger: data,
+    isLoading,
+    error,
   };
 }

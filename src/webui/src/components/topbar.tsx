@@ -132,17 +132,31 @@ export function TopBar(props: TopBarProps) {
           </>
         )}
         {account?.role == "admin" && (
-          <ListItem
-            component={Link}
-            to="/items/new"
-            onClick={() => setIsDrawerOpen(false)}
-            sx={{ ...styleUrl("/items/new") }}
-          >
-            <ListItemIcon sx={{ color: "inherit" }}>
-              <Icon>post_add</Icon>
-            </ListItemIcon>
-            <ListItemText primary="Nouveau jeu" />
-          </ListItem>
+          <>
+            <ListItem
+              component={Link}
+              to="/items/new"
+              onClick={() => setIsDrawerOpen(false)}
+              sx={{ ...styleUrl("/items/new") }}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <Icon>post_add</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Nouveau jeu" />
+            </ListItem>
+
+            {/* <ListItem
+              component={Link}
+              to="/ledger"
+              onClick={() => setIsDrawerOpen(false)}
+              sx={{ ...styleUrl("/ledger"), borderTop: "1px solid #E5E5E5" }}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <Icon>account_balance</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Feuille de Caisse" />
+            </ListItem> */}
+          </>
         )}
       </List>
 

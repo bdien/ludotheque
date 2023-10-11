@@ -91,6 +91,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         loans = []
         if not simulation:
             today = datetime.date.today()
+            remaining_topay_fromcredit = topay_fromcredit
 
             # For each item, forget any other loan and create a new one
             for i, c in zip(items, cost_items, strict=True):
@@ -102,13 +103,19 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                 loan = Loan.create(user=user, item=i)
                 loans.append(model_to_dict(loan))
 
-                # Money
+                # Real Money (If paid from credit, it is not real money)
+                cost_real_money = max(0, c - remaining_topay_fromcredit)
+                print(cost_real_money, c, remaining_topay_fromcredit)
+                remaining_topay_fromcredit = max(0, remaining_topay_fromcredit - c)
+
+                # Create DB entry
                 Ledger.create(
                     operator_id=auth.id,
                     user_id=user.id,
                     loan_id=loan.id,
                     item_id=i.id,
                     cost=c,
+                    money=cost_real_money,
                 )
 
             # Update user credit and subscription
@@ -118,6 +125,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                     user_id=user.id,
                     item_id=-1,
                     cost=PRICING["yearly"],
+                    money=PRICING["yearly"],
                 )
                 user.subscription = max(
                     datetime.date.today(), user.subscription
@@ -128,6 +136,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                     user_id=user.id,
                     item_id=-2,
                     cost=PRICING["card"],
+                    money=PRICING["card"],
                 )
 
             user.save()

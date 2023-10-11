@@ -106,3 +106,14 @@ export interface LoanCreateResult {
 export interface ApiError {
   detail: string;
 }
+
+export interface LedgerEntry {
+  operator_id: number;
+  user_id: number;
+  loan_id?: number;
+  item_id: number;
+  cost: number;
+  money: number;
+  day: string;
+  created_at: string;
+}

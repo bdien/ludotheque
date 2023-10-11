@@ -115,6 +115,7 @@ class Ledger(BaseModel):
     user_id = peewee.IntegerField()  # Source of the transfer
     loan_id = peewee.IntegerField(null=True)
     item_id = peewee.IntegerField(null=True)
-    cost = peewee.FloatField()
+    cost = peewee.FloatField()  # Cost of transaction
+    money = peewee.FloatField()  # Physical money recevied
     day = peewee.DateField(default=date.today, index=True)
     created_at = peewee.DateTimeField(default=datetime.now)

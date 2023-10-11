@@ -23,6 +23,7 @@ dependencies = [
     "python-multipart>=0.0.6",
     "Pillow>=9.5.0",
     "cachetools>=5.3.1",
+    "gspread>=5.11.3",
 ]
 requires-python = ">=3.11"
 license = {text = "GPL2"}
