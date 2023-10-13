@@ -196,7 +196,7 @@ export function UserList() {
                         {row?.notes && (
                           <Icon
                             title={row.notes}
-                            color="warning"
+                            color="secondary"
                             sx={{ mx: 0.5 }}
                           >
                             notes
@@ -206,7 +206,7 @@ export function UserList() {
                           new Date(row.subscription) <= today && (
                             <Icon
                               title="Adhésion en retard"
-                              color="warning"
+                              color="secondary"
                               sx={{ mx: 0.5 }}
                             >
                               error_outline

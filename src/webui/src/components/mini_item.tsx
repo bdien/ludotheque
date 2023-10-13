@@ -18,7 +18,7 @@ export function MiniItem(props: MiniItemProps) {
   if (!item || !mutate) return <div>Erreur du serveur</div>;
 
   const today = new Date();
-  const thisweek = new Date(Date.now() + 6 * 24 * 60 * 60 * 1000);
+  const thisweek = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
 
   const last_loan = item.loans ? item.loans[0] : undefined;
   const last_loan_stop = last_loan && new Date(last_loan.stop);
@@ -49,7 +49,7 @@ export function MiniItem(props: MiniItemProps) {
               borderRadius: "10px",
               filter:
                 last_loan_stop && last_loan_stop < thisweek
-                  ? "drop-shadow(0px 0px 8px rgba(250,0,0,0.9))"
+                  ? "drop-shadow(0px 0px 8px rgba(255,0,0,0.7))"
                   : "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
             }}
             src={
