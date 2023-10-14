@@ -18,7 +18,7 @@ export interface UserModel {
   id: number;
   name: string;
   enabled: boolean;
-  email?: string;
+  emails?: string[];
   role: string;
   credit: number;
   oldest_loan?: string;
@@ -85,11 +85,8 @@ export interface Loan {
 }
 
 export interface Account {
-  name: string;
-  email?: string;
-  role: string;
   id: number;
-  loans?: Loan[];
+  role: string;
 }
 
 export interface LoanCreateResult {

@@ -64,7 +64,7 @@ export function MiniUser(props: MiniUserProps) {
           {/* Email + Additional information */}
           {props.fullDetails && (
             <Box>
-              {props.user?.email}
+              {props.user?.emails?.join(", ")}
               {props.user?.informations && (
                 <>
                   <span> - </span>

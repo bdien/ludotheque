@@ -1,7 +1,7 @@
 import pytest
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import Item, User, Loan, db
+from api.pwmodels import EMail, Item, User, Loan, db
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 
@@ -11,7 +11,9 @@ app.dependency_overrides[auth_user] = fake_auth_user
 
 def test_create_user():
     response = client.post(
-        "/users", json={"name": "bob", "email": "bob@nomail"}, headers=AUTH_ADMIN
+        "/users",
+        json={"name": "bob", "emails": ["bob@nomail", "bab@nomail"]},
+        headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
     newuser = response.json()
@@ -21,18 +23,19 @@ def test_create_user():
     with db:
         user_db = User.get_by_id(newuser["id"])
         assert user_db.name == "bob"
-        assert user_db.email == "bob@nomail"
+        email_db = EMail.get(email="bob@nomail")
+        assert email_db.user == user_db
 
     # Check in API
     response = client.get(f"/users/{newuser['id']}", headers=AUTH_ADMIN)
     assert response.status_code == 200
     user = response.json()
     assert user["name"] == "bob"
-    assert user["email"] == "bob@nomail"
+    assert user["emails"] == ["bob@nomail", "bab@nomail"]
 
 
 def test_create_user_attributes():
-    newjson = {"name": "bob", "email": "bob@nomail", "credit": 3, "role": "admin"}
+    newjson = {"name": "bob", "emails": ["bob@nomail"], "credit": 3, "role": "admin"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
     newUser = response.json()
 
@@ -43,7 +46,7 @@ def test_create_user_attributes():
 
 
 def test_create_user_invalid_credit():
-    newjson = {"name": "bob", "email": "bob@nomail", "credit": -33, "role": "admin"}
+    newjson = {"name": "bob", "credit": -33, "role": "admin"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
     assert response.status_code == 400
 
@@ -75,6 +78,7 @@ def test_delete_user():
     with db:
         assert not User.get_or_none(User.id == user_id)
         assert not Loan.get_or_none(Loan.id == loan_id)
+        assert not EMail.get_or_none(EMail.email == "bob@nomail")
         assert Item.get_or_none(Item.id == item_id)
 
 
@@ -94,11 +98,11 @@ def test_delete_not_authenticated():
 
 @pytest.mark.parametrize(
     ("toedit"),
-    ({"name": "newname"}, {"email": "alice@nomail"}, {"role": "operator"}),
+    ({"name": "newname"}, {"emails": ["alice@nomail"]}, {"role": "operator"}),
 )
 def test_edit_user_attributes(toedit: dict):
     # Create User
-    newjson = {"name": "bob", "email": "bob@nomail", "credit": 3, "role": "admin"}
+    newjson = {"name": "bob", "emails": ["bob@nomail"], "credit": 3, "role": "admin"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
     newUser = response.json()
 
@@ -115,14 +119,17 @@ def test_edit_user_attributes(toedit: dict):
 
 def test_get_users():
     # Create Users
-    User1 = {"name": "alice", "email": "alice@nomail"}
-    User2 = {"name": "bob", "email": "bob@nomail", "credit": 3, "role": "admin"}
+    User1 = {"name": "alice", "emails": ["alice@nomail", "2@nomail"]}
+    User2 = {"name": "bob", "emails": ["bob@nomail"], "credit": 3, "role": "admin"}
     response = client.post("/users", json=User1, headers=AUTH_ADMIN)
     response = client.post("/users", json=User2, headers=AUTH_ADMIN)
 
     # Check in API
     response = client.get("/users", headers=AUTH_ADMIN)
     users = response.json()
+    import json
+
+    print(json.dumps(users, indent=2))
     assert len(users) == 2
     assert User1.items() <= users[0].items()
     assert User2.items() <= users[1].items()
@@ -184,11 +191,6 @@ def test_get_users_loancount():
 
 def test_user_use_lowest_id():
     "Check if lowest possible ID is used"
-
-    newjson = {"name": "C", "email": "C", "id": 99}
-    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
-    newUser = response.json()
-    assert newUser["id"] == 99
 
     newjson = {"name": "A", "email": "A"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)

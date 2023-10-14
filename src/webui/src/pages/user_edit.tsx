@@ -1,4 +1,4 @@
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { navigate } from "wouter/use-location";
 import { useAccount, useUser } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
@@ -16,6 +16,8 @@ import { useState } from "react";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import AlertTitle from "@mui/material/AlertTitle";
+import Icon from "@mui/material/Icon";
+import Box from "@mui/material/Box";
 
 interface UserEditProps {
   id?: number;
@@ -24,7 +26,7 @@ interface UserEditProps {
 type FormValues = {
   id: number;
   name: string;
-  email: string;
+  emails: { email: string }[];
   credit: number;
   role: string;
   notes: string;
@@ -33,12 +35,34 @@ type FormValues = {
   disabled: boolean;
 };
 
+function generateDefaultValues(user?: UserModel): FormValues | undefined {
+  if (!user) return user;
+  return {
+    id: user.id,
+    name: user.name,
+    emails: user.emails
+      ? user.emails.map((i) => {
+          return { email: i };
+        })
+      : ([] as { email: string }[]),
+    credit: user.credit,
+    role: user.role,
+    notes: user.notes ?? "",
+    informations: user.informations ?? "",
+    subscription: dayjs(user.subscription),
+    disabled: !user.enabled,
+  };
+}
+
 export function UserEdit(props: UserEditProps) {
   const { user, error, mutate } = useUser(props.id);
   const initialUserId = user?.id;
   const { account } = useAccount();
   const [apiError, setApiError] = useState<string | null>(null);
-  const { register, handleSubmit, control } = useForm<FormValues>();
+  const { register, handleSubmit, control } = useForm({
+    defaultValues: generateDefaultValues(user),
+  });
+  const { fields, append, remove } = useFieldArray({ control, name: "emails" });
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du compte",
     `Etes-vous sûr de vouloir supprimer l'utilisateur '${user?.name}' ? Cela supprimera
@@ -50,12 +74,12 @@ export function UserEdit(props: UserEditProps) {
 
     user.id ||= data.id;
     user.name = data.name;
-    user.email = data.email;
+    user.emails = data.emails.map((i) => i.email);
     user.credit = data.credit;
     user.role = data.role;
     user.notes = data.notes;
     user.informations = data.informations;
-    user.subscription = (data.subscription ?? dayjs()).format("YYYY-MM-DD");
+    user.subscription = data.subscription.format("YYYY-MM-DD");
     user.enabled = !data.disabled;
 
     if (initialUserId) {
@@ -131,15 +155,26 @@ export function UserEdit(props: UserEditProps) {
         {...register("name")}
       />
 
-      <TextField
-        fullWidth
-        label="Email"
-        margin="normal"
-        required={true}
-        defaultValue={user.email}
-        autoCorrect="off"
-        {...register("email")}
-      />
+      <Box>
+        {fields.map((field, idx) => (
+          <Box sx={{ display: "flex" }} key={field.id}>
+            <TextField
+              fullWidth
+              label={`Email ${idx + 1}`}
+              margin="normal"
+              autoCorrect="off"
+              sx={{ flexGrow: 1 }}
+              {...register(`emails.${idx}.email`)}
+            />
+            <Button onClick={() => remove(idx)}>
+              <Icon>delete</Icon>
+            </Button>
+          </Box>
+        ))}
+        <Button onClick={() => append({ email: "" })}>
+          <Icon>add</Icon>Ajout d'EMail
+        </Button>
+      </Box>
 
       {user?.id != 0 && (
         <>

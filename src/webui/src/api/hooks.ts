@@ -117,7 +117,7 @@ export function useCategories() {
 const DEFAULT_USER: UserModel = {
   id: 0,
   name: "",
-  email: "",
+  emails: [],
   role: "user",
   credit: 0,
   notes: "",

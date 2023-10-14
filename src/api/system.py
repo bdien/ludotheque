@@ -10,7 +10,7 @@ import tarfile
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
-from api.pwmodels import Item, User, db
+from api.pwmodels import Item, User, EMail, db
 from api.config import AUTH_DOMAIN, PRICING, APIKEY_PREFIX, LOAN_DAYS, IMAGE_MAX_DIM
 
 router = APIRouter()
@@ -20,28 +20,11 @@ auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 5)
 @dataclasses.dataclass(frozen=True)
 class AuthUser:
     id: int
-    email: str
     role: str
 
 
-@cachetools.func.ttl_cache
-def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser:
-    "Authenticate the user and return id/email/role"
-    if (not authorization) or (not authorization.lower().startswith("bearer")):
-        return None
-
-    # API-Key ?
-    if f" {APIKEY_PREFIX}" in authorization.lower():
-        with db:
-            apikey = authorization.lower().removeprefix("bearer ")
-            user = User.get_or_none(apikey=apikey, enabled=True)
-            if not user:
-                logging.warning("Cannot find user in DB with APIKey")
-                return None
-
-        return AuthUser(user.id, user.email, user.role)
-
-    # Fetch user configuration (it will validate the token as well)
+def __validate_token(authorization: str) -> str | None:
+    "Validate token, fetch user info and extract email"
     r = requests.get(
         f"https://{AUTH_DOMAIN}/userinfo",
         headers={"Authorization": authorization},
@@ -50,19 +33,52 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
     if r.status_code != 200:
         logging.warning("Unable to validate token")
         return None
-    email = r.json().get("email")
+    return r.json().get("email")
+
+
+@cachetools.func.ttl_cache
+def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser | None:
+    "Authenticate the user and return id/email/role"
+    if (not authorization) or (not authorization.lower().startswith("bearer")):
+        return None
+
+    # API-Key ?
+    if f" {APIKEY_PREFIX}" in authorization.lower():
+        with db:
+            # Remove Bearer
+            apikey = authorization.split(" ", 1)[1]
+            try:
+                user = (
+                    User.select(User.id, User.role)
+                    .where(User.apikey == apikey, User.enabled)
+                    .get()
+                )
+            except User.DoesNotExist:
+                logging.warning("Cannot find user in DB with APIKey")
+                return None
+
+        return AuthUser(user.id, user.role)
+
+    # Validate token and extract email
+    email = __validate_token(authorization)
     if not email:
-        logging.warning("No email in Token")
+        logging.warning("Invalid token")
         return None
 
     # Look into DB
     with db:
-        user = User.get_or_none(email=email, enabled=True)
-        if not user:
-            logging.warning("Cannot find user %s in DB", email)
+        try:
+            user = (
+                User.select(User.id, User.role)
+                .join(EMail)
+                .where(EMail.email == email, User.enabled)
+                .get()
+            )
+        except User.DoesNotExist:
+            logging.warning("Cannot find email '%s' in DB", email)
             return None
 
-    return AuthUser(user.id, user.email, user.role)
+    return AuthUser(user.id, user.role)
 
 
 @router.get("/backup")
