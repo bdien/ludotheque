@@ -1,5 +1,4 @@
 [tool.pdm]
-
 [tool.pdm.dev-dependencies]
 dev = [
     "ruff>=0.0.265",
@@ -8,7 +7,19 @@ dev = [
     "pytest>=7.3.1",
     "httpx>=0.24.1",
     "pytest-cov>=4.1.0",
+    "mypy>=1.6.0",
 ]
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.scripts]
+build = {shell = "cd src/webui && pnpm run build"}
+api = {shell = "cd src/api && uvicorn main:app --reload"}
+api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
+webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
+restore = { shell = "rm -rf storage/img storage/ludotheque.db; curl -H 'Authorization: Bearer $LUDOTHEQUE_APIKEY' -s https://ludotheque.fly.dev/api/backup | tar x" }
+
 [project]
 name = "api"
 description = "Ludotheque"
@@ -35,9 +46,6 @@ cli = [
     "oidc-client>=0.2.6",
 ]
 
-[tool.pdm.version]
-source = "scm"
-
 [tool.ruff]
 select = ["E", "F", "B", "RUF", "UP", "SIM", "S"]
 ignore = ["E402", "E501"]
@@ -54,13 +62,6 @@ max-complexity = 28
 "src/api/*.py" = ["B008"]
 # S101: Use of assert
 # B008: Do not perform function call `Depends` in argument defaults
-
-[tool.pdm.scripts]
-build = {shell = "cd src/webui && pnpm run build"}
-api = {shell = "cd src/api && uvicorn main:app --reload"}
-api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
-webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
-restore = { shell = "rm -rf storage/img storage/ludotheque.db; curl -H 'Authorization: Bearer $LUDOTHEQUE_APIKEY' -s https://ludotheque.fly.dev/api/backup | tar x" }
 
 [tool.pytest.ini_options]
 addopts = "--ignore=__pypackages__ --cov=api --cov-report html"

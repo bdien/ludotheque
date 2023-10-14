@@ -71,7 +71,7 @@ export function UserList() {
     displayed = users.filter(
       (i) =>
         i.name.toLowerCase().includes(lw_filter) ||
-        (i.email && i.email.toString().includes(lw_filter)),
+        (i.emails && i.emails.filter((e) => e.includes(lw_filter)).length > 0),
     );
   }
   let nbHidden = displayed.length;
@@ -179,7 +179,7 @@ export function UserList() {
                             </Icon>
                           )}
                         </Typography>
-                        <Box display={displaysm}>{row.email}</Box>
+                        <Box display={displaysm}>{row.emails?.join(", ")}</Box>
                       </Box>
 
                       <Box

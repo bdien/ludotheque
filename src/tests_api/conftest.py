@@ -9,8 +9,8 @@ import api.pwmodels
 import api.items
 import api.system
 
-AUTH_USER = {"Authorization": "0,alice,user"}
-AUTH_ADMIN = {"Authorization": "1,bob,admin"}
+AUTH_USER = {"Authorization": "0,user"}
+AUTH_ADMIN = {"Authorization": "1,admin"}
 
 
 @pytest.fixture(autouse=True, scope="module")

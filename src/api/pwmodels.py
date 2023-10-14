@@ -28,7 +28,17 @@ def regexp(expr, s):
 
 
 def create_all_tables(drop=False):
-    tbls = [User, Item, ItemLink, Category, ItemCategory, ItemPicture, Loan, Ledger]
+    tbls = [
+        User,
+        EMail,
+        Item,
+        ItemLink,
+        Category,
+        ItemCategory,
+        ItemPicture,
+        Loan,
+        Ledger,
+    ]
     if drop:
         db.drop_tables(tbls)
     db.create_tables(tbls)
@@ -47,7 +57,6 @@ def today_plus_loantime():
 class User(BaseModel):
     name = peewee.CharField()
     enabled = peewee.BooleanField(default=True)
-    email = peewee.CharField(unique=True, null=True)
     role = peewee.CharField(default="user")
     credit = peewee.FloatField(default=0)
     notes = peewee.TextField(null=True)
@@ -55,6 +64,11 @@ class User(BaseModel):
     subscription = peewee.DateField(default=date.today)  # End of
     apikey = peewee.CharField(null=True)
     created_at = peewee.DateField(default=date.today)
+
+
+class EMail(BaseModel):
+    email = peewee.CharField(unique=True)
+    user = peewee.ForeignKeyField(model=User)
 
 
 class Item(BaseModel):

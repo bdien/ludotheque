@@ -4,7 +4,7 @@ import logging
 import re
 from fastapi.responses import PlainTextResponse
 import peewee
-from api.pwmodels import Loan, User, db
+from api.pwmodels import Loan, User, EMail, db
 from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user
 
@@ -19,15 +19,12 @@ async def create_user(request: Request, auth=Depends(auth_user)):
         raise HTTPException(403)
     body = await request.json()
 
-    # Avoid some properties
+    # Lowercase emails
+    emails = [i.lower() for i in body.get("emails", [])]
+
+    # Keep only model properties (And remove some internals)
     params = {k: v for k, v in body.items() if k in User._meta.fields}
-    params = {k: v for k, v in params.items() if k not in ("created_at",)}
-    # Remove ID = None or ""
-    if ("id" in params) and not params["id"]:
-        del params["id"]
-    # Lowercase email
-    if "email" in params:
-        params["email"] = params["email"].lower()
+    params = {k: v for k, v in params.items() if k not in ("created_at", "id")}
 
     # Checks
     if not params:
@@ -43,13 +40,15 @@ async def create_user(request: Request, auth=Depends(auth_user)):
                 next_id = next(idx for idx, val in enumerate(used_ids, 1) if idx != val)
                 params["id"] = next_id
 
+            # Create user
             user = User.create(**params)
+
+            # Create emails
+            for email in emails:
+                EMail.create(email=email, user=user)
+
         except peewee.IntegrityError as e:
-            if e.args[0] == "UNIQUE constraint failed: user.id":
-                raise HTTPException(
-                    500, f"Le numéro '{params['id']}' est déjà utilisé"
-                ) from None
-            if e.args[0] == "UNIQUE constraint failed: user.email":
+            if e.args[0] == "UNIQUE constraint failed: email.email":
                 raise HTTPException(500, "L'email est vide ou déjà utilisé") from None
             logging.exception("Create user")
             raise HTTPException(500, str(e)) from None
@@ -58,6 +57,7 @@ async def create_user(request: Request, auth=Depends(auth_user)):
 
 
 def re_acc(txt):
+    "Remove accents"
     for r in ("[éèëe]", "[aà]", "[cç]", "[uù]", "[îiï]"):
         txt = re.sub(r, r, txt)
     return txt
@@ -76,6 +76,8 @@ def get_users(
             peewee.fn.Count(Loan.id).alias("loans"),
             peewee.fn.Min(Loan.stop).alias("oldest_loan"),
         )
+        .left_outer_join(EMail)
+        .switch()
         .left_outer_join(Loan, on=((Loan.user == User.id) & (Loan.status == "out")))
         .group_by(User.id)
     )
@@ -83,10 +85,20 @@ def get_users(
     if nb:
         query = query.limit(nb)
     if q:
-        query = query.where(User.name.regexp(re_acc(q)) | (User.email ** f"%{q}%"))
+        query = query.where(User.name.regexp(re_acc(q)) | (EMail.email ** f"%{q}%"))
 
     with db:
-        return list(query.order_by(User.name).dicts())
+        # Combine fields. Note: We must divide the number of loans per the number of
+        # emails because of grouping
+        return [
+            model_to_dict(user)
+            | {
+                "loans": user.loans / max(1, len(user.email_set)),
+                "oldest_loan": user.oldest_loan,
+                "emails": [i.email for i in user.email_set],
+            }
+            for user in query.order_by(User.name)
+        ]
 
 
 @router.get("/users/export", tags=["users"], response_class=PlainTextResponse)
@@ -98,7 +110,7 @@ def export_users(auth=Depends(auth_user)):
     f = io.StringIO()
     csvwriter = csv.DictWriter(
         f,
-        ["id", "name", "email", "enabled", "role", "subscription", "created_at"],
+        ["id", "name", "enabled", "role", "subscription", "created_at"],
         extrasaction="ignore",
         delimiter=";",
     )
@@ -114,7 +126,7 @@ def get_myself(auth=Depends(auth_user)):
     if not auth:
         raise HTTPException(401)
     with db:
-        if u := User.get_or_none(User.id == auth.id):
+        if u := User.select(User.id, User.role).where(User.id == auth.id).get():
             ret = model_to_dict(u, recurse=False)
             del ret["notes"]  # Private to admins
             del ret["informations"]  # Private to admins
@@ -147,10 +159,17 @@ def get_user(user_id: int, auth=Depends(auth_user)):
         raise HTTPException(403)
 
     with db:
-        user = User.get_or_none(user_id)
+        user = (
+            User.select(User, EMail.email)
+            .left_outer_join(EMail)
+            .where(User.id == user_id)
+            .group_by(User.id)
+            .get()
+        )
         if not user:
             raise HTTPException(404)
         ret = model_to_dict(user, recurse=False)
+        ret["emails"] = [i.email for i in user.email_set]
         ret["loans"] = list(
             Loan.select()
             .where(Loan.user == user, Loan.status == "out")
@@ -160,9 +179,9 @@ def get_user(user_id: int, auth=Depends(auth_user)):
 
     if auth.role not in ("admin", "benevole"):
         del ret["notes"]
-        del ret["apikey"]
     if auth.role != "admin":
         del ret["informations"]
+        del ret["apikey"]
 
     return ret
 
@@ -178,12 +197,12 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
     if (auth.role == "benevole") and ("role" in body):
         del body["role"]
 
-    # Avoid some properties
+    # Lowercase emails
+    emails = [i.lower() for i in body.get("emails", [])]
+
+    # Keep only model properties (And remove some internals)
     params = {k: v for k, v in body.items() if k in User._meta.fields}
     params = {k: v for k, v in params.items() if k not in ("id", "created_at")}
-    # Lowercase email
-    if "email" in params:
-        params["email"] = params["email"].lower()
 
     # Checks
     if not params:
@@ -193,6 +212,13 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
 
     with db:
         User.update(**params).where(User.id == user_id).execute()
+
+        # Update emails
+        EMail.delete().where(
+            EMail.user == user_id, EMail.email.not_in(emails)
+        ).execute()
+        for email in emails:
+            EMail.insert(email=email, user=user_id).on_conflict_ignore().execute()
 
 
 @router.delete("/users/{user_id}", tags=["users"])
