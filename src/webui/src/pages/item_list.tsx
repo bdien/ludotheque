@@ -2,7 +2,7 @@ import { useAccount, useItems } from "../api/hooks";
 import { ItemModel } from "../api/models";
 import { Link } from "wouter";
 import { AgeChip } from "../components/age_chip";
-import { forwardRef, useState } from "react";
+import { forwardRef } from "react";
 import TextField from "@mui/material/TextField";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -130,21 +130,16 @@ interface ItemListFilters {
 }
 
 export function ItemList() {
-  const queryParameters = new URLSearchParams(window.location.search);
-  const initialSearchText = queryParameters.get("q") ?? "";
-
   const { account } = useAccount();
   const { items, isLoading } = useItems();
-  const [searchIndex, SetSearchIndex] = useSessionStorage<number>(
-    "itemSearchIndex",
-    0,
+  const [filter, setFilter] = useSessionStorage<ItemListFilters>(
+    "itemSearchFilter",
+    {
+      text: "",
+      outside_air: "",
+      age: 99,
+    },
   );
-  const [filter, setFilter] = useState<ItemListFilters>({
-    text: initialSearchText,
-    outside_air: "",
-    age: 99,
-  });
-
   if (isLoading) return <div>Chargement</div>;
   if (!items) return <div>Aucun jeu</div>;
 
@@ -183,16 +178,9 @@ export function ItemList() {
           size="small"
           label="Recherche"
           type="search"
-          defaultValue={initialSearchText}
+          defaultValue={filter.text}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setFilter({ ...filter, text: event.target.value });
-            // Store search term in current window URL
-            window.history.replaceState(
-              {},
-              document.title,
-              location.href.split("?")[0] +
-                (event.target.value ? `?q=${event.target.value}` : ""),
-            );
           }}
           sx={{ flexGrow: 1, backgroundColor: "white", maxWidth: "500px" }}
         />
@@ -208,7 +196,7 @@ export function ItemList() {
             backgroundColor: "white",
           }}
           displayEmpty
-          defaultValue=""
+          defaultValue={filter.outside_air}
           onChange={(event) =>
             setFilter({ ...filter, outside_air: event.target.value as string })
           }
@@ -234,7 +222,7 @@ export function ItemList() {
             ml: 1,
             backgroundColor: "white",
           }}
-          defaultValue={99}
+          defaultValue={filter.age}
           onChange={(event) =>
             setFilter({ ...filter, age: event.target.value as number })
           }
@@ -272,9 +260,14 @@ export function ItemList() {
         style={{ height: "100%" }}
         data={displayed}
         components={TableComps}
-        initialTopMostItemIndex={searchIndex}
+        initialTopMostItemIndex={parseInt(
+          sessionStorage.getItem("itemSearchIndex") ?? "0",
+        )}
         rangeChanged={(range) => {
-          SetSearchIndex(range.startIndex);
+          sessionStorage.setItem(
+            "itemSearchIndex",
+            range.startIndex.toString(),
+          );
         }}
         fixedHeaderContent={() => (
           <TableRow sx={{ background: "#F9FBFC" }}>
