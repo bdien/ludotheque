@@ -35,6 +35,7 @@ dependencies = [
     "Pillow>=9.5.0",
     "cachetools>=5.3.1",
     "gspread>=5.11.3",
+    "apscheduler>=3.10.4",
 ]
 requires-python = ">=3.11"
 license = {text = "GPL2"}
