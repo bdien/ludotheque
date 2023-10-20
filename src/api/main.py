@@ -1,4 +1,5 @@
 import logging
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -7,7 +8,7 @@ import api.items
 import api.loans
 import api.system
 import api.ledger
-
+import api.gsheets
 
 logging.basicConfig(level=logging.DEBUG)
 app = FastAPI(root_path="/api")
@@ -18,3 +19,10 @@ app.include_router(api.items.router)
 app.include_router(api.loans.router)
 app.include_router(api.system.router)
 app.include_router(api.ledger.router)
+
+
+@app.on_event("startup")
+def init_scheduler():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(api.gsheets.publish_gsheets, "cron", hour=12, minute=40, second=0)
+    scheduler.start()
