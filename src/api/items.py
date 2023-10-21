@@ -138,6 +138,7 @@ def search_item(q: str | None = None):
             Item.select(Item.id, Item.name, Item.big)
             .where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
             .where(Item.id.not_in(loaned_items))
+            .where(Item.enabled)
             .order_by(Item.id)
             .limit(10)
             .dicts()
