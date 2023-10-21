@@ -83,10 +83,7 @@ export function MiniItem(props: MiniItemProps) {
                 >
                   A rendre le{" "}
                   {last_loan_stop.toLocaleDateString(undefined, {
-                    year:
-                      last_loan_stop.getFullYear() == today.getFullYear()
-                        ? undefined
-                        : "numeric",
+                    year: last_loan_stop < today ? "numeric" : undefined,
                     month: "short",
                     day: "numeric",
                   })}

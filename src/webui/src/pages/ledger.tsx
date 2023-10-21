@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { useLedger, useUser } from "../api/hooks";
+import { useLedger } from "../api/hooks";
 import {
   Accordion,
   AccordionDetails,
@@ -12,24 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LedgerEntry } from "../api/models";
-import { Link } from "wouter";
-
-function ShortUser({ user_id }: { user_id: number }) {
-  const { user } = useUser(user_id);
-
-  if (!user) return <>`User ${user_id}`</>;
-
-  return (
-    <Link href={`/users/${user.id}`}>
-      <Typography color="primary" sx={{ cursor: "pointer" }}>
-        {user.name}
-        {user.role === "admin" && (
-          <Icon sx={{ fontSize: "0.9em", ml: 0.3 }}>star</Icon>
-        )}
-      </Typography>
-    </Link>
-  );
-}
+import { ShortUser } from "../components/short_user";
 
 function groupBy<T, K>(array: T[], keyFn: (item: T) => K) {
   const map = new Map<K, T[]>();

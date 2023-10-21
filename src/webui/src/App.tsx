@@ -16,6 +16,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
 import { useInfo } from "./api/hooks";
 import "./styles.css";
+import { LateLoans } from "./pages/late_loans";
 
 function App() {
   const { isLoading: infoIsLoading } = useInfo();
@@ -95,6 +96,7 @@ function App() {
           </Route>
 
           <Route path="/loans/new" component={Loan} />
+          <Route path="/loans/late" component={LateLoans} />
           <Route path="/loans/:id/close">
             {(params) => {
               return <LoanClose id={parseInt(params.id)} />;

@@ -162,6 +162,20 @@ export function useUsers() {
   };
 }
 
+export function useLoans() {
+  const { data, error, isLoading } = useSWR<Loan[]>(
+    `${SERVER_URL}/loans`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
+
+  return {
+    loans: data,
+    isLoading,
+    error,
+  };
+}
+
 export function useLoan(id: number) {
   const { data, error, isLoading, mutate } = useSWR<Loan>(
     `${SERVER_URL}/loans/${id}`,
