@@ -16,10 +16,11 @@ interface MiniUserProps {
   onRemove?: ((event: React.MouseEvent<HTMLElement>) => void) | null;
 }
 
+const today = new Date();
+
 export function MiniUser(props: MiniUserProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const popoverOpen = Boolean(anchorEl);
-  const today = new Date();
   const late_loans = props.user?.loans?.filter((i) => new Date(i.stop) < today)
     .length;
 

@@ -10,15 +10,19 @@ router = APIRouter()
 
 
 @router.get("/loans", tags=["loans"])
-def get_loans(user_id: int, all: str | None = None, auth=Depends(auth_user)):
-    if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
+def get_loans(all: str | None = None, auth=Depends(auth_user)):
+    if (not auth) or (auth.role != "admin"):
         raise HTTPException(403)
 
-    loans = Loan.select().where(Loan.user == user_id)
+    loans = Loan.select(Loan, User).join(User).order_by(Loan.stop, Loan.user)
     if all is None:
         loans = loans.where(Loan.status == "out")
     with db:
-        return list(loans.dicts())
+        return [
+            model_to_dict(i, recurse=False)
+            | {"user": {"id": i.user.id, "name": i.user.name}}
+            for i in loans.objects()
+        ]
 
 
 @router.post("/loans", tags=["loans"])
