@@ -207,6 +207,21 @@ def test_loan_subscription():
     }
 
 
+def test_loan_subscription_will_reenable_user():
+    with db:
+        user = User.create(name="Bob", email="bob", credit=100, enabled=False)
+
+    client.post(
+        "/loans",
+        json={"user": user.id, "items": [-1]},
+        headers=AUTH_ADMIN,
+    ).json()
+
+    with db:
+        user = User.get_by_id(user.id)
+        assert user.enabled
+
+
 @pytest.mark.parametrize(
     "origdate, finaldate",
     (

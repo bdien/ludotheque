@@ -118,7 +118,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                     money=cost_real_money,
                 )
 
-            # Update user credit and subscription
+            # Update user credit and subscription (And reenable if needed)
             if subscription:
                 Ledger.create(
                     operator_id=auth.id,
@@ -130,6 +130,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                 user.subscription = max(
                     datetime.date.today(), user.subscription
                 ) + datetime.timedelta(days=366)
+                user.enabled = True
             if fillcard:
                 Ledger.create(
                     operator_id=auth.id,
