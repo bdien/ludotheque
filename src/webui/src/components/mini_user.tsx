@@ -33,32 +33,37 @@ export function MiniUser(props: MiniUserProps) {
       sx={{ m: 0, mt: 0.5, p: 1.6 }}
     >
       <Grid flexGrow={1}>
-        <Typography
-          color="primary.main"
-          component="span"
-          variant="h5"
-          fontWeight={500}
-          sx={{ mb: 0.5 }}
+        <Link
+          href={`/users/${props.user.id}`}
+          style={{ textDecoration: "none" }}
         >
-          {/* User ID */}
-          {props.fullDetails && `[${props.user.id}] `}
+          <Typography
+            color="primary.main"
+            component="span"
+            variant="h5"
+            fontWeight={500}
+            sx={{ mb: 0.5 }}
+          >
+            {/* User ID */}
+            {props.fullDetails && `[${props.user.id}] `}
 
-          {props.user.name}
+            {props.user.name}
 
-          {/* Icone admin/bureau */}
-          {props.user.role == "admin" && (
-            <Icon fontSize="small" sx={{ ml: 0.3 }}>
-              star
-            </Icon>
-          )}
+            {/* Icone admin/bureau */}
+            {props.user.role == "admin" && (
+              <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                star
+              </Icon>
+            )}
 
-          {/* Icone bénévole */}
-          {props.user.role == "benevole" && (
-            <Icon fontSize="small" sx={{ ml: 0.3 }}>
-              star_half
-            </Icon>
-          )}
-        </Typography>
+            {/* Icone bénévole */}
+            {props.user.role == "benevole" && (
+              <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                star_half
+              </Icon>
+            )}
+          </Typography>
+        </Link>
 
         <Box sx={{ color: "text.secondary" }}>
           {/* Email + Additional information */}
