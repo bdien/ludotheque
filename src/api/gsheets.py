@@ -73,6 +73,7 @@ def publish_gsheets():
                 or (not i.enabled)
                 and "Désactivé"
                 or " ",
+                i.notes,
                 i.created_at.strftime("%d/%m/%Y"),
             ]
             for i in query.objects()
