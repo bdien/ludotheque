@@ -127,6 +127,7 @@ interface ItemListFilters {
   text: string;
   outside_air: string;
   age: number;
+  disabled: boolean;
 }
 
 export function ItemList() {
@@ -138,6 +139,7 @@ export function ItemList() {
       text: "",
       outside_air: "",
       age: 99,
+      disabled: true,
     },
   );
   if (isLoading) return <div>Chargement</div>;
@@ -145,24 +147,25 @@ export function ItemList() {
 
   // Filtering
   let displayed = items;
-  if (filter) {
-    if (filter.text) {
-      const lw_filter = filter.text.toLowerCase();
-      displayed = items.filter(
-        (i) =>
-          i.name.toLowerCase().includes(lw_filter) ||
-          i.id.toString().includes(lw_filter),
-      );
-    }
-    if (filter.outside_air == "big") {
-      displayed = displayed.filter((i) => i.big);
-    }
-    if (filter.outside_air == "outside") {
-      displayed = displayed.filter((i) => i.outside);
-    }
-    if (filter.age != 99) {
-      displayed = displayed.filter((i) => i.age == filter.age);
-    }
+  if (filter.text) {
+    const lw_filter = filter.text.toLowerCase();
+    displayed = items.filter(
+      (i) =>
+        i.name.toLowerCase().includes(lw_filter) ||
+        i.id.toString().includes(lw_filter),
+    );
+  }
+  if (filter.outside_air == "big") {
+    displayed = displayed.filter((i) => i.big);
+  }
+  if (filter.outside_air == "outside") {
+    displayed = displayed.filter((i) => i.outside);
+  }
+  if (filter.age != 99) {
+    displayed = displayed.filter((i) => i.age == filter.age);
+  }
+  if (filter.disabled) {
+    displayed = displayed.filter((i) => i.enabled === true);
   }
 
   return (
