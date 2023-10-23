@@ -41,7 +41,8 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
   manifest: {
     name: "Ludo du Poisson-Lune",
     short_name: "Ludothèque",
-    description: "Accèder à la ludothèque du Poisson-Lune d'Acigné",
+    description: "Ludothèque du Poisson-Lune d'Acigné",
+    lang: "fr",
     icons: [
       {
         src: "/pwaicon-96-96.webp",
@@ -62,13 +63,20 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
         purpose: "any",
       },
       {
+        src: "/pwaicon-512-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
         src: "/pwaicon-512-512.webp",
         sizes: "512x512",
         type: "image/webp",
         purpose: "maskable",
       },
     ],
-    theme_color: "#FFFFFF",
+    background_color: "#FFFFFF",
+    theme_color: "#556cd6",
     display: "standalone",
     orientation: "portrait",
   },
