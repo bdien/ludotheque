@@ -27,7 +27,7 @@ function categorize(stop_txt: string): number | null {
 }
 
 export function LateLoans() {
-  const { loans } = useLoans();
+  const { loans } = useLoans(14);
 
   if (!loans) return <>Chargement</>;
 

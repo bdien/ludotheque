@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import { Icon } from "@mui/material";
 
 export function ShortUser({ user_id }: { user_id: number }) {
-  const { user } = useUser(user_id);
+  const { user } = useUser(user_id, true);
 
   if (!user) return <>Adhérent ${user_id}</>;
 

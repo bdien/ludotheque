@@ -55,7 +55,7 @@ const DEFAULT_ITEM: ItemModel = {
   enabled: true,
 };
 
-export function useItem(id?: number) {
+export function useItem(id?: number, short?: boolean) {
   if (!id) {
     return {
       item: { ...DEFAULT_ITEM },
@@ -65,11 +65,12 @@ export function useItem(id?: number) {
     };
   }
 
-  const { data, error, isLoading, mutate } = useSWR<ItemModel>(
-    `${SERVER_URL}/items/${id}`,
-    fetcher,
-    { revalidateOnFocus: false },
-  );
+  let url = `${SERVER_URL}/items/${id}`;
+  if (short) url += "?short=true";
+
+  const { data, error, isLoading, mutate } = useSWR<ItemModel>(url, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   return {
     item: data,
@@ -124,7 +125,7 @@ const DEFAULT_USER: UserModel = {
   enabled: true,
 };
 
-export function useUser(id?: number) {
+export function useUser(id?: number, short?: boolean) {
   if (!id) {
     return {
       user: { ...DEFAULT_USER },
@@ -134,11 +135,12 @@ export function useUser(id?: number) {
     };
   }
 
-  const { data, error, isLoading, mutate } = useSWR<UserModel>(
-    `${SERVER_URL}/users/${id}`,
-    fetcher,
-    { revalidateOnFocus: false },
-  );
+  let url = `${SERVER_URL}/users/${id}`;
+  if (short) url += "?short=true";
+
+  const { data, error, isLoading, mutate } = useSWR<UserModel>(url, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   return {
     user: data,
@@ -162,9 +164,9 @@ export function useUsers() {
   };
 }
 
-export function useLoans() {
+export function useLoans(mindays: number = 0) {
   const { data, error, isLoading } = useSWR<Loan[]>(
-    `${SERVER_URL}/loans`,
+    `${SERVER_URL}/loans?mindays=${mindays}`,
     fetcher,
     { revalidateOnFocus: false },
   );
