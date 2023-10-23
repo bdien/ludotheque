@@ -10,17 +10,23 @@ router = APIRouter()
 
 
 @router.get("/loans", tags=["loans"])
-def get_loans(all: str | None = None, auth=Depends(auth_user)):
+def get_loans(mindays: int | None = 0, auth=Depends(auth_user)):
     if (not auth) or (auth.role != "admin"):
         raise HTTPException(403)
 
-    loans = Loan.select(Loan, User).join(User).order_by(Loan.stop, Loan.user)
-    if all is None:
-        loans = loans.where(Loan.status == "out")
+    stop_date = datetime.date.today() - datetime.timedelta(days=mindays)
+
+    loans = (
+        Loan.select(Loan, User.name.alias("username"))
+        .join(User)
+        .order_by(Loan.stop, Loan.user)
+    )
+    loans = loans.where(Loan.status == "out", Loan.stop < stop_date)
+
     with db:
         return [
             model_to_dict(i, recurse=False)
-            | {"user": {"id": i.user.id, "name": i.user.name}}
+            | {"user": {"id": i.user_id, "name": i.username}}
             for i in loans.objects()
         ]
 

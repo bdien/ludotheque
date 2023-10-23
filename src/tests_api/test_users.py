@@ -119,7 +119,7 @@ def test_edit_user_attributes(toedit: dict):
 
 def test_get_users():
     # Create Users
-    User1 = {"name": "alice", "emails": ["alice@nomail", "2@nomail"]}
+    User1 = {"name": "alice", "emails": ["2@nomail", "alice@nomail"]}
     User2 = {"name": "bob", "emails": ["bob@nomail"], "credit": 3, "role": "admin"}
     response = client.post("/users", json=User1, headers=AUTH_ADMIN)
     response = client.post("/users", json=User2, headers=AUTH_ADMIN)
@@ -129,8 +129,12 @@ def test_get_users():
     users = response.json()
     import json
 
+    # Email order causing issues
+    del User1["emails"]
+
     print(json.dumps(users, indent=2))
     assert len(users) == 2
+    assert set(users[0]["emails"]) == {"2@nomail", "alice@nomail"}
     assert User1.items() <= users[0].items()
     assert User2.items() <= users[1].items()
 
@@ -138,6 +142,7 @@ def test_get_users():
     response = client.get("/users?nb=1", headers=AUTH_ADMIN)
     users = response.json()
     assert len(users) == 1
+    assert set(users[0]["emails"]) == {"2@nomail", "alice@nomail"}
     assert User1.items() <= users[0].items()
 
 

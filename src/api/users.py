@@ -63,6 +63,12 @@ def re_acc(txt):
     return txt
 
 
+def uniquesplit(lst: list | None) -> list:
+    if not lst:
+        return []
+    return list(set(lst.split(",")))
+
+
 @router.get("/users", tags=["users"])
 def get_users(
     nb: int = 0, sort: str | None = None, q: str | None = None, auth=Depends(auth_user)
@@ -75,6 +81,7 @@ def get_users(
             User,
             peewee.fn.Count(Loan.id).alias("loans"),
             peewee.fn.Min(Loan.stop).alias("oldest_loan"),
+            peewee.fn.group_concat(EMail.email).alias("emails"),
         )
         .left_outer_join(EMail)
         .switch()
@@ -93,9 +100,9 @@ def get_users(
         return [
             model_to_dict(user)
             | {
-                "loans": user.loans / max(1, len(user.email_set)),
+                "loans": user.loans / max(1, len(uniquesplit(user.emails))),
                 "oldest_loan": user.oldest_loan,
-                "emails": [i.email for i in user.email_set],
+                "emails": uniquesplit(user.emails),
             }
             for user in query.order_by(User.name)
         ]
@@ -154,11 +161,15 @@ def search_user(q: str | None = None, auth=Depends(auth_user)):
 
 
 @router.get("/users/{user_id}", tags=["users"])
-def get_user(user_id: int, auth=Depends(auth_user)):
+def get_user(user_id: int, short: bool | None = False, auth=Depends(auth_user)):
     if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
         raise HTTPException(403)
 
     with db:
+        if short:
+            user = User.get_by_id(user_id)
+            return {"id": user_id, "name": user.name, "role": user.role}
+
         user = (
             User.select(User, EMail.email)
             .left_outer_join(EMail)
