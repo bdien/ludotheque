@@ -3,7 +3,7 @@ import { useItem } from "../api/hooks";
 import Typography from "@mui/material/Typography";
 
 export function ShortItem({ item_id }: { item_id: number }) {
-  const { item } = useItem(item_id);
+  const { item } = useItem(item_id, true);
 
   if (!item) return <>Jeu ${item_id}</>;
 
