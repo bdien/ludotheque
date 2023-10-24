@@ -125,13 +125,16 @@ export function Ledger() {
 
         return (
           <Accordion TransitionProps={{ unmountOnExit: true }} key={date}>
-            <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+            <AccordionSummary
+              expandIcon={<Icon>expand_more</Icon>}
+              sx={{ px: 1 }}
+            >
               <Typography
                 variant="subtitle1"
                 color="primary"
                 sx={{
                   textAlign: "right",
-                  width: "clamp(110px, 8em, 20%)",
+                  width: "clamp(100px, 8em, 20%)",
                   mx: 0,
                 }}
               >
@@ -147,7 +150,7 @@ export function Ledger() {
               >
                 {total}€
               </Typography>
-              <Typography variant="subtitle1" sx={{ pl: 4, maxWidth: "40%" }}>
+              <Typography variant="subtitle1" sx={{ pl: 3, maxWidth: "40%" }}>
                 {highlevelSummary(entries)}
               </Typography>
             </AccordionSummary>
