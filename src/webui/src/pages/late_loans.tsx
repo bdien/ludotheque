@@ -62,15 +62,17 @@ export function LateLoans() {
 
             {grouped[idx].map((i) => (
               <TableRow key={i.id}>
-                <TableCell>
+                <TableCell sx={{ px: 1 }}>
                   <ShortUser user_id={i.user!.id} />
                 </TableCell>
 
-                <TableCell sx={{ textAlign: "right", fontWeight: 500 }}>
+                <TableCell sx={{ textAlign: "right", fontWeight: 500, px: 0 }}>
                   <ShortItem item_id={i.item} />
                 </TableCell>
 
-                <TableCell sx={{ textAlign: "right" }}>{i.stop}</TableCell>
+                <TableCell sx={{ textAlign: "right", minWidth: 99, pr: 1 }}>
+                  {i.stop}
+                </TableCell>
               </TableRow>
             ))}
           </>
