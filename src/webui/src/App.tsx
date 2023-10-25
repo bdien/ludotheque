@@ -17,6 +17,7 @@ import { useState } from "react";
 import { useInfo } from "./api/hooks";
 import "./styles.css";
 import { LateLoans } from "./pages/late_loans";
+import { UserHistory } from "./pages/user_history";
 
 function App() {
   const { isLoading: infoIsLoading } = useInfo();
@@ -50,7 +51,7 @@ function App() {
       height="100vh"
       width="100vw"
       display="flex"
-      sx={{ mx: "auto", maxWidth: 1500 }}
+      sx={{ mx: "auto", maxWidth: 1700 }}
     >
       <TopBar width={225} />
 
@@ -80,6 +81,11 @@ function App() {
           <Route path="/users/:id/edit">
             {(params) => {
               return <UserEdit id={parseInt(params.id)} />;
+            }}
+          </Route>
+          <Route path="/users/:id/history">
+            {(params) => {
+              return <UserHistory id={parseInt(params.id)} />;
             }}
           </Route>
 

@@ -197,6 +197,20 @@ def get_user(user_id: int, short: bool | None = False, auth=Depends(auth_user)):
     return ret
 
 
+@router.get("/users/{user_id}/history", tags=["users"])
+def get_user_history(user_id: int, auth=Depends(auth_user)):
+    if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
+        raise HTTPException(403)
+
+    with db:
+        return list(
+            Loan.select()
+            .where(Loan.user_id == user_id)
+            .order_by(Loan.stop.desc())
+            .dicts()
+        )
+
+
 @router.post("/users/{user_id}", tags=["users"])
 async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
     if not auth or auth.role not in ("admin", "benevole"):

@@ -29,7 +29,7 @@ export function MiniItem(props: MiniItemProps) {
       sx={{
         display: "flex",
         height: "clamp(100px, 15vw, 200px)",
-        width: "min(100%, 500px)",
+        width: "min(100%, 485px)",
         mb: 1,
         p: 0.5,
         borderBottom: "1px solid #EEEEEE",
