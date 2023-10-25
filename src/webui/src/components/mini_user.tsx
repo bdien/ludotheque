@@ -14,6 +14,7 @@ interface MiniUserProps {
   user: UserModel;
   fullDetails?: boolean | null;
   onRemove?: ((event: React.MouseEvent<HTMLElement>) => void) | null;
+  history: boolean;
 }
 
 const today = new Date();
@@ -144,6 +145,8 @@ export function MiniUser(props: MiniUserProps) {
                 sur la carte
               </Box>
             )}
+
+            {/* Fin de l'abonnement */}
             {props.user?.subscription && (
               <>
                 <Icon sx={{ mr: "0.2em" }}>event</Icon>
@@ -161,6 +164,21 @@ export function MiniUser(props: MiniUserProps) {
                   )}
                 </Box>
               </>
+            )}
+
+            {/* Historique */}
+            {props.history ? (
+              <>
+                <Icon sx={{ ml: "0.4em", mr: "0.1em" }}>hourglass_empty</Icon>
+                <Link
+                  href={`/users/${props.user.id}/history`}
+                  sx={{ textDecoration: "none", cursor: "pointer" }}
+                >
+                  Historique
+                </Link>
+              </>
+            ) : (
+              ""
             )}
           </Box>
         </Box>

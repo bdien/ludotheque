@@ -150,6 +150,23 @@ export function useUser(id?: number, short?: boolean) {
   };
 }
 
+export function useUserHistory(id?: number) {
+  const { data, error, isLoading, mutate } = useSWR<Loan[]>(
+    `${SERVER_URL}/users/${id}/history`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+    },
+  );
+
+  return {
+    history: data,
+    isLoading,
+    error,
+    mutate,
+  };
+}
+
 export function useUsers() {
   const { data, error, isLoading } = useSWR<Users>(
     `${SERVER_URL}/users`,
