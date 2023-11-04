@@ -24,7 +24,9 @@ app.include_router(api.ledger.router)
 @app.on_event("startup")
 def init_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(api.gsheets.publish_gsheets, "cron", hour=13)
+    scheduler.add_job(
+        api.gsheets.publish_gsheets, "cron", hour=13, misfire_grace_time=None
+    )
     scheduler.start()
 
     # Refresh now
