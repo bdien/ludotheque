@@ -55,7 +55,7 @@ const DEFAULT_ITEM: ItemModel = {
   enabled: true,
 };
 
-export function useItem(id?: number, short?: boolean) {
+export function useItem(id?: number) {
   if (!id) {
     return {
       item: { ...DEFAULT_ITEM },
@@ -66,7 +66,6 @@ export function useItem(id?: number, short?: boolean) {
   }
 
   let url = `${SERVER_URL}/items/${id}`;
-  if (short) url += "?short=true";
 
   const { data, error, isLoading, mutate } = useSWR<ItemModel>(url, fetcher, {
     revalidateOnFocus: false,
@@ -86,11 +85,11 @@ export function useItems(filter?: string) {
   const { data, error, isLoading, mutate } = useSWR<ItemListEntry[]>(
     `${SERVER_URL}/items${qs}`,
     fetcher,
-    { revalidateOnFocus: false },
+    { dedupingInterval: 300000 },
   );
 
   return {
-    items: data,
+    items: new Map(data ? data.map((i) => [i["id"], i]) : null),
     isLoading,
     error,
     mutate,
@@ -125,7 +124,7 @@ const DEFAULT_USER: UserModel = {
   enabled: true,
 };
 
-export function useUser(id?: number, short?: boolean) {
+export function useUser(id?: number) {
   if (!id) {
     return {
       user: { ...DEFAULT_USER },
@@ -136,7 +135,6 @@ export function useUser(id?: number, short?: boolean) {
   }
 
   let url = `${SERVER_URL}/users/${id}`;
-  if (short) url += "?short=true";
 
   const { data, error, isLoading, mutate } = useSWR<UserModel>(url, fetcher, {
     revalidateOnFocus: false,
@@ -171,11 +169,11 @@ export function useUsers() {
   const { data, error, isLoading } = useSWR<Users>(
     `${SERVER_URL}/users`,
     fetcher,
-    { revalidateOnFocus: false },
+    { dedupingInterval: 300000 },
   );
 
   return {
-    users: data,
+    users: new Map(data ? data.map((i) => [i["id"], i]) : null),
     isLoading,
     error,
   };

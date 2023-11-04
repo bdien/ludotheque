@@ -1,12 +1,13 @@
 import { Link } from "wouter";
-import { useUser } from "../api/hooks";
+import { useUsers } from "../api/hooks";
 import Typography from "@mui/material/Typography";
 import { Icon } from "@mui/material";
 
 export function ShortUser({ user_id }: { user_id: number }) {
-  const { user } = useUser(user_id, true);
+  const { users } = useUsers();
 
-  if (!user) return <>Adhérent ${user_id}</>;
+  const user = users ? users.get(user_id) : null;
+  if (!user) return <>Adhérent {user_id}</>;
 
   return (
     <Link href={`/users/${user.id}`}>

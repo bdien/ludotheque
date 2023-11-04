@@ -65,10 +65,10 @@ export function UserList() {
   if (isLoading || !users) return <div>Loading</div>;
 
   // Filtering (According to text filter + hidden)
-  let displayed = users;
+  let displayed = Array.from(users.values());
   if (filter || filterDisabled) {
     const lw_filter = filter.toLowerCase();
-    displayed = users.filter(
+    displayed = displayed.filter(
       (i) =>
         i.name.toLowerCase().includes(lw_filter) ||
         (i.emails && i.emails.filter((e) => e.includes(lw_filter)).length > 0),

@@ -149,7 +149,6 @@ def search_item(q: str | None = None):
 def get_item(
     item_id: int,
     history: int | None = 10,
-    short: bool | None = False,
     auth=Depends(auth_user),
 ):
     if not auth or auth.role not in ("admin", "benevole"):
@@ -158,9 +157,6 @@ def get_item(
     # Retrieve item + pictures + status (Limit to the last 10 loans)
     # sourcery skip: use-named-expression
     with db:
-        if short:
-            return model_to_dict(Item.get_by_id(item_id))
-
         items = (
             Item.select(Item, Loan, User.name, User.id)
             .left_outer_join(Loan)
