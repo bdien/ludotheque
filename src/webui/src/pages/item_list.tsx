@@ -146,10 +146,10 @@ export function ItemList() {
   if (!items) return <div>Aucun jeu</div>;
 
   // Filtering
-  let displayed = items;
+  let displayed = Array.from(items.values());
   if (filter.text) {
     const lw_filter = filter.text.toLowerCase();
-    displayed = items.filter(
+    displayed = displayed.filter(
       (i) =>
         i.name.toLowerCase().includes(lw_filter) ||
         i.id.toString().includes(lw_filter),

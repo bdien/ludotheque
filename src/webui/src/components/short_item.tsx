@@ -1,11 +1,13 @@
 import { Link } from "wouter";
-import { useItem } from "../api/hooks";
+import { useItems } from "../api/hooks";
 import Typography from "@mui/material/Typography";
 
 export function ShortItem({ item_id }: { item_id: number }) {
-  const { item } = useItem(item_id, true);
+  const { items } = useItems();
 
-  if (!item) return <>Jeu ${item_id}</>;
+  const item = items ? items.get(item_id) : null;
+
+  if (!item) return <>Jeu {item_id}</>;
 
   return (
     <Link href={`/items/${item_id}`}>

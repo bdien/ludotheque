@@ -161,15 +161,11 @@ def search_user(q: str | None = None, auth=Depends(auth_user)):
 
 
 @router.get("/users/{user_id}", tags=["users"])
-def get_user(user_id: int, short: bool | None = False, auth=Depends(auth_user)):
+def get_user(user_id: int, auth=Depends(auth_user)):
     if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
         raise HTTPException(403)
 
     with db:
-        if short:
-            user = User.get_by_id(user_id)
-            return {"id": user_id, "name": user.name, "role": user.role}
-
         user = (
             User.select(User, EMail.email)
             .left_outer_join(EMail)
