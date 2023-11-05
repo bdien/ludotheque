@@ -110,11 +110,6 @@ export async function createLoan(
   return response.json();
 }
 
-export async function extendLoan(loanId: number): Promise<ItemModel> {
-  const response = await fetchWithToken(`${SERVER_URL}/loans/${loanId}/extend`);
-  return response.json();
-}
-
 export async function closeLoan(loanId: number): Promise<ItemModel> {
   const response = await fetchWithToken(`${SERVER_URL}/loans/${loanId}/close`);
   return response.json();

@@ -4,7 +4,6 @@ import { useItem, useItems } from "../api/hooks";
 import { Link } from "wouter";
 import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-location";
-import { extendLoan } from "../api/calls";
 import Skeleton from "@mui/material/Skeleton";
 
 interface MiniItemProps {
@@ -106,18 +105,6 @@ export function MiniItem(props: MiniItemProps) {
                     }
                   >
                     Rendre
-                  </Button>
-                )}
-                {last_loan.status == "out" && last_loan_stop < thisweek && (
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    sx={{ ml: 1 }}
-                    onClick={() =>
-                      extendLoan(last_loan.id).then(() => mutate())
-                    }
-                  >
-                    Prolonger
                   </Button>
                 )}
               </>
