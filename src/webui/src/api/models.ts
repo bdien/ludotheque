@@ -78,10 +78,7 @@ export interface Loan {
   start: string;
   stop: string;
   status: string;
-  user?: {
-    id: number;
-    name: string;
-  };
+  user: number;
 }
 
 export interface Account {

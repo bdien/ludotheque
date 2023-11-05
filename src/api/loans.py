@@ -16,19 +16,11 @@ def get_loans(mindays: int | None = 0, auth=Depends(auth_user)):
 
     stop_date = datetime.date.today() - datetime.timedelta(days=mindays)
 
-    loans = (
-        Loan.select(Loan, User.name.alias("username"))
-        .join(User)
-        .order_by(Loan.stop, Loan.user)
-    )
+    loans = Loan.select().order_by(Loan.stop, Loan.user)
     loans = loans.where(Loan.status == "out", Loan.stop < stop_date)
 
     with db:
-        return [
-            model_to_dict(i, recurse=False)
-            | {"user": {"id": i.user_id, "name": i.username}}
-            for i in loans.objects()
-        ]
+        return list(loans.dicts())
 
 
 @router.post("/loans", tags=["loans"])
