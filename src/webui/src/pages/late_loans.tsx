@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import { Loan } from "../api/models";
 import { ShortUser } from "../components/short_user";
 import { ShortItem } from "../components/short_item";
+import { Loading } from "../components/loading";
 
 const categories = new Map([
   [365, "Plus d'un an"],
@@ -29,7 +30,7 @@ function categorize(stop_txt: string): number | null {
 export function LateLoans() {
   const { loans } = useLoans(14);
 
-  if (!loans) return <>Chargement</>;
+  if (!loans) return <Loading />;
 
   // Group by "late" category
   const grouped = loans.reduce((grp: Loan[][], loan) => {

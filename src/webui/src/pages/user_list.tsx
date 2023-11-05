@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { exportUsers } from "../api/calls";
+import { Loading } from "../components/loading";
 
 function exportCSV() {
   exportUsers().then((txt) => {
@@ -46,7 +47,7 @@ export function UserList() {
   const { account } = useAccount();
   const [filter, setFilter] = useState<string>("");
   const [filterDisabled, setFilterDisabled] = useState<boolean>(false);
-  const { users, isLoading } = useUsers();
+  const { users } = useUsers();
   const theme = useTheme();
   const displaysm = useMediaQuery(theme.breakpoints.up("md"))
     ? "block"
@@ -62,7 +63,7 @@ export function UserList() {
     setAnchorEl(null);
   };
 
-  if (isLoading || !users) return <div>Loading</div>;
+  if (!users) return <Loading />;
 
   // Filtering (According to text filter + hidden)
   let displayed = Array.from(users.values());

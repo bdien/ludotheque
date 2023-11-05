@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { LedgerEntry } from "../api/models";
 import { ShortUser } from "../components/short_user";
+import { Loading } from "../components/loading";
 
 function groupBy<T, K>(array: T[], keyFn: (item: T) => K) {
   const map = new Map<K, T[]>();
@@ -113,7 +114,7 @@ function localeDate(dateString: string) {
 export function Ledger() {
   const { ledger } = useLedger();
 
-  if (!ledger) return <>Chargement</>;
+  if (!ledger) return <Loading />;
 
   const ledgerByDay = groupBy(ledger, (entry) => entry.day);
 

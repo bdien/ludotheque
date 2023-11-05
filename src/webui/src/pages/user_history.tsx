@@ -4,6 +4,7 @@ import { MiniUser } from "../components/mini_user";
 import { MiniItemHistory } from "../components/mini_item_history";
 import { Loan } from "../api/models";
 import { Typography } from "@mui/material";
+import { Loading } from "../components/loading";
 
 interface UserHistoryProps {
   id: number;
@@ -17,12 +18,11 @@ function categorize(loan: Loan): string {
 }
 
 export function UserHistory(props: UserHistoryProps) {
-  const { user, isLoading, error } = useUser(props.id);
+  const { user, error } = useUser(props.id);
   const { history } = useUserHistory(props.id);
 
   if (error) return <div>Impossible de charger: {error}</div>;
-  if (isLoading || !history) return <div>Chargement...</div>;
-  if (!user) return <div>Erreur du serveur</div>;
+  if (!user || !history) return <Loading />;
 
   // Group by "starting month" category
   const grouped = history.reduce((map, loan) => {
