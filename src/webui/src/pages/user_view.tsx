@@ -7,6 +7,7 @@ import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { navigate } from "wouter/use-location";
+import { Loading } from "../components/loading";
 
 interface UserViewProps {
   id: number;
@@ -14,11 +15,10 @@ interface UserViewProps {
 
 export function UserView(props: UserViewProps) {
   const { account } = useAccount();
-  const { user, isLoading, error } = useUser(props.id);
+  const { user, error } = useUser(props.id);
 
   if (error) return <div>Impossible de charger: {error}</div>;
-  if (isLoading) return <div>Chargement...</div>;
-  if (!user) return <div>Erreur du serveur</div>;
+  if (!user) return <Loading />;
 
   return (
     <>

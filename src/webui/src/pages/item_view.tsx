@@ -107,6 +107,9 @@ export function Item(props: ItemProps) {
   if (error) return <div>Server error: {error.cause}</div>;
   if (!item) return <></>;
 
+  // Reset scroll position
+  window.scrollTo(0, 0);
+
   // render data
   return (
     <>

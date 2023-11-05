@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useItem } from "../api/hooks";
+import { useItem, useItems } from "../api/hooks";
 import { Link } from "wouter";
 import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-location";
@@ -13,6 +13,8 @@ interface MiniItemProps {
 
 export function MiniItem(props: MiniItemProps) {
   const { item, error, mutate } = useItem(props.id);
+  const { items } = useItems();
+  const item_short = item ?? items.get(props.id);
 
   if (error) return <div>Impossible de charger: {error}</div>;
   if (!mutate) return <div>Erreur du serveur</div>;
@@ -65,16 +67,21 @@ export function MiniItem(props: MiniItemProps) {
         )}
       </Box>
       <Box width="60%">
+        {item_short ? (
+          <Typography component="div" fontWeight={600}>
+            <Link
+              href={`/items/${item_short.id}`}
+              style={{ textDecoration: "none" }}
+            >
+              {item_short.name} ({item_short.id})
+            </Link>
+          </Typography>
+        ) : (
+          <Skeleton />
+        )}
+
         {item ? (
           <>
-            <Typography component="div" fontWeight={600}>
-              <Link
-                href={`/items/${item.id}`}
-                style={{ textDecoration: "none" }}
-              >
-                {item.name} ({item.id})
-              </Link>
-            </Typography>
             {last_loan_stop && (
               <>
                 <Typography
@@ -117,10 +124,7 @@ export function MiniItem(props: MiniItemProps) {
             )}
           </>
         ) : (
-          <>
-            <Skeleton />
-            <Skeleton />
-          </>
+          <Skeleton />
         )}
       </Box>
     </Box>

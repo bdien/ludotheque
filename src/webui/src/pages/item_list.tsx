@@ -132,7 +132,7 @@ interface ItemListFilters {
 
 export function ItemList() {
   const { account } = useAccount();
-  const { items, isLoading } = useItems();
+  const { items } = useItems();
   const [filter, setFilter] = useSessionStorage<ItemListFilters>(
     "itemSearchFilter",
     {
@@ -142,7 +142,7 @@ export function ItemList() {
       disabled: true,
     },
   );
-  if (isLoading) return <div>Chargement</div>;
+
   if (!items) return <div>Aucun jeu</div>;
 
   // Filtering
