@@ -104,7 +104,7 @@ function summaryPerUser(entries: LedgerEntry[]) {
 function localeDate(dateString: string) {
   const date = new Date(dateString);
 
-  return date.toLocaleDateString("fr-FR", {
+  return date.toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
     day: "numeric",

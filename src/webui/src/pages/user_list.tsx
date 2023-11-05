@@ -24,6 +24,7 @@ import {
 import { useState } from "react";
 import { exportUsers } from "../api/calls";
 import { Loading } from "../components/loading";
+import { ShortUser } from "../components/short_user";
 
 function exportCSV() {
   exportUsers().then((txt) => {
@@ -162,23 +163,9 @@ export function UserList() {
                         display: "flex",
                       }}
                     >
-                      <Box flexGrow={1}>
-                        <Typography
-                          component="div"
-                          color="primary.main"
-                          fontWeight={500}
-                        >
-                          {row.name}
-                          {row.role == "admin" && (
-                            <Icon fontSize="small" sx={{ ml: 0.3 }}>
-                              star
-                            </Icon>
-                          )}
-                          {row.role == "benevole" && (
-                            <Icon fontSize="small" sx={{ ml: 0.3 }}>
-                              star_half
-                            </Icon>
-                          )}
+                      <Box flexGrow={1} my="auto">
+                        <Typography fontWeight={500}>
+                          <ShortUser user_id={row.id} />
                         </Typography>
                         <Box display={displaysm}>{row.emails?.join(", ")}</Box>
                       </Box>

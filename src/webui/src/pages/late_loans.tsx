@@ -12,6 +12,7 @@ const categories = new Map([
   [180, "6 mois"],
   [60, "2 mois"],
   [30, "1 mois"],
+  [21, "3 semaines"],
   [14, "2 semaines"],
   [7, "1 semaine"],
 ]);
@@ -56,7 +57,8 @@ export function LateLoans() {
                   variant="overline"
                   sx={{ fontSize: "1em", fontWeight: 700 }}
                 >
-                  {categories.get(idx)}
+                  Retard de {categories.get(idx)} ({grouped[idx].length} jeu
+                  {grouped[idx].length > 1 ? "x" : ""})
                 </Typography>
               </TableCell>
             </TableRow>
@@ -64,7 +66,7 @@ export function LateLoans() {
             {grouped[idx].map((i) => (
               <TableRow key={i.id}>
                 <TableCell sx={{ px: 1 }}>
-                  <ShortUser user_id={i.user!.id} />
+                  <ShortUser user_id={i.user} />
                 </TableCell>
 
                 <TableCell sx={{ textAlign: "right", fontWeight: 500, px: 0 }}>

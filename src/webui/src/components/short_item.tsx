@@ -11,7 +11,16 @@ export function ShortItem({ item_id }: { item_id: number }) {
 
   return (
     <Link href={`/items/${item_id}`}>
-      <Typography sx={{ cursor: "pointer" }}>{item.name}</Typography>
+      <Typography
+        sx={{
+          cursor: "pointer",
+          fontSize: "inherit",
+          lineHeight: "inherit",
+          fontWeight: "inherit",
+        }}
+      >
+        {item.name}
+      </Typography>
     </Link>
   );
 }

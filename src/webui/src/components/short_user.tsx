@@ -11,10 +11,21 @@ export function ShortUser({ user_id }: { user_id: number }) {
 
   return (
     <Link href={`/users/${user.id}`}>
-      <Typography color="primary" sx={{ cursor: "pointer" }}>
+      <Typography
+        color="primary"
+        sx={{
+          cursor: "pointer",
+          fontSize: "inherit",
+          lineHeight: "inherit",
+          fontWeight: "inherit",
+        }}
+      >
         {user.name}
         {user.role === "admin" && (
-          <Icon sx={{ fontSize: "0.9em", ml: 0.3 }}>star</Icon>
+          <Icon sx={{ fontSize: "0.9em", ml: 0.1 }}>star</Icon>
+        )}
+        {user.role === "benevole" && (
+          <Icon sx={{ fontSize: "0.9em", ml: 0.1 }}>star_half</Icon>
         )}
       </Typography>
     </Link>

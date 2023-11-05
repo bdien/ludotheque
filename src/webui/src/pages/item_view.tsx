@@ -9,7 +9,6 @@ import { useAccount, useCategories, useItem } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
 import { ItemLinkModel, ItemModel } from "../api/models";
 import Icon from "@mui/material/Icon";
-import { Link } from "wouter";
 import { navigate } from "wouter/use-location";
 import TableHead from "@mui/material/TableHead";
 import SpeedDial from "@mui/material/SpeedDial";
@@ -26,6 +25,7 @@ import MuiAccordionSummary, {
 } from "@mui/material/AccordionSummary";
 import Chip from "@mui/material/Chip";
 import ReactMarkdown from "react-markdown";
+import { ShortUser } from "../components/short_user";
 
 interface ItemProps {
   id: number;
@@ -83,7 +83,11 @@ function displayStatus(item: ItemModel) {
       return "Emprunté";
     }
     const ret = new Date(item.return);
-    return `Retour le ${ret.toLocaleDateString()}`;
+    return `Retour le ${ret.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })}`;
   }
   return "Inconnu";
 }
@@ -128,10 +132,14 @@ export function Item(props: ItemProps) {
         }
       />
       <Typography
-        variant="h5"
+        variant="h4"
         textAlign="center"
         fontWeight="bold"
-        sx={{ p: 2, color: "primary.main" }}
+        sx={{
+          p: 2,
+          color: "primary.main",
+          filter: "drop-shadow(0px 3px 4px rgba(100,100,100,0.3))",
+        }}
       >
         {item.name}
       </Typography>
@@ -200,9 +208,7 @@ export function Item(props: ItemProps) {
                       {item.status == "out" && item.loans?.length && (
                         <>
                           <br />
-                          <Link href={`/users/${item.loans[0].user?.id}`}>
-                            {item.loans[0].user?.name}
-                          </Link>
+                          <ShortUser user_id={item.loans[0].user} />
                         </>
                       )}{" "}
                     </>
@@ -268,27 +274,29 @@ export function Item(props: ItemProps) {
                       <TableCell>Adhérent</TableCell>
                       <TableCell>Début</TableCell>
                       <TableCell>Fin</TableCell>
-                      <TableCell>Durée</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {item.loans.map((i) => (
                       <TableRow key={i.id}>
-                        <TableCell>{i.user?.name}</TableCell>
                         <TableCell>
-                          {new Date(i.start).toLocaleDateString()}
+                          <ShortUser user_id={i.user} />
                         </TableCell>
                         <TableCell>
-                          {new Date(i.stop).toLocaleDateString()}
+                          {new Date(i.start).toLocaleDateString(undefined, {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
                         </TableCell>
                         <TableCell>
                           {i.status == "out"
                             ? "En cours"
-                            : `${
-                                (new Date(i.stop).valueOf() -
-                                  new Date(i.start).valueOf()) /
-                                (3600000 * 24)
-                              } jours`}
+                            : new Date(i.stop).toLocaleDateString(undefined, {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              })}
                         </TableCell>
                       </TableRow>
                     ))}

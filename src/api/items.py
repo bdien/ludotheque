@@ -10,7 +10,6 @@ from api.pwmodels import (
     Loan,
     Item,
     ItemPicture,
-    User,
     db,
 )
 from api.system import auth_user
@@ -158,10 +157,9 @@ def get_item(
     # sourcery skip: use-named-expression
     with db:
         items = (
-            Item.select(Item, Loan, User.name, User.id)
+            Item.select(Item, Loan)
             .left_outer_join(Loan)
             .limit(10)
-            .left_outer_join(User)
             .where(Item.id == item_id)
             .order_by(-Loan.stop)
         )
@@ -193,16 +191,8 @@ def get_item(
                 base["status"] = loans[0].status
                 base["return"] = loans[0].stop
                 if auth and auth.role in ("admin", "benevole"):
-                    # Return all loans + user
-                    base["loans"] = [
-                        model_to_dict(i, recurse=False)
-                        | {
-                            "user": model_to_dict(
-                                i.user, recurse=False, only=[User.id, User.name]
-                            )
-                        }
-                        for i in loans
-                    ]
+                    # Return all loans
+                    base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
             return base
     raise HTTPException(404)
 
