@@ -320,6 +320,13 @@ export function ItemEdit(props: ItemEditProps) {
                       multiple
                       defaultValue={item.categories}
                       sx={{ minWidth: "200px" }}
+                      MenuProps={{
+                        sx: {
+                          "&& .Mui-selected": {
+                            backgroundColor: "#556cd640",
+                          },
+                        },
+                      }}
                       {...register("categories")}
                     >
                       {categories &&
