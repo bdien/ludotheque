@@ -1,25 +1,3 @@
-[tool.pdm]
-[tool.pdm.dev-dependencies]
-dev = [
-    "ruff>=0.0.265",
-    "black>=23.3.0",
-    "pre-commit>=3.3.1",
-    "pytest>=7.3.1",
-    "httpx>=0.24.1",
-    "pytest-cov>=4.1.0",
-    "mypy>=1.6.0",
-]
-
-[tool.pdm.version]
-source = "scm"
-
-[tool.pdm.scripts]
-build = {shell = "cd src/webui && pnpm run build"}
-api = {shell = "cd src/api && uvicorn main:app --reload"}
-api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
-webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
-restore = { shell = "rm -rf storage/img storage/ludotheque.db; curl -H 'Authorization: Bearer $LUDOTHEQUE_APIKEY' -s https://ludotheque.fly.dev/api/backup | tar x" }
-
 [project]
 name = "api"
 description = "Ludotheque"
@@ -66,3 +44,24 @@ max-complexity = 28
 
 [tool.pytest.ini_options]
 addopts = "--ignore=__pypackages__ --cov=api --cov-report html"
+
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+dev = [
+    "ruff>=0.0.265",
+    "pre-commit>=3.3.1",
+    "pytest>=7.3.1",
+    "httpx>=0.24.1",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.6.0",
+]
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.scripts]
+build = {shell = "cd src/webui && pnpm run build"}
+api = {shell = "cd src/api && uvicorn main:app --reload"}
+api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
+webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
+restore = { shell = "rm -rf storage/img storage/ludotheque.db; curl -H 'Authorization: Bearer $LUDOTHEQUE_APIKEY' -s https://ludotheque.fly.dev/api/backup | tar x" }
