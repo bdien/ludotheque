@@ -332,7 +332,7 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
 def get_categories():
     "Return all categories"
     with db:
-        return list(Category.select().dicts())
+        return list(Category.select().order_by(Category.name).dicts())
 
 
 @router.post("/categories", tags=["categories"])

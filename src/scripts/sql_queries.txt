@@ -16,3 +16,8 @@ SELECT item.id,item.name,COUNT(loan.id) FROM item LEFT JOIN loan ON item.id==loa
 # Somme encaissée par jour
 
 SELECT day,SUM(cost) FROM ledger GROUP BY day;
+
+
+# Jeu sans lien myludo
+
+SELECT item.id,item.name FROM item LEFT JOIN itemlink ON item.id==itemlink.item_id WHERE itemlink.ref IS NULL;
