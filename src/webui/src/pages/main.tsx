@@ -32,7 +32,7 @@ export function Main() {
         </p>
         <p>
           La Ludo, c'est un choix de{" "}
-          <b>{info ? info.nbitems : "près de 995"} jeux</b> pour tout public (de
+          <b>{info ? info.nbitems : "près de 900"} jeux</b> pour tout public (de
           9 mois à 99 ans), pour jouer sur place ou à la maison.
         </p>
         <p>
