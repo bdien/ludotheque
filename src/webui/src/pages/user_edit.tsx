@@ -1,6 +1,6 @@
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { navigate } from "wouter/use-location";
-import { useAccount, useUser } from "../api/hooks";
+import { useAccount, useUser, useUsers } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
 import { UserModel } from "../api/models";
 import { useConfirm } from "../hooks/useConfirm";
@@ -56,6 +56,8 @@ function generateDefaultValues(user?: UserModel): FormValues | undefined {
 
 export function UserEdit(props: UserEditProps) {
   const { user, error, mutate } = useUser(props.id);
+  const { mutate: mutateUsers } = useUsers();
+
   const initialUserId = user?.id;
   const { account } = useAccount();
   const [apiError, setApiError] = useState<string | null>(null);
@@ -94,9 +96,11 @@ export function UserEdit(props: UserEditProps) {
       user = result;
     }
 
+    // Refresh user/users
     if (mutate) {
       mutate({ ...user });
     }
+    mutateUsers();
 
     navigate(`/users/${user.id}`, { replace: true });
   }
@@ -105,7 +109,10 @@ export function UserEdit(props: UserEditProps) {
     const answer = await confirmPromise();
     if (!answer) return;
 
-    deleteUser(user_id).then(() => navigate("/users", { replace: true }));
+    deleteUser(user_id).then(() => {
+      mutateUsers();
+      navigate("/users", { replace: true });
+    });
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
