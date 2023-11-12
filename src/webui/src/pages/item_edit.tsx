@@ -1,5 +1,5 @@
 import { Controller, useForm } from "react-hook-form";
-import { useItem, useCategories, useAccount } from "../api/hooks";
+import { useItem, useCategories, useAccount, useItems } from "../api/hooks";
 import { ItemModel } from "../api/models";
 import {
   createItem,
@@ -80,6 +80,7 @@ type FormValues = {
 
 export function ItemEdit(props: ItemEditProps) {
   const { item, error, mutate } = useItem(props.id);
+  const { mutate: mutateItems } = useItems();
   const initialItemId = item?.id;
   const { categories } = useCategories();
   const [autoId, setAutoId] = useState<boolean>(true);
@@ -139,9 +140,12 @@ export function ItemEdit(props: ItemEditProps) {
       await updateItemPicture(item.id, 0, imgFile);
     }
 
+    // Refresh item/items
     if (mutate) {
       mutate({ ...item });
     }
+    mutateItems();
+
     navigate(`/items/${item.id}`, { replace: true });
   }
 
@@ -149,7 +153,10 @@ export function ItemEdit(props: ItemEditProps) {
     const answer = await confirmPromise();
     if (!answer) return;
 
-    deleteItem(itemId).then(() => navigate("/items", { replace: true }));
+    deleteItem(itemId).then(() => {
+      mutateItems();
+      navigate("/items", { replace: true });
+    });
   }
 
   if (error) return <div>Server error: {error.cause}</div>;

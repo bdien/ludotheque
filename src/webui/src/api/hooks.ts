@@ -166,7 +166,7 @@ export function useUserHistory(id?: number) {
 }
 
 export function useUsers() {
-  const { data, error, isLoading } = useSWR<Users>(
+  const { data, error, isLoading, mutate } = useSWR<Users>(
     `${SERVER_URL}/users`,
     fetcher,
     { dedupingInterval: 300000 },
@@ -176,6 +176,7 @@ export function useUsers() {
     users: new Map(data ? data.map((i) => [i["id"], i]) : null),
     isLoading,
     error,
+    mutate,
   };
 }
 
