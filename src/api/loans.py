@@ -10,7 +10,17 @@ router = APIRouter()
 
 
 @router.get("/loans", tags=["loans"])
-def get_loans(mindays: int | None = 0, auth=Depends(auth_user)):
+def get_loans(auth=Depends(auth_user)):
+    if (not auth) or (auth.role != "admin"):
+        raise HTTPException(403)
+
+    loans = Loan.select().order_by(Loan.stop, Loan.user)
+    with db:
+        return list(loans.dicts())
+
+
+@router.get("/loans/late", tags=["loans"])
+def get_loans_late(mindays: int | None = 0, auth=Depends(auth_user)):
     if (not auth) or (auth.role != "admin"):
         raise HTTPException(403)
 

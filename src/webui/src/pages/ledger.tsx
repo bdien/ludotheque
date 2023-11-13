@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { useLedger } from "../api/hooks";
+import { useLedger, useLoans } from "../api/hooks";
 import {
   Accordion,
   AccordionDetails,
@@ -11,7 +11,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { LedgerEntry } from "../api/models";
+import { LedgerEntry, Loan } from "../api/models";
 import { ShortUser } from "../components/short_user";
 import { Loading } from "../components/loading";
 
@@ -31,7 +31,11 @@ function groupBy<T, K>(array: T[], keyFn: (item: T) => K) {
   return map;
 }
 
-function highlevelSummary(entries: LedgerEntry[]) {
+function highlevelSummary(
+  entries: LedgerEntry[],
+  nbLoansOut: number,
+  nbLoansIn: number,
+) {
   const summary = [];
 
   const adherentCount = entries.filter((e) => e.item_id === -1).length;
@@ -40,25 +44,25 @@ function highlevelSummary(entries: LedgerEntry[]) {
   }
 
   const carteCount = entries.filter((e) => e.item_id === -2).length;
-  if (carteCount > 0) {
+  if (carteCount)
     summary.push(`${carteCount} carte${carteCount > 1 ? "s" : ""}`);
-  }
 
-  const itemCount = entries.filter((e) => e.item_id > 0).length;
-  if (itemCount > 0) {
-    summary.push(`${itemCount} jeu${itemCount > 1 ? "x" : ""}`);
-  }
+  if (nbLoansOut) summary.push(`${nbLoansOut} jeux`);
+  if (nbLoansIn) summary.push(`${nbLoansIn} rendus`);
 
   return summary.join(", ");
 }
 
-function summary(entries: LedgerEntry[]) {
-  const entriesByUser = groupBy(entries, (entry) => entry.user_id);
+function summary(entries: LedgerEntry[], loansIn: Loan[]) {
+  const entriesByUser = groupBy(entries, (i) => i.user_id);
+  const loansInByUser = groupBy(loansIn, (i) => i.user);
+  const users = [...entriesByUser.keys(), ...loansInByUser.keys()];
 
   return (
     <>
-      {[...entriesByUser.keys()].map((userId) => {
-        const userEntries = entriesByUser.get(userId)!;
+      {[...new Set(users)].map((userId) => {
+        const userEntries = entriesByUser.get(userId) ?? [];
+        const loansInEntries = loansInByUser.get(userId) ?? [];
 
         return (
           <TableRow key={userId}>
@@ -67,7 +71,7 @@ function summary(entries: LedgerEntry[]) {
             </TableCell>
 
             <TableCell sx={{ textAlign: "right" }}>
-              {summaryPerUser(userEntries)}
+              {summaryPerUser(userEntries, loansInEntries)}
             </TableCell>
 
             <TableCell sx={{ textAlign: "right", fontWeight: 500 }}>
@@ -80,23 +84,21 @@ function summary(entries: LedgerEntry[]) {
   );
 }
 
-function summaryPerUser(entries: LedgerEntry[]) {
+function summaryPerUser(entries: LedgerEntry[], loansIn: Loan[]) {
   const summary = [];
 
   const adherentCount = entries.filter((e) => e.item_id === -1).length;
-  if (adherentCount > 0) {
-    summary.push("Adhésion");
-  }
+  if (adherentCount) summary.push("Adhésion");
 
   const carteCount = entries.filter((e) => e.item_id === -2).length;
-  if (carteCount > 0) {
-    summary.push("Carte");
-  }
+  if (carteCount) summary.push("Carte");
 
   const itemCount = entries.filter((e) => e.item_id > 0).length;
-  if (itemCount > 0) {
-    summary.push(`${itemCount} jeu${itemCount > 1 ? "x" : ""}`);
-  }
+  if (itemCount) summary.push(`${itemCount} jeu${itemCount > 1 ? "x" : ""}`);
+
+  const itemReturned = loansIn.filter((i) => i.status == "in").length;
+  if (itemReturned)
+    summary.push(`${itemReturned} rendu${itemReturned > 1 ? "s" : ""}`);
 
   return summary.join(", ");
 }
@@ -113,16 +115,21 @@ function localeDate(dateString: string) {
 
 export function Ledger() {
   const { ledger } = useLedger();
+  const { loans } = useLoans();
 
-  if (!ledger) return <Loading />;
+  if (!ledger || !loans) return <Loading />;
 
-  const ledgerByDay = groupBy(ledger, (entry) => entry.day);
+  const ledgerByDay = groupBy(ledger, (i) => i.day);
 
   return (
     <Box>
       {[...ledgerByDay.keys()].map((date) => {
-        const entries = ledgerByDay.get(date)!;
-        const total = entries.reduce((sum, e) => sum + e.money, 0);
+        const ledgersDay = ledgerByDay.get(date)!;
+        const loansOut = loans ? loans.filter((i) => i.start == date) : [];
+        const loansIn = loans
+          ? loans.filter((i) => i.status == "in" && i.stop == date)
+          : [];
+        const total = ledgersDay.reduce((sum, e) => sum + e.money, 0);
 
         return (
           <Accordion TransitionProps={{ unmountOnExit: true }} key={date}>
@@ -135,7 +142,7 @@ export function Ledger() {
                 color="primary"
                 sx={{
                   textAlign: "right",
-                  width: "clamp(100px, 8em, 20%)",
+                  width: "clamp(98px, 8em, 20%)",
                   mx: 0,
                 }}
               >
@@ -145,20 +152,20 @@ export function Ledger() {
                 variant="subtitle1"
                 sx={{
                   textAlign: "right",
-                  width: "clamp(60px, 7em, 20%)",
+                  width: "clamp(60px, 5em, 10%)",
                   fontWeight: 500,
                 }}
               >
                 {total}€
               </Typography>
-              <Typography variant="subtitle1" sx={{ pl: 3, maxWidth: "40%" }}>
-                {highlevelSummary(entries)}
+              <Typography variant="subtitle1" sx={{ pl: 3, maxWidth: "60%" }}>
+                {highlevelSummary(ledgersDay, loansOut.length, loansIn.length)}
               </Typography>
             </AccordionSummary>
 
             <AccordionDetails>
               <Table size="small">
-                <TableBody>{summary(entries)}</TableBody>
+                <TableBody>{summary(ledgersDay, loansIn)}</TableBody>
               </Table>
             </AccordionDetails>
           </Accordion>
