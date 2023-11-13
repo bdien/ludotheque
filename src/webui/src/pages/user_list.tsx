@@ -98,7 +98,7 @@ export function UserList() {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setFilter(event.target.value);
           }}
-          sx={{ flexGrow: 0.5 }}
+          sx={{ flexGrow: 0.5, backgroundColor: "white" }}
         />
 
         <Button onClick={filterMenuOpen}>
