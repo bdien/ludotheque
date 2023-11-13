@@ -180,9 +180,23 @@ export function useUsers() {
   };
 }
 
-export function useLoans(mindays: number = 0) {
+export function useLoansLate(mindays: number = 0) {
   const { data, error, isLoading } = useSWR<Loan[]>(
-    `${SERVER_URL}/loans?mindays=${mindays}`,
+    `${SERVER_URL}/loans/late?mindays=${mindays}`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
+
+  return {
+    loans: data,
+    isLoading,
+    error,
+  };
+}
+
+export function useLoans() {
+  const { data, error, isLoading } = useSWR<Loan[]>(
+    `${SERVER_URL}/loans`,
     fetcher,
     { revalidateOnFocus: false },
   );

@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { useLoans } from "../api/hooks";
+import { useLoansLate } from "../api/hooks";
 import { Typography, Table, TableCell, TableRow } from "@mui/material";
 import dayjs from "dayjs";
 import { Loan } from "../api/models";
@@ -19,8 +19,17 @@ const categories = new Map([
 
 const today = dayjs();
 
+function nbWeeks(stop_txt: string): number {
+  return today.diff(stop_txt, "week");
+}
+
+function flames(nbWeeks: number) {
+  if (nbWeeks > 5) return "⚠️";
+  return <Box sx={{ opacity: (nbWeeks - 1) / 4 }}>{"🔥".repeat(nbWeeks)}</Box>;
+}
+
 function categorize(stop_txt: string): number | null {
-  const diff_days = Math.floor(today.diff(stop_txt, "hours") / 24);
+  const diff_days = today.diff(stop_txt, "day");
   if (diff_days < 0) return null;
   for (const diff_cur of categories.keys()) {
     if (diff_days >= diff_cur) return diff_cur;
@@ -29,7 +38,7 @@ function categorize(stop_txt: string): number | null {
 }
 
 export function LateLoans() {
-  const { loans } = useLoans(14);
+  const { loans } = useLoansLate(14);
 
   if (!loans) return <Loading />;
 
@@ -69,12 +78,12 @@ export function LateLoans() {
                   <ShortUser user_id={i.user} />
                 </TableCell>
 
-                <TableCell sx={{ textAlign: "right", fontWeight: 500, px: 0 }}>
+                <TableCell sx={{ textAlign: "right", fontWeight: 500 }}>
                   <ShortItem item_id={i.item} />
                 </TableCell>
 
-                <TableCell sx={{ textAlign: "right", minWidth: 99, pr: 1 }}>
-                  {i.stop}
+                <TableCell sx={{ textAlign: "left", minWidth: 108, pl: 1 }}>
+                  {flames(nbWeeks(i.stop))}
                 </TableCell>
               </TableRow>
             ))}
