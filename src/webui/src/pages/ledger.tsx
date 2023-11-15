@@ -66,15 +66,15 @@ function summary(entries: LedgerEntry[], loansIn: Loan[]) {
 
         return (
           <TableRow key={userId}>
-            <TableCell>
+            <TableCell sx={{ px: 1 }}>
               <ShortUser user_id={userId} />
             </TableCell>
 
-            <TableCell sx={{ textAlign: "right" }}>
+            <TableCell sx={{ textAlign: "right", px: 1 }}>
               {summaryPerUser(userEntries, loansInEntries)}
             </TableCell>
 
-            <TableCell sx={{ textAlign: "right", fontWeight: 500 }}>
+            <TableCell sx={{ textAlign: "right", px: 1, fontWeight: 500 }}>
               {userEntries.reduce((total, entry) => total + entry.money, 0)}€
             </TableCell>
           </TableRow>
@@ -135,15 +135,16 @@ export function Ledger() {
           <Accordion TransitionProps={{ unmountOnExit: true }} key={date}>
             <AccordionSummary
               expandIcon={<Icon>expand_more</Icon>}
-              sx={{ px: 1 }}
+              sx={{ px: 1, display: "flex" }}
             >
               <Typography
                 variant="subtitle1"
                 color="primary"
                 sx={{
                   textAlign: "right",
-                  width: "clamp(98px, 8em, 20%)",
+                  maxWidth: "clamp(98px, 8em, 20%)",
                   mx: 0,
+                  flex: 1,
                 }}
               >
                 {localeDate(date)}
@@ -152,13 +153,14 @@ export function Ledger() {
                 variant="subtitle1"
                 sx={{
                   textAlign: "right",
-                  width: "clamp(60px, 5em, 10%)",
+                  maxWidth: "clamp(60px, 5em, 20%)",
                   fontWeight: 500,
+                  flex: 0.33,
                 }}
               >
                 {total}€
               </Typography>
-              <Typography variant="subtitle1" sx={{ pl: 3, maxWidth: "60%" }}>
+              <Typography variant="subtitle1" sx={{ pl: 2.2, flex: 1 }}>
                 {highlevelSummary(ledgersDay, loansOut.length, loansIn.length)}
               </Typography>
             </AccordionSummary>
