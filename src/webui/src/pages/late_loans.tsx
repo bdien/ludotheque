@@ -25,7 +25,11 @@ function nbWeeks(stop_txt: string): number {
 
 function flames(nbWeeks: number) {
   if (nbWeeks > 5) return "⚠️";
-  return <Box sx={{ opacity: (nbWeeks - 1) / 4 }}>{"🔥".repeat(nbWeeks)}</Box>;
+  return (
+    <Box sx={{ letterSpacing: "-0.1em", opacity: (nbWeeks - 1) / 4 }}>
+      {"🔥".repeat(nbWeeks)}
+    </Box>
+  );
 }
 
 function categorize(stop_txt: string): number | null {
@@ -82,7 +86,7 @@ export function LateLoans() {
                   <ShortItem item_id={i.item} />
                 </TableCell>
 
-                <TableCell sx={{ textAlign: "left", minWidth: 108, pl: 1 }}>
+                <TableCell sx={{ textAlign: "left", minWidth: 80, px: 0 }}>
                   {flames(nbWeeks(i.stop))}
                 </TableCell>
               </TableRow>
