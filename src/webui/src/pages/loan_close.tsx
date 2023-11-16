@@ -6,6 +6,8 @@ import { ItemModel } from "../api/models";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-location";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 
 interface LoanCloseProps {
   id: number;
@@ -56,6 +58,15 @@ export function LoanClose(props: LoanCloseProps) {
       >
         [{item.id}] {item.name}
       </Typography>
+
+      {item.notes ? (
+        <Alert severity="info" sx={{ border: "1px solid #00000020" }}>
+          <AlertTitle>Notes</AlertTitle>
+          {item.notes}
+        </Alert>
+      ) : (
+        ""
+      )}
 
       <Box sx={{ pt: 2 }}>
         <Typography fontWeight={500}>
