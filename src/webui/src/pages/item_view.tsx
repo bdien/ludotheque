@@ -218,6 +218,13 @@ export function Item(props: ItemProps) {
                 </TableCell>
               </TableRow>
 
+              {item.rating && (
+                <TableRow>
+                  <TableCell sx={{ color: "primary.main" }}>Note</TableCell>
+                  <TableCell>{item.rating}</TableCell>
+                </TableRow>
+              )}
+
               {item.notes && (
                 <TableRow>
                   <TableCell sx={{ color: "primary.main" }}>Notes</TableCell>

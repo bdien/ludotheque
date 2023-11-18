@@ -10,6 +10,7 @@ from api.pwmodels import (
     Loan,
     Item,
     ItemPicture,
+    Rating,
     db,
 )
 from api.system import auth_user
@@ -187,6 +188,17 @@ def get_item(
                 for i in ItemLink.select().where(ItemLink.item == item_id)
             ]
 
+            # Ratings
+            ratings = list(
+                Rating.select(Rating.weight, Rating.rating)
+                .where(Rating.item == item_id)
+                .tuples()
+            )
+            if ratings:
+                base["rating"] = round(
+                    sum(w * r for w, r in ratings) / sum(w for w, r in ratings), 1
+                )
+
             if loans:
                 base["status"] = loans[0].status
                 base["return"] = loans[0].stop
@@ -260,6 +272,36 @@ async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_
         newindex = next(idx for idx in range(30) if idx not in indexes)
 
         ItemPicture.create(item=item_id, index=newindex, filename=filename)
+
+
+@router.post("/items/{item_id}/rating", tags=["items"])
+async def create_item_rating(item_id: int, request: Request, auth=Depends(auth_user)):
+    "Add rating"
+
+    if not auth:
+        raise HTTPException(403)
+
+    body = await request.json()
+    source = body.get("source", "website")
+    weight = body.get("weight", 1)
+
+    if (source != "website" or weight != 1) and auth.role != "admin":
+        raise HTTPException(403)
+
+    with db:
+        if source == "myludo":
+            Rating.delete().where(
+                Rating.item == item_id, Rating.source == source
+            ).execute()
+            for rating, nb in body.get("ratings").items():
+                Rating.insert(
+                    item=item_id, source=source, weight=nb, rating=rating
+                ).execute()
+        else:
+            rating = body["rating"]
+            Rating.replace(
+                item=item_id, user=auth.id, weight=weight, rating=rating
+            ).execute()
 
 
 @router.post("/items/{item_id}/picture/{picture_index}", tags=["items"])

@@ -97,6 +97,11 @@ class Ludotheque:
     def create_item(self, params: dict) -> dict:
         return self.__json_post("items", params)
 
+    # Item rating
+
+    def update_item_rating(self, item_id: int, params: dict):
+        return self.__json_post(f"items/{item_id}/rating", params)
+
     # Item pictures
 
     def get_item_picture(self, item_id: int, index: int):

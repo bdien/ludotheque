@@ -60,6 +60,7 @@ export interface ItemModel {
   players_min?: number;
   gametime?: number;
   age?: number;
+  rating?: number;
   big?: boolean;
   outside?: boolean;
   content?: string[];
