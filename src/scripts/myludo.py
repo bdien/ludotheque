@@ -29,7 +29,7 @@ class MyLudo:
         self.session.headers.update({"referer": "https://www.myludo.fr/"})
         self.session.headers.update(
             {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
             }
         )
 
@@ -170,6 +170,20 @@ def main():
                 gametime = (high - low) // 2
 
         to_update["gametime"] = gametime
+
+    # Ratings
+    if myludo_game.get("rating"):
+        game_rating = myludo_game["rating"]["game"]
+        if "sharing" in game_rating:
+            ratings = {
+                int(k): v["audience"]
+                for k, v in game_rating["sharing"].items()
+                if v != 0
+            }
+        else:
+            ratings = {game_rating["average"]: game_rating["audience"]}
+        print("Ratings:", ratings)
+        ludo.update_item_rating(args.game_id, {"source": "myludo", "ratings": ratings})
 
     # Filter everything empty
     to_update = {k: v for k, v in to_update.items() if v}

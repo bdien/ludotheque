@@ -38,6 +38,7 @@ def create_all_tables(drop=False):
         ItemPicture,
         Loan,
         Ledger,
+        Rating,
     ]
     if drop:
         db.drop_tables(tbls)
@@ -133,3 +134,14 @@ class Ledger(BaseModel):
     money = peewee.FloatField()  # Physical money recevied
     day = peewee.DateField(default=date.today, index=True)
     created_at = peewee.DateTimeField(default=datetime.now)
+
+
+class Rating(BaseModel):
+    item = peewee.ForeignKeyField(model=Item)
+    user = peewee.ForeignKeyField(model=User, null=True)
+    source = peewee.CharField(default="website")
+    weight = peewee.IntegerField(default=1)
+    rating = peewee.FloatField()
+
+    class Meta:
+        indexes = ((("item", "source", "user"), True),)
