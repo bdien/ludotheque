@@ -120,10 +120,11 @@ export function Ledger() {
   if (!ledger || !loans) return <Loading />;
 
   const ledgerByDay = groupBy(ledger, (i) => i.day);
+  const days = [...ledgerByDay.keys()].reverse();
 
   return (
     <Box>
-      {[...ledgerByDay.keys()].map((date) => {
+      {days.map((date) => {
         const ledgersDay = ledgerByDay.get(date)!;
         const loansOut = loans ? loans.filter((i) => i.start == date) : [];
         const loansIn = loans
