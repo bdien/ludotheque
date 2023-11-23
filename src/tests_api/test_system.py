@@ -6,7 +6,7 @@ from api.config import APIKEY_PREFIX
 
 
 @pytest.fixture(autouse=True)
-def clear_cache():
+def _clear_cache():
     auth_user.cache_clear()
 
 

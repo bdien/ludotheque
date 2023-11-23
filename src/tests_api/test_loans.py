@@ -22,7 +22,7 @@ def dbitems():
     with db:
         u = User.create(id=USER_ID, name="User", email="user@email", credit=1)
         i = Item.create(id=ITEM_ID, name="Item")
-    yield {"user": u, "items": [i]}
+    return {"user": u, "items": [i]}
 
 
 def test_create_loan(dbitems):
@@ -223,12 +223,12 @@ def test_loan_subscription_will_reenable_user():
 
 
 @pytest.mark.parametrize(
-    "origdate, finaldate",
-    (
+    ("origdate", "finaldate"),
+    [
         (TODAY - datetime.timedelta(days=60), TODAY + datetime.timedelta(days=366)),
         (TODAY, TODAY + datetime.timedelta(days=366)),
         (TODAY + datetime.timedelta(days=100), TODAY + datetime.timedelta(days=466)),
-    ),
+    ],
 )
 def test_loan_subscription_finaldate(origdate, finaldate):
     "Check with date in past, None and future"
