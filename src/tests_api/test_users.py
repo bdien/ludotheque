@@ -98,7 +98,7 @@ def test_delete_not_authenticated():
 
 @pytest.mark.parametrize(
     ("toedit"),
-    ({"name": "newname"}, {"emails": ["alice@nomail"]}, {"role": "operator"}),
+    [{"name": "newname"}, {"emails": ["alice@nomail"]}, {"role": "operator"}],
 )
 def test_edit_user_attributes(toedit: dict):
     # Create User
@@ -146,7 +146,7 @@ def test_get_users():
     assert User1.items() <= users[0].items()
 
 
-@pytest.mark.parametrize("pattern", ("Hélène", "helen", "len"))
+@pytest.mark.parametrize("pattern", ["Hélène", "helen", "len"])
 def test_search_users(pattern):
     User1 = {"name": "Hélène", "email": "alice@nomail"}
     User2 = {"name": "bob", "email": "bob@nomail", "credit": 3, "role": "admin"}
@@ -159,7 +159,7 @@ def test_search_users(pattern):
     assert len(users) == 1
     assert users[0]["name"] == "Hélène"
 
-    # Check in API (QuickSearch)
+    # Check in API, QuickSearch
     response = client.get(f"/users/search?q={pattern}", headers=AUTH_ADMIN)
     users = response.json()
     assert len(users) == 1

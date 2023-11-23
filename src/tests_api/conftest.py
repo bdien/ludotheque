@@ -14,7 +14,7 @@ AUTH_ADMIN = {"Authorization": "1,admin"}
 
 
 @pytest.fixture(autouse=True, scope="module")
-def maxlogging():
+def _maxlogging():
     "Force max logging"
     logging.getLogger().setLevel(level=logging.DEBUG)
 
@@ -39,7 +39,7 @@ def dbtables():
         yield None
 
 
-@pytest.fixture
+@pytest.fixture()
 def fakestorage(monkeypatch):
     tmpdir = tempfile.TemporaryDirectory()
     os.makedirs(f"{tmpdir.name}/img")

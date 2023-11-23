@@ -44,8 +44,8 @@ def test_create_item_attributes():
     assert newjson.items() <= item.items()
 
 
-@pytest.mark.parametrize("big", (True, False))
-@pytest.mark.parametrize("outside", (True, False))
+@pytest.mark.parametrize("big", [True, False])
+@pytest.mark.parametrize("outside", [True, False])
 def test_create_item_bigoutside(big, outside):
     response = client.post(
         "/items",
@@ -104,7 +104,7 @@ def test_delete_unknown_item():
 
 @pytest.mark.parametrize(
     ("toedit"),
-    (
+    [
         {"name": "newname"},
         {"description": "newdesc"},
         {"players_min": 1},
@@ -112,7 +112,7 @@ def test_delete_unknown_item():
         {"age": 4},
         {"big": True},
         {"outside": True},
-    ),
+    ],
 )
 def test_edit_item_attributes(toedit: dict):
     # Create item

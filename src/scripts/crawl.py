@@ -24,10 +24,10 @@ AGE_MAP = {
 
 def parse_joueurs(txt):
     if "à" not in txt:
-        res = re.match("(\d+)", txt)
+        res = re.match(r"(\d+)", txt)
         return int(res[1]), int(res[1])
 
-    res = re.match("(\d+)(?: joueurs)? à ([\d\+]+)(?: joueurs)?", txt)
+    res = re.match(r"(\d+)(?: joueurs)? à ([\d\+]+)(?: joueurs)?", txt)
     (minj, maxj) = res.groups()
     if maxj == "+":
         maxj = "99"
@@ -38,7 +38,7 @@ def get_all() -> list[int]:
     r = requests.get(
         "http://ludoacigne.free.fr/jeux/liste_jeux.php?type=Tous", timeout=60
     )
-    ids = re.findall('<td style="text-align: center">(\d+)</td>', r.text)
+    ids = re.findall(r'<td style="text-align: center">(\d+)</td>', r.text)
     return [int(i) for i in ids]
 
 
@@ -46,7 +46,7 @@ def get_all_big() -> list[int]:
     r = requests.get(
         "http://ludoacigne.free.fr/jeux/liste_jeux.php?type=surdim", timeout=60
     )
-    ids = re.findall('<td style="text-align: center">(\d+)</td>', r.text)
+    ids = re.findall(r'<td style="text-align: center">(\d+)</td>', r.text)
     return [int(i) for i in ids]
 
 
@@ -54,12 +54,12 @@ def get_all_outside() -> list[int]:
     r = requests.get(
         "http://ludoacigne.free.fr/jeux/liste_jeux.php?type=exterieur", timeout=60
     )
-    ids = re.findall('<td style="text-align: center">(\d+)</td>', r.text)
+    ids = re.findall(r'<td style="text-align: center">(\d+)</td>', r.text)
     return [int(i) for i in ids]
 
 
 def pretty_string(txt: str) -> str:
-    newtxt = txt.replace("\xa0", "").strip(". ")
+    newtxt = txt.replace(r"\xa0", "").strip(". ")
     return ". ".join(i.strip().capitalize() for i in newtxt.split("."))
 
 
@@ -69,7 +69,7 @@ def get_one(i: int) -> Jeu:
     text = r.content.decode("Windows-1252")
     kv = dict(
         re.findall(
-            '<td width="17%".*?>(.*?)</td><td width="83%">(.*?)\s*</td>',
+            r'<td width="17%".*?>(.*?)</td><td width="83%">(.*?)\s*</td>',
             text,
             re.DOTALL,
         )

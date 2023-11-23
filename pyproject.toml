@@ -26,7 +26,7 @@ cli = [
 ]
 
 [tool.ruff]
-select = ["E", "F", "B", "RUF", "UP", "SIM", "S"]
+select = ["E", "F", "B", "C", "W", "RUF", "UP", "SIM", "PIE", "PLE", "S", "G", "PT", "RET", "ERA"]
 ignore = ["E402", "E501"]
 # E402: module level import not at top of file
 # E501: Line too loog
@@ -48,7 +48,7 @@ addopts = "--ignore=__pypackages__ --cov=api --cov-report html"
 [tool.pdm]
 [tool.pdm.dev-dependencies]
 dev = [
-    "ruff>=0.0.265",
+    "ruff>=0.1.6",
     "pre-commit>=3.3.1",
     "pytest>=7.3.1",
     "httpx>=0.24.1",
