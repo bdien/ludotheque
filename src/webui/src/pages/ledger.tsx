@@ -63,6 +63,10 @@ function summary(entries: LedgerEntry[], loansIn: Loan[]) {
       {[...new Set(users)].map((userId) => {
         const userEntries = entriesByUser.get(userId) ?? [];
         const loansInEntries = loansInByUser.get(userId) ?? [];
+        const totalMoney = userEntries.reduce(
+          (total, entry) => total + entry.money,
+          0,
+        );
 
         return (
           <TableRow key={userId}>
@@ -74,8 +78,15 @@ function summary(entries: LedgerEntry[], loansIn: Loan[]) {
               {summaryPerUser(userEntries, loansInEntries)}
             </TableCell>
 
-            <TableCell sx={{ textAlign: "right", px: 1, fontWeight: 500 }}>
-              {userEntries.reduce((total, entry) => total + entry.money, 0)}€
+            <TableCell
+              sx={{
+                textAlign: "right",
+                px: 1,
+                fontWeight: 500,
+                opacity: totalMoney ? 1 : 0.2,
+              }}
+            >
+              {totalMoney}€
             </TableCell>
           </TableRow>
         );
