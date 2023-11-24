@@ -1,0 +1,17 @@
+Cher adhérent⸱e de la ludothèque d'Acigné,
+
+Sauf erreur de notre part, vous avez {{ loans|length }} jeu{{ loans|plural("x") }} en retard.
+Afin de garantir un accès équitable à tous nos adhérents, nous vous serions reconnaissants de bien vouloir le{{ loans|plural("s") }} retourner dès que possible.
+
+Voici {{ loans|plural("les jeux concernés", "le jeu concerné") }} :
+{%- for l in loans %}
+  - <a href="https://ludotheque.fly.dev/items/{{l.item.id}}">{{ l.item.name }}</a> (à ramener le {{ l.stop | shortdate }})
+{%- endfor %}
+
+La ludothèque est ouverte tous les samedis de 10h30 à 12h00 (hors les samedis du milieu des vacances scolaires).
+Si vous le souhaitez, vous pouvez consulter vos prêts en cours en vous connectant sur le site {{ "https://ludotheque.fly.dev" | urlize }}
+
+Merci de votre compréhension. N'hésitez pas à nous contacter pour toute question.
+
+Cordialement,
+L'équipe de la Ludo du Poisson Lune

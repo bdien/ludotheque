@@ -1,4 +1,10 @@
-import { UserModel, ItemModel, LoanCreateResult, ApiError } from "./models";
+import {
+  UserModel,
+  ItemModel,
+  LoanCreateResult,
+  ApiError,
+  EMail,
+} from "./models";
 export const SERVER_URL = "/api";
 
 let access_token: string | null = null;
@@ -159,5 +165,18 @@ export async function updateUser(
     method: "POST",
     body: JSON.stringify(obj),
   });
+  return response.json();
+}
+
+export async function emailUser(
+  userId: number,
+  send: boolean = false,
+): Promise<EMail> {
+  const response = await fetchWithToken(
+    `${SERVER_URL}/users/${userId}/email${send ? "?send=1" : ""}`,
+    {
+      method: "GET",
+    },
+  );
   return response.json();
 }
