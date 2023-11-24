@@ -18,6 +18,7 @@ import { useInfo } from "./api/hooks";
 import "./styles.css";
 import { LateLoans } from "./pages/late_loans";
 import { UserHistory } from "./pages/user_history";
+import { LateEmail } from "./pages/late_email";
 
 function App() {
   const { isLoading: infoIsLoading } = useInfo();
@@ -76,6 +77,11 @@ function App() {
           <Route path="/users/:id">
             {(params) => {
               return <UserView id={parseInt(params.id)} />;
+            }}
+          </Route>
+          <Route path="/users/:id/email">
+            {(params) => {
+              return <LateEmail id={parseInt(params.id)} />;
             }}
           </Route>
           <Route path="/users/:id/edit">

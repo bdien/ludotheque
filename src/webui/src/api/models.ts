@@ -26,9 +26,10 @@ export interface UserModel {
   nbloans?: number;
   notes?: string;
   informations?: string;
-  created_at?: string;
   subscription?: string;
   apikey?: string;
+  created_at?: string;
+  last_warning?: string;
 }
 
 export type Users = Array<UserModel>;
@@ -111,4 +112,12 @@ export interface LedgerEntry {
   money: number;
   day: string;
   created_at: string;
+}
+
+export interface EMail {
+  to: string[];
+  body: string;
+  title: string;
+  sent: boolean;
+  error?: string;
 }

@@ -13,6 +13,7 @@ export function ShortUser({ user_id }: { user_id: number }) {
     <Link href={`/users/${user.id}`}>
       <Typography
         color="primary"
+        component="span"
         sx={{
           cursor: "pointer",
           fontSize: "inherit",

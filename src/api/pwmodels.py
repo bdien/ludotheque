@@ -65,6 +65,7 @@ class User(BaseModel):
     subscription = peewee.DateField(default=date.today)  # End of
     apikey = peewee.CharField(null=True)
     created_at = peewee.DateField(default=date.today)
+    last_warning = peewee.DateField(null=True)
 
 
 class EMail(BaseModel):

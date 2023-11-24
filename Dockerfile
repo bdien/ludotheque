@@ -13,10 +13,11 @@ RUN cd /app/src/webui && pnpm install && pnpm run build
 FROM alpine:3.18
 
 ENV TZ=Europe/Paris
-ENV LUDO_STORAGE /app/storage
+ENV MUSL_LOCPATH=/usr/share/i18n/locales/musl
+ENV LUDO_STORAGE=/app/storage
 VOLUME /app/storage
 
-RUN apk add --no-cache python3 py3-pip nginx sqlite tzdata
+RUN apk add --no-cache python3 py3-pip nginx sqlite tzdata lang
 RUN pip install --user pdm
 
 COPY --from=build /app/src/webui/dist /app/www

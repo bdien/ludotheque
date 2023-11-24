@@ -5,13 +5,23 @@ import cachetools.func
 import datetime
 import os
 import dataclasses
+import smtplib
+from email.mime.text import MIMEText
 import tempfile
 import tarfile
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
 from api.pwmodels import Item, User, EMail, db
-from api.config import AUTH_DOMAIN, PRICING, APIKEY_PREFIX, LOAN_DAYS, IMAGE_MAX_DIM
+from api.config import (
+    AUTH_DOMAIN,
+    PRICING,
+    APIKEY_PREFIX,
+    LOAN_DAYS,
+    IMAGE_MAX_DIM,
+    EMAIL_SENDER,
+)
+
 
 router = APIRouter()
 auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 5)
@@ -119,3 +129,26 @@ def info():
             "image_max": IMAGE_MAX_DIM,
             "version": "DEVDEV",
         }
+
+
+def send_email(recipients: list[str], subject: str, body: str):
+    "Send an email through GMail SMTP"
+
+    if not os.getenv("SMTP_PASSWORD"):
+        print("No SMTP password, not sending email")
+        return {"sent": False, "error": "Envoi d'EMail désactivé"}
+
+    try:
+        html_message = MIMEText(body, "html")
+        html_message["Subject"] = subject
+        html_message["From"] = EMAIL_SENDER
+        html_message["To"] = ", ".join(recipients)
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(EMAIL_SENDER, os.getenv("SMTP_PASSWORD"))
+            server.sendmail(EMAIL_SENDER, recipients, html_message.as_string())
+
+        return {"sent": True}
+    except Exception as e:
+        logging.exception("Sending email")
+        return {"sent": False, "error": str(e)}

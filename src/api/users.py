@@ -1,12 +1,15 @@
+import datetime
 import io
 import csv
 import logging
+import pathlib
 import re
 from fastapi.responses import PlainTextResponse
+import jinja2
 import peewee
-from api.pwmodels import Loan, User, EMail, db
+from api.pwmodels import Item, Loan, User, EMail, db
 from fastapi import APIRouter, HTTPException, Request, Depends
-from api.system import auth_user
+from api.system import auth_user, send_email
 
 from playhouse.shortcuts import model_to_dict
 
@@ -189,6 +192,7 @@ def get_user(user_id: int, auth=Depends(auth_user)):
     if auth.role != "admin":
         del ret["informations"]
         del ret["apikey"]
+        del ret["last_warning"]
 
     return ret
 
@@ -253,3 +257,65 @@ async def delete_user(user_id: int, auth=Depends(auth_user)):
             raise HTTPException(404)
         user.delete_instance(recursive=True)
         return "OK"
+
+
+def plural(lst, plural="s", singular="") -> str:
+    return singular if len(lst) == 1 else plural
+
+
+def shortDate(d: datetime.date):
+    fmt = "%d %B %Y" if d.year != datetime.date.today().year else "%d %B"
+    return d.strftime(fmt).lstrip("0")
+
+
+@router.get("/users/{user_id}/email", tags=["users"])
+def send_user_email(user_id: int, send: bool | None = False, auth=Depends(auth_user)):
+    if (not auth) or (auth.role != "admin"):
+        raise HTTPException(403)
+
+    with db:
+        user = User.get_or_none(User.id == user_id)
+        if not user:
+            raise HTTPException(400, "No such user")
+
+        emails = [i.email for i in EMail.select().where(EMail.user == user_id)]
+        if not emails:
+            raise HTTPException(400, "No emails")
+
+        loans = (
+            Loan.select(Loan.stop, Item.name, Item.id)
+            .join(Item)
+            .where(
+                Loan.status == "out",
+                Loan.stop < datetime.date.today(),
+                Loan.user == user_id,
+            )
+            .order_by(Loan.stop, Loan.user)
+        )
+        nb = len(loans)
+        if not nb:
+            raise HTTPException(400, "No late loan")
+
+        # Render email
+        env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(pathlib.Path(__file__).parent / "templates"),
+            autoescape=True,
+        )
+        env.filters.update({"plural": plural, "shortdate": shortDate})
+        txt = env.get_template("email_retard.txt").render(loans=loans)
+        txt = txt.replace("\n", "<br/>")
+
+        # TODO: Temporaire
+        emails = ["benoit.dien@gmail.com"]
+
+        # Send email
+        result = {"title": "Jeux en retard", "body": txt, "to": emails, "sent": False}
+        if send:
+            result |= send_email(result["to"], result["title"], result["body"])
+
+        # Update last warning date
+        # if result["sent"]:
+        #     user.last_warning = datetime.date.today()
+        #     user.save()
+
+        return result

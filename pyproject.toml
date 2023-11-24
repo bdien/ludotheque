@@ -14,6 +14,7 @@ dependencies = [
     "cachetools>=5.3.1",
     "gspread>=5.11.3",
     "apscheduler>=3.10.4",
+    "jinja2>=3.1.2",
 ]
 requires-python = ">=3.11"
 license = {text = "GPL2"}
@@ -26,7 +27,7 @@ cli = [
 ]
 
 [tool.ruff]
-select = ["E", "F", "B", "C", "W", "RUF", "UP", "SIM", "PIE", "PLE", "S", "G", "PT", "RET", "ERA"]
+select = ["E", "F", "B", "C", "W", "RUF", "UP", "SIM", "PIE", "PLE", "S", "G", "PT", "RET"]
 ignore = ["E402", "E501"]
 # E402: module level import not at top of file
 # E501: Line too loog
