@@ -90,7 +90,7 @@ def test_delete_unknown_user():
 
 def test_delete_not_authenticated():
     response = client.delete("/users/7")
-    assert response.status_code == 403
+    assert response.status_code == 401
 
     response = client.delete("/users/7", headers=AUTH_USER)
     assert response.status_code == 403

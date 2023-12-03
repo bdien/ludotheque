@@ -19,13 +19,22 @@ with contextlib.suppress(Exception):
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Schedule GSheets refresh and also refresh now
     scheduler = BackgroundScheduler()
+
+    # Every day at 13h, update Google Sheets
     scheduler.add_job(
         api.gsheets.publish_gsheets, "cron", hour=13, misfire_grace_time=None
     )
+    # Every saturday at 12h45, reset the status of all benevoles
+    scheduler.add_job(
+        api.system.remove_all_benevoles,
+        "cron",
+        day_of_week="sat",
+        hour=12,
+        minute=45,
+        misfire_grace_time=None,
+    )
     scheduler.start()
-    api.gsheets.publish_gsheets()
 
     # Let FastAPI handle HTTP requests
     yield

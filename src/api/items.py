@@ -13,7 +13,7 @@ from api.pwmodels import (
     Rating,
     db,
 )
-from api.system import auth_user
+from api.system import auth_user, check_auth
 from api.config import IMAGE_MAX_DIM
 from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
 from playhouse.shortcuts import model_to_dict
@@ -27,11 +27,9 @@ LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 router = APIRouter()
 
 
-@router.post("/items", tags=["items"])
+@router.post("/items", tags=["items", "admin"])
 async def create_item(request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     body = await request.json()
 
     # Avoid some properties
@@ -100,12 +98,11 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
         return list(query.order_by(Item.id).dicts())
 
 
-@router.get("/items/export", tags=["items"], response_class=PlainTextResponse)
+@router.get("/items/export", tags=["items", "admin"], response_class=PlainTextResponse)
 def export_items(auth=Depends(auth_user)):
     "Export CSV"
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
 
+    check_auth(auth, "admin")
     f = io.StringIO()
     csvwriter = csv.DictWriter(
         f,
@@ -148,12 +145,8 @@ def search_item(q: str | None = None):
 @router.get("/items/{item_id}", tags=["items"])
 def get_item(
     item_id: int,
-    history: int | None = 10,
     auth=Depends(auth_user),
 ):
-    if not auth or auth.role not in ("admin", "benevole"):
-        history = 1  # noqa: F841
-
     # Retrieve item + pictures + status (Limit to the last 10 loans)
     # sourcery skip: use-named-expression
     with db:
@@ -209,11 +202,9 @@ def get_item(
     raise HTTPException(404)
 
 
-@router.post("/items/{item_id}", tags=["items"])
+@router.post("/items/{item_id}", tags=["items", "benevole"])
 async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
-
+    check_auth(auth, "benevole")
     body = await request.json()
 
     # Avoid some properties
@@ -248,12 +239,11 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
             ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
 
 
-@router.post("/items/{item_id}/picture", tags=["items"])
+@router.post("/items/{item_id}/picture", tags=["items", "benevole"])
 async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_user)):
     "Add new picture"
 
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
+    check_auth(auth, "benevole")
 
     # Convert (and maybe resize) new image to webP
     img = Image.open(file.file)
@@ -302,12 +292,11 @@ async def create_item_rating(item_id: int, request: Request, auth=Depends(auth_u
             ).execute()
 
 
-@router.post("/items/{item_id}/picture/{picture_index}", tags=["items"])
+@router.post("/items/{item_id}/picture/{picture_index}", tags=["items", "benevole"])
 async def modify_item_picture(
     item_id: int, picture_index: int, file: UploadFile, auth=Depends(auth_user)
 ):
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
+    check_auth(auth, "benevole")
 
     # Convert (and maybe resize) new image to webP
     img = Image.open(file.file)
@@ -334,11 +323,9 @@ async def modify_item_picture(
                 picture.save()
 
 
-@router.delete("/items/{item_id}/picture/{picture_index}", tags=["items"])
+@router.delete("/items/{item_id}/picture/{picture_index}", tags=["items", "benevole"])
 def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
-
+    check_auth(auth, "benevole")
     with db:
         picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
         if not picture:
@@ -349,11 +336,9 @@ def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user
         picture.delete_instance()
 
 
-@router.delete("/items/{item_id}", tags=["users"])
+@router.delete("/items/{item_id}", tags=["users", "admin"])
 async def delete_item(item_id: int, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     with db:
         item = Item.get_or_none(Item.id == item_id)
         if not item:
@@ -375,22 +360,18 @@ def get_categories():
         return list(Category.select().order_by(Category.name).dicts())
 
 
-@router.post("/categories", tags=["categories"])
+@router.post("/categories", tags=["categories", "admin"])
 async def create_category(request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     body = await request.json()
     with db:
         c = Category.create(name=body["name"])
         return model_to_dict(c)
 
 
-@router.post("/categories/{cat_id}", tags=["categories"])
+@router.post("/categories/{cat_id}", tags=["categories", "admin"])
 async def update_category(cat_id: int, request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     body = await request.json()
     with db:
         Category.update(name=body["name"]).where(Category.id == cat_id).execute()

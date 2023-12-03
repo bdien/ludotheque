@@ -107,7 +107,7 @@ def test_create_loan_item_from_other_user(dbitems):
 
 def test_create_loan_not_authenticated(dbitems):
     response = client.post("/loans", json={"user": USER_ID})
-    assert response.status_code == 403
+    assert response.status_code == 401
 
     response = client.post("/loans", json={"user": USER_ID}, headers=AUTH_USER)
     assert response.status_code == 403

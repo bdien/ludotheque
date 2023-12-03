@@ -2,28 +2,24 @@ import datetime
 import logging
 from api.pwmodels import Loan, Ledger, User, Item, db
 from fastapi import APIRouter, HTTPException, Request, Depends
-from api.system import auth_user
+from api.system import auth_user, check_auth
 from playhouse.shortcuts import model_to_dict
 from api.config import PRICING
 
 router = APIRouter()
 
 
-@router.get("/loans", tags=["loans"])
+@router.get("/loans", tags=["loans", "admin"])
 def get_loans(auth=Depends(auth_user)):
-    if (not auth) or (auth.role != "admin"):
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     loans = Loan.select().order_by(Loan.stop, Loan.user)
     with db:
         return list(loans.dicts())
 
 
-@router.get("/loans/late", tags=["loans"])
+@router.get("/loans/late", tags=["loans", "admin"])
 def get_loans_late(mindays: int | None = 0, auth=Depends(auth_user)):
-    if (not auth) or (auth.role != "admin"):
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     stop_date = datetime.date.today() - datetime.timedelta(days=mindays)
 
     loans = Loan.select().order_by(Loan.stop, Loan.user)
@@ -33,11 +29,9 @@ def get_loans_late(mindays: int | None = 0, auth=Depends(auth_user)):
         return list(loans.dicts())
 
 
-@router.post("/loans", tags=["loans"])
+@router.post("/loans", tags=["loans", "benevole"])
 async def create_loan(request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
-
+    check_auth(auth, "benevole")
     body = await request.json()
     for i in "user", "items":
         if i not in body:
@@ -167,22 +161,18 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         }
 
 
-@router.get("/loans/{loan_id}", tags=["loans"])
+@router.get("/loans/{loan_id}", tags=["loans", "benevole"])
 def get_loan(loan_id: int, auth=Depends(auth_user)):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
-
+    check_auth(auth, "benevole")
     with db:
         if loan := Loan.get_or_none(loan_id):
             return model_to_dict(loan, recurse=False)
     raise HTTPException(404)
 
 
-@router.get("/loans/{loan_id}/close", tags=["loans"])
+@router.get("/loans/{loan_id}/close", tags=["loans", "benevole"])
 def close_loan(loan_id: int, auth=Depends(auth_user)):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
-
+    check_auth(auth, "benevole")
     with db:
         loan = Loan.get_or_none(Loan.id == loan_id)
         if not loan:
@@ -196,11 +186,9 @@ def close_loan(loan_id: int, auth=Depends(auth_user)):
         return model_to_dict(loan, recurse=False)
 
 
-@router.delete("/loans/{loan_id}", tags=["loans"])
+@router.delete("/loans/{loan_id}", tags=["loans", "admin"])
 async def delete_loan(loan_id: int, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     with db:
         loan = Loan.get_or_none(Loan.id == loan_id)
         if not loan:

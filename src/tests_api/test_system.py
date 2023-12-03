@@ -1,8 +1,14 @@
 import pytest
 import api.system
+from api.main import app
 from api.system import auth_user
 from api.pwmodels import EMail, User, db
 from api.config import APIKEY_PREFIX
+from fastapi.testclient import TestClient
+from conftest import AUTH_USER, fake_auth_user
+
+client = TestClient(app)
+app.dependency_overrides[auth_user] = fake_auth_user
 
 
 @pytest.fixture(autouse=True)
@@ -63,3 +69,11 @@ def test_auth_token_userdisabled(monkeypatch):
 
     result = auth_user("Bearer valid@email")
     assert not result
+
+
+def test_backup():
+    response = client.get(
+        "/backup",
+        headers=AUTH_USER,
+    )
+    assert response.status_code == 403
