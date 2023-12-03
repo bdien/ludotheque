@@ -111,7 +111,6 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
 
                 # Real Money (If paid from credit, it is not real money)
                 cost_real_money = max(0, c - remaining_topay_fromcredit)
-                print(cost_real_money, c, remaining_topay_fromcredit)
                 remaining_topay_fromcredit = max(0, remaining_topay_fromcredit - c)
 
                 # Create DB entry
