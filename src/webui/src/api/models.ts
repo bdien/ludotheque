@@ -12,6 +12,8 @@ export interface InfoModel {
   loan: {
     days: number;
   };
+  image_max: number;
+  email_minperiod: number;
 }
 
 export interface UserModel {

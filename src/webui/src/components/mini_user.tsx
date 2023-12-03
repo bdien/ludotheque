@@ -9,6 +9,8 @@ import Popover from "@mui/material/Popover";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import Link from "@mui/material/Link";
+import { useAccount } from "../api/hooks";
+import dayjs from "dayjs";
 
 interface MiniUserProps {
   user: UserModel;
@@ -19,11 +21,34 @@ interface MiniUserProps {
 
 const today = new Date();
 
+function emailLate(user: UserModel) {
+  if (!user.emails) return "";
+
+  // Can be NaN if user.last_warning is NULL
+  const last_warning_days = dayjs().diff(user.last_warning, "days");
+  if (last_warning_days == 0) return ` - Courriel envoyé aujourd'hui`;
+  if (last_warning_days < 15)
+    return ` - Courriel envoyé il y a ${last_warning_days}j`;
+
+  return (
+    <>
+      {" - "}{" "}
+      <Link
+        href={`/users/${user.id}/email`}
+        sx={{ textDecoration: "none", cursor: "pointer" }}
+      >
+        Envoyer un email
+      </Link>
+    </>
+  );
+}
+
 export function MiniUser(props: MiniUserProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const popoverOpen = Boolean(anchorEl);
   const late_loans = props.user?.loans?.filter((i) => new Date(i.stop) < today)
     .length;
+  const { account } = useAccount();
 
   return (
     <Grid
@@ -113,18 +138,24 @@ export function MiniUser(props: MiniUserProps) {
                 {props.user?.loans?.length}{" "}
               </Typography>
               emprunt{props.user?.loans?.length > 1 ? "s" : ""}
+              {/* Emprunts en retard */}
               {late_loans ? (
-                <Box
-                  sx={{ ml: "0.3em", color: "warning.main" }}
-                  component="span"
-                  className="redblink"
-                >
-                  (
-                  <Typography component="span" fontWeight={500}>
-                    {late_loans}
-                  </Typography>{" "}
-                  en retard)
-                </Box>
+                <>
+                  <Box
+                    sx={{ ml: "0.3em", color: "warning.main" }}
+                    component="span"
+                    className="redblink"
+                  >
+                    (
+                    <Typography component="span" fontWeight={500}>
+                      {late_loans}
+                    </Typography>{" "}
+                    en retard)
+                  </Box>
+
+                  {/* Emails pour retard */}
+                  {account?.role == "admin" ? emailLate(props.user) : ""}
+                </>
               ) : (
                 ""
               )}

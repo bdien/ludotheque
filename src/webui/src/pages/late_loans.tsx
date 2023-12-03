@@ -9,8 +9,8 @@ import { Loading } from "../components/loading";
 
 const categories = new Map([
   [365, "Plus d'un an"],
-  [180, "6 mois"],
-  [60, "2 mois"],
+  [180, "plus de 6 mois"],
+  [60, "2 mois et plus"],
   [30, "1 mois"],
   [21, "3 semaines"],
   [14, "2 semaines"],
@@ -23,13 +23,10 @@ function nbWeeks(stop_txt: string): number {
   return today.diff(stop_txt, "week");
 }
 
-function flames(nbWeeks: number) {
-  if (nbWeeks > 5) return "⚠️";
-  return (
-    <Box sx={{ letterSpacing: "-0.1em", opacity: (nbWeeks - 1) / 4 }}>
-      {"🔥".repeat(nbWeeks)}
-    </Box>
-  );
+function col_time(nbWeeks: number) {
+  if (nbWeeks >= 52) return `${Math.round(nbWeeks / 52)} ans`;
+  if (nbWeeks >= 8) return `${Math.floor(nbWeeks / 4)} mois`;
+  return `${nbWeeks} semaines`;
 }
 
 function categorize(stop_txt: string): number | null {
@@ -87,7 +84,7 @@ export function LateLoans() {
                 </TableCell>
 
                 <TableCell sx={{ textAlign: "left", minWidth: 80, px: 0 }}>
-                  {flames(nbWeeks(i.stop))}
+                  {col_time(nbWeeks(i.stop))}
                 </TableCell>
               </TableRow>
             ))}
