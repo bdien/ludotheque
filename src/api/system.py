@@ -13,18 +13,11 @@ from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
 from api.pwmodels import Item, User, EMail, db
-from api.config import (
-    AUTH_DOMAIN,
-    PRICING,
-    APIKEY_PREFIX,
-    LOAN_DAYS,
-    IMAGE_MAX_DIM,
-    EMAIL_SENDER,
-)
+from api import config
 
 
 router = APIRouter()
-auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 5)
+auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 2)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -36,7 +29,7 @@ class AuthUser:
 def __validate_token(authorization: str) -> str | None:
     "Validate token, fetch user info and extract email"
     r = requests.get(
-        f"https://{AUTH_DOMAIN}/userinfo",
+        f"https://{config.AUTH_DOMAIN}/userinfo",
         headers={"Authorization": authorization},
         timeout=60,
     )
@@ -53,7 +46,7 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
         return None
 
     # API-Key ?
-    if f" {APIKEY_PREFIX}" in authorization.lower():
+    if f" {config.APIKEY_PREFIX}" in authorization.lower():
         with db:
             # Remove Bearer
             apikey = authorization.split(" ", 1)[1]
@@ -91,6 +84,18 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
     return AuthUser(user.id, user.role)
 
 
+def check_auth(auth: AuthUser, minlevel: str = "user") -> None:
+    "Check that use is authenticated and at minimum level"
+
+    if not auth:
+        raise HTTPException(401)
+
+    if (minlevel == "admin") and (auth.role != "admin"):
+        raise HTTPException(403)
+    if (minlevel == "benevole") and (auth.role not in ("admin", "benevole")):
+        raise HTTPException(403)
+
+
 @router.get("/backup")
 def create_backup(auth=Depends(auth_user)):
     "Create a TAR file with the DB and images"
@@ -123,10 +128,11 @@ def info():
     with db:
         return {
             "nbitems": Item.select().where(Item.enabled).count(),
-            "domain": AUTH_DOMAIN,
-            "pricing": PRICING,
-            "loan": {"days": LOAN_DAYS},
-            "image_max": IMAGE_MAX_DIM,
+            "domain": config.AUTH_DOMAIN,
+            "pricing": config.PRICING,
+            "loan": {"days": config.LOAN_DAYS},
+            "image_max": config.IMAGE_MAX_DIM,
+            "email_minperiod": config.EMAIL_MINPERIOD,
             "version": "DEVDEV",
         }
 
@@ -141,14 +147,22 @@ def send_email(recipients: list[str], subject: str, body: str):
     try:
         html_message = MIMEText(body, "html")
         html_message["Subject"] = subject
-        html_message["From"] = EMAIL_SENDER
+        html_message["From"] = config.EMAIL_SENDER
         html_message["To"] = ", ".join(recipients)
 
+        recipients.append(config.EMAIL_CC)
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(EMAIL_SENDER, os.getenv("SMTP_PASSWORD"))
-            server.sendmail(EMAIL_SENDER, recipients, html_message.as_string())
+            server.login(config.EMAIL_SENDER, os.getenv("SMTP_PASSWORD"))
+            server.sendmail(config.EMAIL_SENDER, recipients, html_message.as_string())
 
         return {"sent": True}
     except Exception as e:
         logging.exception("Sending email")
         return {"sent": False, "error": str(e)}
+
+
+def remove_all_benevoles():
+    "Set the status of all benevoles to simple users"
+
+    with db:
+        User.update(role="user").where(User.role == "benevole").execute()

@@ -278,9 +278,7 @@ async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_
 async def create_item_rating(item_id: int, request: Request, auth=Depends(auth_user)):
     "Add rating"
 
-    if not auth:
-        raise HTTPException(403)
-
+    check_auth(auth)
     body = await request.json()
     source = body.get("source", "website")
     weight = body.get("weight", 1)

@@ -16,3 +16,7 @@ APIKEY_PREFIX = "akld"
 IMAGE_MAX_DIM = 800
 
 EMAIL_SENDER = "laludodupoissonlune@gmail.com"
+EMAIL_CC = "benoit.dien@gmail.com"
+
+# Minimum number of days between emails
+EMAIL_MINPERIOD = 15

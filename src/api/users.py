@@ -10,6 +10,7 @@ import peewee
 from api.pwmodels import Item, Loan, User, EMail, db
 from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user, send_email
+from api.config import EMAIL_MINPERIOD
 
 from playhouse.shortcuts import model_to_dict
 
@@ -277,6 +278,11 @@ def send_user_email(user_id: int, send: bool | None = False, auth=Depends(auth_u
         user = User.get_or_none(User.id == user_id)
         if not user:
             raise HTTPException(400, "No such user")
+        if (
+            user.last_warning
+            and (datetime.date.today() - user.last_warning).days < EMAIL_MINPERIOD
+        ):
+            raise HTTPException(400, "Too frequent emails")
 
         emails = [i.email for i in EMail.select().where(EMail.user == user_id)]
         if not emails:
@@ -305,17 +311,14 @@ def send_user_email(user_id: int, send: bool | None = False, auth=Depends(auth_u
         txt = env.get_template("email_retard.txt").render(loans=loans)
         txt = txt.replace("\n", "<br/>")
 
-        # TODO: Temporaire
-        emails = ["benoit.dien@gmail.com"]
-
         # Send email
         result = {"title": "Jeux en retard", "body": txt, "to": emails, "sent": False}
         if send:
             result |= send_email(result["to"], result["title"], result["body"])
 
         # Update last warning date
-        # if result["sent"]:
-        #     user.last_warning = datetime.date.today()
-        #     user.save()
+        if result["sent"]:
+            user.last_warning = datetime.date.today()
+            user.save()
 
         return result
