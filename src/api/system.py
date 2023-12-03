@@ -100,9 +100,7 @@ def check_auth(auth: AuthUser, minlevel: str = "user") -> None:
 def create_backup(auth=Depends(auth_user)):
     "Create a TAR file with the DB and images"
 
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     storage_path = os.getenv("LUDO_STORAGE", "../../storage")
 
     # Vaccuum table + Sync WAL journal to DB

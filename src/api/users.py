@@ -9,7 +9,7 @@ import jinja2
 import peewee
 from api.pwmodels import Item, Loan, User, EMail, db
 from fastapi import APIRouter, HTTPException, Request, Depends
-from api.system import auth_user, send_email
+from api.system import auth_user, send_email, check_auth
 from api.config import EMAIL_MINPERIOD
 
 from playhouse.shortcuts import model_to_dict
@@ -17,10 +17,9 @@ from playhouse.shortcuts import model_to_dict
 router = APIRouter()
 
 
-@router.post("/users", tags=["users"])
+@router.post("/users", tags=["users", "benevole"])
 async def create_user(request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
+    check_auth(auth, "benevole")
     body = await request.json()
 
     # Lowercase emails
@@ -73,12 +72,11 @@ def uniquesplit(lst: list | None) -> list:
     return list(set(lst.split(",")))
 
 
-@router.get("/users", tags=["users"])
+@router.get("/users", tags=["users", "benevole"])
 def get_users(
     nb: int = 0, sort: str | None = None, q: str | None = None, auth=Depends(auth_user)
 ):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
+    check_auth(auth, "benevole")
 
     query = (
         User.select(
@@ -112,12 +110,11 @@ def get_users(
         ]
 
 
-@router.get("/users/export", tags=["users"], response_class=PlainTextResponse)
+@router.get("/users/export", tags=["users", "admin"], response_class=PlainTextResponse)
 def export_users(auth=Depends(auth_user)):
     "Export CSV"
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
 
+    check_auth(auth, "admin")
     f = io.StringIO()
     csvwriter = csv.DictWriter(
         f,
@@ -134,8 +131,7 @@ def export_users(auth=Depends(auth_user)):
 
 @router.get("/users/me", tags=["users"])
 def get_myself(auth=Depends(auth_user)):
-    if not auth:
-        raise HTTPException(401)
+    check_auth(auth)
     with db:
         if u := User.select(User.id, User.role).where(User.id == auth.id).get():
             ret = model_to_dict(u, recurse=False)
@@ -145,11 +141,9 @@ def get_myself(auth=Depends(auth_user)):
     raise HTTPException(402)
 
 
-@router.get("/users/search", tags=["users"])
+@router.get("/users/search", tags=["users", "benevole"])
 def search_user(q: str | None = None, auth=Depends(auth_user)):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
-
+    check_auth(auth, "benevole")
     if not q:
         return []
 
@@ -166,8 +160,10 @@ def search_user(q: str | None = None, auth=Depends(auth_user)):
 
 @router.get("/users/{user_id}", tags=["users"])
 def get_user(user_id: int, auth=Depends(auth_user)):
-    if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
-        raise HTTPException(403)
+    # Must be authenticated. If not checking self, must be at least benevole
+    check_auth(auth)
+    if user_id != auth.id:
+        check_auth(auth, "benevole")
 
     with db:
         user = (
@@ -200,8 +196,10 @@ def get_user(user_id: int, auth=Depends(auth_user)):
 
 @router.get("/users/{user_id}/history", tags=["users"])
 def get_user_history(user_id: int, auth=Depends(auth_user)):
-    if (not auth) or (auth.role not in ("admin", "benevole") and (user_id != auth.id)):
-        raise HTTPException(403)
+    # Must be authenticated. If not checking self, must be at least benevole
+    check_auth(auth)
+    if user_id != auth.id:
+        check_auth(auth, "benevole")
 
     with db:
         return list(
@@ -212,11 +210,9 @@ def get_user_history(user_id: int, auth=Depends(auth_user)):
         )
 
 
-@router.post("/users/{user_id}", tags=["users"])
+@router.post("/users/{user_id}", tags=["users", "benevole"])
 async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
-    if not auth or auth.role not in ("admin", "benevole"):
-        raise HTTPException(403)
-
+    check_auth(auth, "benevole")
     body = await request.json()
 
     # Prevent benevole from changing any role
@@ -247,11 +243,9 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
             EMail.insert(email=email, user=user_id).on_conflict_ignore().execute()
 
 
-@router.delete("/users/{user_id}", tags=["users"])
+@router.delete("/users/{user_id}", tags=["users", "admin"])
 async def delete_user(user_id: int, auth=Depends(auth_user)):
-    if not auth or auth.role != "admin":
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     with db:
         user = User.get_or_none(User.id == user_id)
         if not user:
@@ -269,11 +263,9 @@ def shortDate(d: datetime.date):
     return d.strftime(fmt).lstrip("0")
 
 
-@router.get("/users/{user_id}/email", tags=["users"])
+@router.get("/users/{user_id}/email", tags=["users", "admin"])
 def send_user_email(user_id: int, send: bool | None = False, auth=Depends(auth_user)):
-    if (not auth) or (auth.role != "admin"):
-        raise HTTPException(403)
-
+    check_auth(auth, "admin")
     with db:
         user = User.get_or_none(User.id == user_id)
         if not user:
