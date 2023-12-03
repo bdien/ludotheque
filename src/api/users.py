@@ -135,8 +135,15 @@ def get_myself(auth=Depends(auth_user)):
     with db:
         if u := User.select(User.id, User.role).where(User.id == auth.id).get():
             ret = model_to_dict(u, recurse=False)
-            del ret["notes"]  # Private to admins
-            del ret["informations"]  # Private to admins
+
+            # Effective role (Benevoles might be limited by datetime)
+            ret["role"] = auth.role
+
+            # Private to admins
+            del ret["notes"]
+            del ret["informations"]
+            del ret["last_warning"]
+
             return ret
     raise HTTPException(402)
 

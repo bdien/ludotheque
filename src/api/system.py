@@ -46,6 +46,7 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
         return None
 
     # API-Key ?
+    user = None
     if f" {config.APIKEY_PREFIX}" in authorization.lower():
         with db:
             # Remove Bearer
@@ -60,32 +61,36 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
                 logging.warning("Cannot find user in DB with APIKey")
                 return None
 
-        return AuthUser(user.id, user.role)
-
     # Validate token and extract email
-    email = __validate_token(authorization)
-    if not email:
-        logging.warning("Invalid token")
-        return None
-
-    # Look into DB
-    with db:
-        try:
-            user = (
-                User.select(User.id, User.role)
-                .join(EMail)
-                .where(EMail.email == email, User.enabled)
-                .get()
-            )
-        except User.DoesNotExist:
-            logging.warning("Cannot find email '%s' in DB", email)
+    if not user:
+        email = __validate_token(authorization)
+        if not email:
+            logging.warning("Invalid token")
             return None
+
+        # Look into DB
+        with db:
+            try:
+                user = (
+                    User.select(User.id, User.role)
+                    .join(EMail)
+                    .where(EMail.email == email, User.enabled)
+                    .get()
+                )
+            except User.DoesNotExist:
+                logging.warning("Cannot find email '%s' in DB", email)
+                return None
+
+    # Role benevole is only valid on saturdays 10h->13h
+    now = datetime.datetime.now()
+    if user.role == "benevole" and not (now.weekday() == 5 and (10 <= now.hour <= 12)):
+        user.role = "user"
 
     return AuthUser(user.id, user.role)
 
 
 def check_auth(auth: AuthUser, minlevel: str = "user") -> None:
-    "Check that use is authenticated and at minimum level"
+    "Check that the user is authenticated and at minimum level, throw exception"
 
     if not auth:
         raise HTTPException(401)

@@ -1,5 +1,6 @@
 import pytest
 import api.system
+import freezegun
 from api.main import app
 from api.system import auth_user
 from api.pwmodels import EMail, User, db
@@ -69,6 +70,31 @@ def test_auth_token_userdisabled(monkeypatch):
 
     result = auth_user("Bearer valid@email")
     assert not result
+
+
+@pytest.mark.parametrize(
+    ("datetime", "role"),
+    [
+        ("2023-12-02 10:00", "benevole"),
+        ("2023-12-02 11:00", "benevole"),
+        ("2023-12-09 12:59", "benevole"),
+        ("2023-12-02 09:59", "user"),
+        ("2023-12-02 13:01", "user"),
+        ("2023-12-01 11:00", "user"),
+        ("2023-12-03 11:00", "user"),
+    ],
+)
+def test_auth_benevole_limit(datetime, role, monkeypatch):
+    "Test that benevole cannot be benevole outside of saturday 10->13"
+
+    # Setup
+    monkeypatch.setattr(api.system, "__validate_token", lambda e: e.split(" ", 1)[1])
+    with db:
+        user = User.create(name="A", role="benevole")
+        EMail.create(user_id=user.id, email="valid@email")
+
+    with freezegun.freeze_time(datetime):
+        assert auth_user("Bearer valid@email").role == role
 
 
 def test_backup():
