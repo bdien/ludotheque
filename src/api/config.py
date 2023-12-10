@@ -14,6 +14,7 @@ LOAN_DAYS = 21
 APIKEY_PREFIX = "akld"
 
 IMAGE_MAX_DIM = 800
+THUMB_DIM = 200
 
 EMAIL_SENDER = "laludodupoissonlune@gmail.com"
 EMAIL_CC = "benoit.dien@gmail.com"

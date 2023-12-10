@@ -30,6 +30,9 @@ def test_item_add_picture(fakestorage):
     assert os.path.isfile(
         f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
+    assert os.path.isfile(
+        f"{fakestorage}/thumb/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+    )
     with db:
         ItemPicture.get(item=item, index=0)
 
@@ -64,6 +67,9 @@ def test_item_modify_picture(fakestorage):
     assert os.path.isfile(
         f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
+    assert os.path.isfile(
+        f"{fakestorage}/thumb/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+    )
     assert not os.path.isfile(f"{fakestorage}/img/none.jpg")
     with db:
         item = ItemPicture.get(item=item, index=0)
@@ -85,6 +91,9 @@ def test_item_modify_picture_nonexistent(fakestorage):
     assert os.path.isfile(
         f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
+    assert os.path.isfile(
+        f"{fakestorage}/thumb/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+    )
     with db:
         item = ItemPicture.get(item=item, index=0)
         assert item.filename == "jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
@@ -105,6 +114,9 @@ def test_picture_remove_existent(fakestorage):
     assert response.status_code == 200
     assert not os.path.isfile(
         f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+    )
+    assert not os.path.isfile(
+        f"{fakestorage}/thumb/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
     with db:
         assert not ItemPicture.get_or_none(item=item, index=0)

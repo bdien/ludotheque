@@ -14,7 +14,7 @@ from api.pwmodels import (
     db,
 )
 from api.system import auth_user, check_auth
-from api.config import IMAGE_MAX_DIM
+from api.config import IMAGE_MAX_DIM, THUMB_DIM
 from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
 from playhouse.shortcuts import model_to_dict
 import os
@@ -255,6 +255,10 @@ async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_
     print(f"Saving as {LUDO_STORAGE}/img/{filename}")
     img.save(f"{LUDO_STORAGE}/img/{filename}")
 
+    # Thumbnail
+    img.thumbnail((THUMB_DIM, THUMB_DIM))
+    img.save(f"{LUDO_STORAGE}/thumb/{filename}")
+
     # Find first non allocated indexes
     with db:
         query = ItemPicture.select(ItemPicture.index).where(ItemPicture.item == item_id)
@@ -307,6 +311,10 @@ async def modify_item_picture(
     print(f"Saving as {LUDO_STORAGE}/img/{filename}")
     img.save(f"{LUDO_STORAGE}/img/{filename}")
 
+    # Thumbnail
+    img.thumbnail((THUMB_DIM, THUMB_DIM))
+    img.save(f"{LUDO_STORAGE}/thumb/{filename}")
+
     # Delete previous image
     with db:
         picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
@@ -317,6 +325,7 @@ async def modify_item_picture(
                 print(f"Unlink {LUDO_STORAGE}/img/{picture.filename}")
                 with contextlib.suppress(FileNotFoundError):
                     os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
+                    os.unlink(f"{LUDO_STORAGE}/thumb/{picture.filename}")
 
                 # Set new one in DB
                 picture.filename = filename
@@ -333,6 +342,7 @@ def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user
 
         with contextlib.suppress(FileNotFoundError):
             os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
+            os.unlink(f"{LUDO_STORAGE}/thumb/{picture.filename}")
         picture.delete_instance()
 
 
@@ -349,6 +359,7 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
         for p in ItemPicture.select().where(ItemPicture.item == item_id):
             with contextlib.suppress(FileNotFoundError):
                 os.unlink(f"{LUDO_STORAGE}/img/{p.filename}")
+                os.unlink(f"{LUDO_STORAGE}/thumb/{p.filename}")
 
         return "OK"
 
