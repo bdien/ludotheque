@@ -43,6 +43,7 @@ def dbtables():
 def fakestorage(monkeypatch):
     tmpdir = tempfile.TemporaryDirectory()
     os.makedirs(f"{tmpdir.name}/img")
+    os.makedirs(f"{tmpdir.name}/thumb")
     monkeypatch.setattr(api.items, "LUDO_STORAGE", tmpdir.name)
     yield tmpdir.name
     tmpdir.cleanup()
