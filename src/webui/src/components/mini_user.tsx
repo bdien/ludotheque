@@ -46,8 +46,11 @@ function emailLate(user: UserModel) {
 export function MiniUser(props: MiniUserProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const popoverOpen = Boolean(anchorEl);
-  const late_loans = props.user?.loans?.filter((i) => new Date(i.stop) < today)
+  const late_loans = props.user?.loans?.filter((i) => dayjs().diff(i.stop) > 0)
     .length;
+  const verylate_loans = props.user?.loans?.filter(
+    (i) => dayjs().diff(i.stop, "days") > 14,
+  ).length;
   const { account } = useAccount();
 
   return (
@@ -153,8 +156,10 @@ export function MiniUser(props: MiniUserProps) {
                     en retard)
                   </Box>
 
-                  {/* Emails pour retard */}
-                  {account?.role == "admin" ? emailLate(props.user) : ""}
+                  {/* Emails pour retard (au moins 15j) */}
+                  {account?.role == "admin" && verylate_loans
+                    ? emailLate(props.user)
+                    : ""}
                 </>
               ) : (
                 ""
