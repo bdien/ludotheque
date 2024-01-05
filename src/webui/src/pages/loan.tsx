@@ -64,6 +64,10 @@ export function Loan() {
     if (items.some((i) => i.id === item.id)) return;
     setItems((current) => [...current, item]);
   }
+  function removeItem(item: ItemModel) {
+    const idx = items.indexOf(item);
+    if (idx != -1) removeItemIndex(idx);
+  }
 
   // Transform items into LoanItemTableEntry
   const loanItems: LoanItemTableEntry[] = items.map((i, idx) => ({
@@ -73,8 +77,18 @@ export function Loan() {
   }));
 
   // Function to remove a specific index
-  function removeItem(idx: number) {
+  function removeItemIndex(idx: number) {
     setItems((items) => [...items.slice(0, idx), ...items.slice(idx + 1)]);
+  }
+
+  // Function to add/remove items when changing user
+  function changeUser(user: UserModel | null) {
+    // If user must renew its subscription, add it to the loans
+    if (user && new Date(user?.subscription ?? "") <= new Date())
+      addItem(fakeItemAdhesion);
+    else removeItem(fakeItemAdhesion);
+
+    setUser(user);
   }
 
   // Initial Item (If present in URL)
@@ -90,7 +104,7 @@ export function Loan() {
   // Initial User (if present in URL)
   if (initialUser)
     fetchUser(parseInt(initialUser)).then((user) => {
-      setUser(user);
+      changeUser(user);
       window.history.replaceState(
         {},
         document.title,
@@ -104,7 +118,7 @@ export function Loan() {
         <Typography variant="h6" color="primary.main" sx={{ mb: 2 }}>
           Adhérent
         </Typography>
-        <UserSearch user={user} setUser={setUser} />
+        <UserSearch user={user} setUser={changeUser} />
       </Box>
 
       <Box sx={{ mb: 4 }}>
@@ -140,7 +154,7 @@ export function Loan() {
             </MenuItem>
           </Menu>
         </Box>
-        <LoanItemTable items={loanItems} removeItem={removeItem} />
+        <LoanItemTable items={loanItems} removeItem={removeItemIndex} />
       </Box>
 
       {loanResult && (
