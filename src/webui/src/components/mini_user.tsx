@@ -39,6 +39,9 @@ function emailLate(user: UserModel) {
       >
         Envoyer un email
       </Link>
+      {last_warning_days < 60
+        ? ` (Envoyé il y a ${Math.ceil(last_warning_days / 7)} sem)`
+        : ""}
     </>
   );
 }
