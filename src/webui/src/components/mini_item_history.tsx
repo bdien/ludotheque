@@ -43,7 +43,7 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
               }}
               src={
                 item.pictures?.length
-                  ? `/storage/img/${item.pictures[0]}`
+                  ? `/storage/thumb/${item.pictures[0]}`
                   : "/notavailable.webp"
               }
             />

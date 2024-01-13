@@ -76,18 +76,24 @@ function renderItemLink(link: ItemLinkModel) {
 
 function displayStatus(item: ItemModel) {
   if (item?.status == "in") {
-    return "Disponible";
+    return <Chip size="small" label="Disponible" color="success" />;
   }
   if (item?.status == "out") {
     if (!item?.return) {
-      return "Emprunté";
+      return <Chip size="small" label="Emprunté" color="success" />;
     }
     const ret = new Date(item.return);
-    return `Retour le ${ret.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })}`;
+    return (
+      <Chip
+        size="small"
+        label={`Retour le ${ret.toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })}`}
+        color="primary"
+      />
+    );
   }
   return "Inconnu";
 }
@@ -268,8 +274,7 @@ export function Item(props: ItemProps) {
 
       {/* Loan history */}
       {item?.loans?.length &&
-        item?.status != "in" &&
-        item?.loans?.length > 1 && (
+        (item?.status != "out" || item?.loans?.length > 1) && (
           <Box sx={{ pb: 1 }}>
             <Accordion>
               <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
