@@ -199,7 +199,7 @@ def get_item(
                     if auth.role == "admin":
                         # Return all loans
                         base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
-                    if (auth.role == "benevole") and (base["status"] == "out"):
+                    elif (auth.role == "benevole") and (base["status"] == "out"):
                         # Return last loan if loaned
                         base["loans"] = [model_to_dict(loans[0], recurse=False)]
 

@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useItem, useItems } from "../api/hooks";
+import { useAccount, useItem, useItems } from "../api/hooks";
 import { Link } from "wouter";
 import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-location";
@@ -13,6 +13,7 @@ interface MiniItemProps {
 export function MiniItem(props: MiniItemProps) {
   const { item, error, mutate } = useItem(props.id);
   const { items } = useItems();
+  const { account } = useAccount();
   const item_short = item ?? items.get(props.id);
 
   if (error) return <div>Impossible de charger: {error}</div>;
@@ -23,6 +24,7 @@ export function MiniItem(props: MiniItemProps) {
 
   const last_loan = item?.loans ? item.loans[0] : undefined;
   const last_loan_stop = last_loan && new Date(last_loan?.stop);
+  const item_return_date = item?.return && new Date(item.return);
 
   // render data
   return (
@@ -81,34 +83,35 @@ export function MiniItem(props: MiniItemProps) {
 
         {item ? (
           <>
-            {last_loan_stop && (
-              <>
-                <Typography
-                  variant="subtitle2"
-                  color={last_loan_stop < thisweek ? "red" : "text.secondary"}
-                >
-                  A rendre le{" "}
-                  {last_loan_stop.toLocaleDateString(undefined, {
-                    year: last_loan_stop < today ? "numeric" : undefined,
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </Typography>
-                {last_loan.status == "out" && (
-                  <Button
-                    size="small"
-                    variant="contained"
-                    onClick={() =>
-                      navigate(
-                        `/loans/${last_loan.id}/close?return=${window.location.pathname}`,
-                      )
-                    }
-                  >
-                    Rendre
-                  </Button>
-                )}
-              </>
+            {item_return_date && (
+              <Typography
+                variant="subtitle2"
+                color={item_return_date < thisweek ? "red" : "text.secondary"}
+              >
+                A rendre le{" "}
+                {item_return_date.toLocaleDateString(undefined, {
+                  year: item_return_date < today ? "numeric" : undefined,
+                  month: "short",
+                  day: "numeric",
+                })}
+              </Typography>
             )}
+
+            {last_loan_stop &&
+              last_loan.status == "out" &&
+              (account?.role == "admin" || account?.role == "benevole") && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={() =>
+                    navigate(
+                      `/loans/${last_loan.id}/close?return=${window.location.pathname}`,
+                    )
+                  }
+                >
+                  Rendre
+                </Button>
+              )}
           </>
         ) : (
           <Skeleton />
