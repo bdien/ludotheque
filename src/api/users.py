@@ -17,9 +17,9 @@ from playhouse.shortcuts import model_to_dict
 router = APIRouter()
 
 
-@router.post("/users", tags=["users", "benevole"])
+@router.post("/users", tags=["users", "admin"])
 async def create_user(request: Request, auth=Depends(auth_user)):
-    check_auth(auth, "benevole")
+    check_auth(auth, "admin")
     body = await request.json()
 
     # Lowercase emails
@@ -80,7 +80,12 @@ def get_users(
 
     query = (
         User.select(
-            User,
+            User.id,
+            User.name,
+            User.enabled,
+            User.subscription,
+            User.credit,
+            User.role,
             peewee.fn.Count(Loan.id).alias("loans"),
             peewee.fn.Min(Loan.stop).alias("oldest_loan"),
             peewee.fn.group_concat(EMail.email).alias("emails"),
@@ -99,15 +104,17 @@ def get_users(
     with db:
         # Combine fields. Note: We must divide the number of loans per the number of
         # emails because of grouping
-        return [
-            model_to_dict(user)
-            | {
+        ret = []
+        for user in query.order_by(User.name):
+            elem = model_to_dict(user) | {
                 "loans": user.loans / max(1, len(uniquesplit(user.emails))),
                 "oldest_loan": user.oldest_loan,
                 "emails": uniquesplit(user.emails),
             }
-            for user in query.order_by(User.name)
-        ]
+            if auth.role != "admin":
+                del elem["emails"]
+            ret.append(elem)
+        return ret
 
 
 @router.get("/users/export", tags=["users", "admin"], response_class=PlainTextResponse)
@@ -133,16 +140,18 @@ def export_users(auth=Depends(auth_user)):
 def get_myself(auth=Depends(auth_user)):
     check_auth(auth)
     with db:
-        if u := User.select(User.id, User.role).where(User.id == auth.id).get():
-            ret = model_to_dict(u, recurse=False)
+        if u := User.get_or_none(id=auth.id, enabled=True):
+            ret = model_to_dict(u)
 
             # Effective role (Benevoles might be limited by datetime)
             ret["role"] = auth.role
 
             # Private to admins
+            del ret["enabled"]
             del ret["notes"]
             del ret["informations"]
             del ret["last_warning"]
+            del ret["created_at"]
 
             return ret
     raise HTTPException(402)
@@ -197,16 +206,18 @@ def get_user(user_id: int, auth=Depends(auth_user)):
         del ret["informations"]
         del ret["apikey"]
         del ret["last_warning"]
+        if user_id != auth.id:
+            del ret["emails"]
 
     return ret
 
 
 @router.get("/users/{user_id}/history", tags=["users"])
 def get_user_history(user_id: int, auth=Depends(auth_user)):
-    # Must be authenticated. If not checking self, must be at least benevole
+    # Must be authenticated. If not checking self, must be at least admin
     check_auth(auth)
     if user_id != auth.id:
-        check_auth(auth, "benevole")
+        check_auth(auth, "admin")
 
     with db:
         return list(
@@ -217,14 +228,10 @@ def get_user_history(user_id: int, auth=Depends(auth_user)):
         )
 
 
-@router.post("/users/{user_id}", tags=["users", "benevole"])
+@router.post("/users/{user_id}", tags=["users", "admin"])
 async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
-    check_auth(auth, "benevole")
+    check_auth(auth, "admin")
     body = await request.json()
-
-    # Prevent benevole from changing any role
-    if (auth.role == "benevole") and ("role" in body):
-        del body["role"]
 
     # Lowercase emails
     emails = [i.lower() for i in body.get("emails", [])]

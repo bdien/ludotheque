@@ -206,7 +206,8 @@ export function MiniUser(props: MiniUserProps) {
             )}
 
             {/* Historique */}
-            {props.history ? (
+            {props.history &&
+            (account?.id == props.user.id || account?.role == "admin") ? (
               <>
                 <Icon sx={{ ml: "0.4em", mr: "0.1em" }}>hourglass_empty</Icon>
                 <Link
