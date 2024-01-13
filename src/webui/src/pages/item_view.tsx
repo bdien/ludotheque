@@ -267,53 +267,55 @@ export function Item(props: ItemProps) {
       </Box>
 
       {/* Loan history */}
-      {item?.loans?.length && (
-        <Box sx={{ pb: 1 }}>
-          <Accordion>
-            <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-              Historique des emprunts
-            </AccordionSummary>
-            <AccordionDetails sx={{ p: 0 }}>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Adhérent</TableCell>
-                      <TableCell>Début</TableCell>
-                      <TableCell>Fin</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {item.loans.map((i) => (
-                      <TableRow key={i.id}>
-                        <TableCell>
-                          <ShortUser user_id={i.user} />
-                        </TableCell>
-                        <TableCell>
-                          {new Date(i.start).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          {i.status == "out"
-                            ? "En cours"
-                            : new Date(i.stop).toLocaleDateString(undefined, {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              })}
-                        </TableCell>
+      {item?.loans?.length &&
+        item?.status != "in" &&
+        item?.loans?.length > 1 && (
+          <Box sx={{ pb: 1 }}>
+            <Accordion>
+              <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+                Historique des emprunts
+              </AccordionSummary>
+              <AccordionDetails sx={{ p: 0 }}>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Adhérent</TableCell>
+                        <TableCell>Début</TableCell>
+                        <TableCell>Fin</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </AccordionDetails>
-          </Accordion>
-        </Box>
-      )}
+                    </TableHead>
+                    <TableBody>
+                      {item.loans.map((i) => (
+                        <TableRow key={i.id}>
+                          <TableCell>
+                            <ShortUser user_id={i.user} />
+                          </TableCell>
+                          <TableCell>
+                            {new Date(i.start).toLocaleDateString(undefined, {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </TableCell>
+                          <TableCell>
+                            {i.status == "out"
+                              ? "En cours"
+                              : new Date(i.stop).toLocaleDateString(undefined, {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </AccordionDetails>
+            </Accordion>
+          </Box>
+        )}
 
       {/* Edit button */}
       {(account?.role == "admin" || account?.role == "benevole") && (

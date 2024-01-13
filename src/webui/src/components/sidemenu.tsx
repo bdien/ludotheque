@@ -92,6 +92,10 @@ export function SideMenu(props: SideMenuProps) {
               </ListItemIcon>
               <ListItemText primary="Liste adhérents" />
             </ListItem>
+          </>
+        )}
+        {account?.role == "admin" && (
+          <>
             <ListItem
               component={Link}
               to="/users/new"
@@ -103,11 +107,9 @@ export function SideMenu(props: SideMenuProps) {
               </ListItemIcon>
               <ListItemText primary="Nouvel adhérent" />
             </ListItem>
-          </>
-        )}
-        {account?.role == "admin" && (
-          <>
+
             <Divider />
+
             <ListItem sx={{ ...styleUrl("/admin") }} onClick={handleClick}>
               <ListItemIcon sx={{ color: "inherit" }}>
                 <Icon>star_border</Icon>

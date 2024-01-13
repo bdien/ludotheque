@@ -195,9 +195,14 @@ def get_item(
             if loans:
                 base["status"] = loans[0].status
                 base["return"] = loans[0].stop
-                if auth and auth.role in ("admin", "benevole"):
-                    # Return all loans
-                    base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
+                if auth:
+                    if auth.role == "admin":
+                        # Return all loans
+                        base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
+                    if (auth.role == "benevole") and (base["status"] == "out"):
+                        # Return last loan if loaned
+                        base["loans"] = [model_to_dict(loans[0], recurse=False)]
+
             return base
     raise HTTPException(404)
 

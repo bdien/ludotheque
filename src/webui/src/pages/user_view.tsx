@@ -49,13 +49,17 @@ export function UserView(props: UserViewProps) {
           }}
           icon={<SpeedDialIcon />}
         >
-          <SpeedDialAction
-            key="edit"
-            tooltipOpen={true}
-            icon={<Icon>edit</Icon>}
-            tooltipTitle="Edition"
-            onClick={() => navigate(`/users/${user.id}/edit`)}
-          />
+          {account?.role == "admin" ? (
+            <SpeedDialAction
+              key="edit"
+              tooltipOpen={true}
+              icon={<Icon>edit</Icon>}
+              tooltipTitle="Edition"
+              onClick={() => navigate(`/users/${user.id}/edit`)}
+            />
+          ) : (
+            ""
+          )}
           <SpeedDialAction
             key="emprunter"
             tooltipOpen={true}
