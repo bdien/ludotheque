@@ -1,3 +1,4 @@
+import datetime
 import pytest
 from api.main import app
 from api.system import auth_user
@@ -156,6 +157,25 @@ def test_get_items():
     items = response.json()
     assert len(items) == 1
     assert item1.items() <= items[0].items()
+
+
+def test_get_items_loaned():
+    yesterday = datetime.date.today() - datetime.timedelta(days=1)
+    tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+    with db:
+        item1 = Item.create(name="item1")
+        item2 = Item.create(name="item2")
+        user = User.create(name="user")
+        Loan.create(user=user, item=item1, start=yesterday, stop=yesterday, status="in")
+        Loan.create(user=user, item=item2, start=yesterday, stop=tomorrow, status="out")
+
+    # Check in API
+    response = client.get("/items")
+    items = response.json()
+    assert items[0]["name"] == "item1"
+    assert items[0]["status"] != "out"
+    assert items[1]["name"] == "item2"
+    assert items[1]["status"] == "out"
 
 
 def test_modif_category():
