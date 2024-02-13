@@ -12,12 +12,13 @@ import tarfile
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
-from api.pwmodels import Item, User, EMail, db
+from api.pwmodels import Item, Loan, User, EMail, db
 from api import config
 
 
 router = APIRouter()
 auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 2)
+stats_cache = {}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -122,6 +123,79 @@ def create_backup(auth=Depends(auth_user)):
     now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     final_fn = f"ludotheque_{now}.tar"
     return FileResponse(fn, filename=final_fn, background=BackgroundTask(os.remove, fn))
+
+
+def stats_per_day(stop_day, duration_weeks=4):
+    global stats_cache
+
+    if (stop_day in stats_cache) and (stop_day != datetime.date.today()):
+        return stats_cache[stop_day]
+
+    range_start = stop_day - datetime.timedelta(weeks=4)
+
+    # Users on that day
+    nbusers = (
+        Loan.select(Loan.user)
+        .where(
+            (Loan.start == stop_day) | ((Loan.status == "in") & (Loan.stop == stop_day))
+        )
+        .distinct()
+        .count()
+    )
+    if not nbusers:
+        stats_cache[stop_day] = {}
+        return stats_cache[stop_day]
+
+    # Active users over a motnh
+    activeusers = (
+        Loan.select(Loan.user)
+        .where(
+            Loan.start.between(range_start, stop_day)
+            | ((Loan.status == "in") & (Loan.stop.between(range_start, stop_day)))
+        )
+        .distinct()
+        .count()
+    )
+
+    # Items (Total number loaned, new returned, new loaned)
+    nbitems = (
+        Loan.select()
+        .where(
+            (Loan.start <= stop_day) & ((Loan.status == "out") | (Loan.stop > stop_day))
+        )
+        .count()
+    )
+    nbitems_out = Loan.select().where(Loan.start == stop_day).count()
+    nbitems_in = Loan.select().where(Loan.status == "in", Loan.stop == stop_day).count()
+
+    stats_cache[stop_day] = {
+        "users": {"day": nbusers, "month": activeusers},
+        "items": {"totalout": nbitems, "out": nbitems_out, "in": nbitems_in},
+    }
+    return stats_cache[stop_day]
+
+
+@router.get("/stat")
+def stats(auth=Depends(auth_user)):
+    "Return stats (Loans, Users)"
+
+    check_auth(auth, "admin")
+
+    with db:
+        # Active users (Loans in/out last month) / week
+        today = datetime.date.today()
+        last_saturday = today - datetime.timedelta(days=(today.weekday() + 2) % 7)
+        ret = {}
+
+        for i in range(16):
+            stats_day = last_saturday - datetime.timedelta(weeks=i)
+            stats = stats_per_day(stats_day)
+            if not stats:
+                continue
+
+            date_txt = stats_day.strftime("%Y%m%d")
+            ret[date_txt] = stats
+        return ret
 
 
 @router.get("/info")
