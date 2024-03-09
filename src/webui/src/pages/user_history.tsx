@@ -34,7 +34,7 @@ export function UserHistory(props: UserHistoryProps) {
 
   return (
     <>
-      <MiniUser fullDetails={true} user={user} history={false} />
+      <MiniUser fullDetails={true} user={user} />
 
       <Box>
         {Array.from(grouped.keys()).map((startdate) => (

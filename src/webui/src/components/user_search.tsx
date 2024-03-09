@@ -20,13 +20,7 @@ export function UserSearch(props: UserSearchProps) {
   }, [userInput]);
 
   if (props.user)
-    return (
-      <MiniUser
-        user={props.user}
-        onRemove={() => props.setUser(null)}
-        history={true}
-      />
-    );
+    return <MiniUser user={props.user} onRemove={() => props.setUser(null)} />;
 
   return (
     <Autocomplete
