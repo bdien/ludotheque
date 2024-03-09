@@ -127,6 +127,7 @@ export function Loan() {
         </Typography>
         <Box display="flex" sx={{ mb: 1.5 }}>
           <ItemSearch setItem={addItem} excludesIds={items.map((i) => i.id)} />
+
           <Button onClick={menuAddLoanOpen}>
             <Icon>add</Icon>
           </Button>

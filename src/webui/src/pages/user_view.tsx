@@ -22,7 +22,7 @@ export function UserView(props: UserViewProps) {
 
   return (
     <>
-      <MiniUser fullDetails={true} user={user} history={true} />
+      <MiniUser fullDetails={true} user={user} />
 
       <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
         {user?.loans?.length ? (

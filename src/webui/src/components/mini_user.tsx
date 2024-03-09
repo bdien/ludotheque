@@ -5,18 +5,21 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Icon from "@mui/material/Icon";
-import Popover from "@mui/material/Popover";
 import { useState } from "react";
-import ReactMarkdown from "react-markdown";
 import Link from "@mui/material/Link";
 import { useAccount } from "../api/hooks";
 import dayjs from "dayjs";
+import Alert from "@mui/material/Alert";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { navigate } from "wouter/use-location";
+import Modal from "@mui/material/Modal";
+import Button from "@mui/material/Button";
 
 interface MiniUserProps {
   user: UserModel;
   fullDetails?: boolean | null;
   onRemove?: ((event: React.MouseEvent<HTMLElement>) => void) | null;
-  history: boolean;
 }
 
 const today = new Date();
@@ -47,8 +50,16 @@ function emailLate(user: UserModel) {
 }
 
 export function MiniUser(props: MiniUserProps) {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const popoverOpen = Boolean(anchorEl);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const menuOpened = Boolean(anchorEl);
+  const menuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const menuClose = () => {
+    setAnchorEl(null);
+  };
+
   const late_loans = props.user?.loans?.filter((i) => dayjs().diff(i.stop) > 0)
     .length;
   const verylate_loans = props.user?.loans?.filter(
@@ -57,146 +68,80 @@ export function MiniUser(props: MiniUserProps) {
   const { account } = useAccount();
 
   return (
-    <Grid
-      container
-      spacing={0}
-      columns={16}
-      component={Paper}
-      display="flex"
-      sx={{ m: 0, mt: 0.5, p: 1.6 }}
-    >
-      <Grid flexGrow={1}>
-        <Link
-          href={`/users/${props.user.id}`}
-          style={{ textDecoration: "none" }}
-        >
-          <Typography
-            color="primary.main"
-            component="span"
-            variant="h5"
-            fontWeight={500}
-            sx={{ mb: 0.5 }}
+    <>
+      <Box component={Paper} display="flex" sx={{ p: "1em" }}>
+        <Box sx={{ flexGrow: 1 }}>
+          <Link
+            href={`/users/${props.user.id}`}
+            style={{ textDecoration: "none" }}
           >
-            {/* User ID */}
-            {props.fullDetails && `[${props.user.id}] `}
+            <Typography
+              color="primary.main"
+              component="span"
+              variant="h5"
+              fontWeight={500}
+              sx={{ mb: 0.5 }}
+            >
+              {props.user.name}
 
-            {props.user.name}
-
-            {/* Icone admin/bureau */}
-            {props.user.role == "admin" && (
-              <Icon fontSize="small" sx={{ ml: 0.3 }}>
-                star
-              </Icon>
-            )}
-
-            {/* Icone bénévole */}
-            {props.user.role == "benevole" && (
-              <Icon fontSize="small" sx={{ ml: 0.3 }}>
-                star_half
-              </Icon>
-            )}
-          </Typography>
-        </Link>
-
-        <Box sx={{ color: "text.secondary" }}>
-          {/* Email + Additional information */}
-          {props.fullDetails && (
-            <Box>
-              {props.user?.emails?.join(", ")}
-              {props.user?.informations && (
-                <>
-                  <span> - </span>
-                  <Link
-                    component="button"
-                    onClick={(evt: React.MouseEvent<HTMLButtonElement>) =>
-                      setAnchorEl(evt.currentTarget)
-                    }
-                  >
-                    plus d'informations
-                  </Link>
-                </>
+              {/* Icone admin/bureau */}
+              {props.user.role == "admin" && (
+                <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                  star
+                </Icon>
               )}
-            </Box>
-          )}
 
-          {/* Pop-Over avec les infos additionnelles */}
-          <Popover
-            id="popover_moreinfo"
-            open={popoverOpen}
-            anchorEl={anchorEl}
-            onClose={() => setAnchorEl(null)}
-            anchorOrigin={{
-              vertical: "bottom",
-              horizontal: "left",
-            }}
-          >
-            <Box sx={{ mr: 2 }}>
-              <ReactMarkdown>
-                {props.user?.informations || "Vide"}
-              </ReactMarkdown>
-            </Box>
-          </Popover>
-
-          {/* Emprunts */}
-          {props.user?.loans && props.user?.loans?.length > 0 && (
-            <Box>
-              <Typography component="span" fontWeight={500}>
-                {props.user?.loans?.length}{" "}
-              </Typography>
-              emprunt{props.user?.loans?.length > 1 ? "s" : ""}
-              {/* Emprunts en retard */}
-              {late_loans ? (
-                <>
-                  <Box
-                    sx={{ ml: "0.3em", color: "warning.main" }}
-                    component="span"
-                    className="redblink"
-                  >
-                    (
-                    <Typography component="span" fontWeight={500}>
-                      {late_loans}
-                    </Typography>{" "}
-                    en retard)
-                  </Box>
-
-                  {/* Emails pour retard (au moins 15j) */}
-                  {account?.role == "admin" && verylate_loans
-                    ? emailLate(props.user)
-                    : ""}
-                </>
-              ) : (
-                ""
+              {/* Icone bénévole */}
+              {props.user.role == "benevole" && (
+                <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                  star_half
+                </Icon>
               )}
-            </Box>
-          )}
+            </Typography>
+          </Link>
+
+          {/* Secondary (Emprunts, Carte, Adhésion) */}
           <Box
             sx={{
+              color: "text.secondary",
               display: "flex",
-              alignItems: "center",
               flexWrap: "wrap",
             }}
           >
+            {/* Nombre d'emprunts */}
+            <Box sx={{ mr: 1, display: "flex" }}>
+              <Icon sx={{ mr: "0.15em" }}>local_offer</Icon>
+              <Typography
+                component="span"
+                fontWeight={500}
+                sx={{ mr: "0.6ch" }}
+              >
+                {props.user?.loans?.length}
+              </Typography>
+              emprunt
+              {props.user.loans && props.user?.loans?.length > 1 ? "s" : ""}
+            </Box>
+
+            {/* Credit sur la carte */}
             {props.user?.credit > 0 && (
-              <Box sx={{ mr: 1 }}>
-                <Typography component="span" fontWeight={500}>
+              <Box sx={{ mr: 1, display: "flex" }}>
+                <Icon sx={{ mr: "0.15em" }}>savings</Icon>
+                <Typography
+                  component="span"
+                  fontWeight={500}
+                  sx={{ mr: "0.6ch" }}
+                >
                   {props.user?.credit}€
                 </Typography>{" "}
                 sur la carte
               </Box>
             )}
 
-            {/* Fin de l'abonnement */}
+            {/* Fin de l'adhésion */}
             {props.user?.subscription && (
               <>
-                <Icon sx={{ mr: "0.2em" }}>event</Icon>
-                <Box
-                  component="span"
-                  className={
-                    new Date(props.user?.subscription) <= today
-                      ? "redblink"
-                      : ""
-                  }
-                >
+                <Box sx={{ mr: 1, display: "flex" }}>
+                  <Icon sx={{ mr: "0.15em" }}>event</Icon>
                   {new Date(props.user.subscription).toLocaleDateString(
                     undefined,
                     { year: "numeric", month: "long", day: "numeric" },
@@ -204,39 +149,103 @@ export function MiniUser(props: MiniUserProps) {
                 </Box>
               </>
             )}
+          </Box>
+        </Box>
 
-            {/* Historique */}
-            {props.history &&
-            (account?.id == props.user.id || account?.role == "admin") ? (
-              <>
-                <Icon sx={{ ml: "0.4em", mr: "0.1em" }}>hourglass_empty</Icon>
-                <Link
-                  href={`/users/${props.user.id}/history`}
-                  sx={{ textDecoration: "none", cursor: "pointer" }}
-                >
-                  Historique
-                </Link>
-              </>
-            ) : (
-              ""
-            )}
-          </Box>
-        </Box>
-        {props.user.notes ? (
-          <Box sx={{ backgroundColor: "#EEEEEE", my: 1, p: 1 }}>
-            {props.user.notes}
-          </Box>
-        ) : (
-          ""
-        )}
-      </Grid>
-      {props.onRemove && (
+        {/* Action sur le user: Delete ou Details */}
         <Box>
-          <IconButton onClick={props.onRemove} sx={{ p: 0 }}>
-            <Icon sx={{ color: "text.secondary", opacity: 0.7 }}>delete</Icon>
-          </IconButton>
+          {props.onRemove ? (
+            <IconButton onClick={props.onRemove} sx={{ p: 0 }}>
+              <Icon sx={{ color: "text.secondary", opacity: 0.7 }}>delete</Icon>
+            </IconButton>
+          ) : (
+            <>
+              <IconButton sx={{ p: 0 }} onClick={menuClick}>
+                <Icon>more_vert</Icon>
+              </IconButton>
+              <Menu anchorEl={anchorEl} open={menuOpened} onClose={menuClose}>
+                <MenuItem
+                  onClick={() => {
+                    menuClose();
+                    setModalOpen(true);
+                  }}
+                >
+                  Détails
+                </MenuItem>
+                {(account?.id == props.user.id || account?.role == "admin") && (
+                  <MenuItem
+                    onClick={() => navigate(`/users/${props.user.id}/history`)}
+                  >
+                    Historique
+                  </MenuItem>
+                )}
+              </Menu>
+            </>
+          )}
         </Box>
+      </Box>
+
+      {/* Notes */}
+      {props.user.notes && (
+        <Alert elevation={1} severity="info" sx={{ my: 1 }}>
+          {props.user.notes}
+        </Alert>
       )}
-    </Grid>
+
+      {/* Emprunts en retard  */}
+      {late_loans ? (
+        <Alert elevation={1} severity="error" sx={{ my: 1 }}>
+          {late_loans} jeu{late_loans > 1 ? "x" : ""} en retard
+          {/* Emails pour retard (au moins 15j) */}
+          {account?.role == "admin" && verylate_loans
+            ? emailLate(props.user)
+            : ""}
+        </Alert>
+      ) : (
+        ""
+      )}
+
+      {/* Adhésion en retard */}
+      {props.user?.subscription &&
+        new Date(props.user?.subscription) <= today && (
+          <Alert elevation={1} severity="error" sx={{ my: 1 }}>
+            Adhésion en retard
+          </Alert>
+        )}
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Paper
+          elevation={4}
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            p: 3,
+            minWidth: "200px",
+          }}
+        >
+          <h2>Détails</h2>
+          Identifiant interne: {props.user.id}
+          {props.user?.emails && (
+            <>
+              <h3>Emails</h3>
+              <ul>{props.user?.emails?.map((i) => <li>{i}</li>)}</ul>
+            </>
+          )}
+          {props.user?.informations && (
+            <>
+              <h3>Informations</h3>
+              <Box sx={{ whiteSpace: "pre-wrap" }}>
+                {props.user?.informations}
+              </Box>
+            </>
+          )}
+          <Grid container justifyContent="flex-end" sx={{ mt: 3 }}>
+            <Button onClick={() => setModalOpen(false)}>Fermer</Button>
+          </Grid>
+        </Paper>
+      </Modal>
+    </>
   );
 }
