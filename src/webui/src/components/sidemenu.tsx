@@ -64,7 +64,7 @@ export function SideMenu(props: SideMenuProps) {
             <ListItemText primary="Mes emprunts" />
           </ListItem>
         )}
-        {(account?.role == "admin" || account?.role == "benevole") && (
+        {account?.role == "admin" && (
           <>
             <Divider />
             <ListItem
@@ -80,6 +80,10 @@ export function SideMenu(props: SideMenuProps) {
               </ListItemIcon>
               <ListItemText primary="Nouvel emprunt" />
             </ListItem>
+          </>
+        )}
+        {(account?.role == "admin" || account?.role == "benevole") && (
+          <>
             <Divider />
             <ListItem
               component={Link}

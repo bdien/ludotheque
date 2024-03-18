@@ -29,9 +29,9 @@ def get_loans_late(mindays: int | None = 0, auth=Depends(auth_user)):
         return list(loans.dicts())
 
 
-@router.post("/loans", tags=["loans", "benevole"])
+@router.post("/loans", tags=["loans"])
 async def create_loan(request: Request, auth=Depends(auth_user)):
-    check_auth(auth, "benevole")
+    check_auth(auth, "admin")
     body = await request.json()
     for i in "user", "items":
         if i not in body:
