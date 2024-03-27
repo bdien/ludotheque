@@ -17,7 +17,7 @@ export function AgeChip(props: AgeChipProps) {
   return (
     <span
       style={{
-        padding: "5px 8px",
+        padding: "0.1em 8px",
         borderRadius: "16px",
         backgroundColor: color,
       }}

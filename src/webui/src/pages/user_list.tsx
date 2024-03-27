@@ -10,7 +10,6 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import {
-  Button,
   IconButton,
   ListItemIcon,
   ListItemText,
@@ -18,6 +17,7 @@ import {
   MenuItem,
   MenuList,
   TextField,
+  Tooltip,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -89,7 +89,6 @@ export function UserList() {
           mb: 1,
           display: "flex",
           alignItems: "flex-start",
-          textAlign: "left",
         }}
       >
         <TextField
@@ -98,43 +97,46 @@ export function UserList() {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setFilter(event.target.value);
           }}
-          sx={{ flexGrow: 0.5, backgroundColor: "white" }}
+          sx={{ flexGrow: 1, backgroundColor: "white", maxWidth: "500px" }}
         />
 
-        <Button onClick={filterMenuOpen}>
-          <Icon>filter_list</Icon>
-        </Button>
+        {/* Push to the right */}
+        <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }} />
+
+        {/* Filter Menu */}
+        <IconButton color="primary" onClick={filterMenuOpen}>
+          <Icon>filter_alt</Icon>
+        </IconButton>
         <Menu
           id="user-filter-menu"
           anchorEl={anchorEl}
           open={filterMenuOpened}
           onClose={filterMenuClose}
         >
-          <MenuList>
+          <MenuList dense>
             <MenuItem
               onClick={() => {
                 setFilterDisabled((filterDisabled) => !filterDisabled);
               }}
             >
               <ListItemIcon>
-                <Icon>
-                  {filterDisabled ? "check_box" : "check_box_outline_blank"}
-                </Icon>
+                <Icon>{filterDisabled ? "check" : ""}</Icon>
               </ListItemIcon>
               <ListItemText>Afficher désactivés</ListItemText>
             </MenuItem>
           </MenuList>
         </Menu>
 
-        <Box sx={{ flexGrow: 0.5 }}></Box>
+        {/* Export CSV */}
         {account?.role == "admin" && (
-          <IconButton
+          <Tooltip
             title="Exporter en CSV"
-            color="primary"
-            onClick={exportCSV}
+            sx={{ display: { xs: "none", sm: "block" } }}
           >
-            <Icon fontSize="medium">file_download</Icon>
-          </IconButton>
+            <IconButton color="primary" onClick={exportCSV}>
+              <Icon>file_download</Icon>
+            </IconButton>
+          </Tooltip>
         )}
       </Box>
 
@@ -210,15 +212,6 @@ export function UserList() {
                               alarm
                             </Icon>
                           )}
-                        {row?.enabled || (
-                          <Icon
-                            title="Utilisateur désactivé"
-                            color="warning"
-                            sx={{ mx: 0.5 }}
-                          >
-                            visibility_off
-                          </Icon>
-                        )}
                         &nbsp;
                       </Box>
                     </div>
