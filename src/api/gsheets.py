@@ -52,11 +52,23 @@ def publish_gsheets():
     wks = sht.worksheet("Jeux")
     with db:
         # Subquery, all item loaned
-        subquery = Loan.select(Loan.item_id, Loan.status).where(Loan.status == "out")
-        query = Item.select(
-            Item,
-            subquery.c.status.alias("status"),
-        ).order_by(Item.id)
+        LoanAlias = Loan.alias()
+        subquery = LoanAlias.select(LoanAlias.item_id, LoanAlias.status).where(
+            LoanAlias.status == "out"
+        )
+
+        # Join with items + number of loans
+        query = (
+            Item.select(
+                Item,
+                subquery.c.status.alias("status"),
+                peewee.fn.Count(Loan.id).alias("nbloans"),
+            )
+            .order_by(Item.id)
+            .left_outer_join(Loan)
+            .group_by(Item.id)
+        )
+
         query = query.join(
             subquery, peewee.JOIN.LEFT_OUTER, on=subquery.c.item_id == Item.id
         )
@@ -65,6 +77,7 @@ def publish_gsheets():
             [
                 i.id,
                 i.name,
+                i.nbloans,
                 f"{i.players_min}-{i.players_max}",
                 i.age,
                 i.big and "Encombrant" or i.outside and "Extérieur" or " ",
