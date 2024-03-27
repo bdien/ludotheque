@@ -19,6 +19,12 @@ dependencies:
   dayjs:
     specifier: ^1.11.10
     version: 1.11.10
+  embla-carousel:
+    specifier: ^8.0.0
+    version: 8.0.0
+  embla-carousel-react:
+    specifier: ^8.0.0
+    version: 8.0.0(react@18.2.0)
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -1602,6 +1608,17 @@ packages:
     engines: { node: ">=6.9.0" }
     dependencies:
       regenerator-runtime: 0.14.1
+    dev: false
+
+  /@babel/runtime@7.24.0:
+    resolution:
+      {
+        integrity: sha512-Chk32uHMg6TnQdvw2e9IlqPpFX/6NLuK0Ys2PqLb7/gL5uFn9mXvK715FGLlOLQrcO4qIkNHkvPGktzzXexsFw==,
+      }
+    engines: { node: ">=6.9.0" }
+    dependencies:
+      regenerator-runtime: 0.14.1
+    dev: true
 
   /@babel/template@7.22.15:
     resolution:
@@ -3819,6 +3836,37 @@ packages:
         integrity: sha512-GZ47DEy0Gm2Z8RVG092CkFvX7SdotG57c4YZOe8W8qD4rOmk3plgeNmiLVRHP/Liqj1wRiY3uUUod9vb9hnxZA==,
       }
     dev: true
+
+  /embla-carousel-react@8.0.0(react@18.2.0):
+    resolution:
+      {
+        integrity: sha512-qT0dii8ZwoCtEIBE6ogjqU2+5IwnGfdt2teKjCzW88JRErflhlCpz8KjWnW8xoRZOP8g0clRtsMEFoAgS/elfA==,
+      }
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.1 || ^18.0.0
+    dependencies:
+      embla-carousel: 8.0.0
+      embla-carousel-reactive-utils: 8.0.0(embla-carousel@8.0.0)
+      react: 18.2.0
+    dev: false
+
+  /embla-carousel-reactive-utils@8.0.0(embla-carousel@8.0.0):
+    resolution:
+      {
+        integrity: sha512-JCw0CqCXI7tbHDRogBb9PoeMLyjEC1vpN0lDOzUjmlfVgtfF+ffLaOK8bVtXVUEbNs/3guGe3NSzA5J5aYzLzw==,
+      }
+    peerDependencies:
+      embla-carousel: 8.0.0
+    dependencies:
+      embla-carousel: 8.0.0
+    dev: false
+
+  /embla-carousel@8.0.0:
+    resolution:
+      {
+        integrity: sha512-ecixcyqS6oKD2nh5Nj5MObcgoSILWNI/GtBxkidn5ytFaCCmwVHo2SecksaQZHcARMMpIR2dWOlSIdA1LkZFUA==,
+      }
+    dev: false
 
   /error-ex@1.3.2:
     resolution:
@@ -6172,7 +6220,7 @@ packages:
         integrity: sha512-hfMp2BoF0qOk3uc5V20ALGDS2ddjQaLrdl7xrGXvAIow7qeWRM2VA2HuCHkUKk9slq3VwEwLNK3DFBqDfPGYtg==,
       }
     dependencies:
-      "@babel/runtime": 7.23.7
+      "@babel/runtime": 7.24.0
     dev: true
 
   /regexp.prototype.flags@1.5.1:
@@ -7264,7 +7312,7 @@ packages:
       "@apideck/better-ajv-errors": 0.3.6(ajv@8.12.0)
       "@babel/core": 7.23.7
       "@babel/preset-env": 7.23.7(@babel/core@7.23.7)
-      "@babel/runtime": 7.23.7
+      "@babel/runtime": 7.24.0
       "@rollup/plugin-babel": 5.3.1(@babel/core@7.23.7)(rollup@2.79.1)
       "@rollup/plugin-node-resolve": 11.2.1(rollup@2.79.1)
       "@rollup/plugin-replace": 2.4.2(rollup@2.79.1)
