@@ -26,6 +26,7 @@ import MuiAccordionSummary, {
 import Chip from "@mui/material/Chip";
 import ReactMarkdown from "react-markdown";
 import { ShortUser } from "../components/short_user";
+import EmblaCarousel from "../components/EmblaCarousel";
 
 interface ItemProps {
   id: number;
@@ -116,6 +117,8 @@ export function Item(props: ItemProps) {
 
   if (error) return <div>Server error: {error.cause}</div>;
   if (!item) return <></>;
+  if (!item.pictures || item.pictures?.length == 0)
+    item.pictures = new Array("");
 
   // Reset scroll position
   window.scrollTo(0, 0);
@@ -123,20 +126,22 @@ export function Item(props: ItemProps) {
   // render data
   return (
     <>
-      <Box
-        component="img"
-        sx={{
-          width: "100%",
-          height: "40vh",
-          objectFit: "contain",
-          filter: "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
-        }}
-        src={
-          item.pictures?.length
-            ? `/storage/img/${item.pictures[0]}`
-            : "/notavailable.webp"
-        }
-      />
+      <Box display="flex" sx={{ height: "40vh", mb: 1 }}>
+        <EmblaCarousel
+          slides={item.pictures.map((item, i) => (
+            <Box
+              component="img"
+              className="embla__slide"
+              sx={{
+                objectFit: "contain",
+                filter: "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
+              }}
+              key={i}
+              src={item ? `/storage/img/${item}` : "/notavailable.webp"}
+            />
+          ))}
+        />
+      </Box>
       <Typography
         variant="h4"
         textAlign="center"

@@ -1,11 +1,84 @@
-.redblink {
-  color: rgb(237, 108, 2);
-  animation: blink-animation 1.5s alternate infinite;
+.embla {
+  position: relative;
+  padding: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
-@keyframes blink-animation {
-  to {
-    color: red;
-    background-color: rgba(237, 108, 2, 0.2);
-  }
+.embla__viewport {
+  width: 100%;
+  height: 100%;
+}
+
+.embla__container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.embla__slide {
+  position: relative;
+  min-width: 100%;
+  height: 100%;
+  width: 100%;
+}
+
+.embla__button {
+  outline: 0;
+  cursor: pointer;
+  background-color: transparent;
+  touch-action: manipulation;
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  width: 30px;
+  height: 30px;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  color: #556cd6;
+}
+
+.embla__button:disabled {
+  display: none;
+}
+
+.embla__button--prev {
+  left: 2vw;
+}
+
+.embla__button--next {
+  right: 2vw;
+}
+
+.noembla__controls {
+  background-color: red;
+}
+
+.embla__dots {
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  right: 50%;
+  bottom: -20px;
+}
+
+.embla__dot {
+  border: 1px solid #666;
+  border-radius: 50%;
+  box-shadow: inset 1px 1px 1px #888;
+  height: 0.8em;
+  width: 0.8em;
+  margin: 0.2em;
+}
+
+.embla__dot--selected {
+  background-color: #556cd6;
+  box-shadow: inset 2px 0px 2px -2px #333;
 }

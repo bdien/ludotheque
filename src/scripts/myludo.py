@@ -146,7 +146,7 @@ def main():
         to_update["categories"] = new_categories
 
     # Content
-    if args.force or not game.get("content"):
+    if (args.force or not game.get("content")) and myludo_game.get("content"):
         content = html.unescape(myludo_game.get("content"))
         content = re.sub("<.*?>", "", content.replace("</li>", "\n"))
         content = [line.strip() for line in content.split("\n") if line.strip()]
