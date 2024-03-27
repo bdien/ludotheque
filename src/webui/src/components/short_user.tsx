@@ -19,14 +19,20 @@ export function ShortUser({ user_id }: { user_id: number }) {
           fontSize: "inherit",
           lineHeight: "inherit",
           fontWeight: "inherit",
+          textDecoration: user.enabled ? "" : "line-through",
         }}
       >
         {user.name}
         {user.role === "admin" && (
-          <Icon sx={{ fontSize: "0.9em", ml: 0.1 }}>star</Icon>
+          <Icon sx={{ fontSize: "1em", ml: 0.1 }}>star</Icon>
         )}
         {user.role === "benevole" && (
-          <Icon sx={{ fontSize: "0.9em", ml: 0.1 }}>star_half</Icon>
+          <Icon sx={{ fontSize: "1em", ml: 0.1 }}>star_half</Icon>
+        )}
+        {!user.enabled && (
+          <Icon color="warning" sx={{ fontSize: "1em", ml: 0.5 }}>
+            cancel
+          </Icon>
         )}
       </Typography>
     </Link>

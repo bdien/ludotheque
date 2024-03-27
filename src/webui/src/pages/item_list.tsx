@@ -2,9 +2,8 @@ import { useAccount, useItems } from "../api/hooks";
 import { ItemModel } from "../api/models";
 import { Link } from "wouter";
 import { AgeChip } from "../components/age_chip";
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import TextField from "@mui/material/TextField";
-import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
@@ -20,6 +19,13 @@ import useSessionStorage from "../hooks/useSessionStorage";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import { exportItems } from "../api/calls";
+import {
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuList,
+} from "@mui/material";
 
 function exportCSV() {
   exportItems().then((txt) => {
@@ -49,7 +55,13 @@ function nameDisplay(item: ItemModel) {
       >
         <Box
           component="span"
-          sx={{ color: "primary.main", fontSize: 14, fontWeight: "500", mr: 1 }}
+          sx={{
+            color: "primary.main",
+            fontSize: 14,
+            fontWeight: "500",
+            mr: 1,
+            textDecoration: item.enabled ? "" : "line-through",
+          }}
         >
           {item.name}
         </Box>
@@ -125,8 +137,10 @@ const TableComps: TableComponents<ItemModel> = {
 
 interface ItemListFilters {
   text: string;
-  outside_air: string;
-  age: number;
+  age: boolean[];
+  outside: boolean;
+  big: boolean;
+  regular: boolean;
   disabled: boolean;
 }
 
@@ -134,15 +148,28 @@ export function ItemList() {
   const { account } = useAccount();
   const { items } = useItems();
   const [filter, setFilter] = useSessionStorage<ItemListFilters>(
-    "itemSearchFilter",
+    "itemSearchFilters",
     {
       text: "",
-      outside_air: "",
-      age: 99,
+      age: [false, false, false, false, false, false],
+      outside: false,
+      big: false,
+      regular: false,
       disabled: true,
     },
   );
 
+  // Filter menu
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const filterMenuOpened = Boolean(anchorEl);
+  const filterMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const filterMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  console.log(filter);
   if (!items) return <div>Aucun jeu</div>;
 
   // Filtering
@@ -155,17 +182,20 @@ export function ItemList() {
         i.id.toString().includes(lw_filter),
     );
   }
-  if (filter.outside_air == "big") {
-    displayed = displayed.filter((i) => i.big);
+  if (filter.regular) {
+    displayed = displayed.filter((i) => i.big || i.outside);
   }
-  if (filter.outside_air == "outside") {
-    displayed = displayed.filter((i) => i.outside);
+  if (filter.big) {
+    displayed = displayed.filter((i) => !i.big);
   }
-  if (filter.age != 99) {
-    displayed = displayed.filter((i) => i.age == filter.age);
+  if (filter.outside) {
+    displayed = displayed.filter((i) => !i.outside);
   }
+  [0, 2, 4, 6, 8, 10].forEach((age, index) => {
+    if (filter.age[index]) displayed = displayed.filter((i) => i.age != age);
+  });
   if (filter.disabled) {
-    displayed = displayed.filter((i) => i.enabled === true);
+    displayed = displayed.filter((i) => i.enabled);
   }
 
   return (
@@ -188,74 +218,94 @@ export function ItemList() {
           sx={{ flexGrow: 1, backgroundColor: "white", maxWidth: "500px" }}
         />
 
-        {/* Select kind of game (outside/big) */}
-        <Select
-          size="small"
-          sx={{
-            height: "40px",
-            ml: 1,
-            pt: 1,
-            maxWidth: "66px",
-            backgroundColor: "white",
-          }}
-          displayEmpty
-          defaultValue={filter.outside_air}
-          onChange={(event) =>
-            setFilter({ ...filter, outside_air: event.target.value as string })
-          }
-        >
-          <MenuItem value="">--</MenuItem>
-          <MenuItem dense value="outside">
-            <Icon fontSize="small" color="action">
-              park
-            </Icon>
-          </MenuItem>
-          <MenuItem dense value="big">
-            <Icon fontSize="small" color="action">
-              inventory
-            </Icon>
-          </MenuItem>
-        </Select>
+        {/* Push to the right */}
+        <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }} />
 
-        {/* Select Age */}
-        <Select
-          size="small"
-          sx={{
-            height: "40px",
-            ml: 1,
-            backgroundColor: "white",
-          }}
-          defaultValue={filter.age}
-          onChange={(event) =>
-            setFilter({ ...filter, age: event.target.value as number })
-          }
+        {/* Filter Menu */}
+        <IconButton color="primary" onClick={filterMenuOpen}>
+          <Icon>filter_alt</Icon>
+        </IconButton>
+        <Menu
+          id="user-filter-menu"
+          anchorEl={anchorEl}
+          open={filterMenuOpened}
+          onClose={filterMenuClose}
         >
-          <MenuItem dense value="99">
-            --
-          </MenuItem>
-          {[0, 2, 4, 6, 8, 10].map((i) => (
-            <MenuItem dense key={i} value={i}>
-              <AgeChip age={i} />
+          <MenuList dense>
+            <MenuItem
+              onClick={() => {
+                setFilter({ ...filter, regular: !filter.regular });
+              }}
+            >
+              <ListItemIcon>
+                <Icon>{!filter.regular ? "checked" : ""}</Icon>
+              </ListItemIcon>
+              Jeux de société
             </MenuItem>
-          ))}
-        </Select>
+            <MenuItem
+              onClick={() => {
+                setFilter({ ...filter, big: !filter.big });
+              }}
+            >
+              <ListItemIcon>
+                <Icon>{!filter.big ? "checked" : ""}</Icon>
+              </ListItemIcon>
+              Jeux surdimensionnés
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setFilter({ ...filter, outside: !filter.outside });
+              }}
+            >
+              <ListItemIcon>
+                <Icon>{!filter.outside ? "checked" : ""}</Icon>
+              </ListItemIcon>
+              Jeux d'extérieur
+            </MenuItem>
+
+            <Divider />
+
+            {[0, 2, 4, 6, 8, 10].map((i, index) => (
+              <MenuItem
+                onClick={() => {
+                  console.log(filter);
+                  filter.age[index] = !filter.age[index];
+                  console.log(filter.age);
+                  setFilter({ ...filter, age: filter.age });
+                }}
+              >
+                <ListItemIcon>
+                  <Icon>{!filter.age[index] ? "checked" : ""}</Icon>
+                </ListItemIcon>
+                <AgeChip age={i} />
+              </MenuItem>
+            ))}
+
+            <Divider />
+
+            <MenuItem
+              onClick={() => {
+                setFilter({ ...filter, disabled: !filter.disabled });
+              }}
+            >
+              <ListItemIcon>
+                <Icon>{!filter.disabled ? "check" : ""}</Icon>
+              </ListItemIcon>
+              <ListItemText>Afficher indisponibles</ListItemText>
+            </MenuItem>
+          </MenuList>
+        </Menu>
 
         {/* Export CSV */}
         {account?.role == "admin" && (
-          <>
-            <Box
-              sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }}
-            ></Box>
-
-            <Tooltip
-              title="Exporter en CSV"
-              sx={{ display: { xs: "none", sm: "block" } }}
-            >
-              <IconButton color="primary" onClick={exportCSV}>
-                <Icon fontSize="medium">file_download</Icon>
-              </IconButton>
-            </Tooltip>
-          </>
+          <Tooltip
+            title="Exporter en CSV"
+            sx={{ display: { xs: "none", sm: "block" } }}
+          >
+            <IconButton color="primary" onClick={exportCSV}>
+              <Icon>file_download</Icon>
+            </IconButton>
+          </Tooltip>
         )}
       </Box>
 

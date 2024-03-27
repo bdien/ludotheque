@@ -80,7 +80,10 @@ export function MiniUser(props: MiniUserProps) {
               component="span"
               variant="h5"
               fontWeight={500}
-              sx={{ mb: 0.5 }}
+              sx={{
+                mb: 0.5,
+                textDecoration: props.user.enabled ? "" : "line-through",
+              }}
             >
               {props.user.name}
 
@@ -95,6 +98,13 @@ export function MiniUser(props: MiniUserProps) {
               {props.user.role == "benevole" && (
                 <Icon fontSize="small" sx={{ ml: 0.3 }}>
                   star_half
+                </Icon>
+              )}
+
+              {/* Icone désactivé */}
+              {!props.user.enabled && (
+                <Icon fontSize="small" color="warning" sx={{ ml: 0.3 }}>
+                  cancel
                 </Icon>
               )}
             </Typography>
@@ -189,6 +199,13 @@ export function MiniUser(props: MiniUserProps) {
       {props.user.notes && (
         <Alert elevation={1} severity="info" sx={{ my: 1 }}>
           {props.user.notes}
+        </Alert>
+      )}
+
+      {/* Utilisateur désactivé */}
+      {!props.user?.enabled && (
+        <Alert elevation={1} severity="error" sx={{ my: 1 }}>
+          Utilisateur désactivé
         </Alert>
       )}
 
