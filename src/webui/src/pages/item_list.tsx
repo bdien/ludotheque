@@ -169,7 +169,6 @@ export function ItemList() {
     setAnchorEl(null);
   };
 
-  console.log(filter);
   if (!items) return <div>Aucun jeu</div>;
 
   // Filtering
@@ -268,9 +267,7 @@ export function ItemList() {
             {[0, 2, 4, 6, 8, 10].map((i, index) => (
               <MenuItem
                 onClick={() => {
-                  console.log(filter);
                   filter.age[index] = !filter.age[index];
-                  console.log(filter.age);
                   setFilter({ ...filter, age: filter.age });
                 }}
               >
