@@ -80,7 +80,7 @@ def publish_gsheets():
                 i.nbloans,
                 f"{i.players_min}-{i.players_max}",
                 i.age,
-                i.big and "Encombrant" or i.outside and "Extérieur" or " ",
+                i.big and "Surdimensionné" or i.outside and "Extérieur" or " ",
                 (i.status == "out")
                 and "Emprunté"
                 or (not i.enabled)

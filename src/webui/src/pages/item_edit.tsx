@@ -430,7 +430,7 @@ export function ItemEdit(props: ItemEditProps) {
                         {...register("outside")}
                       />
                     }
-                    label="Plein Air"
+                    label="Jeu d'extérieur"
                   />
                   <br />
                   <FormControlLabel
@@ -440,7 +440,7 @@ export function ItemEdit(props: ItemEditProps) {
                         {...register("big")}
                       />
                     }
-                    label="Surdimensionné"
+                    label="Jeu surdimensionné"
                   />
                 </TableCell>
               </TableRow>

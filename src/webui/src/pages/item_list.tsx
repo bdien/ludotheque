@@ -77,7 +77,7 @@ function nameDisplay(item: ItemModel) {
         )}
         {item.big && (
           <Icon
-            title="Encombrant"
+            title="Surdimensionné"
             fontSize="small"
             color="secondary"
             sx={{ pt: 0.2 }}
