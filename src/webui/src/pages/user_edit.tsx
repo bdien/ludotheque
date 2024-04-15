@@ -1,5 +1,5 @@
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { navigate } from "wouter/use-location";
+import { navigate } from "wouter/use-browser-location";
 import { useAccount, useUser, useUsers } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
 import { UserModel } from "../api/models";

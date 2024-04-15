@@ -3,7 +3,7 @@ import Typography from "@mui/material/Typography";
 import { useAccount, useItem, useItems } from "../api/hooks";
 import { Link } from "wouter";
 import Button from "@mui/material/Button";
-import { navigate } from "wouter/use-location";
+import { navigate } from "wouter/use-browser-location";
 import Skeleton from "@mui/material/Skeleton";
 
 interface MiniItemProps {
@@ -45,12 +45,16 @@ export function MiniItem(props: MiniItemProps) {
         alignItems="center"
       >
         {item ? (
-          <Link href={`/items/${item.id}`}>
+          <Link
+            href={`/items/${item.id}`}
+            style={{ height: "100%", width: "100%" }}
+          >
             <img
               style={{
-                maxHeight: "100%",
-                maxWidth: "100%",
+                height: "100%",
+                width: "100%",
                 borderRadius: "10px",
+                objectFit: "contain",
                 filter:
                   last_loan_stop && last_loan_stop < thisweek
                     ? "drop-shadow(0px 0px 8px rgba(255,0,0,0.7))"

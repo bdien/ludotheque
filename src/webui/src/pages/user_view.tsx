@@ -6,7 +6,7 @@ import { MiniUser } from "../components/mini_user";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
-import { navigate } from "wouter/use-location";
+import { navigate } from "wouter/use-browser-location";
 import { Loading } from "../components/loading";
 
 interface UserViewProps {

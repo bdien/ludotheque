@@ -21,7 +21,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import { AgeChip } from "../components/age_chip";
 import Button from "@mui/material/Button";
-import { navigate } from "wouter/use-location";
+import { navigate } from "wouter/use-browser-location";
 import { ImageChooser } from "../components/image_chooser";
 import { useState } from "react";
 import FormControlLabel from "@mui/material/FormControlLabel";

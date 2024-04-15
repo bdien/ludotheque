@@ -10,7 +10,7 @@ export function ShortItem({ item_id }: { item_id: number }) {
   if (!item) return <>Jeu {item_id}</>;
 
   return (
-    <Link href={`/items/${item_id}`}>
+    <Link href={`/items/${item_id}`} style={{ textDecoration: "none" }}>
       <Typography
         sx={{
           cursor: "pointer",
