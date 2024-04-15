@@ -10,7 +10,7 @@ export function ShortUser({ user_id }: { user_id: number }) {
   if (!user) return <>Adhérent {user_id}</>;
 
   return (
-    <Link href={`/users/${user.id}`}>
+    <Link href={`/users/${user.id}`} style={{ textDecoration: "none" }}>
       <Typography
         color="primary"
         component="span"

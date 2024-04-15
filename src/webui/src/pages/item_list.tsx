@@ -12,7 +12,6 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import TableHead from "@mui/material/TableHead";
 import Paper from "@mui/material/Paper";
 import { TableVirtuoso, TableComponents } from "react-virtuoso";
 import useSessionStorage from "../hooks/useSessionStorage";
@@ -47,7 +46,7 @@ function exportCSV() {
 
 function nameDisplay(item: ItemModel) {
   return (
-    <Link href={`/items/${item.id}`}>
+    <Link href={`/items/${item.id}`} style={{ textDecoration: "none" }}>
       <Box
         style={{
           cursor: "pointer",
@@ -128,7 +127,6 @@ const TableComps: TableComponents<ItemModel> = {
   Table: (props) => (
     <Table {...props} size="small" style={{ borderCollapse: "separate" }} />
   ),
-  TableHead: TableHead,
   TableRow: TableRow,
   TableBody: forwardRef<HTMLTableSectionElement>((props, ref) => (
     <TableBody {...props} ref={ref} />

@@ -12,7 +12,7 @@ import dayjs from "dayjs";
 import Alert from "@mui/material/Alert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { navigate } from "wouter/use-location";
+import { navigate } from "wouter/use-browser-location";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 

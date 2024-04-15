@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ItemModel } from "../api/models";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { navigate } from "wouter/use-location";
+import { navigate } from "wouter/use-browser-location";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 

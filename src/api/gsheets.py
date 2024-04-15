@@ -47,7 +47,7 @@ def publish_gsheets():
             for user in users
         ]
     range = f"A2:{chr(65+len(data[0]))}{len(data)+1}"
-    wks.update(range_name=range, values=data)
+    wks.update(range, data)
 
     wks = sht.worksheet("Jeux")
     with db:
@@ -93,4 +93,4 @@ def publish_gsheets():
         ]
 
     range = f"A2:{chr(65+len(data[0]))}{len(data)+1}"
-    wks.update(range_name=range, values=data)
+    wks.update(range, data)

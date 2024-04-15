@@ -9,7 +9,7 @@ import { useAccount, useCategories, useItem } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
 import { ItemLinkModel, ItemModel } from "../api/models";
 import Icon from "@mui/material/Icon";
-import { navigate } from "wouter/use-location";
+import { navigate } from "wouter/use-browser-location";
 import TableHead from "@mui/material/TableHead";
 import SpeedDial from "@mui/material/SpeedDial";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
