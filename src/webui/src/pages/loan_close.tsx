@@ -60,7 +60,7 @@ export function LoanClose(props: LoanCloseProps) {
       </Typography>
 
       {item.notes ? (
-        <Alert severity="info" sx={{ border: "1px solid #00000020" }}>
+        <Alert severity="info" elevation={1}>
           <AlertTitle>Notes</AlertTitle>
           {item.notes}
         </Alert>

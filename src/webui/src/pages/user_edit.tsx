@@ -15,9 +15,9 @@ import Alert from "@mui/material/Alert";
 import { useState } from "react";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import AlertTitle from "@mui/material/AlertTitle";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
+import { AlertTitle } from "@mui/material";
 
 interface UserEditProps {
   id?: number;
@@ -130,18 +130,17 @@ export function UserEdit(props: UserEditProps) {
         </Alert>
       )}
 
-      <Alert
-        variant="outlined"
-        severity="info"
-        sx={{ backgroundColor: "rgba(85, 108, 214, 0.1)" }}
-      >
-        <AlertTitle>Adhésion et Remplissage de carte</AlertTitle>
-        Merci d'utiliser le formulaire d'emprunt pour encaisser l'adhésion et
-        (optionnellement) remplir la carte.
-        <br />
-        {user?.id != 0 &&
-          "Ne modifiez ces champs directement que pour corriger une erreur."}
-      </Alert>
+      {user?.id == 0 && (
+        <Alert
+          variant="outlined"
+          severity="info"
+          sx={{ backgroundColor: "rgba(85, 108, 214, 0.1)" }}
+        >
+          <AlertTitle>Adhésion et Remplissage de carte</AlertTitle>
+          Merci d'utiliser "Nouvel Emprunt" puis "+" pour l'adhésion et la carte
+          d'emprunt.
+        </Alert>
+      )}
 
       {user?.id != 0 && (
         <TextField
@@ -185,32 +184,36 @@ export function UserEdit(props: UserEditProps) {
 
       {user?.id != 0 && (
         <>
-          <Controller
-            control={control}
-            defaultValue={dayjs(user.subscription)}
-            name="subscription"
-            render={({ field }) => (
-              <DatePicker
-                label="Expiration adhésion"
-                sx={{ my: 2 }}
-                format="D MMM YYYY"
-                {...field}
-              />
-            )}
-          />
-
-          <TextField
-            fullWidth
-            label="Crédit sur la carte"
-            margin="normal"
-            defaultValue={user.credit}
-            type="number"
-            {...register("credit")}
-            InputProps={{
-              inputProps: { min: 0, max: 100, step: 0.5 },
-              endAdornment: <InputAdornment position="end">€</InputAdornment>,
-            }}
-          />
+          <Alert elevation={1} severity="warning" sx={{ mt: 2, mb: 1 }}>
+            Evitez de modifier ces paramètres directement et passez plutôt par
+            "Nouvel Emprunt" puis "+".
+            <br />
+            <Controller
+              control={control}
+              defaultValue={dayjs(user.subscription)}
+              name="subscription"
+              render={({ field }) => (
+                <DatePicker
+                  label="Expiration adhésion"
+                  sx={{ mt: 2, mb: 1 }}
+                  format="D MMM YYYY"
+                  {...field}
+                />
+              )}
+            />
+            <TextField
+              fullWidth
+              label="Crédit sur la carte"
+              margin="normal"
+              defaultValue={user.credit}
+              type="number"
+              {...register("credit")}
+              InputProps={{
+                inputProps: { min: 0, max: 100, step: 0.5 },
+                endAdornment: <InputAdornment position="end">€</InputAdornment>,
+              }}
+            />
+          </Alert>
 
           <TextField
             fullWidth
