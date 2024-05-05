@@ -175,7 +175,7 @@ def stats_per_day(stop_day, duration_weeks=4):
     return stats_cache[stop_day]
 
 
-@router.get("/stat")
+@router.get("/stats")
 def stats(auth=Depends(auth_user)):
     "Return stats (Loans, Users)"
 

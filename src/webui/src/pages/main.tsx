@@ -8,6 +8,8 @@ export function Main() {
   const { isAuthenticated, user } = useAuth0();
   const { account } = useAccount();
 
+  // if (isAuthenticated && account?.role == "admin") return <MainAdmin />;
+
   return (
     <>
       {isAuthenticated && account && !account?.id && (
@@ -61,7 +63,7 @@ export function Main() {
                 semaines.
               </li>
               <li>
-                Carte prépayée (Optionelle): {info.pricing.card}€ (
+                Carte prépayée (Optionnelle): {info.pricing.card}€ (
                 {info.pricing.card / info.pricing.regular} jeux + 1 gratuit).
               </li>
               <li>
