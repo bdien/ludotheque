@@ -1,84 +1,75 @@
-import Icon from "@mui/material/Icon";
-import { ChangeEvent, useState } from "react";
+import { Icon, Box, Button } from "@mui/material";
+import { ChangeEvent, useEffect, useState } from "react";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import { DraggableImage } from "./DraggableImage";
 import Resizer from "react-image-file-resizer";
 
 interface ImageChooserProps {
-  onImageChange: (params: File | null) => void;
-  src: string | null | undefined;
+  onImageChange: (items: string[]) => void;
+  src: string[] | undefined;
 }
 
 export function ImageChooser(props: ImageChooserProps) {
-  const [img, setImg] = useState<string | null | undefined>(props.src);
+  const [imgs, setImgs] = useState<string[]>(props.src ?? []);
 
-  const handleFilePicker = (e: ChangeEvent<HTMLInputElement>): void => {
+  // Call onImageChange if needed
+  useEffect(() => {
+    props.onImageChange(imgs);
+  }, [imgs]);
+
+  // Image move
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over || active.id == over.id) return;
+
+    setImgs((items) => {
+      const oldIndex = items.indexOf(active.id as string);
+      const newIndex = items.indexOf(over.id as string);
+      return arrayMove(items, oldIndex, newIndex);
+    });
+  }
+
+  // New image (Result of filepicker, resize image and handle it)
+  function handleFilePicker(e: ChangeEvent<HTMLInputElement>): void {
     const { files } = e.target;
-
-    // Delete previous images
-    if (img) {
-      URL.revokeObjectURL(img);
-    }
 
     // New image, resize it and let the parent knows that it is there
     if (files != null && files.length > 0) {
-      // Immediatly display image
-      const newimg = URL.createObjectURL(files[0]);
-      setImg(newimg);
-
-      // Resize in background before alerting parent
-      if (props.onImageChange)
-        Resizer.imageFileResizer(
-          files[0],
-          800,
-          800,
-          "WEBP",
-          90,
-          0,
-          (uri) => {
-            props.onImageChange(uri as File);
-          },
-          "file",
-        );
+      Resizer.imageFileResizer(files[0], 800, 800, "WEBP", 90, 0, (uri) => {
+        setImgs((imgs) => imgs.concat(uri as string));
+      });
     }
-  };
+  }
 
-  const handleDeleteImage = (): void => {
-    setImg(null);
-    if (props.onImageChange) {
-      props.onImageChange(null);
-    }
-  };
+  // Remove image
+  function handleDeleteImage(filename: string) {
+    setImgs((items) => items.filter((i) => i !== filename));
+  }
 
   return (
-    <>
-      <div style={{ width: "100%", height: "100%", position: "relative" }}>
-        {img && (
-          <div
-            onClick={() => handleDeleteImage()}
-            style={{
-              float: "right",
-              bottom: 0,
-              right: 0,
-              position: "absolute",
-            }}
-          >
-            <Icon fontSize="large">delete</Icon>
-          </div>
-        )}
-
+    <DndContext onDragEnd={handleDragEnd}>
+      <Box>
+        <SortableContext items={imgs}>
+          {imgs.map((filename) => (
+            <DraggableImage
+              key={filename}
+              filename={filename}
+              onRemove={handleDeleteImage}
+            />
+          ))}
+        </SortableContext>
+      </Box>
+      <Button component="label" startIcon={<Icon>add</Icon>}>
+        Ajouter une image
         <input
           type="file"
           onChange={(e) => handleFilePicker(e)}
           accept="image/*"
-          id="file_uploader"
           hidden
         />
-        <label htmlFor="file_uploader">
-          <img
-            src={img ?? "/notavailable_edit.webp"}
-            style={{ width: "100%", height: "100%", objectFit: "contain" }}
-          />
-        </label>
-      </div>
-    </>
+      </Button>
+    </DndContext>
   );
 }

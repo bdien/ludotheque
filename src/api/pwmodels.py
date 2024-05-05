@@ -35,7 +35,6 @@ def create_all_tables(drop=False):
         ItemLink,
         Category,
         ItemCategory,
-        ItemPicture,
         Loan,
         Ledger,
         Rating,
@@ -84,6 +83,7 @@ class Item(BaseModel):
     big = peewee.BooleanField(default=False)
     outside = peewee.BooleanField(default=False)
     content = JSONField(null=True)
+    pictures = JSONField(default=[])
     notes = peewee.TextField(null=True)
     created_at = peewee.DateField(default=date.today)
 
@@ -107,15 +107,6 @@ class ItemLink(BaseModel):
 
     class Meta:
         primary_key = peewee.CompositeKey("item", "name")
-
-
-class ItemPicture(BaseModel):
-    item = peewee.ForeignKeyField(model=Item)
-    index = peewee.IntegerField()
-    filename = peewee.CharField()
-
-    class Meta:
-        primary_key = peewee.CompositeKey("item", "index")
 
 
 class Loan(BaseModel):

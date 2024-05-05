@@ -233,6 +233,7 @@ export function ItemList() {
               onClick={() => {
                 setFilter({ ...filter, regular: !filter.regular });
               }}
+              key="filter_regular"
             >
               <ListItemIcon>
                 <Icon>{!filter.regular ? "checked" : ""}</Icon>
@@ -243,6 +244,7 @@ export function ItemList() {
               onClick={() => {
                 setFilter({ ...filter, big: !filter.big });
               }}
+              key="filter_big"
             >
               <ListItemIcon>
                 <Icon>{!filter.big ? "checked" : ""}</Icon>
@@ -253,6 +255,7 @@ export function ItemList() {
               onClick={() => {
                 setFilter({ ...filter, outside: !filter.outside });
               }}
+              key="filter_outside"
             >
               <ListItemIcon>
                 <Icon>{!filter.outside ? "checked" : ""}</Icon>
@@ -268,6 +271,7 @@ export function ItemList() {
                   filter.age[index] = !filter.age[index];
                   setFilter({ ...filter, age: filter.age });
                 }}
+                key={`filter_age${i}`}
               >
                 <ListItemIcon>
                   <Icon>{!filter.age[index] ? "checked" : ""}</Icon>
@@ -282,6 +286,7 @@ export function ItemList() {
               onClick={() => {
                 setFilter({ ...filter, disabled: !filter.disabled });
               }}
+              key="filter_disabled"
             >
               <ListItemIcon>
                 <Icon>{!filter.disabled ? "check" : ""}</Icon>

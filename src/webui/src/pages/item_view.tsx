@@ -117,8 +117,10 @@ export function Item(props: ItemProps) {
 
   if (error) return <div>Server error: {error.cause}</div>;
   if (!item) return <></>;
-  if (!item.pictures || item.pictures?.length == 0)
-    item.pictures = new Array("");
+
+  const pictures = item.pictures?.length
+    ? item.pictures
+    : ["../../notavailable.webp"];
 
   // Reset scroll position
   window.scrollTo(0, 0);
@@ -128,7 +130,7 @@ export function Item(props: ItemProps) {
     <>
       <Box display="flex" sx={{ height: "40vh", mb: 1 }}>
         <EmblaCarousel
-          slides={item.pictures.map((item, i) => (
+          slides={pictures.map((item, i) => (
             <Box
               component="img"
               className="embla__slide"
@@ -137,7 +139,7 @@ export function Item(props: ItemProps) {
                 filter: "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
               }}
               key={i}
-              src={item ? `/storage/img/${item}` : "/notavailable.webp"}
+              src={`/storage/img/${item}`}
             />
           ))}
         />

@@ -39,7 +39,7 @@ def dbtables():
         yield None
 
 
-@pytest.fixture()
+@pytest.fixture
 def fakestorage(monkeypatch):
     tmpdir = tempfile.TemporaryDirectory()
     os.makedirs(f"{tmpdir.name}/img")
@@ -50,7 +50,7 @@ def fakestorage(monkeypatch):
 
 
 def fake_auth_user(
-    authorization: Annotated[str | None, Header()] = None
+    authorization: Annotated[str | None, Header()] = None,
 ) -> api.system.AuthUser:
     if not authorization:
         return None

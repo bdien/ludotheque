@@ -16,7 +16,7 @@ ITEM_ID = 158
 TODAY = datetime.date.today()
 
 
-@pytest.fixture()
+@pytest.fixture
 def dbitems():
     "Create basic DB items"
     with db:

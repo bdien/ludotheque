@@ -13,6 +13,9 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
   const { item, error } = useItem(props.loan.item);
 
   if (error) return <div>Impossible de charger: {error}</div>;
+  const picture = item?.pictures?.length
+    ? item.pictures[0]
+    : "../../notavailable.webp";
 
   // render data
   return (
@@ -45,11 +48,7 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
                 filter: "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
                 objectFit: "contain",
               }}
-              src={
-                item.pictures?.length
-                  ? `/storage/thumb/${item.pictures[0]}`
-                  : "/notavailable.webp"
-              }
+              src={`/storage/thumb/${picture}`}
             />
           </Link>
         ) : (

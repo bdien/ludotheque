@@ -1,3 +1,4 @@
+import base64
 import contextlib
 import csv
 import io
@@ -9,13 +10,12 @@ from api.pwmodels import (
     ItemLink,
     Loan,
     Item,
-    ItemPicture,
     Rating,
     db,
 )
 from api.system import auth_user, check_auth
 from api.config import IMAGE_MAX_DIM, THUMB_DIM
-from fastapi import APIRouter, HTTPException, Request, UploadFile, Depends
+from fastapi import APIRouter, HTTPException, Request, Depends
 from playhouse.shortcuts import model_to_dict
 import os
 import hashlib
@@ -164,13 +164,6 @@ def get_item(
             base = model_to_dict(item, recurse=False)
             loans = [i.loan for i in items] if hasattr(item, "loan") else []
             base["status"] = "in"
-
-            base["pictures"] = [
-                p.filename
-                for p in ItemPicture.select()
-                .where(ItemPicture.item == item_id)
-                .order_by(ItemPicture.index)
-            ]
             base["categories"] = [
                 i.category_id
                 for i in ItemCategory.select().where(ItemCategory.item == item_id)
@@ -207,6 +200,49 @@ def get_item(
     raise HTTPException(404)
 
 
+def modif_pictures(
+    item_id: int, oldpictures: list[str], pictures: list[str]
+) -> list[str]:
+    """Receive pictures (might be data), create and remove files"""
+
+    # Build all movements
+    newpictures = []
+    for p in pictures:
+        # Already existing pictures
+        if not p.startswith("data:"):
+            if p in oldpictures:
+                newpictures.append(p)
+                oldpictures.remove(p)
+            continue
+
+        # New pictures (UUencoded bytes)
+        imgdata = io.BytesIO(base64.b64decode(p.split(",", 1)[1]))
+
+        # Convert (and maybe resize) new image to webP
+        img = Image.open(imgdata)
+        if (img.width > IMAGE_MAX_DIM) or (img.height > IMAGE_MAX_DIM):
+            img.thumbnail((IMAGE_MAX_DIM, IMAGE_MAX_DIM))
+
+        # Filename based on hash
+        hash = hashlib.md5(img.tobytes()).hexdigest()  # noqa: S324
+        filename = f"jeu_{item_id:05d}_{hash}.webp"
+        if filename not in newpictures:
+            img.save(f"{LUDO_STORAGE}/img/{filename}")
+            img.thumbnail((THUMB_DIM, THUMB_DIM))
+            img.save(f"{LUDO_STORAGE}/thumb/{filename}")
+            newpictures.append(filename)
+
+    # Remove all non-referenced pictures
+    for p in oldpictures:
+        with contextlib.suppress(FileNotFoundError):
+            print(f"Removing {p}")
+            os.unlink(f"{LUDO_STORAGE}/img/{p}")
+            os.unlink(f"{LUDO_STORAGE}/thumb/{p}")
+
+    # Final structure for DB
+    return newpictures
+
+
 @router.post("/items/{item_id}", tags=["items", "benevole"])
 async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
     check_auth(auth, "benevole")
@@ -222,6 +258,15 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
 
     # Modify main object
     with db:
+        # Previous item
+        item = Item.get(id=item_id)
+
+        # Add/remove/update pictures
+        if "pictures" in params and (item.pictures != params["pictures"]):
+            params["pictures"] = modif_pictures(
+                item_id, item.pictures, params["pictures"]
+            )
+
         if params:
             Item.update(**params).where(Item.id == item_id).execute()
 
@@ -242,35 +287,6 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
                 ItemCategory.category.not_in(body["categories"]),
             ).execute()
             ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
-
-
-@router.post("/items/{item_id}/picture", tags=["items", "benevole"])
-async def create_item_picture(item_id: int, file: UploadFile, auth=Depends(auth_user)):
-    "Add new picture"
-
-    check_auth(auth, "benevole")
-
-    # Convert (and maybe resize) new image to webP
-    img = Image.open(file.file)
-    if (img.width > IMAGE_MAX_DIM) or (img.height > IMAGE_MAX_DIM):
-        img.thumbnail((IMAGE_MAX_DIM, IMAGE_MAX_DIM))
-
-    # Name as a hash
-    filename = f"jeu_{hashlib.md5(img.tobytes()).hexdigest()}.webp"  # noqa: S324
-    print(f"Saving as {LUDO_STORAGE}/img/{filename}")
-    img.save(f"{LUDO_STORAGE}/img/{filename}")
-
-    # Thumbnail
-    img.thumbnail((THUMB_DIM, THUMB_DIM))
-    img.save(f"{LUDO_STORAGE}/thumb/{filename}")
-
-    # Find first non allocated indexes
-    with db:
-        query = ItemPicture.select(ItemPicture.index).where(ItemPicture.item == item_id)
-        indexes = [i["index"] for i in query.dicts()]
-        newindex = next(idx for idx in range(30) if idx not in indexes)
-
-        ItemPicture.create(item=item_id, index=newindex, filename=filename)
 
 
 @router.post("/items/{item_id}/rating", tags=["items"])
@@ -301,56 +317,6 @@ async def create_item_rating(item_id: int, request: Request, auth=Depends(auth_u
             ).execute()
 
 
-@router.post("/items/{item_id}/picture/{picture_index}", tags=["items", "benevole"])
-async def modify_item_picture(
-    item_id: int, picture_index: int, file: UploadFile, auth=Depends(auth_user)
-):
-    check_auth(auth, "benevole")
-
-    # Convert (and maybe resize) new image to webP
-    img = Image.open(file.file)
-    if (img.width > IMAGE_MAX_DIM) or (img.height > IMAGE_MAX_DIM):
-        img.thumbnail((IMAGE_MAX_DIM, IMAGE_MAX_DIM))
-
-    filename = f"jeu_{hashlib.md5(img.tobytes()).hexdigest()}.webp"  # noqa: S324
-    print(f"Saving as {LUDO_STORAGE}/img/{filename}")
-    img.save(f"{LUDO_STORAGE}/img/{filename}")
-
-    # Thumbnail
-    img.thumbnail((THUMB_DIM, THUMB_DIM))
-    img.save(f"{LUDO_STORAGE}/thumb/{filename}")
-
-    # Delete previous image
-    with db:
-        picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
-        if not picture:
-            ItemPicture.create(item=item_id, index=picture_index, filename=filename)
-        else:
-            if picture.filename != filename:
-                print(f"Unlink {LUDO_STORAGE}/img/{picture.filename}")
-                with contextlib.suppress(FileNotFoundError):
-                    os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
-                    os.unlink(f"{LUDO_STORAGE}/thumb/{picture.filename}")
-
-                # Set new one in DB
-                picture.filename = filename
-                picture.save()
-
-
-@router.delete("/items/{item_id}/picture/{picture_index}", tags=["items", "benevole"])
-def delete_item_picture(item_id: int, picture_index: int, auth=Depends(auth_user)):
-    check_auth(auth, "benevole")
-    with db:
-        picture = ItemPicture.get_or_none(item=item_id, index=picture_index)
-        if not picture:
-            raise HTTPException(404)
-
-        with contextlib.suppress(FileNotFoundError):
-            os.unlink(f"{LUDO_STORAGE}/img/{picture.filename}")
-            os.unlink(f"{LUDO_STORAGE}/thumb/{picture.filename}")
-        picture.delete_instance()
-
-
 @router.delete("/items/{item_id}", tags=["users", "admin"])
 async def delete_item(item_id: int, auth=Depends(auth_user)):
     check_auth(auth, "admin")
@@ -361,10 +327,10 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
         item.delete_instance(recursive=True)
 
         # Now remove every picture
-        for p in ItemPicture.select().where(ItemPicture.item == item_id):
+        for p in item.pictures:
             with contextlib.suppress(FileNotFoundError):
-                os.unlink(f"{LUDO_STORAGE}/img/{p.filename}")
-                os.unlink(f"{LUDO_STORAGE}/thumb/{p.filename}")
+                os.unlink(f"{LUDO_STORAGE}/img/{p}")
+                os.unlink(f"{LUDO_STORAGE}/thumb/{p}")
 
         return "OK"
 

@@ -85,7 +85,6 @@ export function ItemEdit(props: ItemEditProps) {
   const { categories } = useCategories();
   const [autoId, setAutoId] = useState<boolean>(true);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [imgFile, setImgFile] = useState<File | null | undefined>(undefined);
   const { register, control, handleSubmit } = useForm<FormValues>();
   const { account } = useAccount();
   const { ConfirmDialog, confirmPromise } = useConfirm(
@@ -122,9 +121,6 @@ export function ItemEdit(props: ItemEditProps) {
 
     if (initialItemId) {
       await updateItem(item?.id ?? 0, item);
-
-      // Remove previous picture
-      if (imgFile === null && item?.pictures) deleteItemPicture(item.id, 0);
     } else {
       // Create New Item
       const result = await createItem(item);
@@ -133,11 +129,6 @@ export function ItemEdit(props: ItemEditProps) {
         return;
       }
       item = result;
-    }
-
-    // Upload new picture
-    if (imgFile) {
-      await updateItemPicture(item.id, 0, imgFile);
     }
 
     // Refresh item/items
@@ -166,18 +157,12 @@ export function ItemEdit(props: ItemEditProps) {
   return (
     <>
       <FormControl sx={{ width: "100%", py: 2 }}>
-        <Box
-          sx={{
-            height: "40vh",
-            objectFit: "contain",
-            mb: 1,
-          }}
-        >
+        <Box>
           <ImageChooser
-            onImageChange={setImgFile}
-            src={
-              item.pictures?.length ? "/storage/img/" + item.pictures[0] : null
-            }
+            onImageChange={(imgs) => {
+              item.pictures = imgs;
+            }}
+            src={item.pictures}
           />
         </Box>
 
@@ -209,7 +194,12 @@ export function ItemEdit(props: ItemEditProps) {
                 </TableCell>
                 <TableCell style={{ display: "flex" }}>
                   {item?.id ? (
-                    <TextField type="number" value={item.id} disabled />
+                    <TextField
+                      label="Numéro du Jeu"
+                      type="number"
+                      value={item.id}
+                      disabled
+                    />
                   ) : (
                     <>
                       <ToggleButton
