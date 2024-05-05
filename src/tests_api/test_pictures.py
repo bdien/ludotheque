@@ -1,8 +1,8 @@
-import io
+import base64
 import os
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import Item, ItemPicture, db
+from api.pwmodels import Item, db
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, fake_auth_user
 
@@ -13,128 +13,97 @@ IMG_FILE = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00H\x00H\x00\x00\xff\
 
 
 def test_item_add_picture(fakestorage):
-    "Add two pictures, it should avoid the index 1"
+    "Add two pictures"
     with db:
-        item = Item.create(name="jeu")
-        ItemPicture.create(item=item, index=1, filename="test.jpg")
-    f = io.BytesIO(IMG_FILE)
+        item = Item.create(id=1, name="jeu", pictures=["jeu_1.jpg"])
+    img64 = "data:image/jpeg;base64," + base64.b64encode(IMG_FILE).decode()
 
-    # Create the first one
+    # Add a new picture
     response = client.post(
-        f"/items/{item.id}/picture",
-        files={"file": ("filename", f, "image/jpeg")},
+        f"/items/{item.id}",
+        json={"pictures": ["jeu_1.jpg", img64]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
 
     assert os.path.isfile(
-        f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+        f"{fakestorage}/img/jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
     assert os.path.isfile(
-        f"{fakestorage}/thumb/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+        f"{fakestorage}/thumb/jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
     with db:
-        ItemPicture.get(item=item, index=0)
+        assert Item.get(item).pictures == [
+            "jeu_1.jpg",
+            "jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp",
+        ]
 
-    # Now create a second one
+
+def test_item_add_picture_twice(fakestorage):
+    with db:
+        item = Item.create(id=1, name="jeu", pictures=["jeu_1.jpg"])
+    img64 = "data:image/jpeg;base64," + base64.b64encode(IMG_FILE).decode()
+
+    # Add a new picture
     response = client.post(
-        f"/items/{item.id}/picture",
-        files={"file": ("filename", f, "image/jpeg")},
+        f"/items/{item.id}",
+        json={"pictures": ["jeu_1.jpg", img64, img64, "jeu_1.jpg"]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
+
+    assert os.path.isfile(
+        f"{fakestorage}/img/jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp"
+    )
+    assert os.path.isfile(
+        f"{fakestorage}/thumb/jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp"
+    )
     with db:
-        ItemPicture.get(item=item, index=2)
+        assert Item.get(item).pictures == [
+            "jeu_1.jpg",
+            "jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp",
+        ]
 
 
 def test_item_modify_picture(fakestorage):
     with db:
-        item = Item.create(name="jeu")
-
-    with open(f"{fakestorage}/img/none.jpg", "w") as f:
+        item = Item.create(id=1, name="jeu", pictures=["jeu_1.jpg"])
+    with open(f"{fakestorage}/img/jeu_1.jpg", "w") as f:
         f.write("0")
-    with db:
-        ItemPicture.create(item=item, index=0, filename="none.jpg")
 
-    f = io.BytesIO(IMG_FILE)
+    img64 = "data:image/jpeg;base64," + base64.b64encode(IMG_FILE).decode()
     response = client.post(
-        f"/items/{item.id}/picture/0",
-        files={"file": ("filename", f, "image/jpeg")},
+        f"/items/{item.id}",
+        json={"pictures": [img64]},
         headers=AUTH_ADMIN,
     )
     assert response.status_code == 200
 
     assert os.path.isfile(
-        f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+        f"{fakestorage}/img/jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
     assert os.path.isfile(
-        f"{fakestorage}/thumb/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+        f"{fakestorage}/thumb/jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp"
     )
-    assert not os.path.isfile(f"{fakestorage}/img/none.jpg")
+    assert not os.path.isfile(f"{fakestorage}/img/jeu_1.jpg")
     with db:
-        item = ItemPicture.get(item=item, index=0)
-        assert item.filename == "jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
-
-
-def test_item_modify_picture_nonexistent(fakestorage):
-    with db:
-        item = Item.create(name="jeu")
-
-    f = io.BytesIO(IMG_FILE)
-    response = client.post(
-        f"/items/{item.id}/picture/0",
-        files={"file": ("filename", f, "image/jpeg")},
-        headers=AUTH_ADMIN,
-    )
-    assert response.status_code == 200
-
-    assert os.path.isfile(
-        f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
-    )
-    assert os.path.isfile(
-        f"{fakestorage}/thumb/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
-    )
-    with db:
-        item = ItemPicture.get(item=item, index=0)
-        assert item.filename == "jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
+        assert Item.get(item).pictures == [
+            "jeu_00001_b2bb8775b7d5bf59c36c8637293a4602.webp"
+        ]
 
 
 def test_picture_remove_existent(fakestorage):
     with db:
-        item = Item.create(name="jeu")
+        item = Item.create(id=1, name="jeu", pictures=["jeu_1.jpg"])
+    with open(f"{fakestorage}/img/jeu_1.jpg", "w") as f:
+        f.write("0")
 
-    f = io.BytesIO(IMG_FILE)
     response = client.post(
-        f"/items/{item.id}/picture",
-        files={"file": ("filename", f, "image/jpeg")},
+        f"/items/{item.id}",
+        json={"pictures": []},
         headers=AUTH_ADMIN,
     )
-
-    response = client.delete(f"/items/{item.id}/picture/0", headers=AUTH_ADMIN)
     assert response.status_code == 200
-    assert not os.path.isfile(
-        f"{fakestorage}/img/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
-    )
-    assert not os.path.isfile(
-        f"{fakestorage}/thumb/jeu_b2bb8775b7d5bf59c36c8637293a4602.webp"
-    )
+    assert not os.path.isfile(f"{fakestorage}/img/jeu_1.jpg")
     with db:
-        assert not ItemPicture.get_or_none(item=item, index=0)
-
-
-def test_picture_remove_nonexistent():
-    with db:
-        item = Item.create(name="jeu")
-    response = client.delete(f"/items/{item.id}/picture/5", headers=AUTH_ADMIN)
-    assert response.status_code == 404
-
-
-def test_picture_get_item():
-    with db:
-        item = Item.create(name="jeu")
-        ItemPicture.create(item=item, index=0, filename="0.jpg")
-        ItemPicture.create(item=item, index=1, filename="1.jpg")
-
-    response = client.get(f"/items/{item.id}")
-    item = response.json()
-    assert item["pictures"] == ["0.jpg", "1.jpg"]
+        assert Item.get(item).pictures == []

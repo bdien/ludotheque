@@ -19,6 +19,9 @@ export function MiniItem(props: MiniItemProps) {
   if (error) return <div>Impossible de charger: {error}</div>;
   if (!mutate) return <div>Erreur du serveur</div>;
 
+  const picture = item?.pictures?.length
+    ? item.pictures[0]
+    : "../../notavailable.webp";
   const today = new Date();
   const thisweek = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
 
@@ -60,11 +63,7 @@ export function MiniItem(props: MiniItemProps) {
                     ? "drop-shadow(0px 0px 8px rgba(255,0,0,0.7))"
                     : "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
               }}
-              src={
-                item.pictures?.length
-                  ? `/storage/thumb/${item.pictures[0]}`
-                  : "/notavailable.webp"
-              }
+              src={`/storage/thumb/${picture}`}
             />
           </Link>
         ) : (

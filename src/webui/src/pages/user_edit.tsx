@@ -179,8 +179,11 @@ export function UserEdit(props: UserEditProps) {
             </Button>
           </Box>
         ))}
-        <Button onClick={() => append({ email: "" })}>
-          <Icon>add</Icon>Ajout d'EMail
+        <Button
+          startIcon={<Icon>add</Icon>}
+          onClick={() => append({ email: "" })}
+        >
+          Ajouter un EMail
         </Button>
       </Box>
 

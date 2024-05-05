@@ -28,6 +28,9 @@ export function LoanClose(props: LoanCloseProps) {
   }, [loan]);
 
   if (!loan || !item) return <>Loading</>;
+  const picture = item?.pictures?.length
+    ? item.pictures[0]
+    : "../../notavailable.webp";
 
   return (
     <>
@@ -43,11 +46,7 @@ export function LoanClose(props: LoanCloseProps) {
             height: "30vh",
             objectFit: "contain",
           }}
-          src={
-            item.pictures?.length
-              ? `/storage/img/${item.pictures[0]}`
-              : "/notavailable.webp"
-          }
+          src={`/storage/thumb/${picture}`}
         />
       )}
       <Typography
