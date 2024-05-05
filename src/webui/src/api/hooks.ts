@@ -9,6 +9,7 @@ import {
   Loan,
   UserModel,
   Users,
+  Stats,
 } from "./models";
 import { SERVER_URL, fetcher } from "./calls";
 
@@ -21,6 +22,20 @@ export function useInfo() {
 
   return {
     info: data,
+    isLoading,
+    error,
+  };
+}
+
+export function useStats() {
+  const { data, error, isLoading } = useSWRImmutable<Stats>(
+    `${SERVER_URL}/stats`,
+    fetcher,
+    { revalidateOnFocus: false },
+  );
+
+  return {
+    stats: data,
     isLoading,
     error,
   };

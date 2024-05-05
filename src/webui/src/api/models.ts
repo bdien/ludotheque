@@ -123,3 +123,14 @@ export interface EMail {
   sent: boolean;
   error?: string;
 }
+
+export interface Stats {
+  [key: string]: {
+    items: {
+      totalin: number;
+      totalout: number;
+      in: number;
+      out: number;
+    };
+  };
+}

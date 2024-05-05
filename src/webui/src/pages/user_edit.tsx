@@ -10,7 +10,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs, { Dayjs } from "dayjs";
+import { parseISO, formatISO } from "date-fns";
 import Alert from "@mui/material/Alert";
 import { useState } from "react";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -31,7 +31,7 @@ type FormValues = {
   role: string;
   notes: string;
   informations: string;
-  subscription: Dayjs;
+  subscription: Date;
   disabled: boolean;
 };
 
@@ -49,7 +49,7 @@ function generateDefaultValues(user?: UserModel): FormValues | undefined {
     role: user.role,
     notes: user.notes ?? "",
     informations: user.informations ?? "",
-    subscription: dayjs(user.subscription),
+    subscription: user.subscription ? parseISO(user.subscription) : new Date(),
     disabled: !user.enabled,
   };
 }
@@ -81,7 +81,9 @@ export function UserEdit(props: UserEditProps) {
     user.role = data.role;
     user.notes = data.notes;
     user.informations = data.informations;
-    user.subscription = data.subscription.format("YYYY-MM-DD");
+    user.subscription = formatISO(data.subscription, {
+      representation: "date",
+    });
     user.enabled = !data.disabled;
 
     if (initialUserId) {
@@ -190,13 +192,15 @@ export function UserEdit(props: UserEditProps) {
             <br />
             <Controller
               control={control}
-              defaultValue={dayjs(user.subscription)}
+              defaultValue={
+                user.subscription ? parseISO(user.subscription) : new Date()
+              }
               name="subscription"
               render={({ field }) => (
                 <DatePicker
                   label="Expiration adhésion"
                   sx={{ mt: 2, mb: 1 }}
-                  format="D MMM YYYY"
+                  format="d MMM yyyy"
                   {...field}
                 />
               )}

@@ -3,9 +3,9 @@ import ReactDOM from "react-dom/client";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import "dayjs/locale/fr";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { fr } from "date-fns/locale/fr";
 import theme from "./theme";
 import App from "./App.tsx";
 
@@ -22,7 +22,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           redirect_uri: window.location.origin,
         }}
       >
-        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
           <App />
         </LocalizationProvider>
       </Auth0Provider>

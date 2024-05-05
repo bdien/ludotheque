@@ -8,7 +8,7 @@ import Icon from "@mui/material/Icon";
 import { useState } from "react";
 import Link from "@mui/material/Link";
 import { useAccount } from "../api/hooks";
-import dayjs from "dayjs";
+import { differenceInDays } from "date-fns";
 import Alert from "@mui/material/Alert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -22,16 +22,17 @@ interface MiniUserProps {
   onRemove?: ((event: React.MouseEvent<HTMLElement>) => void) | null;
 }
 
-const today = new Date();
-
 function emailLate(user: UserModel) {
   if (!user.emails) return "";
 
   // Can be NaN if user.last_warning is NULL
-  const last_warning_days = dayjs().diff(user.last_warning, "days");
-  if (last_warning_days == 0) return ` - Courriel envoyé aujourd'hui`;
-  if (last_warning_days < 15)
-    return ` - Courriel envoyé il y a ${last_warning_days}j`;
+  let last_warning_days = 99;
+  if (user.last_warning) {
+    last_warning_days = differenceInDays(new Date(), user.last_warning);
+    if (last_warning_days == 0) return ` - Courriel envoyé aujourd'hui`;
+    if (last_warning_days < 15)
+      return ` - Courriel envoyé il y a ${last_warning_days}j`;
+  }
 
   return (
     <>
@@ -60,10 +61,12 @@ export function MiniUser(props: MiniUserProps) {
     setAnchorEl(null);
   };
 
-  const late_loans = props.user?.loans?.filter((i) => dayjs().diff(i.stop) > 0)
-    .length;
+  const today = new Date();
+  const late_loans = props.user?.loans?.filter(
+    (i) => differenceInDays(today, i.stop) > 0,
+  ).length;
   const verylate_loans = props.user?.loans?.filter(
-    (i) => dayjs().diff(i.stop, "days") > 14,
+    (i) => differenceInDays(today, i.stop) > 14,
   ).length;
   const { account } = useAccount();
 

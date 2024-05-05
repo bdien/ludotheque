@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box";
 import { useLoansLate } from "../api/hooks";
 import { Typography, Table, TableCell, TableRow } from "@mui/material";
-import dayjs from "dayjs";
+import { differenceInDays } from "date-fns";
 import { Loan } from "../api/models";
 import { ShortUser } from "../components/short_user";
 import { ShortItem } from "../components/short_item";
@@ -17,10 +17,10 @@ const categories = new Map([
   [7, "1 semaine"],
 ]);
 
-const today = dayjs();
+const today = new Date();
 
 function nbWeeks(stop_txt: string): number {
-  return today.diff(stop_txt, "week");
+  return differenceInDays(today, stop_txt) / 7;
 }
 
 function col_time(nbWeeks: number) {
@@ -30,7 +30,7 @@ function col_time(nbWeeks: number) {
 }
 
 function categorize(stop_txt: string): number | null {
-  const diff_days = today.diff(stop_txt, "day");
+  const diff_days = differenceInDays(today, stop_txt);
   if (diff_days < 0) return null;
   for (const diff_cur of categories.keys()) {
     if (diff_days >= diff_cur) return diff_cur;
