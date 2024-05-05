@@ -1,14 +1,13 @@
 import Box from "@mui/material/Box";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useInfo, useAccount } from "../api/hooks";
+import { MainAdmin } from "./main_admin.tsx";
 import Alert from "@mui/material/Alert";
 
 export function Main() {
   const { info } = useInfo();
   const { isAuthenticated, user } = useAuth0();
   const { account } = useAccount();
-
-  // if (isAuthenticated && account?.role == "admin") return <MainAdmin />;
 
   return (
     <>
