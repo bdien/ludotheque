@@ -161,6 +161,19 @@ export function SideMenu(props: SideMenuProps) {
                   </ListItemIcon>
                   <ListItemText primary="Jeux en retards" />
                 </ListItem>
+
+                {/* Stats */}
+                <ListItem
+                  component={Link}
+                  to="/stats"
+                  onClick={() => props.setIsDrawerOpen(false)}
+                  sx={{ ...styleUrl("/stats"), pl: 4 }}
+                >
+                  <ListItemIcon sx={{ color: "inherit" }}>
+                    <Icon>numbers</Icon>
+                  </ListItemIcon>
+                  <ListItemText primary="Statistiques" />
+                </ListItem>
               </List>
             </Collapse>
           </>

@@ -19,6 +19,7 @@ import "./styles.css";
 import { LateLoans } from "./pages/late_loans";
 import { UserHistory } from "./pages/user_history";
 import { LateEmail } from "./pages/late_email";
+import { Stats } from "./pages/stats";
 
 function App() {
   const { isLoading: infoIsLoading } = useInfo();
@@ -121,6 +122,8 @@ function App() {
           </Route>
 
           <Route path="/ledger" component={Ledger} />
+
+          <Route path="/stats" component={Stats} />
 
           <Route path="/" component={Main} />
         </Switch>
