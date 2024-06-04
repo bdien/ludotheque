@@ -24,7 +24,7 @@ ChartJS.register(
   Tooltip,
 );
 
-export function MainAdmin() {
+export function Stats() {
   const { stats } = useStats();
 
   if (!stats) return "Loading";
@@ -68,7 +68,7 @@ export function MainAdmin() {
   };
   return (
     <>
-      Jeux empruntés: {laststats.items.totalout}
+      Jeux actuellement empruntés: {laststats.items.totalout}
       <Chart
         type="bar"
         data={gdata}
@@ -83,8 +83,6 @@ export function MainAdmin() {
           },
         }}
       />
-      <br />
-      Admin Page
     </>
   );
 }
