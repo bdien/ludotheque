@@ -32,7 +32,7 @@ def publish_gsheets():
             .group_by(User.id)
         )
 
-        data = [
+        user_data = [
             [
                 user.id,
                 user.name,
@@ -46,22 +46,26 @@ def publish_gsheets():
             ]
             for user in users
         ]
-    range = f"A2:{chr(65+len(data[0]))}{len(data)+1}"
-    wks.update(range, data)
+    range = f"A2:{chr(65+len(user_data[0]))}{len(user_data)+1}"
+    wks.update(range, user_data)
+
+    # Build user mapping
+    user_mapping = {i[0]: i[1] for i in user_data}
 
     wks = sht.worksheet("Jeux")
     with db:
         # Subquery, all item loaned
         LoanAlias = Loan.alias()
-        subquery = LoanAlias.select(LoanAlias.item_id, LoanAlias.status).where(
-            LoanAlias.status == "out"
-        )
+        subquery = LoanAlias.select(
+            LoanAlias.item_id, LoanAlias.user_id, LoanAlias.status
+        ).where(LoanAlias.status == "out")
 
         # Join with items + number of loans
         query = (
             Item.select(
                 Item,
                 subquery.c.status.alias("status"),
+                subquery.c.user_id.alias("user_id"),
                 peewee.fn.Count(Loan.id).alias("nbloans"),
             )
             .order_by(Item.id)
@@ -86,6 +90,7 @@ def publish_gsheets():
                 or (not i.enabled)
                 and "Désactivé"
                 or " ",
+                (i.status == "out") and user_mapping[i.user_id] or " ",
                 i.notes,
                 i.created_at.strftime("%d/%m/%Y"),
             ]
