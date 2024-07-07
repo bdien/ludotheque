@@ -21,3 +21,5 @@ EMAIL_CC = "benoit.dien@gmail.com"
 
 # Minimum number of days between emails
 EMAIL_MINPERIOD = 15
+# Minimum number of lateness before sending an email is possible
+EMAIL_MINLATE = 1
