@@ -210,6 +210,7 @@ def info():
             "loan": {"days": config.LOAN_DAYS},
             "image_max": config.IMAGE_MAX_DIM,
             "email_minperiod": config.EMAIL_MINPERIOD,
+            "email_minlate": config.EMAIL_MINLATE,
             "version": "DEVDEV",
         }
 

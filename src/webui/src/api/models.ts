@@ -14,6 +14,7 @@ export interface InfoModel {
   };
   image_max: number;
   email_minperiod: number;
+  email_minlate: number;
 }
 
 export interface UserModel {

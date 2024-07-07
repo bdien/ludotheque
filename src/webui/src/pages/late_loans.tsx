@@ -26,7 +26,7 @@ function nbWeeks(stop_txt: string): number {
 function col_time(nbWeeks: number) {
   if (nbWeeks >= 52) return `${Math.round(nbWeeks / 52)} ans`;
   if (nbWeeks >= 8) return `${Math.floor(nbWeeks / 4)} mois`;
-  return `${nbWeeks} semaines`;
+  return `${Math.floor(nbWeeks)} semaines`;
 }
 
 function categorize(stop_txt: string): number | null {

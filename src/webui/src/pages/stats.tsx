@@ -5,8 +5,10 @@ import {
   CategoryScale,
   TimeScale,
   BarElement,
+  BarController,
   PointElement,
   LineElement,
+  LineController,
   Legend,
   Tooltip,
 } from "chart.js";
@@ -18,8 +20,10 @@ ChartJS.register(
   CategoryScale,
   TimeScale,
   BarElement,
+  BarController,
   PointElement,
   LineElement,
+  LineController,
   Legend,
   Tooltip,
 );

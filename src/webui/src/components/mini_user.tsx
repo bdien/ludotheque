@@ -7,7 +7,7 @@ import IconButton from "@mui/material/IconButton";
 import Icon from "@mui/material/Icon";
 import { useState } from "react";
 import Link from "@mui/material/Link";
-import { useAccount } from "../api/hooks";
+import { useAccount, useInfo } from "../api/hooks";
 import { differenceInDays } from "date-fns";
 import Alert from "@mui/material/Alert";
 import Menu from "@mui/material/Menu";
@@ -52,6 +52,7 @@ function emailLate(user: UserModel) {
 
 export function MiniUser(props: MiniUserProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const { info } = useInfo();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuOpened = Boolean(anchorEl);
   const menuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -66,7 +67,7 @@ export function MiniUser(props: MiniUserProps) {
     (i) => differenceInDays(today, i.stop) > 0,
   ).length;
   const verylate_loans = props.user?.loans?.filter(
-    (i) => differenceInDays(today, i.stop) > 14,
+    (i) => differenceInDays(today, i.stop) >= (info?.email_minlate ?? 15),
   ).length;
   const { account } = useAccount();
 
@@ -216,7 +217,7 @@ export function MiniUser(props: MiniUserProps) {
       {late_loans ? (
         <Alert elevation={1} severity="error" sx={{ my: 1 }}>
           {late_loans} jeu{late_loans > 1 ? "x" : ""} en retard
-          {/* Emails pour retard (au moins 15j) */}
+          {/* Emails pour retard */}
           {account?.role == "admin" && verylate_loans
             ? emailLate(props.user)
             : ""}
