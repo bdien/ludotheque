@@ -6,12 +6,12 @@ import React, {
 } from "react";
 import { EmblaCarouselType } from "embla-carousel";
 
-type UsePrevNextButtonsType = {
+interface UsePrevNextButtonsType {
   prevBtnDisabled: boolean;
   nextBtnDisabled: boolean;
   onPrevButtonClick: () => void;
   onNextButtonClick: () => void;
-};
+}
 
 export const usePrevNextButtons = (
   emblaApi: EmblaCarouselType | undefined,

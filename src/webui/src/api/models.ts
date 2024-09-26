@@ -35,7 +35,7 @@ export interface UserModel {
   last_warning?: string;
 }
 
-export type Users = Array<UserModel>;
+export type Users = UserModel[];
 
 export interface ItemLinkModel {
   name: string;
@@ -125,13 +125,14 @@ export interface EMail {
   error?: string;
 }
 
-export interface Stats {
-  [key: string]: {
+export type Stats = Record<
+  string,
+  {
     items: {
       totalin: number;
       totalout: number;
       in: number;
       out: number;
     };
-  };
-}
+  }
+>;

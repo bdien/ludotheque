@@ -8,7 +8,9 @@ import { useState } from "react";
 
 // From https://medium.com/@kch062522/useconfirm-a-custom-react-hook-to-prompt-confirmation-before-action-f4cb746ebd4e
 
-type ResolveFunc = { resolve: (a: boolean) => void };
+interface ResolveFunc {
+  resolve: (a: boolean) => void;
+}
 
 export function useConfirm(title: string, message: string) {
   const [promise, setPromise] = useState<ResolveFunc | null>(null);
@@ -23,12 +25,12 @@ export function useConfirm(title: string, message: string) {
   };
 
   const handleConfirm = () => {
-    promise && promise.resolve(true);
+    if (promise) promise.resolve(true);
     handleClose();
   };
 
   const handleCancel = () => {
-    promise && promise.resolve(false);
+    if (promise) promise.resolve(false);
     handleClose();
   };
 

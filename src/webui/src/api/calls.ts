@@ -81,26 +81,6 @@ export async function deleteItem(itemId: number) {
   });
 }
 
-export async function deleteItemPicture(itemId: number, pictureIdx: number) {
-  await fetchWithToken(`${SERVER_URL}/items/${itemId}/picture/${pictureIdx}`, {
-    method: "DELETE",
-  });
-}
-
-export async function updateItemPicture(
-  itemId: number,
-  pictureIdx: number,
-  file: File,
-) {
-  const data = new FormData();
-  data.append("file", file);
-
-  await fetchWithToken(`${SERVER_URL}/items/${itemId}/picture/${pictureIdx}`, {
-    method: "POST",
-    body: data,
-  });
-}
-
 // Loan
 // -------------------
 
@@ -168,10 +148,7 @@ export async function updateUser(
   return response.json();
 }
 
-export async function emailUser(
-  userId: number,
-  send: boolean = false,
-): Promise<EMail> {
+export async function emailUser(userId: number, send = false): Promise<EMail> {
   const response = await fetchWithToken(
     `${SERVER_URL}/users/${userId}/email${send ? "?send=1" : ""}`,
     {

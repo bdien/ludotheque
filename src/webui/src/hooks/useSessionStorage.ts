@@ -8,7 +8,6 @@ const useSessionStorage = <T>(
   initialValue?: T,
   raw?: boolean,
 ): [T, (value: T) => void] => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [state, setState] = useState<T>(() => {
     try {
       const sessionStorageValue = sessionStorage.getItem(key);
@@ -31,7 +30,6 @@ const useSessionStorage = <T>(
     }
   });
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     try {
       const serializedState = raw ? String(state) : JSON.stringify(state);
