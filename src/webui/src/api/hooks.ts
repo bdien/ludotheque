@@ -80,7 +80,7 @@ export function useItem(id?: number) {
     };
   }
 
-  let url = `${SERVER_URL}/items/${id}`;
+  const url = `${SERVER_URL}/items/${id}`;
 
   const { data, error, isLoading, mutate } = useSWR<ItemModel>(url, fetcher, {
     revalidateOnFocus: false,
@@ -123,7 +123,7 @@ export function useCategories() {
   );
 
   return {
-    categories: new Map(data ? data.map((i) => [i["id"], i["name"]]) : null),
+    categories: data && new Map(data.map((i) => [i["id"], i["name"]])),
     isLoading,
     error,
   };
@@ -149,7 +149,7 @@ export function useUser(id?: number) {
     };
   }
 
-  let url = `${SERVER_URL}/users/${id}`;
+  const url = `${SERVER_URL}/users/${id}`;
 
   const { data, error, isLoading, mutate } = useSWR<UserModel>(url, fetcher, {
     revalidateOnFocus: false,
@@ -188,14 +188,14 @@ export function useUsers() {
   );
 
   return {
-    users: new Map(data ? data.map((i) => [i["id"], i]) : null),
+    users: data && new Map(data.map((i) => [i["id"], i])),
     isLoading,
     error,
     mutate,
   };
 }
 
-export function useLoansLate(mindays: number = 0) {
+export function useLoansLate(mindays = 0) {
   const { data, error, isLoading } = useSWR<Loan[]>(
     `${SERVER_URL}/loans/late?mindays=${mindays}`,
     fetcher,

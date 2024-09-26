@@ -63,7 +63,7 @@ export function LateEmail(props: LateEmailProps) {
         onClick={() => {
           emailUser(props.id, true).then((data) => {
             if (data["sent"]) history.back();
-            else setError(data["error"]!);
+            else if (data["error"]) setError(data["error"]);
           });
         }}
       >

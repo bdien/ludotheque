@@ -23,7 +23,7 @@ interface UserEditProps {
   id?: number;
 }
 
-type FormValues = {
+interface FormValues {
   id: number;
   name: string;
   emails: { email: string }[];
@@ -33,7 +33,7 @@ type FormValues = {
   informations: string;
   subscription: Date;
   disabled: boolean;
-};
+}
 
 function generateDefaultValues(user?: UserModel): FormValues | undefined {
   if (!user) return user;

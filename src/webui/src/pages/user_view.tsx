@@ -55,7 +55,9 @@ export function UserView(props: UserViewProps) {
               tooltipOpen={true}
               icon={<Icon>edit</Icon>}
               tooltipTitle="Edition"
-              onClick={() => navigate(`/users/${user.id}/edit`)}
+              onClick={() => {
+                navigate(`/users/${user.id}/edit`);
+              }}
             />
           ) : (
             ""
@@ -65,7 +67,9 @@ export function UserView(props: UserViewProps) {
             tooltipOpen={true}
             icon={<Icon>logout</Icon>}
             tooltipTitle="Faire un emprunt"
-            onClick={() => navigate(`/loans/new?user=${user.id}`)}
+            onClick={() => {
+              navigate(`/loans/new?user=${user.id}`);
+            }}
           />
         </SpeedDial>
       )}

@@ -136,7 +136,7 @@ export function Ledger() {
   return (
     <Box>
       {days.map((date) => {
-        const ledgersDay = ledgerByDay.get(date)!;
+        const ledgersDay = ledgerByDay.get(date) as LedgerEntry[];
         const loansOut = loans ? loans.filter((i) => i.start == date) : [];
         const loansIn = loans
           ? loans.filter((i) => i.status == "in" && i.stop == date)

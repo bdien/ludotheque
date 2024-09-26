@@ -1,13 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { useItem, useCategories, useAccount, useItems } from "../api/hooks";
 import { ItemModel } from "../api/models";
-import {
-  createItem,
-  deleteItem,
-  deleteItemPicture,
-  updateItem,
-  updateItemPicture,
-} from "../api/calls";
+import { createItem, deleteItem, updateItem } from "../api/calls";
 import { useConfirm } from "../hooks/useConfirm";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
@@ -63,7 +57,7 @@ const marks = [
   },
 ];
 
-type FormValues = {
+interface FormValues {
   id: number;
   players: number[];
   name: string;
@@ -76,7 +70,7 @@ type FormValues = {
   disabled: boolean;
   content: string;
   notes: string;
-};
+}
 
 export function ItemEdit(props: ItemEditProps) {
   const { item, error, mutate } = useItem(props.id);

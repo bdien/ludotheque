@@ -7,10 +7,10 @@ import {
 } from "./EmblaCarouselArrows";
 import useEmblaCarousel from "embla-carousel-react";
 
-type PropType = {
+interface PropType {
   slides: ReactNode[];
   options?: EmblaOptionsType;
-};
+}
 
 const EmblaCarousel: React.FC<PropType> = (props) => {
   const { slides, options } = props;

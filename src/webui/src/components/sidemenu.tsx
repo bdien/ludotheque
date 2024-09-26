@@ -8,7 +8,7 @@ import { Box, Collapse, Divider, Icon, Typography } from "@mui/material";
 import { useState } from "react";
 
 interface SideMenuProps {
-  setIsDrawerOpen: (arg0: boolean) => any;
+  setIsDrawerOpen: (arg0: boolean) => void;
 }
 
 export function SideMenu(props: SideMenuProps) {
