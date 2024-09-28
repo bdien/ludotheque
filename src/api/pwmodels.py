@@ -3,7 +3,8 @@ import os
 from datetime import date, datetime, timedelta
 import peewee
 from playhouse.sqlite_ext import SqliteExtDatabase, JSONField
-from api.config import LOAN_DAYS
+from playhouse.shortcuts import model_to_dict
+from api.config import LOAN_WEEKS
 
 db = peewee.DatabaseProxy()
 dbpath = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
@@ -38,6 +39,7 @@ def create_all_tables(drop=False):
         Loan,
         Ledger,
         Rating,
+        Booking,
     ]
     if drop:
         db.drop_tables(tbls)
@@ -49,9 +51,12 @@ class BaseModel(peewee.Model):
         database = db
         only_save_dirty = True
 
+    def to_dict(self):
+        return model_to_dict(self, recurse=False)
+
 
 def today_plus_loantime():
-    return date.today() + timedelta(days=LOAN_DAYS)
+    return date.today() + timedelta(days=LOAN_WEEKS * 7)
 
 
 class User(BaseModel):
@@ -115,6 +120,13 @@ class Loan(BaseModel):
     start = peewee.DateField(default=date.today)
     stop = peewee.DateField(default=today_plus_loantime, index=True)
     status = peewee.CharField(default="out", index=True)
+
+
+class Booking(BaseModel):
+    user = peewee.ForeignKeyField(model=User)
+    item = peewee.ForeignKeyField(model=Item)
+    created_at = peewee.DateField(default=date.today)
+    start = peewee.DateField(default=date.today)
 
 
 class Ledger(BaseModel):

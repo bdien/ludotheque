@@ -11,6 +11,7 @@ import api.loans
 import api.system
 import api.ledger
 import api.gsheets
+import api.bookings
 
 logging.basicConfig(level=logging.DEBUG)
 with contextlib.suppress(Exception):
@@ -48,6 +49,7 @@ app.add_middleware(CORSMiddleware, allow_origins="*")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.include_router(api.users.router)
 app.include_router(api.items.router)
+app.include_router(api.bookings.router)
 app.include_router(api.loans.router)
 app.include_router(api.system.router)
 app.include_router(api.ledger.router)

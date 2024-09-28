@@ -7,7 +7,7 @@ import re
 from fastapi.responses import PlainTextResponse
 import jinja2
 import peewee
-from api.pwmodels import Item, Loan, User, EMail, db
+from api.pwmodels import Booking, Item, Loan, User, EMail, db
 from fastapi import APIRouter, HTTPException, Request, Depends
 from api.system import auth_user, send_email, check_auth
 from api.config import EMAIL_MINPERIOD
@@ -193,10 +193,20 @@ def get_user(user_id: int, auth=Depends(auth_user)):
             raise HTTPException(404)
         ret = model_to_dict(user, recurse=False)
         ret["emails"] = [i.email for i in user.email_set]
+
+        # Loans
         ret["loans"] = list(
             Loan.select()
             .where(Loan.user == user, Loan.status == "out")
             .order_by(Loan.stop)
+            .dicts()
+        )
+
+        # Bookings
+        ret["bookings"] = list(
+            Booking.select()
+            .where(Booking.user == user)
+            .order_by(Booking.created_at)
             .dicts()
         )
 

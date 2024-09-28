@@ -24,9 +24,10 @@ export function UserView(props: UserViewProps) {
     <>
       <MiniUser fullDetails={true} user={user} />
 
+      {/* Loans */}
       <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
-        {user?.loans?.length ? (
-          user?.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)
+        {user.loans?.length ? (
+          user.loans?.map((obj) => <MiniItem key={obj.id} id={obj.item} />)
         ) : (
           <Box sx={{ mx: "auto", textAlign: "center" }}>
             <Icon sx={{ opacity: 0.1, fontSize: "min(50vw, 300px)", mt: 4 }}>
@@ -37,6 +38,18 @@ export function UserView(props: UserViewProps) {
           </Box>
         )}
       </Box>
+
+      {/* Bookings */}
+      {user.bookings.length > 0 && (
+        <>
+          Réservations
+          <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
+            {user.bookings.map((obj) => (
+              <MiniItem key={obj.item} id={obj.item} />
+            ))}
+          </Box>
+        </>
+      )}
 
       {/* Edit button */}
       {(account?.role == "admin" || account?.role == "benevole") && (

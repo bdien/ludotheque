@@ -1,4 +1,4 @@
-export interface InfoModel {
+export interface Info {
   nbitems: number;
   domain: string;
   version: string;
@@ -10,14 +10,25 @@ export interface InfoModel {
     card: number;
   };
   loan: {
-    days: number;
+    weeks: number;
+  };
+  booking: {
+    max: number;
+    weeks: number;
   };
   image_max: number;
   email_minperiod: number;
   email_minlate: number;
 }
 
-export interface UserModel {
+export interface Booking {
+  user: number;
+  item: number;
+  created_at: string;
+  start: string;
+}
+
+export interface User {
   id: number;
   name: string;
   enabled: boolean;
@@ -26,6 +37,7 @@ export interface UserModel {
   credit: number;
   oldest_loan?: string;
   loans?: Loan[];
+  bookings: Booking[];
   nbloans?: number;
   notes?: string;
   informations?: string;
@@ -35,7 +47,7 @@ export interface UserModel {
   last_warning?: string;
 }
 
-export type Users = UserModel[];
+export type Users = User[];
 
 export interface ItemLinkModel {
   name: string;
@@ -75,6 +87,10 @@ export interface ItemModel {
   status?: string;
   return?: string;
   loans?: Loan[];
+  bookings?: {
+    nb: number;
+    entries?: Booking[];
+  };
 }
 
 export interface Loan {

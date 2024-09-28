@@ -57,8 +57,7 @@ export function Main() {
             <ul>
               <li>Adhésion annuelle familiale de {info.pricing.yearly}€.</li>
               <li>
-                Un jeu: {info.pricing.regular}€ pour {info.loan.days / 7}{" "}
-                semaines.
+                Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines.
               </li>
               <li>
                 Carte prépayée (Optionnelle): {info.pricing.card}€ (

@@ -86,7 +86,7 @@ export function MiniItem(props: MiniItemProps) {
 
         {item ? (
           <>
-            {item_return_date && (
+            {item_return_date && last_loan && last_loan.status == "out" && (
               <Typography
                 variant="subtitle2"
                 color={item_return_date < thisweek ? "red" : "text.secondary"}

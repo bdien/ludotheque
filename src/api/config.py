@@ -9,7 +9,7 @@ PRICING = {
     "yearly": 10,
 }
 
-LOAN_DAYS = 21
+LOAN_WEEKS = 3
 
 APIKEY_PREFIX = "akld"
 
@@ -23,3 +23,7 @@ EMAIL_CC = "benoit.dien@gmail.com"
 EMAIL_MINPERIOD = 15
 # Minimum number of lateness before sending an email is possible
 EMAIL_MINLATE = 1
+
+# Maximum number of bookings per user
+BOOKING_MAX = 4
+BOOKING_WEEKS = 3

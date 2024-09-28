@@ -2,7 +2,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { navigate } from "wouter/use-browser-location";
 import { useAccount, useUser, useUsers } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
-import { UserModel } from "../api/models";
+import { User } from "../api/models";
 import { useConfirm } from "../hooks/useConfirm";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -35,7 +35,7 @@ interface FormValues {
   disabled: boolean;
 }
 
-function generateDefaultValues(user?: UserModel): FormValues | undefined {
+function generateDefaultValues(user?: User): FormValues | undefined {
   if (!user) return user;
   return {
     id: user.id,
@@ -71,7 +71,7 @@ export function UserEdit(props: UserEditProps) {
     définitivement tout son historique d'emprunts.`,
   );
 
-  async function onSubmit(user: UserModel, data: FormValues) {
+  async function onSubmit(user: User, data: FormValues) {
     setApiError(null);
 
     user.id ||= data.id;
