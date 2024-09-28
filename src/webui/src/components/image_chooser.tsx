@@ -38,9 +38,11 @@ export function ImageChooser(props: ImageChooserProps) {
     // New image, resize it and let the parent knows that it is there
     if (files != null && files.length > 0) {
       Resizer.imageFileResizer(files[0], 800, 800, "WEBP", 90, 0, (uri) => {
-        setImgs((imgs) => imgs.concat(uri as string));
+        if (imgs.indexOf(uri as string) == -1)
+          setImgs((imgs) => imgs.concat(uri as string));
       });
     }
+    e.target.value = "";
   }
 
   // Remove image
