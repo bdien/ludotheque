@@ -9,7 +9,8 @@ import api.pwmodels
 import api.items
 import api.system
 
-AUTH_USER = {"Authorization": "0,user"}
+AUTH_USER = {"Authorization": "8,user"}
+AUTH_USER_ID = 8
 AUTH_ADMIN = {"Authorization": "1,admin"}
 
 
@@ -54,4 +55,5 @@ def fake_auth_user(
 ) -> api.system.AuthUser:
     if not authorization:
         return None
-    return api.system.AuthUser(*authorization.split(","))
+    user_id, user_role = authorization.split(",")
+    return api.system.AuthUser(int(user_id), user_role)

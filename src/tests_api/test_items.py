@@ -2,9 +2,10 @@ import datetime
 import pytest
 from api.main import app
 from api.system import auth_user
-from api.pwmodels import Category, Item, ItemCategory, ItemLink, Loan, User, db
+from api.pwmodels import Booking, Category, Item, ItemCategory, ItemLink, Loan, User, db
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
+from tests_api.conftest import AUTH_USER_ID
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user
@@ -176,6 +177,34 @@ def test_get_items_loaned():
     assert items[0]["status"] != "out"
     assert items[1]["name"] == "item2"
     assert items[1]["status"] == "out"
+
+
+def test_get_items_bookings():
+    with db:
+        item = Item.create(id=5, name="item1")
+        user = User.create(id=AUTH_USER_ID, name="user")
+        Booking.create(user=user, item=item)
+
+    # Check in API (Non-auth user)
+    response = client.get(f"/items/{item.id}").json()
+    assert response["bookings"] == {"nb": 1}
+    assert response["bookings"]["nb"] == 1
+    assert "entries" not in response["bookings"]
+
+    # Normal user
+    response = client.get(f"/items/{item.id}", headers=AUTH_USER).json()
+    assert response["bookings"]["nb"] == 1
+    assert "entries" in response["bookings"]
+    assert len(response["bookings"]["entries"]) == 1
+    entry = response["bookings"]["entries"][0]
+    assert entry["user"] == user.id
+
+    # Admin user
+    response = client.get(f"/items/{item.id}", headers=AUTH_ADMIN).json()
+    assert response["bookings"]["nb"] == 1
+    assert len(response["bookings"]["entries"]) == 1
+    entry = response["bookings"]["entries"][0]
+    assert entry["user"] == user.id
 
 
 def test_modif_category():

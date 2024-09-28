@@ -1,7 +1,7 @@
 import { useLocation } from "wouter";
 import { createLoan, fetchItem, fetchUser } from "../api/calls";
 import { useEffect, useState } from "react";
-import { UserModel, ItemModel, LoanCreateResult } from "../api/models";
+import { User, ItemModel, LoanCreateResult } from "../api/models";
 import { UserSearch } from "../components/user_search";
 import { ItemSearch } from "../components/item_search";
 import Button from "@mui/material/Button";
@@ -25,7 +25,7 @@ export function Loan() {
   const initialUser = queryParameters.get("user");
   const { info } = useInfo();
   const [_location, setLocation] = useLocation();
-  const [user, setUser] = useState<UserModel | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [items, setItems] = useState<ItemModel[]>([]);
   const [loanResult, setLoanResult] = useState<LoanCreateResult | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -82,7 +82,7 @@ export function Loan() {
   }
 
   // Function to add/remove items when changing user
-  function changeUser(user: UserModel | null) {
+  function changeUser(user: User | null) {
     // If user must renew its subscription, add it to the loans
     if (user && new Date(user?.subscription ?? "") <= new Date())
       addItem(fakeItemAdhesion);

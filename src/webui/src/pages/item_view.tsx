@@ -7,7 +7,7 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { useAccount, useCategories, useItem } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
-import { ItemLinkModel, ItemModel } from "../api/models";
+import { ItemLinkModel, ItemModel, Loan } from "../api/models";
 import Icon from "@mui/material/Icon";
 import { navigate } from "wouter/use-browser-location";
 import TableHead from "@mui/material/TableHead";
@@ -27,6 +27,7 @@ import Chip from "@mui/material/Chip";
 import ReactMarkdown from "react-markdown";
 import { ShortUser } from "../components/short_user";
 import EmblaCarousel from "../components/EmblaCarousel";
+import { differenceInDays } from "date-fns";
 
 interface ItemProps {
   id: number;
@@ -42,6 +43,17 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
     marginLeft: theme.spacing(1),
   },
 }));
+
+function nb_loans_percent(loans: Loan[], nbdays: number) {
+  const ago = new Date();
+  ago.setDate(ago.getDate() - nbdays);
+  const local_loans = loans.filter((i) => new Date(i.start) >= ago);
+  return Math.round(
+    (100 *
+      local_loans.reduce((a, i) => a + differenceInDays(i.stop, i.start), 0)) /
+      nbdays,
+  );
+}
 
 function renderItemLink(link: ItemLinkModel) {
   if (link.name == "myludo")
@@ -76,17 +88,19 @@ function renderItemLink(link: ItemLinkModel) {
 }
 
 function displayStatus(item: ItemModel) {
+  if (!item?.enabled) {
+    return <Chip label="Retiré de l'emprunt" color="error" />;
+  }
   if (item?.status == "in") {
-    return <Chip size="small" label="Disponible" color="success" />;
+    return <Chip label="Disponible" color="success" />;
   }
   if (item?.status == "out") {
     if (!item?.return) {
-      return <Chip size="small" label="Emprunté" color="success" />;
+      return <Chip label="Emprunté" color="primary" />;
     }
     const ret = new Date(item.return);
     return (
       <Chip
-        size="small"
         label={`Retour le ${ret.toLocaleDateString(undefined, {
           year: "numeric",
           month: "short",
@@ -99,14 +113,22 @@ function displayStatus(item: ItemModel) {
   return "Inconnu";
 }
 
-function playerDisplay(item: ItemModel) {
-  const txt = item.players_min;
-  if (item.players_min == item.players_max) return <>{txt}</>;
-  if (item.players_max == 99) return <>{txt}+</>;
+function displayPlayer(item: ItemModel) {
+  let txt = item.players_min?.toString();
+  if (item.players_max == 99) txt += "+";
+  else if (item.players_min != item.players_max)
+    txt += "-" + item.players_max?.toString();
+  return <Chip sx={{ mx: "5px" }} icon={<Icon>people</Icon>} label={txt} />;
+}
+
+function displayGametime(item: ItemModel) {
+  if (!item.gametime) return <></>;
   return (
-    <>
-      {item.players_min} - {item.players_max}
-    </>
+    <Chip
+      sx={{ mx: "5px" }}
+      icon={<Icon>schedule</Icon>}
+      label={item.gametime}
+    />
   );
 }
 
@@ -128,7 +150,7 @@ export function Item(props: ItemProps) {
   // render data
   return (
     <>
-      <Box display="flex" sx={{ height: "40vh", mb: 1 }}>
+      <Box display="flex" sx={{ height: "clamp(200px, 35vh, 550px)" }}>
         <EmblaCarousel
           slides={pictures.map((item, i) => (
             <Box
@@ -148,8 +170,9 @@ export function Item(props: ItemProps) {
         variant="h4"
         textAlign="center"
         fontWeight="bold"
+        className="item-view-title"
         sx={{
-          p: 2,
+          p: 1,
           color: "primary.main",
           filter: "drop-shadow(0px 3px 4px rgba(100,100,100,0.3))",
         }}
@@ -157,8 +180,17 @@ export function Item(props: ItemProps) {
         {item.name}
       </Typography>
 
+      <Box sx={{ textAlign: "center", flex: 1, marginBottom: "8px" }}>
+        {displayStatus(item)}
+      </Box>
+      <Box sx={{ textAlign: "center", flex: 1, marginBottom: "8px" }}>
+        {displayPlayer(item)}
+        {displayGametime(item)}
+        {item.age ? <AgeChip icon="cake" size="medium" age={item.age} /> : ""}
+      </Box>
+
       {item.description && (
-        <Box component={Paper} sx={{ p: 2, mb: 1 }}>
+        <Box component={Paper} sx={{ px: 2, py: 1, mb: 1 }}>
           {/* Description */}
           <ReactMarkdown>{item.description}</ReactMarkdown>
 
@@ -208,126 +240,102 @@ export function Item(props: ItemProps) {
       )}
 
       {/* Item details */}
-      <Box sx={{ pt: 2, pb: 1 }}>
-        <TableContainer>
-          <Table size="small">
-            <TableBody>
-              <TableRow>
-                <TableCell sx={{ color: "primary.main" }}>Status</TableCell>
-                <TableCell>
-                  {item.enabled ? (
-                    <>
-                      {displayStatus(item)}
-                      {item.status == "out" && item.loans?.length && (
-                        <>
-                          <br />
-                          <ShortUser user_id={item.loans[0].user} />
-                        </>
-                      )}{" "}
-                    </>
-                  ) : (
-                    "Retiré de l'emprunt"
-                  )}
-                </TableCell>
-              </TableRow>
-
-              {item.rating && (
-                <TableRow>
-                  <TableCell sx={{ color: "primary.main" }}>Note</TableCell>
-                  <TableCell>{item.rating}</TableCell>
-                </TableRow>
-              )}
-
-              {item.notes && (
+      {item.notes && (
+        <Box sx={{ pt: 2, pb: 1 }}>
+          <TableContainer>
+            <Table size="small">
+              <TableBody>
                 <TableRow>
                   <TableCell sx={{ color: "primary.main" }}>Notes</TableCell>
                   <TableCell>{item.notes}</TableCell>
                 </TableRow>
-              )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      )}
 
-              <TableRow>
-                <TableCell sx={{ color: "primary.main" }}>Joueurs</TableCell>
-                <TableCell>{playerDisplay(item)}</TableCell>
-              </TableRow>
-
-              {item.gametime && (
-                <TableRow>
-                  <TableCell sx={{ color: "primary.main" }}>
-                    Temps d'une partie
-                  </TableCell>
-                  <TableCell>{item.gametime} minutes</TableCell>
-                </TableRow>
-              )}
-              {item.age !== undefined && (
-                <TableRow>
-                  <TableCell sx={{ color: "primary.main" }}>
-                    Age (A partir de)
-                  </TableCell>
-                  <TableCell>
-                    <AgeChip age={item.age} />
-                  </TableCell>
-                </TableRow>
-              )}
-              <TableRow>
-                <TableCell sx={{ color: "primary.main" }}>
-                  Numéro d'inventaire
-                </TableCell>
-                <TableCell>{item.id}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+      {/* Bookings */}
+      {item?.bookings?.entries?.length ? (
+        <Accordion>
+          <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+            {item?.bookings?.entries?.length} réservation
+            {item?.bookings?.entries?.length > 1 ? "s" : ""}
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <TableContainer>
+              <Table size="small">
+                <TableBody>
+                  {item?.bookings?.entries.map((i, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell sx={{ width: "120px", m: 0 }}>
+                        {new Date(i.start).toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        <ShortUser user_id={i.user} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </AccordionDetails>
+        </Accordion>
+      ) : (
+        ""
+      )}
 
       {/* Loan history */}
-      {item?.loans?.length &&
-        (item?.status != "out" || item?.loans?.length > 1) && (
-          <Box sx={{ pb: 1 }}>
-            <Accordion>
-              <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-                Historique des emprunts
-              </AccordionSummary>
-              <AccordionDetails sx={{ p: 0 }}>
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Adhérent</TableCell>
-                        <TableCell>Début</TableCell>
-                        <TableCell>Fin</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {item.loans.map((i) => (
-                        <TableRow key={i.id}>
-                          <TableCell>
-                            <ShortUser user_id={i.user} />
-                          </TableCell>
-                          <TableCell>
-                            {new Date(i.start).toLocaleDateString(undefined, {
+      {item?.loans?.length && (
+        <Accordion>
+          <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+            Emprunts ({nb_loans_percent(item?.loans, 365)}% du temps cette
+            année)
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Adhérent</TableCell>
+                    <TableCell>Début</TableCell>
+                    <TableCell>Fin</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {item.loans.map((i) => (
+                    <TableRow key={i.id}>
+                      <TableCell>
+                        <ShortUser user_id={i.user} />
+                      </TableCell>
+                      <TableCell>
+                        {new Date(i.start).toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        {i.status == "out"
+                          ? "En cours"
+                          : new Date(i.stop).toLocaleDateString(undefined, {
                               year: "numeric",
                               month: "short",
                               day: "numeric",
                             })}
-                          </TableCell>
-                          <TableCell>
-                            {i.status == "out"
-                              ? "En cours"
-                              : new Date(i.stop).toLocaleDateString(undefined, {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </AccordionDetails>
-            </Accordion>
-          </Box>
-        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </AccordionDetails>
+        </Accordion>
+      )}
 
       {/* Edit button */}
       {(account?.role == "admin" || account?.role == "benevole") && (

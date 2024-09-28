@@ -1,4 +1,4 @@
-import { UserModel } from "../api/models";
+import { User } from "../api/models";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -17,12 +17,12 @@ import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 
 interface MiniUserProps {
-  user: UserModel;
+  user: User;
   fullDetails?: boolean | null;
   onRemove?: ((event: React.MouseEvent<HTMLElement>) => void) | null;
 }
 
-function emailLate(user: UserModel) {
+function emailLate(user: User) {
   if (!user.emails) return "";
 
   // Can be NaN if user.last_warning is NULL

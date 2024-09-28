@@ -43,6 +43,7 @@ export function TopBar(props: TopBarProps) {
       <Box sx={{ display: "flex" }}>
         <AppBar
           position="fixed"
+          elevation={1}
           sx={{
             width: { sm: `calc(100% - ${props.width}px)` },
             ml: { sm: `${props.width}px` },

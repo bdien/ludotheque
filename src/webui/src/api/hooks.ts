@@ -2,19 +2,19 @@ import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import {
   Account,
-  InfoModel,
+  Info,
   ItemListEntry,
   ItemModel,
   LedgerEntry,
   Loan,
-  UserModel,
+  User,
   Users,
   Stats,
 } from "./models";
 import { SERVER_URL, fetcher } from "./calls";
 
 export function useInfo() {
-  const { data, error, isLoading } = useSWRImmutable<InfoModel>(
+  const { data, error, isLoading } = useSWRImmutable<Info>(
     `${SERVER_URL}/info`,
     fetcher,
     { revalidateOnFocus: false },
@@ -129,10 +129,11 @@ export function useCategories() {
   };
 }
 
-const DEFAULT_USER: UserModel = {
+const DEFAULT_USER: User = {
   id: 0,
   name: "",
   emails: [],
+  bookings: [],
   role: "user",
   credit: 0,
   notes: "",
@@ -151,7 +152,7 @@ export function useUser(id?: number) {
 
   const url = `${SERVER_URL}/users/${id}`;
 
-  const { data, error, isLoading, mutate } = useSWR<UserModel>(url, fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<User>(url, fetcher, {
     revalidateOnFocus: false,
   });
 

@@ -1,10 +1,4 @@
-import {
-  UserModel,
-  ItemModel,
-  LoanCreateResult,
-  ApiError,
-  EMail,
-} from "./models";
+import { User, ItemModel, LoanCreateResult, ApiError, EMail } from "./models";
 export const SERVER_URL = "/api";
 
 let access_token: string | null = null;
@@ -81,6 +75,19 @@ export async function deleteItem(itemId: number) {
   });
 }
 
+export async function booktem(itemId: number) {
+  await fetchWithToken(`${SERVER_URL}/bookings`, {
+    method: "POST",
+    body: JSON.stringify({ item: itemId }),
+  });
+}
+
+export async function unbook(bookingId: number) {
+  await fetchWithToken(`${SERVER_URL}/bookings/${bookingId}`, {
+    method: "DELETE",
+  });
+}
+
 // Loan
 // -------------------
 
@@ -109,12 +116,12 @@ export async function exportUsers(): Promise<string> {
   return response.text();
 }
 
-export async function fetchUser(userId: number): Promise<UserModel> {
+export async function fetchUser(userId: number): Promise<User> {
   const response = await fetchWithToken(`${SERVER_URL}/users/${userId}`);
   return response.json();
 }
 
-export async function searchUser(txt: string): Promise<UserModel[]> {
+export async function searchUser(txt: string): Promise<User[]> {
   if (!txt) return Promise.resolve([]);
   const response = await fetchWithToken(
     encodeURI(`${SERVER_URL}/users/search?q=${txt}`),
@@ -122,7 +129,7 @@ export async function searchUser(txt: string): Promise<UserModel[]> {
   return response.json();
 }
 
-export async function createUser(obj: object): Promise<UserModel | ApiError> {
+export async function createUser(obj: object): Promise<User | ApiError> {
   const response = await fetchWithToken(`${SERVER_URL}/users`, {
     method: "POST",
     body: JSON.stringify(obj),
@@ -137,10 +144,7 @@ export async function deleteUser(userId: number) {
   return response.json();
 }
 
-export async function updateUser(
-  userId: number,
-  obj: object,
-): Promise<UserModel> {
+export async function updateUser(userId: number, obj: object): Promise<User> {
   const response = await fetchWithToken(`${SERVER_URL}/users/${userId}`, {
     method: "POST",
     body: JSON.stringify(obj),

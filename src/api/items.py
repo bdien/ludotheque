@@ -5,6 +5,7 @@ import io
 from fastapi.responses import PlainTextResponse
 import peewee
 from api.pwmodels import (
+    Booking,
     Category,
     ItemCategory,
     ItemLink,
@@ -173,6 +174,22 @@ def get_item(
                 {"name": i.name, "ref": i.ref}
                 for i in ItemLink.select().where(ItemLink.item == item_id)
             ]
+
+            # Bookings
+            bookings = list(
+                Booking.select()
+                .where(Booking.item == item_id)
+                .order_by(Booking.created_at)
+                .dicts()
+            )
+            base["bookings"] = {"nb": len(bookings)}
+            if auth:
+                if auth.role == "admin":
+                    base["bookings"]["entries"] = bookings
+                else:
+                    base["bookings"]["entries"] = [
+                        i for i in bookings if i["user"] == auth.id
+                    ]
 
             # Ratings
             ratings = list(
