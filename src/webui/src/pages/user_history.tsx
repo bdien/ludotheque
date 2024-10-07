@@ -39,7 +39,7 @@ export function UserHistory(props: UserHistoryProps) {
       <Box>
         {Array.from(grouped.keys()).map((startdate) => (
           <Box sx={{ py: 2 }}>
-            <Typography variant="overline" fontSize="1.2rem">
+            <Typography variant="overline" fontSize="1.2rem" color="primary">
               {startdate}
             </Typography>
 

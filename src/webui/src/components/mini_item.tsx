@@ -1,19 +1,23 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useAccount, useItem, useItems } from "../api/hooks";
+import { useItem, useItems } from "../api/hooks";
 import { Link } from "wouter";
 import Button from "@mui/material/Button";
-import { navigate } from "wouter/use-browser-location";
 import Skeleton from "@mui/material/Skeleton";
 
 interface MiniItemProps {
   id: number;
+  late?: boolean;
+  subtext?: string;
+  action?: {
+    text: string;
+    func: () => void;
+  };
 }
 
 export function MiniItem(props: MiniItemProps) {
   const { item, error, mutate } = useItem(props.id);
   const { items } = useItems();
-  const { account } = useAccount();
   const item_short = item ?? items.get(props.id);
 
   if (error) return <div>Impossible de charger: {error}</div>;
@@ -22,12 +26,6 @@ export function MiniItem(props: MiniItemProps) {
   const picture = item?.pictures?.length
     ? item.pictures[0]
     : "../../notavailable.webp";
-  const today = new Date();
-  const thisweek = new Date(Date.now() + 1 * 24 * 60 * 60 * 1000);
-
-  const last_loan = item?.loans ? item.loans[0] : undefined;
-  const last_loan_stop = last_loan && new Date(last_loan?.stop);
-  const item_return_date = item?.return && new Date(item.return);
 
   // render data
   return (
@@ -38,7 +36,6 @@ export function MiniItem(props: MiniItemProps) {
         width: "min(100%, 485px)",
         mb: 1,
         p: 0.5,
-        borderBottom: "1px solid #EEEEEE",
       }}
     >
       <Box
@@ -58,10 +55,9 @@ export function MiniItem(props: MiniItemProps) {
                 width: "100%",
                 borderRadius: "10px",
                 objectFit: "contain",
-                filter:
-                  last_loan_stop && last_loan_stop < thisweek
-                    ? "drop-shadow(0px 0px 8px rgba(255,0,0,0.7))"
-                    : "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
+                filter: props.late
+                  ? "drop-shadow(0px 0px 8px rgba(255,0,0,0.7))"
+                  : "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
               }}
               src={`/storage/thumb/${picture}`}
             />
@@ -86,35 +82,25 @@ export function MiniItem(props: MiniItemProps) {
 
         {item ? (
           <>
-            {item_return_date && last_loan && last_loan.status == "out" && (
+            {props.subtext && (
               <Typography
                 variant="subtitle2"
-                color={item_return_date < thisweek ? "red" : "text.secondary"}
+                color={props.late ? "red" : "text.secondary"}
               >
-                A rendre le{" "}
-                {item_return_date.toLocaleDateString(undefined, {
-                  year: item_return_date < today ? "numeric" : undefined,
-                  month: "short",
-                  day: "numeric",
-                })}
+                {props.subtext}
               </Typography>
             )}
 
-            {last_loan_stop &&
-              last_loan.status == "out" &&
-              (account?.role == "admin" || account?.role == "benevole") && (
-                <Button
-                  size="small"
-                  variant="contained"
-                  onClick={() =>
-                    navigate(
-                      `/loans/${last_loan.id}/close?return=${window.location.pathname}`,
-                    )
-                  }
-                >
-                  Rendre
-                </Button>
-              )}
+            {props.action && (
+              <Button
+                size="small"
+                variant="contained"
+                onClick={props.action.func}
+                sx={{ mt: 1 }}
+              >
+                {props.action.text}
+              </Button>
+            )}
           </>
         ) : (
           <Skeleton />
