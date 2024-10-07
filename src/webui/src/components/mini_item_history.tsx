@@ -26,7 +26,6 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
         width: "min(100%, 450px)",
         mb: 1,
         p: 0.5,
-        borderBottom: "1px solid #EEEEEE",
       }}
     >
       <Box

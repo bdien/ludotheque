@@ -207,7 +207,7 @@ def info():
             "nbitems": Item.select().where(Item.enabled).count(),
             "domain": config.AUTH_DOMAIN,
             "pricing": config.PRICING,
-            "loan": {"days": config.LOAN_WEEKS * 7},
+            "loan": {"weeks": config.LOAN_WEEKS},
             "booking": {"max": config.BOOKING_MAX, "weeks": config.BOOKING_WEEKS},
             "image_max": config.IMAGE_MAX_DIM,
             "email_minperiod": config.EMAIL_MINPERIOD,

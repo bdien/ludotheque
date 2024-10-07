@@ -118,7 +118,7 @@ function displayPlayer(item: ItemModel) {
   if (item.players_max == 99) txt += "+";
   else if (item.players_min != item.players_max)
     txt += "-" + item.players_max?.toString();
-  return <Chip sx={{ mx: "5px" }} icon={<Icon>people</Icon>} label={txt} />;
+  return <Chip sx={{ mx: "5px" }} icon={<Icon>people_alt</Icon>} label={txt} />;
 }
 
 function displayGametime(item: ItemModel) {
