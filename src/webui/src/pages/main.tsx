@@ -70,6 +70,13 @@ export function Main() {
                   <li>
                     {info.pricing.big_associations}€ pour les associations
                   </li>
+                  <li>
+                    Caution (chèque non-encaissé)
+                    <ul>
+                      <li>1 Jeu: 80€</li>
+                      <li>2 Jeux et plus: 50€ + 50€/jeu</li>
+                    </ul>
+                  </li>
                 </ul>
               </li>
             </ul>
