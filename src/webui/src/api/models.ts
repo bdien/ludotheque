@@ -64,6 +64,7 @@ export interface ItemListEntry {
   big: boolean;
   outside: boolean;
   status: string;
+  created_at: string;
 }
 
 export interface ItemModel {

@@ -83,7 +83,7 @@ export function useItem(id?: number) {
   const url = `${SERVER_URL}/items/${id}`;
 
   const { data, error, isLoading, mutate } = useSWR<ItemModel>(url, fetcher, {
-    revalidateOnFocus: false,
+    dedupingInterval: 30000,
   });
 
   return {
@@ -94,13 +94,22 @@ export function useItem(id?: number) {
   };
 }
 
-export function useItems(filter?: string) {
-  let qs = "";
-  if (filter) qs = `?q=${filter}`;
+interface useItemsProps {
+  q?: string;
+  sort?: string;
+  nb?: number;
+}
+
+export function useItems(props?: useItemsProps) {
+  let qs = "?";
+  if (props?.q) qs += `q=${props.q}&`;
+  if (props?.sort) qs += `sort=${props.sort}&`;
+  if (props?.nb) qs += `nb=${props.nb}&`;
+
   const { data, error, isLoading, mutate } = useSWR<ItemListEntry[]>(
     `${SERVER_URL}/items${qs}`,
     fetcher,
-    { dedupingInterval: 300000 },
+    { dedupingInterval: 60000 },
   );
 
   return {
@@ -185,7 +194,7 @@ export function useUsers() {
   const { data, error, isLoading, mutate } = useSWR<Users>(
     `${SERVER_URL}/users`,
     fetcher,
-    { dedupingInterval: 300000 },
+    { dedupingInterval: 60000 },
   );
 
   return {

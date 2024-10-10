@@ -83,6 +83,7 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
         Item.age,
         Item.big,
         Item.outside,
+        Item.created_at,
         subquery.c.status,
     )
     if nb:
@@ -90,13 +91,18 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
     if q:
         query = query.where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
 
+    if sort == "created_at":
+        query = query.order_by(Item.created_at.desc())
+    else:
+        query = query.order_by(Item.id.asc())
+
     # Left join with the subquery
     query = query.join(
         subquery, peewee.JOIN.LEFT_OUTER, on=subquery.c.item_id == Item.id
     )
 
     with db:
-        return list(query.order_by(Item.id).dicts())
+        return list(query.dicts())
 
 
 @router.get("/items/export", tags=["items", "admin"], response_class=PlainTextResponse)
