@@ -1,12 +1,25 @@
 import Box from "@mui/material/Box";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useInfo, useAccount } from "../api/hooks";
+import { useInfo, useAccount, useItems } from "../api/hooks";
 import Alert from "@mui/material/Alert";
+import { differenceInDays } from "date-fns";
+import { ItemListEntry } from "../api/models";
+import ItemImage from "../components/ItemImage";
+import { Typography } from "@mui/material";
 
 export function Main() {
   const { info } = useInfo();
   const { isAuthenticated, user } = useAuth0();
   const { account } = useAccount();
+  const { items } = useItems({ sort: "created_at", nb: 4 });
+
+  // Filtres les jeux de moins de 3 mois
+  var lastitems: ItemListEntry[] = [];
+  if (items) {
+    var lastitems = Array.from(items.values()).filter(
+      (i) => differenceInDays(new Date(), i.created_at) <= 90,
+    );
+  }
 
   return (
     <>
@@ -28,21 +41,37 @@ export function Main() {
           Nous sommes ouverts <b> tous les samedis de 10h30 à 12h00</b>, hors
           les samedis du milieu des vacances scolaires, au{" "}
           <b>pôle enfance de la Passerelle</b>, à proximité de la médiathèque à
-          Acigné.
+          Acigné. Vous pouvez passer également passer pour jouer sur place !
         </p>
         <p>
           La Ludo, c'est un choix de{" "}
-          <b>{info ? info.nbitems : "près de 900"} jeux</b> pour tout public (de
-          9 mois à 99 ans), pour jouer sur place ou à la maison.
+          <b>{info ? info.nbitems : "près de 1000"} jeux</b> pour tout public
+          (de 9 mois à 99 ans), pour jouer sur place ou à la maison.
         </p>
         <p>
-          Vous pouvez nous contacter via l'adresse suivante :<br />{" "}
-          <b>
-            <a href="mailto:laludodupoissonlune@gmail.com">
-              laludodupoissonlune@gmail.com
-            </a>
-          </b>
+          Vous pouvez nous contacter par e-mail à{" "}
+          <a href="mailto:laludodupoissonlune@gmail.com">
+            laludodupoissonlune@gmail.com
+          </a>
         </p>
+
+        {lastitems.length > 1 && (
+          <Box
+            sx={{ backgroundColor: "white", px: 1, mb: 1, borderRadius: "8px" }}
+          >
+            <Typography variant="overline" fontSize="1rem" color="primary">
+              Dernières arrivées
+            </Typography>
+            <Box
+              sx={{ display: "flex", pb: 1, maxHeight: "15vh", gap: "10px" }}
+            >
+              {lastitems.map((i) => (
+                <ItemImage id={i.id} />
+              ))}
+            </Box>
+          </Box>
+        )}
+
         <img
           src="/photomain.webp"
           alt="Logo Picture"
