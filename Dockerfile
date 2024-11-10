@@ -1,4 +1,4 @@
-FROM alpine:3.18 as build
+FROM alpine:3.20 as build
 EXPOSE 80
 
 # Build website
@@ -10,7 +10,7 @@ RUN sed -i "s/DEVDEV/`date +%m%d%H%M`/" /app/src/api/system.py /app/src/webui/sr
 RUN cd /app/src/webui && pnpm install && pnpm run build
 
 # Now build final image
-FROM alpine:3.18
+FROM alpine:3.20
 
 ENV TZ=Europe/Paris
 ENV MUSL_LOCPATH=/usr/share/i18n/locales/musl
@@ -18,7 +18,7 @@ ENV LUDO_STORAGE=/app/storage
 VOLUME /app/storage
 
 RUN apk add --no-cache python3 py3-pip nginx sqlite tzdata lang
-RUN pip install --user pdm
+RUN pip install --user pdm --break-system-packages
 
 COPY --from=build /app/src/webui/dist /app/www
 COPY --from=build /app/src/api /app/src/api
