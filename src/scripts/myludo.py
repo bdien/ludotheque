@@ -6,7 +6,6 @@ import re
 import json
 import pathlib
 import sys
-import tempfile
 import questionary
 import requests
 import argparse
@@ -195,17 +194,17 @@ def main():
             ludo.update_item(args.game_id, to_update)
 
     # Pictures
-    if (not game.get("pictures")) and myludo_game.get("image"):
-        for i in "S300", "S160", "S80":
-            if uri := myludo_game["image"].get(i):
-                print("Creating new item picture")
-                if not args.dryrun:
-                    with tempfile.NamedTemporaryFile(mode="wb") as tmpf:
-                        r = requests.get(uri, timeout=120)
-                        tmpf.write(r.content)
-                        tmpf.flush()
-                        ludo.create_item_picture(args.game_id, tmpf.name)
-                break
+    # if (not game.get("pictures")) and myludo_game.get("image"):
+    #     for i in "S300", "S160", "S80":
+    #         if uri := myludo_game["image"].get(i):
+    #             print("Creating new item picture")
+    #             if not args.dryrun:
+    #                 with tempfile.NamedTemporaryFile(mode="wb") as tmpf:
+    #                     r = requests.get(uri, timeout=120)
+    #                     tmpf.write(r.content)
+    #                     tmpf.flush()
+    #                     ludo.create_item_picture(args.game_id, tmpf.name)
+    #             break
 
 
 if __name__ == "__main__":
