@@ -181,6 +181,10 @@ def get_item(
                 for i in ItemLink.select().where(ItemLink.item == item_id)
             ]
 
+            # Remove notes for non-admin
+            if not auth or auth.role != "admin":
+                del base["notes"]
+
             # Bookings
             bookings = list(
                 Booking.select()
