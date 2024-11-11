@@ -128,6 +128,9 @@ function App() {
 
           <Route path="/" component={Main} />
         </Switch>
+
+        {/* Only way I found to keep some space at the very bottom */}
+        <Box height="10px"></Box>
       </Box>
     </Box>
   );

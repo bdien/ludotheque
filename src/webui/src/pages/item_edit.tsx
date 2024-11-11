@@ -25,6 +25,9 @@ import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import ToggleButton from "@mui/material/ToggleButton";
 import Alert from "@mui/material/Alert";
+import LoadingButton from "@mui/lab/LoadingButton";
+import Typography from "@mui/material/Typography";
+import Icon from "@mui/material/Icon";
 
 interface ItemEditProps {
   id?: number;
@@ -75,6 +78,8 @@ interface FormValues {
 export function ItemEdit(props: ItemEditProps) {
   const { item, error, mutate } = useItem(props.id);
   const { mutate: mutateItems } = useItems();
+  const [editBusy, setEditBusy] = useState<boolean>(false);
+  const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
   const initialItemId = item?.id;
   const { categories } = useCategories();
   const [autoId, setAutoId] = useState<boolean>(true);
@@ -83,13 +88,14 @@ export function ItemEdit(props: ItemEditProps) {
   const { account } = useAccount();
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du jeu",
-    `Etes-vous sûr de vouloir supprimer le jeu '${item?.name}' ? Cela supprimera
-    définitivement tout son historique d'emprunts.`,
+    "Cela supprimera définitivement tout son historique d'emprunts.",
   );
 
-  async function onSubmit(item: ItemModel, data: FormValues) {
+  function onSubmit(item: ItemModel, data: FormValues) {
+    setEditBusy(true);
     setApiError(null);
 
+    // Prepare data
     item.id ||= data.id;
     item.players_min = data.players[0];
     item.players_max = data.players[1];
@@ -113,35 +119,47 @@ export function ItemEdit(props: ItemEditProps) {
           .map((i) => i.trim())
       : [];
 
-    if (initialItemId) {
-      await updateItem(item?.id ?? 0, item);
-    } else {
-      // Create New Item
-      const result = await createItem(item);
-      if ("detail" in result) {
-        setApiError(result.detail);
-        return;
-      }
-      item = result;
-    }
-
-    // Refresh item/items
-    if (mutate) {
-      mutate({ ...item });
-    }
-    mutateItems();
-
-    navigate(`/items/${item.id}`, { replace: true });
+    // Update or create user
+    const promise = initialItemId
+      ? updateItem(item.id ?? 0, item)
+      : createItem(item);
+    promise
+      .then((result) => {
+        // Error
+        if ("detail" in result) {
+          setApiError(result.detail);
+          return;
+        }
+        // Update user in WebUI
+        item = result;
+        if (mutate) {
+          mutate({ ...item });
+        }
+        mutateItems();
+        navigate(`/items/${item.id}`, { replace: true });
+      })
+      .catch((err) => {
+        console.log(err);
+        setApiError("Erreur de communication");
+      })
+      .finally(() => setEditBusy(false));
   }
 
   async function onDelete(itemId: number) {
     const answer = await confirmPromise();
     if (!answer) return;
 
-    deleteItem(itemId).then(() => {
-      mutateItems();
-      navigate("/items", { replace: true });
-    });
+    setDeleteBusy(true);
+    deleteItem(itemId)
+      .then(() => {
+        mutateItems();
+        navigate("/items", { replace: true });
+      })
+      .catch((error) => {
+        console.error(error);
+        setApiError("Erreur de communication");
+      })
+      .finally(() => setDeleteBusy(false));
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
@@ -150,6 +168,39 @@ export function ItemEdit(props: ItemEditProps) {
   // render data
   return (
     <>
+      {/* Title + Delete button */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+        }}
+      >
+        <Typography
+          variant="h5"
+          color="primary.main"
+          sx={{ pb: 2, flexGrow: 1 }}
+        >
+          {item.id ? `Edition d'un jeu (${item.id})` : "Nouveau jeu"}
+        </Typography>
+
+        {/* Push to the right */}
+        <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }} />
+
+        {/* Delete button */}
+        {item.id != 0 && account?.role == "admin" && (
+          <>
+            <LoadingButton
+              color="warning"
+              loading={deleteBusy}
+              onClick={handleSubmit(() => onDelete(item.id))}
+            >
+              <Icon>delete</Icon>
+            </LoadingButton>
+            <ConfirmDialog />
+          </>
+        )}
+      </Box>
+
       <FormControl sx={{ width: "100%", py: 2 }}>
         <Box>
           <ImageChooser
@@ -161,7 +212,7 @@ export function ItemEdit(props: ItemEditProps) {
         </Box>
 
         {apiError && (
-          <Alert severity="error" variant="outlined" sx={{ mb: 2 }}>
+          <Alert severity="error" variant="filled" sx={{ mb: 2 }}>
             {apiError}
           </Alert>
         )}
@@ -432,41 +483,27 @@ export function ItemEdit(props: ItemEditProps) {
           </Table>
         </TableContainer>
 
-        <Button
+        <LoadingButton
           variant="contained"
           fullWidth
+          color="secondary"
+          loading={editBusy}
           size="large"
-          sx={{ mt: "20px", p: 1.5 }}
+          sx={{ mt: "15px", p: 1.5 }}
           onClick={handleSubmit((formdata) => onSubmit(item, formdata))}
         >
           {item.id == 0 ? "Créer" : "Modifier"}
-        </Button>
+        </LoadingButton>
 
         <Button
           variant="outlined"
           fullWidth
           size="large"
-          sx={{ mt: "15px" }}
+          sx={{ mt: "20px" }}
           onClick={handleSubmit(() => history.back())}
         >
           Annuler
         </Button>
-
-        {item.id != 0 && account?.role == "admin" && (
-          <>
-            <Button
-              variant="outlined"
-              fullWidth
-              size="large"
-              color="error"
-              sx={{ mt: "15px" }}
-              onClick={handleSubmit(() => onDelete(item.id))}
-            >
-              Supprimer
-            </Button>
-            <ConfirmDialog />
-          </>
-        )}
       </FormControl>
     </>
   );

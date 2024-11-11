@@ -18,6 +18,7 @@ import Checkbox from "@mui/material/Checkbox";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
 import { AlertTitle } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 interface UserEditProps {
   id?: number;
@@ -60,6 +61,8 @@ export function UserEdit(props: UserEditProps) {
 
   const initialUserId = user?.id;
   const { account } = useAccount();
+  const [editBusy, setEditBusy] = useState<boolean>(false);
+  const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const { register, handleSubmit, control } = useForm({
     defaultValues: generateDefaultValues(user),
@@ -67,13 +70,14 @@ export function UserEdit(props: UserEditProps) {
   const { fields, append, remove } = useFieldArray({ control, name: "emails" });
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du compte",
-    `Etes-vous sûr de vouloir supprimer l'utilisateur '${user?.name}' ? Cela supprimera
-    définitivement tout son historique d'emprunts.`,
+    "Cela supprimera définitivement tout son historique",
   );
 
-  async function onSubmit(user: User, data: FormValues) {
+  function onSubmit(user: User, data: FormValues) {
     setApiError(null);
+    setEditBusy(true);
 
+    // Prepare data
     user.id ||= data.id;
     user.name = data.name;
     user.emails = data.emails.map((i) => i.email);
@@ -86,35 +90,48 @@ export function UserEdit(props: UserEditProps) {
     });
     user.enabled = !data.disabled;
 
-    if (initialUserId) {
-      await updateUser(user.id, user);
-    } else {
-      // Create New User
-      const result = await createUser(user);
-      if ("detail" in result) {
-        setApiError(result.detail);
-        return;
-      }
-      user = result;
-    }
-
-    // Refresh user/users
-    if (mutate) {
-      mutate({ ...user });
-    }
-    mutateUsers();
-
-    navigate(`/users/${user.id}`, { replace: true });
+    // Update or create user
+    const promise = initialUserId
+      ? updateUser(user.id, user)
+      : createUser(user);
+    promise
+      .then((result) => {
+        // Error
+        if ("detail" in result) {
+          setApiError(result.detail);
+          return;
+        }
+        // Update user in WebUI
+        user = result;
+        if (mutate) {
+          mutate({ ...user });
+        }
+        mutateUsers();
+        navigate(`/users/${user.id}`, { replace: true });
+      })
+      .catch((err) => {
+        console.log(err);
+        setApiError("Erreur de communication");
+      })
+      .finally(() => setEditBusy(false));
   }
 
+  // Delete user
   async function onDelete(user_id: number) {
     const answer = await confirmPromise();
     if (!answer) return;
 
-    deleteUser(user_id).then(() => {
-      mutateUsers();
-      navigate("/users", { replace: true });
-    });
+    setDeleteBusy(true);
+    deleteUser(user_id)
+      .then(() => {
+        mutateUsers();
+        navigate("/users", { replace: true });
+      })
+      .catch((error) => {
+        console.error(error);
+        setApiError("Erreur de communication");
+      })
+      .finally(() => setDeleteBusy(false));
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
@@ -122,12 +139,42 @@ export function UserEdit(props: UserEditProps) {
 
   return (
     <>
-      <Typography variant="h5" color="primary.main" sx={{ pb: 2 }}>
-        {user.id ? "Edition d'un adhérent" : "Nouvel adhérent"}
-      </Typography>
+      {/* Title + Delete button */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+        }}
+      >
+        <Typography
+          variant="h5"
+          color="primary.main"
+          sx={{ pb: 2, flexGrow: 1 }}
+        >
+          {user.id ? `Edition d'un adhérent (${user.id})` : "Nouvel adhérent"}
+        </Typography>
 
+        {/* Push to the right */}
+        <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }} />
+
+        {/* Delete button */}
+        {user.id != 0 && account?.role == "admin" && (
+          <>
+            <LoadingButton
+              color="warning"
+              loading={deleteBusy}
+              onClick={handleSubmit(() => onDelete(user.id))}
+            >
+              <Icon>delete</Icon>
+            </LoadingButton>
+            <ConfirmDialog />
+          </>
+        )}
+      </Box>
+
+      {/* Display error */}
       {apiError && (
-        <Alert severity="error" variant="outlined" sx={{ mb: 2 }}>
+        <Alert severity="error" variant="filled" sx={{ m: 2 }}>
           {apiError}
         </Alert>
       )}
@@ -142,16 +189,6 @@ export function UserEdit(props: UserEditProps) {
           Merci d'utiliser "Nouvel Emprunt" puis "+" pour l'adhésion et la carte
           d'emprunt.
         </Alert>
-      )}
-
-      {user?.id != 0 && (
-        <TextField
-          type="number"
-          label="Numéro"
-          value={user.id}
-          disabled
-          sx={{ mt: 2 }}
-        />
       )}
 
       <TextField
@@ -244,7 +281,7 @@ export function UserEdit(props: UserEditProps) {
         defaultValue={user.informations}
         placeholder="Informations (Adresses / Enfants / Téléphones)"
         multiline
-        minRows={2}
+        minRows={1}
         {...register("informations")}
       />
 
@@ -254,7 +291,7 @@ export function UserEdit(props: UserEditProps) {
         label="Notes (Cheque de caution...)"
         defaultValue={user.notes}
         multiline
-        minRows={2}
+        minRows={1}
         {...register("notes")}
       />
 
@@ -266,44 +303,30 @@ export function UserEdit(props: UserEditProps) {
             {...register("disabled")}
           />
         }
-        label="Désactiver l'adhérent (Si besoin, précisez la raison dans 'Notes')"
+        label="Désactiver l'adhérent"
       />
 
-      <Button
+      <LoadingButton
         variant="contained"
         fullWidth
+        color="secondary"
+        loading={editBusy}
         size="large"
-        sx={{ mt: "20px", p: 1.5 }}
+        sx={{ mt: "15px", p: 1.5 }}
         onClick={handleSubmit((formdata) => onSubmit(user, formdata))}
       >
         {user.id == 0 ? "Créer" : "Modifier"}
-      </Button>
+      </LoadingButton>
 
       <Button
         variant="outlined"
         fullWidth
         size="large"
-        sx={{ mt: "15px" }}
+        sx={{ mt: "20px" }}
         onClick={handleSubmit(() => history.back())}
       >
         Annuler
       </Button>
-
-      {user.id != 0 && account?.role == "admin" && (
-        <>
-          <Button
-            variant="outlined"
-            fullWidth
-            size="large"
-            color="error"
-            sx={{ mt: "15px" }}
-            onClick={handleSubmit(() => onDelete(user.id))}
-          >
-            Supprimer
-          </Button>
-          <ConfirmDialog />
-        </>
-      )}
     </>
   );
 }

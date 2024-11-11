@@ -2,12 +2,13 @@ import Typography from "@mui/material/Typography";
 import { useLoan } from "../api/hooks";
 import { closeLoan, fetchItem } from "../api/calls";
 import { useEffect, useState } from "react";
-import { ItemModel } from "../api/models";
+import { ItemModel, Loan } from "../api/models";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-browser-location";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 interface LoanCloseProps {
   id: number;
@@ -15,6 +16,8 @@ interface LoanCloseProps {
 
 export function LoanClose(props: LoanCloseProps) {
   const { loan } = useLoan(props.id);
+  const [editBusy, setEditBusy] = useState<boolean>(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [item, setItem] = useState<ItemModel | null>(null);
   const queryParameters = new URLSearchParams(window.location.search);
   const returnPath = queryParameters.get("return");
@@ -32,11 +35,30 @@ export function LoanClose(props: LoanCloseProps) {
     ? item.pictures[0]
     : "../../notavailable.webp";
 
+  function onSubmit(loan: Loan) {
+    setApiError(null);
+    setEditBusy(true);
+
+    closeLoan(loan.id)
+      .then(() => navigate(returnPath || "/"))
+      .catch((err) => {
+        console.log(err);
+        setApiError("Erreur de communication");
+      })
+      .finally(() => setEditBusy(false));
+  }
+
   return (
     <>
       <Typography variant="h5" color="primary.main">
         Retour de jeu
       </Typography>
+
+      {apiError && (
+        <Alert severity="error" variant="filled" sx={{ mb: 2 }}>
+          {apiError}
+        </Alert>
+      )}
 
       {item.pictures && (
         <Box
@@ -46,7 +68,7 @@ export function LoanClose(props: LoanCloseProps) {
             height: "30vh",
             objectFit: "contain",
           }}
-          src={`/storage/thumb/${picture}`}
+          src={`/storage/img/${picture}`}
         />
       )}
       <Typography
@@ -55,7 +77,7 @@ export function LoanClose(props: LoanCloseProps) {
         fontWeight="bold"
         sx={{ p: 2, color: "primary.main" }}
       >
-        [{item.id}] {item.name}
+        {item.name} ({item.id})
       </Typography>
 
       {item.notes ? (
@@ -86,26 +108,28 @@ export function LoanClose(props: LoanCloseProps) {
           </Typography>
         )}
       </Box>
-      <div>
-        <Button
-          variant="contained"
-          size="large"
-          sx={{ ml: 2, mt: "20px" }}
-          onClick={() => {
-            closeLoan(loan.id).then(() => navigate(returnPath || "/"));
-          }}
-        >
-          Rendre
-        </Button>
-        <Button
-          variant="outlined"
-          size="large"
-          sx={{ ml: 2, mt: "20px" }}
-          onClick={() => navigate(returnPath || "/")}
-        >
-          Annuler
-        </Button>
-      </div>
+
+      <LoadingButton
+        variant="contained"
+        fullWidth
+        color="secondary"
+        loading={editBusy}
+        size="large"
+        sx={{ mt: "15px", p: 1.5 }}
+        onClick={() => onSubmit(loan)}
+      >
+        Rendre
+      </LoadingButton>
+
+      <Button
+        variant="outlined"
+        fullWidth
+        size="large"
+        sx={{ mt: "20px" }}
+        onClick={() => navigate(returnPath || "/")}
+      >
+        Annuler
+      </Button>
     </>
   );
 }
