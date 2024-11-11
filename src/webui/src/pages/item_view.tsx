@@ -49,11 +49,25 @@ function loan_time(i: Loan) {
   return differenceInDays(new Date(), i.start);
 }
 
-function nb_loans_percent(loans: Loan[], nbdays: number) {
-  const ago = new Date();
-  ago.setDate(ago.getDate() - nbdays);
-  const local_loans = loans.filter((i) => new Date(i.start) >= ago);
+function nb_loans_percent(item: ItemModel, maxdays: number) {
+  if (!item.loans) return 0;
+
+  // Compute start date (with item creation date)
+  let start_date = new Date();
+  start_date.setDate(start_date.getDate() - maxdays);
+  if (item.created_at) {
+    const item_created_at = new Date(item.created_at);
+    if (start_date < item_created_at) start_date = item_created_at;
+  }
+
+  // Number of days for the comparison
+  const nbdays = differenceInDays(new Date(), start_date);
+  if (nbdays == 0) return 100;
+
+  // Add time for loans within the time frame
+  const local_loans = item.loans.filter((i) => new Date(i.start) >= start_date);
   const loan_times = local_loans.reduce((a, i) => a + loan_time(i), 0);
+
   return Math.round((100 * loan_times) / nbdays);
 }
 
@@ -295,8 +309,7 @@ export function Item(props: ItemProps) {
       {item?.loans?.length && (
         <Accordion>
           <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-            Emprunts ({nb_loans_percent(item?.loans, 365)}% du temps cette
-            année)
+            Emprunts ({nb_loans_percent(item, 365)}% du temps cette année)
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }}>
             <TableContainer>
