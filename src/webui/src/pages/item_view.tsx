@@ -44,15 +44,17 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
   },
 }));
 
+function loan_time(i: Loan) {
+  if (i.status == "in") return differenceInDays(i.stop, i.start);
+  return differenceInDays(new Date(), i.start);
+}
+
 function nb_loans_percent(loans: Loan[], nbdays: number) {
   const ago = new Date();
   ago.setDate(ago.getDate() - nbdays);
   const local_loans = loans.filter((i) => new Date(i.start) >= ago);
-  return Math.round(
-    (100 *
-      local_loans.reduce((a, i) => a + differenceInDays(i.stop, i.start), 0)) /
-      nbdays,
-  );
+  const loan_times = local_loans.reduce((a, i) => a + loan_time(i), 0);
+  return Math.round((100 * loan_times) / nbdays);
 }
 
 function renderItemLink(link: ItemLinkModel) {
