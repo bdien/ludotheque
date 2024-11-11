@@ -261,9 +261,10 @@ def modif_pictures(
 
     # Remove all non-referenced pictures
     for p in oldpictures:
-        with contextlib.suppress(FileNotFoundError):
-            print(f"Removing {p}")
+        print(f"Removing {p}")
+        with contextlib.suppress(Exception):
             os.unlink(f"{LUDO_STORAGE}/img/{p}")
+        with contextlib.suppress(Exception):
             os.unlink(f"{LUDO_STORAGE}/thumb/{p}")
 
     # Final structure for DB
@@ -355,8 +356,9 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
 
         # Now remove every picture
         for p in item.pictures:
-            with contextlib.suppress(FileNotFoundError):
+            with contextlib.suppress(Exception):
                 os.unlink(f"{LUDO_STORAGE}/img/{p}")
+            with contextlib.suppress(Exception):
                 os.unlink(f"{LUDO_STORAGE}/thumb/{p}")
 
         return "OK"
