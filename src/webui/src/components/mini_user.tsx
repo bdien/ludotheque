@@ -80,7 +80,6 @@ export function MiniUser(props: MiniUserProps) {
             style={{ textDecoration: "none" }}
           >
             <Typography
-              color="primary.main"
               component="span"
               variant="h5"
               fontWeight={500}

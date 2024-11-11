@@ -89,7 +89,7 @@ export function MiniItem(props: MiniItemProps) {
             {props.action && (
               <Button
                 size="small"
-                variant="contained"
+                variant="outlined"
                 onClick={props.action.func}
                 sx={{ mt: 1 }}
               >

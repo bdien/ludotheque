@@ -15,6 +15,8 @@ import {
 } from "../components/loan_item_table";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import LoadingButton from "@mui/lab/LoadingButton";
+import Alert from "@mui/material/Alert";
 
 const fakeItemAdhesion: ItemModel = { id: -1, name: "Adhésion" };
 const fakeItemCarte: ItemModel = { id: -2, name: "Remplissage carte" };
@@ -25,6 +27,8 @@ export function Loan() {
   const initialUser = queryParameters.get("user");
   const { info } = useInfo();
   const [_location, setLocation] = useLocation();
+  const [editBusy, setEditBusy] = useState<boolean>(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [items, setItems] = useState<ItemModel[]>([]);
   const [loanResult, setLoanResult] = useState<LoanCreateResult | null>(null);
@@ -49,6 +53,25 @@ export function Loan() {
       true,
     ).then(setLoanResult);
   }, [user, items]);
+
+  function onSubmit(user: User, items: ItemModel[]) {
+    setApiError(null);
+    setEditBusy(true);
+
+    createLoan(
+      user.id,
+      items.map((i) => i.id),
+      false,
+    )
+      .then(() => {
+        setLocation(`/users/${user.id}`);
+      })
+      .catch((err) => {
+        console.log(err);
+        setApiError("Erreur de communication");
+      })
+      .finally(() => setEditBusy(false));
+  }
 
   function itemPrice(item: ItemModel) {
     if (!info) return 0;
@@ -114,6 +137,12 @@ export function Loan() {
 
   return (
     <Box sx={{ m: 0.5 }}>
+      {apiError && (
+        <Alert severity="error" variant="filled" sx={{ mb: 2 }}>
+          {apiError}
+        </Alert>
+      )}
+
       <Box sx={{ mb: 2 }}>
         <Typography variant="h6" color="primary.main" sx={{ mb: 2 }}>
           Adhérent
@@ -176,35 +205,27 @@ export function Loan() {
       )}
 
       <Button
-        variant="contained"
-        fullWidth
-        size="large"
-        disabled={!items.length || !user}
-        color="primary"
-        sx={{ mt: "15px", p: 1.5 }}
-        onClick={() =>
-          user &&
-          createLoan(
-            user.id,
-            items.map((i) => i.id),
-            false,
-          ).then(() => {
-            setLocation(`/users/${user.id}`);
-          })
-        }
-      >
-        Valider
-      </Button>
-
-      <Button
         variant="outlined"
         fullWidth
         size="large"
-        sx={{ mt: "15px" }}
+        sx={{ mt: "20px" }}
         onClick={() => history.back()}
       >
         Annuler
       </Button>
+
+      <LoadingButton
+        variant="contained"
+        fullWidth
+        size="large"
+        color="secondary"
+        loading={editBusy}
+        disabled={!items.length || !user}
+        sx={{ mt: "15px", p: 1.5 }}
+        onClick={() => onSubmit(user as User, items)}
+      >
+        Valider
+      </LoadingButton>
     </Box>
   );
 }

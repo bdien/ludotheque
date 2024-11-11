@@ -138,6 +138,9 @@ def export_users(auth=Depends(auth_user)):
 
 @router.get("/users/me", tags=["users"])
 def get_myself(auth=Depends(auth_user)):
+    if not auth:
+        return {}
+
     check_auth(auth)
     with db:
         if u := User.get_or_none(id=auth.id, enabled=True):

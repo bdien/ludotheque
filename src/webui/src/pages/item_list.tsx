@@ -310,7 +310,6 @@ export function ItemList() {
       </Box>
 
       <TableVirtuoso
-        style={{ height: "100%" }}
         data={displayed}
         components={TableComps}
         initialTopMostItemIndex={parseInt(
