@@ -46,7 +46,13 @@ async def create_item(request: Request, auth=Depends(auth_user)):
 
     with db:
         try:
+            pictures = params.pop("pictures", [])
             item = Item.create(**params)
+
+            # Add pictures
+            if pictures:
+                item.pictures = modif_pictures(item.id, item.pictures, pictures)
+                item.save()
 
             # Insert item links
             for i in body.get("links", []):
