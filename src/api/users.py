@@ -275,6 +275,8 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
         for email in emails:
             EMail.insert(email=email, user=user_id).on_conflict_ignore().execute()
 
+    return {"id": user_id}
+
 
 @router.delete("/users/{user_id}", tags=["users", "admin"])
 async def delete_user(user_id: int, auth=Depends(auth_user)):

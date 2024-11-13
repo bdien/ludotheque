@@ -76,7 +76,7 @@ interface FormValues {
 }
 
 export function ItemEdit(props: ItemEditProps) {
-  const { item, error, mutate } = useItem(props.id);
+  const { item, error } = useItem(props.id);
   const { mutate: mutateItems } = useItems();
   const [editBusy, setEditBusy] = useState<boolean>(false);
   const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
@@ -130,13 +130,8 @@ export function ItemEdit(props: ItemEditProps) {
           setApiError(result.detail);
           return;
         }
-        // Update user in WebUI
-        item = result;
-        if (mutate) {
-          mutate({ ...item });
-        }
         mutateItems();
-        navigate(`/items/${item.id}`, { replace: true });
+        navigate(`/items/${result.id}`, { replace: true });
       })
       .catch((err) => {
         console.log(err);
