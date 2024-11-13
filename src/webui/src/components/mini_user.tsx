@@ -12,13 +12,12 @@ import { differenceInDays } from "date-fns";
 import Alert from "@mui/material/Alert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { navigate } from "wouter/use-browser-location";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 
 interface MiniUserProps {
   user: User;
-  fullDetails?: boolean | null;
+  display_loans?: boolean | null;
   onRemove?: ((event: React.MouseEvent<HTMLElement>) => void) | null;
 }
 
@@ -117,18 +116,22 @@ export function MiniUser(props: MiniUserProps) {
             }}
           >
             {/* Nombre d'emprunts */}
-            <Box sx={{ mr: 1, display: "flex" }}>
-              <Icon sx={{ mr: "0.15em" }}>local_offer</Icon>
-              <Typography
-                component="span"
-                fontWeight={500}
-                sx={{ mr: "0.6ch" }}
-              >
-                {props.user?.loans?.length}
-              </Typography>
-              emprunt
-              {props.user.loans && props.user?.loans?.length > 1 ? "s" : ""}
-            </Box>
+            {(props.display_loans ?? true) ? (
+              <Box sx={{ mr: 1, display: "flex" }}>
+                <Icon sx={{ mr: "0.15em" }}>local_offer</Icon>
+                <Typography
+                  component="span"
+                  fontWeight={500}
+                  sx={{ mr: "0.6ch" }}
+                >
+                  {props.user?.loans?.length}
+                </Typography>
+                emprunt
+                {props.user.loans && props.user?.loans?.length > 1 ? "s" : ""}
+              </Box>
+            ) : (
+              ""
+            )}
 
             {/* Credit sur la carte */}
             {props.user?.credit > 0 && (
@@ -180,13 +183,6 @@ export function MiniUser(props: MiniUserProps) {
                 >
                   Détails
                 </MenuItem>
-                {(account?.id == props.user.id || account?.role == "admin") && (
-                  <MenuItem
-                    onClick={() => navigate(`/users/${props.user.id}/history`)}
-                  >
-                    Historique
-                  </MenuItem>
-                )}
               </Menu>
             </>
           )}
@@ -245,7 +241,9 @@ export function MiniUser(props: MiniUserProps) {
           {props.user?.emails && (
             <>
               <h3>Emails</h3>
-              <ul>{props.user?.emails?.map((i) => <li>{i}</li>)}</ul>
+              <ul>
+                {props.user?.emails?.map((i, idx) => <li key={idx}>{i}</li>)}
+              </ul>
             </>
           )}
           {props.user?.informations && (

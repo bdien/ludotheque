@@ -61,7 +61,7 @@ export function SideMenu(props: SideMenuProps) {
             <ListItemIcon sx={{ color: "inherit" }}>
               <Icon>account_circle</Icon>
             </ListItemIcon>
-            <ListItemText primary="Mes emprunts" />
+            <ListItemText primary="Mon compte" />
           </ListItem>
         )}
         {account?.role == "admin" && (

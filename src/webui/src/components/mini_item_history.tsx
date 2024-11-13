@@ -28,17 +28,9 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
         p: 0.5,
       }}
     >
-      <Box
-        sx={{ width: "40%", mr: 2 }}
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-      >
+      <div style={{ width: "40%" }}>
         {item ? (
-          <Link
-            href={`/items/${item.id}`}
-            style={{ height: "100%", width: "100%" }}
-          >
+          <Link href={`/items/${props.loan.item}`}>
             <img
               style={{
                 height: "100%",
@@ -53,16 +45,16 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
         ) : (
           <Skeleton variant="rounded" width="100%" height="100%" />
         )}
-      </Box>
-      <Box width="60%">
+      </div>
+      <div>
         {item ? (
           <>
             <Typography component="div" fontWeight={600}>
               <Link
-                href={`/items/${item.id}`}
+                href={`/items/${props.loan.item}`}
                 style={{ textDecoration: "none" }}
               >
-                {item.name} ({item.id})
+                {item.name} ({props.loan.item})
               </Link>
             </Typography>
             <Typography variant="subtitle2" color="text.secondary">
@@ -87,7 +79,7 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
             <Skeleton />
           </>
         )}
-      </Box>
+      </div>
     </Box>
   );
 }
