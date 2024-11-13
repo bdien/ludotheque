@@ -241,7 +241,7 @@ def get_user_history(user_id: int, auth=Depends(auth_user)):
     with db:
         return list(
             Loan.select()
-            .where(Loan.user_id == user_id)
+            .where(Loan.user_id == user_id, Loan.status == "in")
             .order_by(Loan.stop.desc())
             .dicts()
         )

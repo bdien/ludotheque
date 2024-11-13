@@ -8,7 +8,11 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { navigate } from "wouter/use-browser-location";
 import { Loading } from "../components/loading";
-import { Typography } from "@mui/material";
+import { Tab, Typography } from "@mui/material";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { useState } from "react";
+import { UserHistory } from "../components/user_history";
+import { UserLoans } from "../components/user_loans";
 
 interface UserViewProps {
   id: number;
@@ -17,65 +21,55 @@ interface UserViewProps {
 export function UserView(props: UserViewProps) {
   const { account } = useAccount();
   const { user, error } = useUser(props.id);
-  const today = new Date();
+  const [tabIndex, setTabIndex] = useState("loans");
 
   if (error) return <div>Impossible de charger: {error}</div>;
   if (!user) return <Loading />;
 
   return (
     <>
-      <MiniUser fullDetails={true} user={user} />
+      <MiniUser display_loans={false} user={user} />
 
-      {/* Loans */}
-      <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
-        {user.loans?.length ? (
-          user.loans?.map((obj) => {
-            const objstop = new Date(obj.stop);
-            return (
-              <MiniItem
-                key={obj.id}
-                id={obj.item}
-                late={objstop <= today}
-                subtext={
-                  "A rendre le " +
-                  objstop.toLocaleDateString("fr", {
-                    year: objstop < today ? "numeric" : undefined,
-                    month: "short",
-                    day: "numeric",
-                  })
-                }
-                action={
-                  account?.role == "admin" || account?.role == "benevole"
-                    ? {
-                        text: "Rendre",
-                        func: () => {
-                          navigate(
-                            `/loans/${obj.id}/close?return=${window.location.pathname}`,
-                          );
-                        },
-                      }
-                    : undefined
-                }
-              />
-            );
-          })
-        ) : (
-          <Box sx={{ mx: "auto", textAlign: "center" }}>
-            <Icon sx={{ opacity: 0.1, fontSize: "min(50vw, 300px)", mt: 4 }}>
-              info
-            </Icon>
-            <br />
-            Pas d'emprunts en cours
+      <TabContext value={tabIndex}>
+        {/* Only display tabs for current user or admin */}
+        {(account?.id == user.id || account?.role == "admin") && (
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <TabList
+              variant="fullWidth"
+              onChange={(_event, value) => setTabIndex(value)}
+            >
+              <Tab label="Emprunts" value="loans" />
+              {user.favorites.length > 0 && (
+                <Tab label="Favoris" value="favorites" />
+              )}
+              <Tab label="Historique" value="history" />
+              {user.bookings.length > 0 && (
+                <Tab label="Resas" value="bookings" />
+              )}
+            </TabList>
           </Box>
         )}
-      </Box>
 
-      {/* Bookings */}
-      {user.bookings.length > 0 && (
-        <Box sx={{ pt: 2 }}>
-          <Typography variant="overline" fontSize="1.2rem" color="primary">
-            Réservations
-          </Typography>
+        <TabPanel value="loans" sx={{ p: 0, pt: 2 }}>
+          <UserLoans
+            loans={user.loans ?? []}
+            buttons={account?.role == "admin" || account?.role == "benevole"}
+          />
+        </TabPanel>
+
+        <TabPanel value="favorites" sx={{ p: 0, pt: 2 }}>
+          <Box display="flex" flexWrap="wrap">
+            {user.favorites.map((objid) => (
+              <MiniItem key={objid} id={objid} />
+            ))}
+          </Box>
+        </TabPanel>
+
+        <TabPanel value="history" sx={{ p: 0, pt: 1 }}>
+          <UserHistory id={user.id} />
+        </TabPanel>
+
+        <TabPanel value="bookings" sx={{ p: 0, pt: 2 }}>
           <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
             {user.bookings.map((obj) => (
               <MiniItem
@@ -96,8 +90,8 @@ export function UserView(props: UserViewProps) {
               />
             ))}
           </Box>
-        </Box>
-      )}
+        </TabPanel>
+      </TabContext>
 
       {/* Edit button */}
       {(account?.role == "admin" || account?.role == "benevole") && (

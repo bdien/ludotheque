@@ -158,7 +158,7 @@ export function UserList() {
                 >
                   <Link
                     href={`/users/${row.id}`}
-                    style={{ textDecoration: "none" }}
+                    style={{ textDecoration: "none", color: "inherit" }}
                   >
                     <div
                       style={{

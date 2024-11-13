@@ -17,7 +17,6 @@ import { useState } from "react";
 import { useInfo } from "./api/hooks";
 import "./styles.css";
 import { LateLoans } from "./pages/late_loans";
-import { UserHistory } from "./pages/user_history";
 import { LateEmail } from "./pages/late_email";
 import { Stats } from "./pages/stats";
 import { Documents } from "./pages/documents";
@@ -89,11 +88,6 @@ function App() {
           <Route path="/users/:id/edit">
             {(params) => {
               return <UserEdit id={parseInt(params.id)} />;
-            }}
-          </Route>
-          <Route path="/users/:id/history">
-            {(params) => {
-              return <UserHistory id={parseInt(params.id)} />;
             }}
           </Route>
 
