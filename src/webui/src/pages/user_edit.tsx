@@ -56,7 +56,7 @@ function generateDefaultValues(user?: User): FormValues | undefined {
 }
 
 export function UserEdit(props: UserEditProps) {
-  const { user, error, mutate } = useUser(props.id);
+  const { user, error } = useUser(props.id);
   const { mutate: mutateUsers } = useUsers();
 
   const initialUserId = user?.id;
@@ -101,13 +101,8 @@ export function UserEdit(props: UserEditProps) {
           setApiError(result.detail);
           return;
         }
-        // Update user in WebUI
-        user = result;
-        if (mutate) {
-          mutate({ ...user });
-        }
         mutateUsers();
-        navigate(`/users/${user.id}`, { replace: true });
+        navigate(`/users/${result.id}`, { replace: true });
       })
       .catch((err) => {
         console.log(err);

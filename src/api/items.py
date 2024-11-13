@@ -322,6 +322,8 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
             ).execute()
             ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
 
+    return {"id": item.id}
+
 
 @router.post("/items/{item_id}/rating", tags=["items"])
 async def create_item_rating(item_id: int, request: Request, auth=Depends(auth_user)):
