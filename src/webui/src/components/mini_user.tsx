@@ -75,43 +75,38 @@ export function MiniUser(props: MiniUserProps) {
     <>
       <Box component={Paper} display="flex" sx={{ p: "1em" }}>
         <Box sx={{ flexGrow: 1 }}>
-          <Link
-            href={`/users/${props.user.id}`}
-            style={{ textDecoration: "none" }}
+          <Typography
+            component="span"
+            variant="h5"
+            fontWeight={500}
+            sx={{
+              mb: 0.5,
+              textDecoration: props.user.enabled ? "" : "line-through",
+            }}
           >
-            <Typography
-              component="span"
-              variant="h5"
-              fontWeight={500}
-              sx={{
-                mb: 0.5,
-                textDecoration: props.user.enabled ? "" : "line-through",
-              }}
-            >
-              {props.user.name}
+            {props.user.name}
 
-              {/* Icone admin/bureau */}
-              {props.user.role == "admin" && (
-                <Icon fontSize="small" sx={{ ml: 0.3 }}>
-                  star
-                </Icon>
-              )}
+            {/* Icone admin/bureau */}
+            {props.user.role == "admin" && (
+              <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                star
+              </Icon>
+            )}
 
-              {/* Icone bénévole */}
-              {props.user.role == "benevole" && (
-                <Icon fontSize="small" sx={{ ml: 0.3 }}>
-                  star_half
-                </Icon>
-              )}
+            {/* Icone bénévole */}
+            {props.user.role == "benevole" && (
+              <Icon fontSize="small" sx={{ ml: 0.3 }}>
+                star_half
+              </Icon>
+            )}
 
-              {/* Icone désactivé */}
-              {!props.user.enabled && (
-                <Icon fontSize="small" color="warning" sx={{ ml: 0.3 }}>
-                  cancel
-                </Icon>
-              )}
-            </Typography>
-          </Link>
+            {/* Icone désactivé */}
+            {!props.user.enabled && (
+              <Icon fontSize="small" color="warning" sx={{ ml: 0.3 }}>
+                cancel
+              </Icon>
+            )}
+          </Typography>
 
           {/* Secondary (Emprunts, Carte, Adhésion) */}
           <Box
@@ -169,7 +164,7 @@ export function MiniUser(props: MiniUserProps) {
         <Box>
           {props.onRemove ? (
             <IconButton onClick={props.onRemove} sx={{ p: 0 }}>
-              <Icon sx={{ color: "text.secondary", opacity: 0.7 }}>delete</Icon>
+              <Icon sx={{ color: "text.secondary", opacity: 0.7 }}>clear</Icon>
             </IconButton>
           ) : (
             <>

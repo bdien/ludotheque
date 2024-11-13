@@ -75,7 +75,7 @@ export function LoanClose(props: LoanCloseProps) {
         variant="h5"
         textAlign="center"
         fontWeight="bold"
-        sx={{ p: 2, color: "primary.main" }}
+        sx={{ p: 2 }}
       >
         {item.name} ({item.id})
       </Typography>

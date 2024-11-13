@@ -144,15 +144,15 @@ export function Loan() {
       )}
 
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6" color="primary.main" sx={{ mb: 2 }}>
-          Adhérent
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Emprunteur
         </Typography>
         <UserSearch user={user} setUser={changeUser} />
       </Box>
 
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" color="primary.main" sx={{ mb: 2 }}>
-          Emprunts
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Jeux
         </Typography>
         <Box display="flex" sx={{ mb: 1.5 }}>
           <ItemSearch setItem={addItem} excludesIds={items.map((i) => i.id)} />
@@ -204,16 +204,6 @@ export function Loan() {
         </Box>
       )}
 
-      <Button
-        variant="outlined"
-        fullWidth
-        size="large"
-        sx={{ mt: "20px" }}
-        onClick={() => history.back()}
-      >
-        Annuler
-      </Button>
-
       <LoadingButton
         variant="contained"
         fullWidth
@@ -226,6 +216,16 @@ export function Loan() {
       >
         Valider
       </LoadingButton>
+
+      <Button
+        variant="outlined"
+        fullWidth
+        size="large"
+        sx={{ mt: "20px" }}
+        onClick={() => history.back()}
+      >
+        Annuler
+      </Button>
     </Box>
   );
 }
