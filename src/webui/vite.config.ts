@@ -7,6 +7,7 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
   includeAssets: ["favicon.ico"],
   workbox: {
     globPatterns: ["*.webp", "index.html", "assets/*", "*.js"],
+    navigateFallback: null,
     runtimeCaching: [
       {
         urlPattern: /^https:\/\/.*\/api\/items\/?\d*/i,
