@@ -36,7 +36,7 @@ export function LoanItemTable(props: LoanItemTableProps) {
                   onClick={() => props.removeItem(idx)}
                 >
                   <Icon sx={{ color: "text.secondary", opacity: 0.7 }}>
-                    delete
+                    clear
                   </Icon>
                 </Button>
               </TableCell>

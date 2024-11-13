@@ -189,7 +189,6 @@ export function Item(props: ItemProps) {
         className="item-view-title"
         sx={{
           p: 1,
-          color: "primary.main",
           filter: "drop-shadow(0px 3px 4px rgba(100,100,100,0.3))",
         }}
       >

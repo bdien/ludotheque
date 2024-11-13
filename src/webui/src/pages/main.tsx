@@ -59,7 +59,7 @@ export function Main() {
           <Box
             sx={{ backgroundColor: "white", px: 1, mb: 1, borderRadius: "8px" }}
           >
-            <Typography variant="overline" fontSize="1rem" color="primary">
+            <Typography variant="overline" fontSize="1rem">
               Dernières arrivées
             </Typography>
             <Box
