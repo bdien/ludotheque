@@ -13,7 +13,7 @@ export function Documents() {
       </p>
 
       <Box sx={{ p: 2 }}>
-        <Link href="/docs/ludo_fiche_adherent.pdf" download>
+        <Link href="/docs/ludo_fiche_adherent.pdf">
           <Stack alignItems="center" direction="row" gap={1}>
             <Icon fontSize="large">description</Icon>
             Fiche nouvel adhérent
@@ -22,7 +22,7 @@ export function Documents() {
       </Box>
 
       <Box sx={{ p: 2 }}>
-        <Link href="/docs/ludo_location_jeux_surdim.pdf" download>
+        <Link href="/docs/ludo_location_jeux_surdim.pdf">
           <Stack alignItems="center" direction="row" gap={1}>
             <Icon fontSize="large">description</Icon>
             Location de Jeux Surdimensionnés
@@ -31,7 +31,7 @@ export function Documents() {
       </Box>
 
       <Box sx={{ p: 2 }}>
-        <Link href="/docs/ludo_accueil_arrivants.pdf" download>
+        <Link href="/docs/ludo_accueil_arrivants.pdf">
           <Stack alignItems="center" direction="row" gap={1}>
             <Icon fontSize="large">description</Icon>
             Accueil Nouvel adhérents
