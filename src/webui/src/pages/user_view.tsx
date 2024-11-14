@@ -8,7 +8,7 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import SpeedDialAction from "@mui/material/SpeedDialAction";
 import { navigate } from "wouter/use-browser-location";
 import { Loading } from "../components/loading";
-import { Tab, Typography } from "@mui/material";
+import { Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { useState } from "react";
 import { UserHistory } from "../components/user_history";

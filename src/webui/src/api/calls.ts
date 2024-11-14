@@ -75,7 +75,7 @@ export async function deleteItem(itemId: number) {
   });
 }
 
-export async function booktem(itemId: number) {
+export async function bookitem(itemId: number) {
   await fetchWithToken(`${SERVER_URL}/bookings`, {
     method: "POST",
     body: JSON.stringify({ item: itemId }),
@@ -84,6 +84,18 @@ export async function booktem(itemId: number) {
 
 export async function unbook(bookingId: number) {
   await fetchWithToken(`${SERVER_URL}/bookings/${bookingId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function favItem(itemId: number) {
+  await fetchWithToken(`${SERVER_URL}/items/${itemId}/favorites`, {
+    method: "POST",
+  });
+}
+
+export async function unfavItem(itemId: number) {
+  await fetchWithToken(`${SERVER_URL}/items/${itemId}/favorites`, {
     method: "DELETE",
   });
 }

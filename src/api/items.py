@@ -7,6 +7,7 @@ import peewee
 from api.pwmodels import (
     Booking,
     Category,
+    Favorite,
     ItemCategory,
     ItemLink,
     Loan,
@@ -351,6 +352,24 @@ async def create_item_rating(item_id: int, request: Request, auth=Depends(auth_u
             Rating.replace(
                 item=item_id, user=auth.id, weight=weight, rating=rating
             ).execute()
+
+
+@router.post("/items/{item_id}/favorites", tags=["items"])
+async def set_item_favorites(item_id: int, auth=Depends(auth_user)):
+    check_auth(auth)
+
+    with db, contextlib.suppress(Exception):
+        Favorite.create(user=auth.id, item=item_id)
+
+
+@router.delete("/items/{item_id}/favorites", tags=["items"])
+async def remove_item_favorites(item_id: int, auth=Depends(auth_user)):
+    check_auth(auth)
+
+    with db, contextlib.suppress(Exception):
+        Favorite.delete().where(
+            Favorite.user == auth.id, Favorite.item == item_id
+        ).execute()
 
 
 @router.delete("/items/{item_id}", tags=["users", "admin"])

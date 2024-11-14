@@ -193,6 +193,10 @@ export function Item(props: ItemProps) {
         }}
       >
         {item.name}
+
+        {/* <IconButton onClick={() => unfavItem(item.id)}>
+          <Icon sx={{color: "yellow", fontSize: "1.5em"}}>favorite</Icon>
+        </IconButton> */}
       </Typography>
 
       <Box sx={{ textAlign: "center", flex: 1, marginBottom: "8px" }}>
