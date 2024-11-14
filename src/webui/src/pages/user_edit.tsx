@@ -56,7 +56,7 @@ function generateDefaultValues(user?: User): FormValues | undefined {
 }
 
 export function UserEdit(props: UserEditProps) {
-  const { user, error } = useUser(props.id);
+  const { user, error, mutate } = useUser(props.id);
   const { mutate: mutateUsers } = useUsers();
 
   const initialUserId = user?.id;
@@ -101,6 +101,7 @@ export function UserEdit(props: UserEditProps) {
           setApiError(result.detail);
           return;
         }
+        if (mutate) mutate();
         mutateUsers();
         navigate(`/users/${result.id}`, { replace: true });
       })
