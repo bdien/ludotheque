@@ -98,6 +98,9 @@ class Favorite(BaseModel):
     user = peewee.ForeignKeyField(model=User)
     item = peewee.ForeignKeyField(model=Item)
 
+    class Meta:
+        indexes = ((("user", "item"), True),)
+
 
 class Category(BaseModel):
     name = peewee.CharField(unique=True)

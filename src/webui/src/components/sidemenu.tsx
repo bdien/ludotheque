@@ -49,7 +49,7 @@ export function SideMenu(props: SideMenuProps) {
           <ListItemIcon sx={{ color: "inherit" }}>
             <Icon>list</Icon>
           </ListItemIcon>
-          <ListItemText primary="Liste des Jeux" />
+          <ListItemText primary="Liste des jeux" />
         </ListItem>
         {account?.id && (
           <ListItem
@@ -146,7 +146,7 @@ export function SideMenu(props: SideMenuProps) {
                   <ListItemIcon sx={{ color: "inherit" }}>
                     <Icon>account_balance</Icon>
                   </ListItemIcon>
-                  <ListItemText primary="Feuille de Caisse" />
+                  <ListItemText primary="Feuille de caisse" />
                 </ListItem>
 
                 {/* Emprunts en retard */}
