@@ -76,7 +76,7 @@ interface FormValues {
 }
 
 export function ItemEdit(props: ItemEditProps) {
-  const { item, error } = useItem(props.id);
+  const { item, error, mutate } = useItem(props.id);
   const { mutate: mutateItems } = useItems();
   const [editBusy, setEditBusy] = useState<boolean>(false);
   const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
@@ -130,6 +130,7 @@ export function ItemEdit(props: ItemEditProps) {
           setApiError(result.detail);
           return;
         }
+        if (mutate) mutate();
         mutateItems();
         navigate(`/items/${result.id}`, { replace: true });
       })
