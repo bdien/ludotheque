@@ -140,24 +140,7 @@ def export_users(auth=Depends(auth_user)):
 def get_myself(auth=Depends(auth_user)):
     if not auth:
         return {}
-
-    check_auth(auth)
-    with db:
-        if u := User.get_or_none(id=auth.id, enabled=True):
-            ret = model_to_dict(u)
-
-            # Effective role (Benevoles might be limited by datetime)
-            ret["role"] = auth.role
-
-            # Private to admins
-            del ret["enabled"]
-            del ret["notes"]
-            del ret["informations"]
-            del ret["last_warning"]
-            del ret["created_at"]
-
-            return ret
-    raise HTTPException(402)
+    return {"role": auth.role, "id": auth.id}
 
 
 @router.get("/users/search", tags=["users", "benevole"])

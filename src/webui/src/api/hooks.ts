@@ -42,7 +42,7 @@ export function useStats() {
 }
 
 export function useAccount() {
-  const { data, error, isLoading, mutate } = useSWR<Account>(
+  const { data, error, isLoading, mutate } = useSWRImmutable<Account>(
     `${SERVER_URL}/users/me`,
     fetcher,
     { revalidateOnFocus: false },
