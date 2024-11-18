@@ -43,10 +43,15 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
             />
           </Link>
         ) : (
-          <Skeleton variant="rounded" width="100%" height="100%" />
+          <Skeleton
+            sx={{ bgcolor: "grey.200" }}
+            variant="rounded"
+            width="100%"
+            height="100%"
+          />
         )}
       </div>
-      <div>
+      <div style={{ width: "60%", marginLeft: "10px" }}>
         {item ? (
           <>
             <Typography component="div" fontWeight={600}>
@@ -75,8 +80,8 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
           </>
         ) : (
           <>
-            <Skeleton />
-            <Skeleton />
+            <Skeleton sx={{ bgcolor: "grey.200" }} />
+            <Skeleton sx={{ bgcolor: "grey.200" }} />
           </>
         )}
       </div>

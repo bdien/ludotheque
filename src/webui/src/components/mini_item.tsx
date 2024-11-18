@@ -61,7 +61,12 @@ export function MiniItem(props: MiniItemProps) {
             />
           </Link>
         ) : (
-          <Skeleton variant="rounded" width="100%" height="100%" />
+          <Skeleton
+            sx={{ bgcolor: "grey.200" }}
+            variant="rounded"
+            width="100%"
+            height="100%"
+          />
         )}
       </Box>
       <Box width="60%">
@@ -98,7 +103,7 @@ export function MiniItem(props: MiniItemProps) {
             )}
           </>
         ) : (
-          <Skeleton />
+          <Skeleton sx={{ bgcolor: "grey.200" }} />
         )}
       </Box>
     </Box>
