@@ -13,12 +13,14 @@ import Box from "@mui/material/Box";
 import { RandomColors } from "./random_colors";
 import Avatar from "@mui/material/Avatar";
 import { SideMenu } from "./sidemenu";
+import { TopbarSearch } from "./topbar_search";
 
 interface TopBarProps {
   width: number;
 }
 
 export function TopBar(props: TopBarProps) {
+  const [searchActive, setSearchActive] = useState<boolean>(false);
   const logotxt = useMemo(
     () => <RandomColors txt="Ludo du Poisson-Lune" />,
     [],
@@ -62,6 +64,7 @@ export function TopBar(props: TopBarProps) {
 
             <Typography
               sx={{
+                display: searchActive ? "none" : "block",
                 flexGrow: 1,
                 fontFamily: "Satisfy",
                 fontSize: "clamp(5px, 7vw, 36px)",
@@ -70,6 +73,8 @@ export function TopBar(props: TopBarProps) {
             >
               {logotxt}
             </Typography>
+
+            <TopbarSearch onToggle={setSearchActive} />
 
             {isAuthenticated && user && (
               <div>

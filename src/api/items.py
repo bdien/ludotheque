@@ -140,20 +140,22 @@ def export_items(auth=Depends(auth_user)):
 
 
 @router.get("/items/search", tags=["items"])
-def search_item(q: str | None = None):
+def search_item(q: str | None = None, onlyavailable: bool = False):
     "Return a list of max 10 items matching filter (and not already loaned)"
 
     with db:
-        loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
-        return list(
+        q = (
             Item.select(Item.id, Item.name, Item.big)
             .where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
-            .where(Item.id.not_in(loaned_items))
             .where(Item.enabled)
             .order_by(Item.id)
-            .limit(10)
-            .dicts()
         )
+
+        if onlyavailable:
+            loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
+            q = q.where(Item.id.not_in(loaned_items))
+
+        return list(q.limit(10).dicts())
 
 
 @router.get("/items/{item_id}", tags=["items"])

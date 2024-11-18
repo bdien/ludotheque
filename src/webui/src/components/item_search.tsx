@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { searchItem as searchItem } from "../api/calls";
+import { searchItem } from "../api/calls";
 import { ItemModel } from "../api/models";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -21,7 +21,7 @@ export function ItemSearch(props: ItemSearchProps) {
   const [completeKey, setCompleteKey] = useState("aaa");
 
   useEffect(() => {
-    searchItem(itemInput).then((res) => {
+    searchItem(itemInput, true).then((res) => {
       setItemChoices(res.filter((i) => !props.excludesIds.includes(i.id)));
     });
   }, [itemInput, props.excludesIds]);

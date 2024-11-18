@@ -37,11 +37,14 @@ export async function exportItems(): Promise<string> {
   return response.text();
 }
 
-export async function searchItem(txt: string): Promise<ItemModel[]> {
+export async function searchItem(
+  txt: string,
+  onlyavailable?: boolean,
+): Promise<ItemModel[]> {
   if (!txt) return Promise.resolve([]);
-  const response = await fetchWithToken(
-    encodeURI(`${SERVER_URL}/items/search?q=${txt}`),
-  );
+  let uri = `${SERVER_URL}/items/search?q=${txt}`;
+  if (onlyavailable) uri += "&onlyavailable=true";
+  const response = await fetchWithToken(encodeURI(uri));
   return response.json();
 }
 
