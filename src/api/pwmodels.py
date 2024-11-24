@@ -91,6 +91,7 @@ class Item(BaseModel):
     content = JSONField(null=True)
     pictures = JSONField(default=[])
     notes = peewee.TextField(null=True)
+    lastseen = peewee.DateField(default=date.today, null=True)
     created_at = peewee.DateField(default=date.today)
 
 

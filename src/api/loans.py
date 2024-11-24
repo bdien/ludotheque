@@ -123,6 +123,10 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
                     money=cost_real_money,
                 )
 
+                # Update item lastseen column
+                i.lastseen = today = datetime.date.today()
+                i.save()
+
             # Update user credit and subscription (And reenable if needed)
             if subscription:
                 Ledger.create(
@@ -182,6 +186,12 @@ def close_loan(loan_id: int, auth=Depends(auth_user)):
         loan.stop = datetime.date.today()
         loan.status = "in"
         loan.save()
+
+        # Update item lastseen column
+        Item.update(lastseen=datetime.date.today()).where(
+            Item.id == loan.item
+        ).execute()
+
         return model_to_dict(loan, recurse=False)
 
 

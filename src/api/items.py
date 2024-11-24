@@ -214,10 +214,9 @@ def get_item(
                 .where(Rating.item == item_id)
                 .tuples()
             )
-            if ratings:
-                base["rating"] = round(
-                    sum(w * r for w, r in ratings) / sum(w for w, r in ratings), 1
-                )
+            ratings_tot = sum(w for w, r in ratings)
+            if ratings_tot:
+                base["rating"] = round(sum(w * r for w, r in ratings) / ratings_tot, 1)
 
             if loans:
                 base["status"] = loans[0].status

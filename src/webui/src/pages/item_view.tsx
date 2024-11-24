@@ -264,7 +264,7 @@ export function Item(props: ItemProps) {
                 item.categories.map((cat) => (
                   <Chip
                     key={cat}
-                    sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
+                    sx={{ p: 1, m: 0.25, borderRadius: "8px" }}
                     color="primary"
                     size="small"
                     icon={<Icon>category</Icon>}
