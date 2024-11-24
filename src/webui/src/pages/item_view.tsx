@@ -5,20 +5,18 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { useAccount, useCategories, useItem } from "../api/hooks";
+import { useAccount, useCategories, useItem, useUser } from "../api/hooks";
 import { AgeChip } from "../components/age_chip";
 import { ItemLinkModel, ItemModel, Loan } from "../api/models";
 import Icon from "@mui/material/Icon";
 import { navigate } from "wouter/use-browser-location";
 import TableHead from "@mui/material/TableHead";
-import SpeedDial from "@mui/material/SpeedDial";
-import SpeedDialAction from "@mui/material/SpeedDialAction";
 import {
   AccordionDetails,
-  SpeedDialIcon,
   Accordion,
   styled,
   Paper,
+  IconButton,
 } from "@mui/material";
 import MuiAccordionSummary, {
   AccordionSummaryProps,
@@ -28,6 +26,9 @@ import ReactMarkdown from "react-markdown";
 import { ShortUser } from "../components/short_user";
 import EmblaCarousel from "../components/EmblaCarousel";
 import { differenceInDays } from "date-fns";
+import { favItem, unfavItem } from "../api/calls";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 interface ItemProps {
   id: number;
@@ -149,12 +150,26 @@ function displayGametime(item: ItemModel) {
 }
 
 export function Item(props: ItemProps) {
+  const theme = useTheme();
+  const desktop = useMediaQuery(theme.breakpoints.up("sm"));
   const { account } = useAccount();
+  const { user, mutate: mutateUser } = useUser(account?.id);
   const { item, error } = useItem(props.id);
   const { categories } = useCategories();
 
   if (error) return <div>Server error: {error.cause}</div>;
   if (!item) return <></>;
+
+  function changeFav(item_id: number, isFav: boolean) {
+    let promise = favItem;
+    if (isFav) promise = unfavItem;
+
+    promise(item_id).then(() => {
+      if (mutateUser) mutateUser();
+    });
+  }
+
+  const isFav = user?.favorites.indexOf(item.id) != -1;
 
   const pictures = item.pictures?.length
     ? item.pictures
@@ -166,6 +181,37 @@ export function Item(props: ItemProps) {
   // render data
   return (
     <>
+      {/* Actions floating box */}
+      <Box
+        sx={{
+          position: "absolute",
+          right: "10px",
+          zIndex: 2,
+          display: "flex",
+          flexDirection: desktop ? "row" : "column-reverse",
+        }}
+      >
+        {/* Edit Button */}
+        {(account?.role == "admin" || account?.role == "benevole") && (
+          <IconButton
+            sx={{ fontSize: "1.5em" }}
+            aria-label="edit"
+            onClick={() => navigate(`/items/${item.id}/edit`)}
+          >
+            <Icon sx={{ fontSize: "1.5em" }}>edit</Icon>
+          </IconButton>
+        )}
+
+        {/* Favorite button */}
+        {user && user.id != 0 && (
+          <IconButton onClick={() => changeFav(item.id, isFav)}>
+            <Icon sx={{ fontSize: "1.5em" }}>
+              {isFav ? "favorite" : "favorite_outline"}
+            </Icon>
+          </IconButton>
+        )}
+      </Box>
+
       <Box display="flex" sx={{ height: "clamp(200px, 35vh, 550px)" }}>
         <EmblaCarousel
           slides={pictures.map((item, i) => (
@@ -193,10 +239,6 @@ export function Item(props: ItemProps) {
         }}
       >
         {item.name}
-
-        {/* <IconButton onClick={() => unfavItem(item.id)}>
-          <Icon sx={{color: "yellow", fontSize: "1.5em"}}>favorite</Icon>
-        </IconButton> */}
       </Typography>
 
       <Box sx={{ textAlign: "center", flex: 1, marginBottom: "8px" }}>
@@ -353,51 +395,6 @@ export function Item(props: ItemProps) {
             </TableContainer>
           </AccordionDetails>
         </Accordion>
-      )}
-
-      {/* Edit button */}
-      {(account?.role == "admin" || account?.role == "benevole") && (
-        <SpeedDial
-          ariaLabel="Actions"
-          sx={{
-            position: "fixed",
-            bottom: (theme) => theme.spacing(2),
-            right: (theme) => theme.spacing(2),
-          }}
-          icon={<SpeedDialIcon />}
-        >
-          <SpeedDialAction
-            key="edit"
-            tooltipOpen={true}
-            icon={<Icon>edit</Icon>}
-            tooltipTitle="Edition"
-            onClick={() => navigate(`/items/${item.id}/edit`)}
-          />
-
-          {item.status == "out" ? (
-            <SpeedDialAction
-              key="rendre"
-              tooltipOpen={true}
-              icon={<Icon>login</Icon>}
-              tooltipTitle="Rendre"
-              onClick={() =>
-                navigate(
-                  `/loans/${item.loans ? item.loans[0].id : 0}/close?return=${
-                    window.location.pathname
-                  }`,
-                )
-              }
-            />
-          ) : (
-            <SpeedDialAction
-              key="emprunter"
-              tooltipOpen={true}
-              icon={<Icon>logout</Icon>}
-              tooltipTitle="Emprunter"
-              onClick={() => navigate(`/loans/new?item=${item.id}`)}
-            />
-          )}
-        </SpeedDial>
       )}
     </>
   );

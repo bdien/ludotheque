@@ -17,7 +17,6 @@ export function useInfo() {
   const { data, error, isLoading } = useSWRImmutable<Info>(
     `${SERVER_URL}/info`,
     fetcher,
-    { revalidateOnFocus: false },
   );
 
   return {
@@ -31,7 +30,6 @@ export function useStats() {
   const { data, error, isLoading } = useSWRImmutable<Stats>(
     `${SERVER_URL}/stats`,
     fetcher,
-    { revalidateOnFocus: false },
   );
 
   return {
@@ -45,7 +43,6 @@ export function useAccount() {
   const { data, error, isLoading, mutate } = useSWRImmutable<Account>(
     `${SERVER_URL}/users/me`,
     fetcher,
-    { revalidateOnFocus: false },
   );
 
   return {
@@ -164,6 +161,7 @@ export function useUser(id?: number) {
 
   const { data, error, isLoading, mutate } = useSWR<User>(url, fetcher, {
     revalidateOnFocus: false,
+    dedupingInterval: 60000,
   });
 
   return {
@@ -180,6 +178,7 @@ export function useUserHistory(id?: number) {
     fetcher,
     {
       revalidateOnFocus: false,
+      dedupingInterval: 60000,
     },
   );
 

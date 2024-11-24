@@ -10,7 +10,7 @@ interface MiniItemProps {
   late?: boolean;
   subtext?: string;
   action?: {
-    text: string;
+    text: string | React.ReactElement;
     func: () => void;
   };
 }

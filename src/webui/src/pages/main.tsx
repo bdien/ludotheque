@@ -17,7 +17,7 @@ export function Main() {
   var lastitems: ItemListEntry[] = [];
   if (items) {
     var lastitems = Array.from(items.values()).filter(
-      (i) => differenceInDays(new Date(), i.created_at) <= 90,
+      (i) => differenceInDays(new Date(), i.created_at) <= 90 && i.enabled,
     );
   }
 
