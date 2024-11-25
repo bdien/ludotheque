@@ -7,13 +7,13 @@ import IconButton from "@mui/material/IconButton";
 import Icon from "@mui/material/Icon";
 import { useState } from "react";
 import Link from "@mui/material/Link";
-import { useAccount, useInfo } from "../api/hooks";
 import { differenceInDays } from "date-fns";
 import Alert from "@mui/material/Alert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
+import { useGlobalStore } from "../hooks/global_store";
 
 interface MiniUserProps {
   user: User;
@@ -51,7 +51,7 @@ function emailLate(user: User) {
 
 export function MiniUser(props: MiniUserProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const { info } = useInfo();
+  const { info, account } = useGlobalStore();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const menuOpened = Boolean(anchorEl);
   const menuClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -68,7 +68,6 @@ export function MiniUser(props: MiniUserProps) {
   const verylate_loans = props.user?.loans?.filter(
     (i) => differenceInDays(today, i.stop) >= (info?.email_minlate ?? 15),
   ).length;
-  const { account } = useAccount();
 
   return (
     <>

@@ -1,7 +1,8 @@
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { navigate } from "wouter/use-browser-location";
-import { useAccount, useUser, useUsers } from "../api/hooks";
+import { useUser, useUsers } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
+import { useGlobalStore } from "../hooks/global_store";
 import { User } from "../api/models";
 import { useConfirm } from "../hooks/useConfirm";
 import Typography from "@mui/material/Typography";
@@ -60,7 +61,7 @@ export function UserEdit(props: UserEditProps) {
   const { mutate: mutateUsers } = useUsers();
 
   const initialUserId = user?.id;
-  const { account } = useAccount();
+  const { account } = useGlobalStore();
   const [editBusy, setEditBusy] = useState<boolean>(false);
   const [deleteBusy, setDeleteBusy] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null);

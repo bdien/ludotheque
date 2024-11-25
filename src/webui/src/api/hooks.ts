@@ -1,7 +1,6 @@
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
 import {
-  Account,
   Info,
   ItemListEntry,
   ItemModel,
@@ -36,20 +35,6 @@ export function useStats() {
     stats: data,
     isLoading,
     error,
-  };
-}
-
-export function useAccount() {
-  const { data, error, isLoading, mutate } = useSWRImmutable<Account>(
-    `${SERVER_URL}/users/me`,
-    fetcher,
-  );
-
-  return {
-    account: data,
-    isLoading,
-    error,
-    mutate,
   };
 }
 

@@ -1,4 +1,5 @@
-import { useAccount, useItems } from "../api/hooks";
+import { useItems } from "../api/hooks";
+import { useGlobalStore } from "../hooks/global_store";
 import { ItemModel } from "../api/models";
 import { Link } from "wouter";
 import { AgeChip } from "../components/age_chip";
@@ -143,7 +144,7 @@ interface ItemListFilters {
 }
 
 export function ItemList() {
-  const { account } = useAccount();
+  const { account } = useGlobalStore();
   const { items } = useItems();
   const [filter, setFilter] = useSessionStorage<ItemListFilters>(
     "itemSearchFilters",

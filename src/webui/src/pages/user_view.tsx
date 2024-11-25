@@ -1,5 +1,6 @@
 import MiniItem from "../components/mini_item";
-import { useAccount, useUser } from "../api/hooks";
+import { useUser } from "../api/hooks";
+import { useGlobalStore } from "../hooks/global_store";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
 import { MiniUser } from "../components/mini_user";
@@ -20,7 +21,7 @@ interface UserViewProps {
 }
 
 export function UserView(props: UserViewProps) {
-  const { account } = useAccount();
+  const { account } = useGlobalStore();
   const { user, error, mutate } = useUser(props.id);
   const [tabIndex, setTabIndex] = useState("loans");
 

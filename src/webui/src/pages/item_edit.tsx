@@ -1,5 +1,6 @@
 import { Controller, useForm } from "react-hook-form";
-import { useItem, useCategories, useAccount, useItems } from "../api/hooks";
+import { useItem, useCategories, useItems } from "../api/hooks";
+import { useGlobalStore } from "../hooks/global_store";
 import { ItemModel } from "../api/models";
 import { createItem, deleteItem, updateItem } from "../api/calls";
 import { useConfirm } from "../hooks/useConfirm";
@@ -85,7 +86,7 @@ export function ItemEdit(props: ItemEditProps) {
   const [autoId, setAutoId] = useState<boolean>(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const { register, control, handleSubmit } = useForm<FormValues>();
-  const { account } = useAccount();
+  const { account } = useGlobalStore();
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du jeu",
     "Cela supprimera définitivement tout son historique d'emprunts.",

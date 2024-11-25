@@ -1,4 +1,5 @@
-import { useAccount, useUsers } from "../api/hooks";
+import { useUsers } from "../api/hooks";
+import { useGlobalStore } from "../hooks/global_store";
 import { Link } from "wouter";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
@@ -45,7 +46,7 @@ function exportCSV() {
 }
 
 export function UserList() {
-  const { account } = useAccount();
+  const { account } = useGlobalStore();
   const [filter, setFilter] = useState<string>("");
   const [filterDisabled, setFilterDisabled] = useState<boolean>(false);
   const { users } = useUsers();

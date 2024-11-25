@@ -5,7 +5,8 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { useAccount, useCategories, useItem, useUser } from "../api/hooks";
+import { useCategories, useItem, useUser } from "../api/hooks";
+import { useGlobalStore } from "../hooks/global_store";
 import { AgeChip } from "../components/age_chip";
 import { ItemLinkModel, ItemModel, Loan } from "../api/models";
 import Icon from "@mui/material/Icon";
@@ -152,8 +153,8 @@ function displayGametime(item: ItemModel) {
 export function Item(props: ItemProps) {
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up("sm"));
-  const { account } = useAccount();
-  const { user, mutate: mutateUser } = useUser(account?.id);
+  const { account } = useGlobalStore();
+  const { user, mutate: mutateUser } = useUser(account.id);
   const { item, error } = useItem(props.id);
   const { categories } = useCategories();
 

@@ -3,9 +3,9 @@ import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import { Link, useLocation } from "wouter";
-import { useAccount, useInfo } from "../api/hooks";
 import { Box, Collapse, Divider, Icon, Typography } from "@mui/material";
 import { useState } from "react";
+import { useGlobalStore } from "../hooks/global_store";
 
 interface SideMenuProps {
   setIsDrawerOpen: (arg0: boolean) => void;
@@ -13,8 +13,7 @@ interface SideMenuProps {
 
 export function SideMenu(props: SideMenuProps) {
   const [location] = useLocation();
-  const { info } = useInfo();
-  const { account } = useAccount();
+  const { info, account } = useGlobalStore();
   const [adminOpen, adminSetOpen] = useState(false);
 
   const handleClick = () => {
@@ -51,7 +50,7 @@ export function SideMenu(props: SideMenuProps) {
           </ListItemIcon>
           <ListItemText primary="Liste des jeux" />
         </ListItem>
-        {account?.id && (
+        {account?.id ? (
           <ListItem
             component={Link}
             to={`/users/${account.id}`}
@@ -63,6 +62,8 @@ export function SideMenu(props: SideMenuProps) {
             </ListItemIcon>
             <ListItemText primary="Mon compte" />
           </ListItem>
+        ) : (
+          ""
         )}
         {account?.role == "admin" && (
           <>

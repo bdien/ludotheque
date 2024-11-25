@@ -11,9 +11,9 @@ import { Ledger } from "./pages/ledger";
 import { Box, Toolbar } from "@mui/material";
 import { Main } from "./pages/main";
 import { LoanClose } from "./pages/loan_close";
-import { setToken } from "./api/calls";
+import { getAccount, setToken } from "./api/calls";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useInfo } from "./api/hooks";
 import "./styles.css";
 import { LateLoans } from "./pages/late_loans";
@@ -21,31 +21,49 @@ import { LateEmail } from "./pages/late_email";
 import { Stats } from "./pages/stats";
 import { Documents } from "./pages/documents";
 import { Inventory } from "./pages/inventory";
+import { useGlobalStore } from "./hooks/global_store";
 
 function App() {
-  const { isLoading: infoIsLoading } = useInfo();
+  const { info } = useInfo();
   const [authdone, setAuthDone] = useState(false);
+  const globalStoreSetAccount = useGlobalStore((state) => state.setAccount);
+  const globalStoreSetInfo = useGlobalStore((state) => state.setInfo);
   const { isAuthenticated, isLoading, getAccessTokenSilently, logout } =
     useAuth0();
 
-  // Wait for authentication to be finished (including token)
-  if (!authdone && !isLoading) {
+  // If info has changed, update global store
+  useEffect(() => {
+    if (info) {
+      globalStoreSetInfo(info);
+    }
+  }, [info]);
+
+  // If user authentication changed
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
     if (!isAuthenticated) {
+      globalStoreSetAccount({ id: 0, role: "" });
       setAuthDone(true);
     } else {
       getAccessTokenSilently()
         .then((token) => {
           setToken(token);
-          setAuthDone(true);
+          getAccount().then((data) => {
+            globalStoreSetAccount(data);
+            setAuthDone(true);
+          });
         })
         .catch(() => {
           logout();
           setAuthDone(true);
         });
     }
-  }
+  }, [isLoading, isAuthenticated]);
 
-  if (!authdone || infoIsLoading) {
+  // Do not display anything if /info and /account are not done
+  if (!info || !authdone) {
     return <></>;
   }
 

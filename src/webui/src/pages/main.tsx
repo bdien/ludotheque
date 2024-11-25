@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useInfo, useAccount, useItems } from "../api/hooks";
+import { useItems } from "../api/hooks";
+import { useGlobalStore } from "../hooks/global_store";
 import Alert from "@mui/material/Alert";
 import { differenceInDays } from "date-fns";
 import { ItemListEntry } from "../api/models";
@@ -8,9 +9,8 @@ import ItemImage from "../components/ItemImage";
 import { Typography } from "@mui/material";
 
 export function Main() {
-  const { info } = useInfo();
+  const { info, account } = useGlobalStore();
   const { isAuthenticated, user } = useAuth0();
-  const { account } = useAccount();
   const { items } = useItems({ sort: "created_at", nb: 4 });
 
   // Filtres les jeux de moins de 3 mois

@@ -1,4 +1,11 @@
-import { User, ItemModel, LoanCreateResult, ApiError, EMail } from "./models";
+import {
+  User,
+  ItemModel,
+  LoanCreateResult,
+  ApiError,
+  EMail,
+  Account,
+} from "./models";
 export const SERVER_URL = "/api";
 
 let access_token: string | null = null;
@@ -122,6 +129,11 @@ export async function closeLoan(loanId: number): Promise<ItemModel> {
 
 // User
 // -------------------
+
+export async function getAccount(): Promise<Account> {
+  const response = await fetchWithToken(`${SERVER_URL}/users/me`);
+  return response.json();
+}
 
 export async function exportUsers(): Promise<string> {
   const response = await fetchWithToken(`${SERVER_URL}/users/export`);
