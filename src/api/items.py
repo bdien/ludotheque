@@ -1,6 +1,7 @@
 import base64
 import contextlib
 import csv
+import datetime
 import io
 from fastapi.responses import PlainTextResponse
 import peewee
@@ -36,7 +37,7 @@ async def create_item(request: Request, auth=Depends(auth_user)):
 
     # Avoid some properties
     params = {k: v for k, v in body.items() if k in Item._meta.fields}
-    params = {k: v for k, v in params.items() if k not in ("created_at",)}
+    params = {k: v for k, v in params.items() if k not in ("created_at", "lastseen")}
     # Remove ID = None or ""
     if ("id" in params) and not params["id"]:
         del params["id"]
@@ -137,6 +138,21 @@ def export_items(auth=Depends(auth_user)):
         for u in query.dicts():
             csvwriter.writerow(u)
         return f.getvalue()
+
+
+@router.get("/items/lastseen", tags=["items"])
+def get_items_lastseen(days: int = 365):
+    "Return a list of items sorted by lastseen and limit in time"
+
+    with db:
+        start = datetime.date.today() - datetime.timedelta(days=days)
+        return list(
+            Item.select(Item.id, Item.lastseen)
+            .where(Item.lastseen < start)
+            .where(Item.enabled)
+            .order_by(Item.lastseen.asc())
+            .dicts()
+        )
 
 
 @router.get("/items/search", tags=["items"])
@@ -300,6 +316,10 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
             params["pictures"] = modif_pictures(
                 item_id, item.pictures, params["pictures"]
             )
+
+        # Date format
+        if "lastseen" in params:
+            params["lastseen"] = datetime.date.fromisoformat(params["lastseen"])
 
         if params:
             Item.update(**params).where(Item.id == item_id).execute()

@@ -66,7 +66,7 @@ export function Main() {
               sx={{ display: "flex", pb: 1, maxHeight: "15vh", gap: "10px" }}
             >
               {lastitems.map((i) => (
-                <ItemImage id={i.id} />
+                <ItemImage key={i.id} id={i.id} />
               ))}
             </Box>
           </Box>

@@ -162,6 +162,19 @@ export function SideMenu(props: SideMenuProps) {
                   <ListItemText primary="Jeux en retards" />
                 </ListItem>
 
+                {/* Inventaire */}
+                {/* <ListItem
+                  component={Link}
+                  to="/inventory"
+                  onClick={() => props.setIsDrawerOpen(false)}
+                  sx={{ ...styleUrl("/inventory"), pl: 4 }}
+                >
+                  <ListItemIcon sx={{ color: "inherit" }}>
+                    <Icon>list_alt</Icon>
+                  </ListItemIcon>
+                  <ListItemText primary="Inventaire" />
+                </ListItem> */}
+
                 {/* Documents */}
                 <ListItem
                   component={Link}

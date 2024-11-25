@@ -20,6 +20,7 @@ import { LateLoans } from "./pages/late_loans";
 import { LateEmail } from "./pages/late_email";
 import { Stats } from "./pages/stats";
 import { Documents } from "./pages/documents";
+import { Inventory } from "./pages/inventory";
 
 function App() {
   const { isLoading: infoIsLoading } = useInfo();
@@ -117,6 +118,7 @@ function App() {
           </Route>
 
           <Route path="/ledger" component={Ledger} />
+          <Route path="/inventory" component={Inventory} />
           <Route path="/documents" component={Documents} />
           <Route path="/stats" component={Stats} />
 

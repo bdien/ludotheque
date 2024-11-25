@@ -86,6 +86,7 @@ export interface ItemModel {
   categories?: number[];
   links?: ItemLinkModel[];
   created_at?: string;
+  lastseen?: string;
   status?: string;
   return?: string;
   loans?: Loan[];

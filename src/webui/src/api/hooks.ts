@@ -117,6 +117,33 @@ export function useItems(props?: useItemsProps) {
   };
 }
 
+interface useItemsLastseenProps {
+  days?: number;
+}
+
+interface ItemLastseenEntry {
+  id: number;
+  lastseen: string;
+}
+
+export function useItemsLastseen(props?: useItemsLastseenProps) {
+  let qs = "?";
+  if (props?.days) qs += `days=${props.days}`;
+
+  const { data, error, isLoading, mutate } = useSWR<ItemLastseenEntry[]>(
+    `${SERVER_URL}/items/lastseen${qs}`,
+    fetcher,
+    { dedupingInterval: 60000 },
+  );
+
+  return {
+    items: data,
+    isLoading,
+    error,
+    mutate,
+  };
+}
+
 interface Category {
   id: number;
   name: string;

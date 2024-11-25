@@ -77,7 +77,7 @@ function renderItemLink(link: ItemLinkModel) {
     return (
       <Chip
         key={link.name}
-        sx={{ p: 1, mr: 0.5, borderRadius: "8px" }}
+        sx={{ p: 1, m: 0.25, borderRadius: "8px" }}
         variant="outlined"
         color="primary"
         size="small"
