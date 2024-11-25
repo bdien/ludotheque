@@ -62,7 +62,7 @@ export function LateLoans() {
         {grouped_idxs.map((idx) => (
           <>
             <TableRow>
-              <TableCell colSpan={3} sx={{ backgroundColor: "#EEEEEE" }}>
+              <TableCell colSpan={2} sx={{ backgroundColor: "#EEEEEE" }}>
                 <Typography
                   variant="overline"
                   sx={{ fontSize: "1em", fontWeight: 700 }}
@@ -75,12 +75,15 @@ export function LateLoans() {
 
             {grouped[idx].map((i) => (
               <TableRow key={i.id}>
-                <TableCell sx={{ px: 1 }}>
+                <TableCell
+                  sx={{ px: 1, display: "flex", alignItems: "center" }}
+                >
                   <ShortUser user_id={i.user} />
-                </TableCell>
-
-                <TableCell sx={{ textAlign: "right", fontWeight: 500 }}>
-                  <ShortItem item_id={i.item} />
+                  <Box
+                    sx={{ flex: 1, textAlign: "right", fontWeight: 500, mx: 1 }}
+                  >
+                    <ShortItem item_id={i.item} />
+                  </Box>
                 </TableCell>
 
                 <TableCell sx={{ textAlign: "left", minWidth: 80, px: 0 }}>
