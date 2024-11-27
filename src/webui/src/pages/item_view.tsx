@@ -251,14 +251,18 @@ export function Item(props: ItemProps) {
         {item.age ? <AgeChip icon="cake" size="medium" age={item.age} /> : ""}
       </Box>
 
-      {item.description && (
+      {(item.description ||
+        (item.categories && item.categories?.length > 0) ||
+        (item.links && item.links?.length > 0)) && (
         <Box component={Paper} sx={{ px: 2, py: 1, mb: 1 }}>
           {/* Description */}
-          <ReactMarkdown>{item.description}</ReactMarkdown>
+          {item.description && (
+            <ReactMarkdown>{item.description}</ReactMarkdown>
+          )}
 
           {/* Categories / Link */}
           {(item.categories || item.links) && (
-            <Box sx={{ pb: 1 }}>
+            <Box>
               {item.links && item.links.map((lnk) => renderItemLink(lnk))}
               {item.categories &&
                 categories &&
