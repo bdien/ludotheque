@@ -36,10 +36,10 @@ def publish_gsheets():
             [
                 user.id,
                 user.name,
-                user.email_set and user.email_set[0].email or "",
-                user.enabled and " " or "Désactivé",
+                (user.email_set and user.email_set[0].email) or "",
+                (user.enabled and " ") or "Désactivé",
                 user.loans / max(1, len(user.email_set)),
-                user.oldest_loan and user.oldest_loan.strftime("%d/%m/%Y") or "",
+                (user.oldest_loan and user.oldest_loan.strftime("%d/%m/%Y")) or "",
                 user.credit,
                 user.subscription.strftime("%d/%m/%Y"),
                 user.created_at.strftime("%d/%m/%Y"),
@@ -84,13 +84,11 @@ def publish_gsheets():
                 i.nbloans,
                 f"{i.players_min}-{i.players_max}",
                 i.age,
-                i.big and "Surdimensionné" or i.outside and "Extérieur" or " ",
-                (i.status == "out")
-                and "Emprunté"
-                or (not i.enabled)
-                and "Désactivé"
+                (i.big and "Surdimensionné") or (i.outside and "Extérieur") or " ",
+                ((i.status == "out") and "Emprunté")
+                or ((not i.enabled) and "Désactivé")
                 or " ",
-                (i.status == "out") and user_mapping[i.user_id] or " ",
+                ((i.status == "out") and user_mapping[i.user_id]) or " ",
                 i.notes,
                 i.created_at.strftime("%d/%m/%Y"),
             ]

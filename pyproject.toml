@@ -20,12 +20,6 @@ requires-python = ">=3.11"
 license = {text = "GPL2"}
 dynamic = [ "version" ]
 
-[project.optional-dependencies]
-cli = [
-    "questionary>=2.0.1",
-    "oidc-client>=0.2.6",
-]
-
 [tool.ruff]
 target-version = "py311"
 
@@ -61,11 +55,15 @@ outdated = "pdm update --dry-run --unconstrained --top"
 
 [dependency-groups]
 dev = [
-    "ruff~=0.7",
+    "ruff>=0.8.0",
     "pre-commit~=4.0",
     "pytest~=8.3",
     "httpx~=0.27",
     "pytest-cov~=6.0",
     "mypy~=1.13",
     "freezegun~=1.5",
+]
+cli = [
+    "questionary>=2.0.1",
+    "oidc-client>=0.2.6",
 ]
