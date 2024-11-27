@@ -91,6 +91,7 @@ def publish_gsheets():
                 ((i.status == "out") and user_mapping[i.user_id]) or " ",
                 i.notes,
                 i.created_at.strftime("%d/%m/%Y"),
+                i.lastseen.strftime("%d/%m/%Y"),
             ]
             for i in query.objects()
         ]
