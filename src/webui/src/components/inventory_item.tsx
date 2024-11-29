@@ -5,6 +5,8 @@ import { format, formatDistanceToNow, differenceInDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import Button from "@mui/material/Button";
 import { updateItem } from "../api/calls";
+import Link from "@mui/material/Link";
+import Icon from "@mui/material/Icon";
 
 interface InventoryItemProps {
   id: number;
@@ -48,7 +50,27 @@ export function InventoryItem(props: InventoryItemProps) {
       <br />
 
       <Box sx={{ mt: 1 }}>
-        <Typography variant="h5">{item ? item.name : ""}</Typography>
+        <Typography variant="h5">
+          <Link href={`/items/${item.id}`}>{item ? item.name : ""}</Link>
+          {item.status == "out" && (
+            <Icon
+              fontSize="small"
+              color="secondary"
+              sx={{ opacity: 0.7, pt: 0.2, ml: 1 }}
+            >
+              logout
+            </Icon>
+          )}
+          {!item.enabled && (
+            <Icon
+              fontSize="small"
+              color="error"
+              sx={{ opacity: 0.7, pt: 0.2, ml: 1 }}
+            >
+              construction
+            </Icon>
+          )}
+        </Typography>
         Vu la dernière fois{" "}
         <Box sx={{ display: "inline", color: dayscolor(days) }}>
           {days
