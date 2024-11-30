@@ -67,6 +67,7 @@ def publish_gsheets():
                 subquery.c.status.alias("status"),
                 subquery.c.user_id.alias("user_id"),
                 peewee.fn.Count(Loan.id).alias("nbloans"),
+                peewee.fn.Max(Loan.stop).alias("lastloan"),
             )
             .order_by(Item.id)
             .left_outer_join(Loan)
@@ -90,8 +91,9 @@ def publish_gsheets():
                 or " ",
                 ((i.status == "out") and user_mapping[i.user_id]) or " ",
                 i.notes,
-                i.created_at.strftime("%d/%m/%Y"),
+                (i.lastloan and i.lastloan.strftime("%d/%m/%Y")) or " ",
                 i.lastseen.strftime("%d/%m/%Y"),
+                i.created_at.strftime("%d/%m/%Y"),
             ]
             for i in query.objects()
         ]

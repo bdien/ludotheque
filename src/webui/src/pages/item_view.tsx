@@ -248,7 +248,11 @@ export function Item(props: ItemProps) {
       <Box sx={{ textAlign: "center", flex: 1, marginBottom: "8px" }}>
         {displayPlayer(item)}
         {displayGametime(item)}
-        {item.age ? <AgeChip icon="cake" size="medium" age={item.age} /> : ""}
+        {item.age !== undefined ? (
+          <AgeChip icon="cake" size="medium" age={item.age} />
+        ) : (
+          ""
+        )}
       </Box>
 
       {(item.description ||

@@ -24,7 +24,10 @@ async def lifespan(app: FastAPI):
 
     # Every day at 13h, update Google Sheets
     scheduler.add_job(
-        api.gsheets.publish_gsheets, "cron", hour=13, misfire_grace_time=None
+        api.gsheets.publish_gsheets,
+        "cron",
+        hour=13,
+        misfire_grace_time=None,
     )
     # Every saturday at 12h45, reset the status of all benevoles
     scheduler.add_job(
