@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, createRef } from "react";
 import { useItemsLastseen } from "../api/hooks";
 import Box from "@mui/material/Box";
 import { TextField, Typography } from "@mui/material";
@@ -10,7 +10,14 @@ export function Inventory() {
   const { items, mutate } = useItemsLastseen();
   if (!items) return "Loading";
 
+  let inputRef: React.RefObject<HTMLInputElement> = createRef();
+
   function onClick() {
+    setItemId(undefined);
+    if (inputRef.current) {
+      inputRef.current.value = "";
+      inputRef.current.focus();
+    }
     mutate();
   }
 
@@ -28,6 +35,7 @@ export function Inventory() {
       <Box display="inline">
         <h3>Numéro de jeu</h3>
         <TextField
+          inputRef={inputRef}
           style={{ width: "8em" }}
           type="number"
           onChange={debounce((e) => setItemId(parseInt(e.target.value)), 400)}
