@@ -129,6 +129,26 @@ export function useItemsLastseen(props?: useItemsLastseenProps) {
   };
 }
 
+interface ItemLessLoanedEntry extends ItemModel {
+  id: number;
+  lastseen: string;
+}
+
+export function useItemsLessLoaned() {
+  const { data, error, isLoading, mutate } = useSWR<ItemLessLoanedEntry[]>(
+    `${SERVER_URL}//items/nbloans`,
+    fetcher,
+    { dedupingInterval: 60000 },
+  );
+
+  return {
+    items: data,
+    isLoading,
+    error,
+    mutate,
+  };
+}
+
 interface Category {
   id: number;
   name: string;

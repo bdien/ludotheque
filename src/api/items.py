@@ -155,6 +155,29 @@ def get_items_lastseen(days: int = 365):
         )
 
 
+@router.get("/items/nbloans", tags=["items"])
+def get_items_nbloans():
+    with db:
+        subquery = (
+            Item.select(
+                Item.id,
+                peewee.fn.Count(Loan.id).alias("nbloans"),
+            )
+            .left_outer_join(Loan)
+            .group_by(Item.id)
+        )
+
+        query = (
+            Item.select(Item, subquery.c.nbloans)
+            .order_by(subquery.c.nbloans.asc(), Item.id.desc())
+            .left_outer_join(subquery, on=(Item.id == subquery.c.id))
+            .where(Item.enabled)
+            .limit(20)
+        )
+
+        return list(query.dicts())
+
+
 @router.get("/items/search", tags=["items"])
 def search_item(q: str | None = None):
     "Return a list of max 10 items matching filter (and not already loaned)"
