@@ -199,14 +199,16 @@ export function Item(props: ItemProps) {
             aria-label="edit"
             onClick={() => navigate(`/items/${item.id}/edit`)}
           >
-            <Icon sx={{ fontSize: "1.5em" }}>edit</Icon>
+            <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
+              edit
+            </Icon>
           </IconButton>
         )}
 
         {/* Favorite button */}
         {user && user.id != 0 && (
           <IconButton onClick={() => changeFav(item.id, isFav)}>
-            <Icon sx={{ fontSize: "1.5em" }}>
+            <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
               {isFav ? "favorite" : "favorite_outline"}
             </Icon>
           </IconButton>

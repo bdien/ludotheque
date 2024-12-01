@@ -100,7 +100,7 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
         query = query.where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
 
     if sort == "created_at":
-        query = query.order_by(Item.created_at.desc())
+        query = query.order_by(Item.created_at.desc(), Item.id.desc())
     else:
         query = query.order_by(Item.id.asc())
 
