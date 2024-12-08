@@ -41,6 +41,7 @@ def create_all_tables(drop=False):
         Ledger,
         Rating,
         Booking,
+        Log,
     ]
     if drop:
         db.drop_tables(tbls)
@@ -159,3 +160,9 @@ class Rating(BaseModel):
 
     class Meta:
         indexes = ((("item", "source", "user"), True),)
+
+
+class Log(BaseModel):
+    user = peewee.ForeignKeyField(model=User)
+    text = peewee.CharField(null=True)
+    created_at = peewee.DateTimeField(default=datetime.now)

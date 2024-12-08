@@ -238,7 +238,7 @@ def test_loan_subscription_finaldate(origdate, finaldate):
     client.post("/loans", json={"user": user.id, "items": [-1]}, headers=AUTH_ADMIN)
 
     with db:
-        user = User.get(user)
+        user = User.get(id=user.id)
         assert user.subscription == finaldate
 
 

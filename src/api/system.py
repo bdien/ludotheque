@@ -12,7 +12,7 @@ import tarfile
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
-from api.pwmodels import Item, Loan, User, EMail, db
+from api.pwmodels import Item, Loan, User, EMail, Log, db
 from api import config
 
 
@@ -245,3 +245,19 @@ def remove_all_benevoles():
 
     with db:
         User.update(role="user").where(User.role == "benevole").execute()
+
+
+def log_event(user: User, text: str):
+    try:
+        if db_need_opening := db.is_closed():
+            db.connect()
+        Log.create(user=user.id, text=text)
+    finally:
+        if db_need_opening:
+            db.close()
+
+
+def clear_logs():
+    onemonth_ago = datetime.date.today() - datetime.timedelta(days=31)
+    with db:
+        Log.delete().where(Log.created_at < onemonth_ago).execute()

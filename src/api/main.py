@@ -38,9 +38,17 @@ async def lifespan(app: FastAPI):
         minute=45,
         misfire_grace_time=None,
     )
-    scheduler.start()
+    # Every week, clear logs
+    scheduler.add_job(
+        api.system.clear_logs,
+        "cron",
+        day_of_week="sun",
+        hour=23,
+        misfire_grace_time=None,
+    )
 
     # Let FastAPI handle HTTP requests
+    scheduler.start()
     yield
 
     # Shutdown

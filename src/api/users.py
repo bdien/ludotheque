@@ -9,7 +9,7 @@ import jinja2
 import peewee
 from api.pwmodels import Booking, Favorite, Item, Loan, User, EMail, db
 from fastapi import APIRouter, HTTPException, Request, Depends
-from api.system import auth_user, send_email, check_auth
+from api.system import auth_user, send_email, check_auth, log_event
 from api.config import EMAIL_MINPERIOD
 
 from playhouse.shortcuts import model_to_dict
@@ -49,6 +49,8 @@ async def create_user(request: Request, auth=Depends(auth_user)):
             # Create emails
             for email in emails:
                 EMail.create(email=email, user=user)
+
+            log_event(auth, f"Adhérent '{user.name}' ({user.id}) créé")
 
         except peewee.IntegrityError as e:
             if e.args[0] == "UNIQUE constraint failed: email.email":
@@ -258,6 +260,8 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
         for email in emails:
             EMail.insert(email=email, user=user_id).on_conflict_ignore().execute()
 
+        log_event(auth, f"Adhérent '{params['name']}' ({user_id}) modifié")
+
     return {"id": user_id}
 
 
@@ -269,6 +273,7 @@ async def delete_user(user_id: int, auth=Depends(auth_user)):
         if not user:
             raise HTTPException(404)
         user.delete_instance(recursive=True)
+        log_event(auth, f"Adhérent '{user.name}' ({user.id}) supprimé")
         return "OK"
 
 
@@ -330,5 +335,7 @@ def send_user_email(user_id: int, send: bool | None = False, auth=Depends(auth_u
         if result["sent"]:
             user.last_warning = datetime.date.today()
             user.save()
+
+        log_event(auth, f"Email envoyé à '{user.name}' ({user.id})")
 
         return result

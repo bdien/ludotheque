@@ -16,7 +16,7 @@ from api.pwmodels import (
     Rating,
     db,
 )
-from api.system import auth_user, check_auth
+from api.system import auth_user, check_auth, log_event
 from api.config import IMAGE_MAX_DIM, THUMB_DIM
 from fastapi import APIRouter, HTTPException, Request, Depends
 from playhouse.shortcuts import model_to_dict
@@ -67,6 +67,8 @@ async def create_item(request: Request, auth=Depends(auth_user)):
                 ItemCategory.insert(
                     item=item, category=i
                 ).on_conflict_ignore().execute()
+
+            log_event(auth, f"Jeu '{item.name}' ({item.id}) créé")
 
             return model_to_dict(item)
         except peewee.IntegrityError as e:
@@ -365,6 +367,8 @@ async def modify_item(item_id: int, request: Request, auth=Depends(auth_user)):
             ).execute()
             ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
 
+    log_event(auth, f"Jeu '{item.name}' ({item.id}) modifié")
+
     return {"id": item.id}
 
 
@@ -429,6 +433,8 @@ async def delete_item(item_id: int, auth=Depends(auth_user)):
                 os.unlink(f"{LUDO_STORAGE}/img/{p}")
             with contextlib.suppress(Exception):
                 os.unlink(f"{LUDO_STORAGE}/thumb/{p}")
+
+        log_event(auth, f"Jeu '{item.name}' ({item.id}) supprimé")
 
         return "OK"
 

@@ -13,7 +13,7 @@ app.dependency_overrides[auth_user] = fake_auth_user
 def test_book():
     with db:
         item = Item.create(id=5, name="item1")
-        user = User.create(id=AUTH_USER_ID, name="user")
+        user = User.get(id=AUTH_USER_ID)
 
     # Book
     response = client.post("/bookings", json={"item": item.id}, headers=AUTH_USER)
@@ -36,7 +36,6 @@ def test_book():
 def test_book_twice():
     with db:
         item = Item.create(id=5, name="item1")
-        User.create(id=AUTH_USER_ID, name="user")
 
     response = client.post("/bookings", json={"item": item.id}, headers=AUTH_USER)
     assert response.status_code == 200
@@ -47,7 +46,6 @@ def test_book_twice():
 def test_book_BOOKING_MAX():
     with db:
         items = [Item.create(name="item") for _ in range(BOOKING_MAX + 1)]
-        User.create(id=AUTH_USER_ID, name="user")
 
     for i in range(BOOKING_MAX):
         response = client.post(
@@ -61,17 +59,11 @@ def test_book_BOOKING_MAX():
 
 
 def test_book_nonexistant_item():
-    with db:
-        User.create(id=AUTH_USER_ID, name="user")
-
     response = client.post("/bookings", json={"item": 666}, headers=AUTH_USER)
     assert response.status_code == 400
 
 
 def test_unbook_without_book():
-    with db:
-        User.create(id=AUTH_USER_ID, name="user")
-
     response = client.delete("/bookings/1234", headers=AUTH_USER)
     assert response.status_code == 400
 

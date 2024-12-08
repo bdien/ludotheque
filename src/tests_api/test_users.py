@@ -133,17 +133,15 @@ def test_get_users():
     del User1["emails"]
 
     print(json.dumps(users, indent=2))
-    assert len(users) == 2
-    assert set(users[0]["emails"]) == {"2@nomail", "alice@nomail"}
-    assert User1.items() <= users[0].items()
-    assert User2.items() <= users[1].items()
+    assert len(users) == 4  # 2 already created in conftest
+    assert set(users[1]["emails"]) == {"2@nomail", "alice@nomail"}
+    assert User1.items() <= users[1].items()
+    assert User2.items() <= users[2].items()
 
     # Limit get Users to 1 User
     response = client.get("/users?nb=1", headers=AUTH_ADMIN)
     users = response.json()
     assert len(users) == 1
-    assert set(users[0]["emails"]) == {"2@nomail", "alice@nomail"}
-    assert User1.items() <= users[0].items()
 
 
 @pytest.mark.parametrize("pattern", ["Hélène", "helen", "len"])
@@ -174,9 +172,9 @@ def test_get_users_loancount():
     user_id = response.json()["id"]
 
     # Check API
-    response = client.get("/users", headers=AUTH_ADMIN)
-    user = response.json()[0]
-    assert user["loans"] == 0
+    response = client.get(f"/users/{user_id}", headers=AUTH_ADMIN)
+    user = response.json()
+    assert len(user["loans"]) == 0
 
     # Create a loan
     response = client.post("/items", json={"name": "obj"}, headers=AUTH_ADMIN)
@@ -189,33 +187,35 @@ def test_get_users_loancount():
     response.json()["loans"][0]["id"]
 
     # Check API
-    response = client.get("/users", headers=AUTH_ADMIN)
-    user = response.json()[0]
-    assert user["loans"] == 1
+    response = client.get(f"/users/{user_id}", headers=AUTH_ADMIN)
+    user = response.json()
+    assert len(user["loans"]) == 1
 
 
 def test_user_use_lowest_id():
     "Check if lowest possible ID is used"
 
-    newjson = {"name": "A", "email": "A"}
-    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
-    newUser = response.json()
-    assert newUser["id"] == 1
+    # 1 is already created
 
-    newjson = {"name": "B", "email": "B"}
+    newjson = {"name": "A", "email": "A"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
     newUser = response.json()
     assert newUser["id"] == 2
 
-    newjson = {"name": "D", "email": "D"}
+    newjson = {"name": "B", "email": "B"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
     newUser = response.json()
     assert newUser["id"] == 3
 
+    newjson = {"name": "D", "email": "D"}
+    response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
+    newUser = response.json()
+    assert newUser["id"] == 4
+
     with db:
-        User.delete().where(User.id == 1).execute()
+        User.delete().where(User.id == 2).execute()
 
     newjson = {"name": "E", "email": "E"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
     newUser = response.json()
-    assert newUser["id"] == 1
+    assert newUser["id"] == 2

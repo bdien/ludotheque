@@ -182,7 +182,7 @@ def test_get_items_loaned():
 def test_get_items_bookings():
     with db:
         item = Item.create(id=5, name="item1")
-        user = User.create(id=AUTH_USER_ID, name="user")
+        user = User.get(id=AUTH_USER_ID)
         Booking.create(user=user, item=item)
 
     # Check in API (Non-auth user)

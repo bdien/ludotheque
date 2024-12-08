@@ -36,6 +36,8 @@ def dbtables():
 
         with database:
             api.pwmodels.create_all_tables()
+            api.pwmodels.User.create(id=1, name="admin")
+            api.pwmodels.User.create(id=8, name="user")
         logging.getLogger("peewee").setLevel(logging.DEBUG)
         yield None
 
