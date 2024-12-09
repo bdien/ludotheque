@@ -127,7 +127,7 @@ export interface ApiError {
 
 export interface LedgerEntry {
   operator_id: number;
-  user_id: number;
+  user: number;
   loan_id?: number;
   item_id: number;
   cost: number;

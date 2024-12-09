@@ -92,7 +92,7 @@ class Item(BaseModel):
     content = JSONField(null=True)
     pictures = JSONField(default=[])
     notes = peewee.TextField(null=True)
-    lastseen = peewee.DateField(default=date.today, null=True)
+    lastseen = peewee.DateField(default=date.today)
     created_at = peewee.DateField(default=date.today)
 
 
@@ -126,7 +126,7 @@ class ItemLink(BaseModel):
 
 
 class Loan(BaseModel):
-    user = peewee.ForeignKeyField(model=User)
+    user = peewee.ForeignKeyField(model=User, null=True)
     item = peewee.ForeignKeyField(model=Item)
     start = peewee.DateField(default=date.today)
     stop = peewee.DateField(default=today_plus_loantime, index=True)
@@ -141,9 +141,9 @@ class Booking(BaseModel):
 
 
 class Ledger(BaseModel):
-    operator_id = peewee.IntegerField()
-    user_id = peewee.IntegerField()  # Source of the transfer
-    loan_id = peewee.IntegerField(null=True)
+    operator_id = peewee.ForeignKeyField(model=User, null=True)
+    user = peewee.ForeignKeyField(model=User, null=True)  # Source of the transfer
+    loan_id = peewee.ForeignKeyField(model=Loan, null=True)
     item_id = peewee.IntegerField(null=True)
     cost = peewee.FloatField()  # Cost of transaction
     money = peewee.FloatField()  # Physical money recevied
@@ -163,6 +163,6 @@ class Rating(BaseModel):
 
 
 class Log(BaseModel):
-    user = peewee.ForeignKeyField(model=User)
+    user = peewee.ForeignKeyField(model=User, null=True)
     text = peewee.CharField(null=True)
     created_at = peewee.DateTimeField(default=datetime.now)

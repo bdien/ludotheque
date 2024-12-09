@@ -56,7 +56,7 @@ def test_create_user_invalid_credit():
 
 
 def test_delete_user():
-    "Create a user with loans, everything must be removed (except item)"
+    "Create a user with loans, everything must be replaced by NULL (except item)"
     response = client.post(
         "/users", json={"name": "bob", "email": "bob@nomail"}, headers=AUTH_ADMIN
     )
@@ -77,7 +77,8 @@ def test_delete_user():
     # Check in DB
     with db:
         assert not User.get_or_none(User.id == user_id)
-        assert not Loan.get_or_none(Loan.id == loan_id)
+        loan = Loan.get_or_none(Loan.id == loan_id)
+        assert loan.user_id is None
         assert not EMail.get_or_none(EMail.email == "bob@nomail")
         assert Item.get_or_none(Item.id == item_id)
 

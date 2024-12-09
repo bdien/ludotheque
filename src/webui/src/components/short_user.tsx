@@ -7,7 +7,10 @@ export function ShortUser({ user_id }: { user_id: number }) {
   const { users } = useUsers();
 
   const user = users ? users.get(user_id) : null;
-  if (!user) return <>Adhérent {user_id}</>;
+  if (!user) {
+    if (user_id) return <>Adhérent {user_id}</>;
+    return <>Ancien adhérent</>;
+  }
 
   return (
     <Link href={`/users/${user.id}`} style={{ textDecoration: "none" }}>

@@ -54,8 +54,10 @@ function highlevelSummary(
 }
 
 function summary(entries: LedgerEntry[], loansIn: Loan[]) {
-  const entriesByUser = groupBy(entries, (i) => i.user_id);
-  const loansInByUser = groupBy(loansIn, (i) => i.user);
+  const entriesByUser = groupBy(entries, (i) => i.user); // loans+card+subscription
+  const loansInByUser = groupBy(loansIn, (i) => i.user); // returns
+
+  // Mix users that loaned some items and those that returned items
   const users = [...entriesByUser.keys(), ...loansInByUser.keys()];
 
   return (
@@ -104,7 +106,8 @@ function summaryPerUser(entries: LedgerEntry[], loansIn: Loan[]) {
   const carteCount = entries.filter((e) => e.item_id === -2).length;
   if (carteCount) summary.push("Carte");
 
-  const itemCount = entries.filter((e) => e.item_id > 0).length;
+  // Count item count (includes NULL for removed items)
+  const itemCount = entries.filter((e) => e.item_id >= 0).length;
   if (itemCount) summary.push(`${itemCount} jeu${itemCount > 1 ? "x" : ""}`);
 
   const itemReturned = loansIn.filter((i) => i.status == "in").length;
