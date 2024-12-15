@@ -5,7 +5,7 @@ from api.system import auth_user
 from api.pwmodels import Booking, Category, Item, ItemCategory, ItemLink, Loan, User, db
 from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
-from tests_api.conftest import AUTH_USER_ID
+from tests_api.conftest import AUTH_USER_ID, headers_auth
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user
@@ -287,3 +287,36 @@ def test_modif_links():
     with db:
         links = [i.name for i in ItemLink.select().where(ItemLink.item == item)]
         assert links == ["2"]
+
+
+def test_get_loans():
+    with db:
+        user1 = User.create(name="un")
+        user2 = User.create(name="deux")
+        item = Item.create(name="item")
+        loan1 = Loan.create(item=item, user=user1)
+        loan1b = Loan.create(item=item, user=user1)
+        loan2 = Loan.create(item=item, user=user2)
+
+    # Not authenticated, no loans
+    response = client.get(f"/items/{item.id}")
+    api = response.json()
+    assert "loans" not in api
+
+    # Admin, all loans
+    response = client.get(f"/items/{item.id}", headers=AUTH_ADMIN)
+    api = response.json()
+    ids = [i["id"] for i in api["loans"]]
+    assert ids == [loan1.id, loan1b.id, loan2.id]
+
+    # User 1 should only see his own loans
+    response = client.get(f"/items/{item.id}", headers=headers_auth(user1))
+    api = response.json()
+    ids = [i["id"] for i in api["loans"]]
+    assert ids == [loan1.id, loan1b.id]
+
+    # User 2 should only see his own loan
+    response = client.get(f"/items/{item.id}", headers=headers_auth(user2))
+    api = response.json()
+    ids = [i["id"] for i in api["loans"]]
+    assert ids == [loan2.id]

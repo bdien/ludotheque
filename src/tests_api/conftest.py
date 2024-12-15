@@ -14,6 +14,10 @@ AUTH_USER_ID = 8
 AUTH_ADMIN = {"Authorization": "1,admin"}
 
 
+def headers_auth(user: api.pwmodels.User) -> dict[str, str]:
+    return {"Authorization": f"{user.id},{user.role}"}
+
+
 @pytest.fixture(autouse=True, scope="module")
 def _maxlogging():
     "Force max logging"
@@ -36,7 +40,7 @@ def dbtables():
 
         with database:
             api.pwmodels.create_all_tables()
-            api.pwmodels.User.create(id=1, name="admin")
+            api.pwmodels.User.create(id=1, name="admin", role="admin")
             api.pwmodels.User.create(id=8, name="user")
         logging.getLogger("peewee").setLevel(logging.DEBUG)
         yield None
