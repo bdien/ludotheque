@@ -18,6 +18,7 @@ import {
   styled,
   Paper,
   IconButton,
+  Alert,
 } from "@mui/material";
 import MuiAccordionSummary, {
   AccordionSummaryProps,
@@ -26,7 +27,8 @@ import Chip from "@mui/material/Chip";
 import ReactMarkdown from "react-markdown";
 import { ShortUser } from "../components/short_user";
 import EmblaCarousel from "../components/EmblaCarousel";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 import { favItem, unfavItem } from "../api/calls";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -170,6 +172,10 @@ export function Item(props: ItemProps) {
     });
   }
 
+  const ownLoans = item.loans
+    ? item.loans.filter((i) => i.user == account.id)
+    : [];
+
   const isFav = user?.favorites.indexOf(item.id) != -1;
 
   const pictures = item.pictures?.length
@@ -261,6 +267,17 @@ export function Item(props: ItemProps) {
         (item.categories && item.categories?.length > 0) ||
         (item.links && item.links?.length > 0)) && (
         <Box component={Paper} sx={{ px: 2, py: 1, mb: 1 }}>
+          {/* Dernier emprunt */}
+          {ownLoans.length > 0 && (
+            <Alert>
+              Vous avez emprunté ce jeu{" "}
+              {formatDistanceToNow(ownLoans[0].start, {
+                locale: fr,
+                addSuffix: true,
+              })}{" "}
+            </Alert>
+          )}
+
           {/* Description */}
           {item.description && (
             <ReactMarkdown>{item.description}</ReactMarkdown>
