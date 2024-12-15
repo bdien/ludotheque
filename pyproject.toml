@@ -5,16 +5,16 @@ authors = [
     {name = "Benoît", email = "benoit.dien@gmail.com"},
 ]
 dependencies = [
-    "peewee~=3.17",
-    "requests~=2.32",
-    "fastapi~=0.115",
-    "uvicorn[standard]~=0.32",
-    "python-multipart~=0.0",
-    "Pillow~=11.0",
-    "cachetools~=5.5",
-    "gspread~=6.1",
-    "apscheduler~=3.10",
-    "jinja2~=3.1",
+    "peewee>=3.17.8",
+    "requests>=2.32.3",
+    "fastapi>=0.115.6",
+    "uvicorn[standard]>=0.33.0",
+    "python-multipart>=0.0.19",
+    "Pillow>=11.0.0",
+    "cachetools>=5.5.0",
+    "gspread>=6.1.4",
+    "apscheduler>=3.11.0",
+    "jinja2>=3.1.4",
 ]
 requires-python = ">=3.11"
 license = {text = "GPL2"}
@@ -51,17 +51,16 @@ api = {shell = "cd src/api && uvicorn main:app --reload"}
 api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
 webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
 restore = { shell = "rm -rf storage/img storage/thumb storage/ludotheque.db; curl -H \"Authorization: Bearer $LUDOTHEQUE_APIKEY\" -s https://ludotheque.fly.dev/api/backup | tar x" }
-outdated = "pdm update --dry-run --unconstrained --top"
 
 [dependency-groups]
 dev = [
-    "ruff>=0.8.0",
-    "pre-commit~=4.0",
-    "pytest~=8.3",
-    "httpx~=0.27",
-    "pytest-cov~=6.0",
-    "mypy~=1.13",
-    "freezegun~=1.5",
+    "ruff>=0.8.3",
+    "pre-commit>=4.0.1",
+    "pytest>=8.3.4",
+    "httpx>=0.28.1",
+    "pytest-cov>=6.0.0",
+    "mypy>=1.13.0",
+    "freezegun>=1.5.1",
 ]
 cli = [
     "questionary>=2.0.1",
