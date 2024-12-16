@@ -1,3 +1,4 @@
+import Link from "@mui/material/Link";
 import Box from "@mui/material/Box";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -379,7 +380,7 @@ export function Item(props: ItemProps) {
       )}
 
       {/* Loan history */}
-      {item?.loans?.length && (
+      {item?.loans?.length ? (
         <Accordion>
           <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
             Emprunts ({nb_loans_percent(item, 365)}% du temps cette année)
@@ -398,7 +399,16 @@ export function Item(props: ItemProps) {
                   {item.loans.map((i) => (
                     <TableRow key={i.id}>
                       <TableCell>
-                        <ShortUser user_id={i.user} />
+                        {account.id == i.user ? (
+                          <Link
+                            href={`/users/${i.user}`}
+                            style={{ textDecoration: "none" }}
+                          >
+                            Vous
+                          </Link>
+                        ) : (
+                          <ShortUser user_id={i.user} />
+                        )}
                       </TableCell>
                       <TableCell>
                         {new Date(i.start).toLocaleDateString(undefined, {
@@ -423,6 +433,8 @@ export function Item(props: ItemProps) {
             </TableContainer>
           </AccordionDetails>
         </Accordion>
+      ) : (
+        ""
       )}
     </>
   );

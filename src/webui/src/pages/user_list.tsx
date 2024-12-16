@@ -196,7 +196,7 @@ export function UserList() {
                         {row.subscription &&
                           new Date(row.subscription) <= today && (
                             <Icon
-                              title="Adhésion en retard"
+                              title="Adhésion expirée"
                               color="secondary"
                               sx={{ mx: 0.5 }}
                             >

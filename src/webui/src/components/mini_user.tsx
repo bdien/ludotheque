@@ -7,7 +7,8 @@ import IconButton from "@mui/material/IconButton";
 import Icon from "@mui/material/Icon";
 import { useState } from "react";
 import Link from "@mui/material/Link";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
 import Alert from "@mui/material/Alert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
@@ -219,7 +220,11 @@ export function MiniUser(props: MiniUserProps) {
       {props.user?.subscription &&
         new Date(props.user?.subscription) <= today && (
           <Alert elevation={1} severity="error" sx={{ my: 1 }}>
-            Adhésion en retard
+            Adhésion expirée{" "}
+            {formatDistanceToNow(props.user?.subscription, {
+              locale: fr,
+              addSuffix: true,
+            })}
           </Alert>
         )}
 
