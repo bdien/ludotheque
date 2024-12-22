@@ -1,3 +1,4 @@
+import { useSWRConfig } from "swr";
 import Typography from "@mui/material/Typography";
 import { useLoan } from "../api/hooks";
 import { closeLoan, fetchItem } from "../api/calls";
@@ -16,6 +17,7 @@ interface LoanCloseProps {
 
 export function LoanClose(props: LoanCloseProps) {
   const { loan } = useLoan(props.id);
+  const { mutate } = useSWRConfig();
   const [editBusy, setEditBusy] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [item, setItem] = useState<ItemModel | null>(null);
@@ -40,7 +42,11 @@ export function LoanClose(props: LoanCloseProps) {
     setEditBusy(true);
 
     closeLoan(loan.id)
-      .then(() => navigate(returnPath || "/"))
+      .then(() => {
+        mutate(`/api/users/${loan.user}`);
+        mutate(`/api/items/${loan.item}`);
+        navigate(returnPath || "/");
+      })
       .catch((err) => {
         console.log(err);
         setApiError("Erreur de communication");

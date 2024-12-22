@@ -248,7 +248,7 @@ export function Item(props: ItemProps) {
           filter: "drop-shadow(0px 3px 4px rgba(100,100,100,0.3))",
         }}
       >
-        {item.name}
+        {item.name} ({item.id})
       </Typography>
 
       <Box sx={{ textAlign: "center", flex: 1, marginBottom: "8px" }}>

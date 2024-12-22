@@ -1,3 +1,4 @@
+import { useSWRConfig } from "swr";
 import { useLocation } from "wouter";
 import { createLoan, fetchItem, fetchUser } from "../api/calls";
 import { useEffect, useState } from "react";
@@ -25,6 +26,7 @@ export function Loan() {
   const queryParameters = new URLSearchParams(window.location.search);
   const initialItem = queryParameters.get("item");
   const initialUser = queryParameters.get("user");
+  const { mutate } = useSWRConfig();
   const { info } = useInfo();
   const [_location, setLocation] = useLocation();
   const [editBusy, setEditBusy] = useState<boolean>(false);
@@ -64,6 +66,8 @@ export function Loan() {
       false,
     )
       .then(() => {
+        mutate(`/api/users/${user.id}`);
+        items.map((i) => mutate(`/api/items/${i.id}`));
         setLocation(`/users/${user.id}`);
       })
       .catch((err) => {
