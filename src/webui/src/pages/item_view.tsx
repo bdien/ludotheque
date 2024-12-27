@@ -199,17 +199,49 @@ export function Item(props: ItemProps) {
           flexDirection: desktop ? "row" : "column-reverse",
         }}
       >
-        {/* Edit Button */}
         {(account?.role == "admin" || account?.role == "benevole") && (
-          <IconButton
-            sx={{ fontSize: "1.5em" }}
-            aria-label="edit"
-            onClick={() => navigate(`/items/${item.id}/edit`)}
-          >
-            <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
-              edit
-            </Icon>
-          </IconButton>
+          <>
+            {/* Loan button */}
+            {item.status == "out" ? (
+              <IconButton
+                sx={{ fontSize: "1.5em" }}
+                title="Rendre"
+                onClick={() =>
+                  navigate(
+                    `/loans/${item.loans ? item.loans[0].id : 0}/close?return=${
+                      window.location.pathname
+                    }`,
+                  )
+                }
+              >
+                <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
+                  login
+                </Icon>
+              </IconButton>
+            ) : (
+              <IconButton
+                sx={{ fontSize: "1.5em" }}
+                title="Emprunter"
+                onClick={() => navigate(`/loans/new?item=${item.id}`)}
+              >
+                <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
+                  logout
+                </Icon>
+              </IconButton>
+            )}
+
+            {/* Edit Button */}
+            <IconButton
+              sx={{ fontSize: "1.5em" }}
+              aria-label="edit"
+              title="Editer"
+              onClick={() => navigate(`/items/${item.id}/edit`)}
+            >
+              <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
+                edit
+              </Icon>
+            </IconButton>
+          </>
         )}
 
         {/* Favorite button */}

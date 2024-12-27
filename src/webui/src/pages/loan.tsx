@@ -148,14 +148,14 @@ export function Loan() {
       )}
 
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
           Emprunteur
         </Typography>
         <UserSearch user={user} setUser={changeUser} />
       </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
           Jeux
         </Typography>
         <Box display="flex" sx={{ mb: 1.5 }}>
@@ -192,19 +192,24 @@ export function Loan() {
       </Box>
 
       {loanResult && (
-        <Box sx={{ mb: 2, position: "relative" }}>
-          Règlement:
-          <br />
-          <ul>
-            <li>
-              Total: <b>{loanResult.topay.real}€</b>
-              {loanResult.topay.credit
-                ? ` (${loanResult.topay.credit}€ pris sur la carte)`
-                : ""}
-            </li>
-            {user?.role == "benevole" && <li>Avantage Bénévole</li>}
-            {user?.role == "admin" && <li>Avantage Membre du Bureau</li>}
-          </ul>
+        <Box>
+          <Typography variant="h6" sx={{ mb: 0 }}>
+            Total
+          </Typography>
+          <Typography sx={{ mr: "10%" }} align="right" variant="h2">
+            <b>{loanResult.topay.real}€</b>
+          </Typography>
+
+          {loanResult.topay.credit || user?.role != "user" ? (
+            <Box sx={{ textAlign: "right", mr: "10%" }}>
+              {loanResult.topay.credit > 0 &&
+                `${loanResult.topay.credit}€ pris sur la carte`}
+              {user?.role == "benevole" && "Bénévole"}
+              {user?.role == "admin" && "Membre du Bureau"}
+            </Box>
+          ) : (
+            ""
+          )}
         </Box>
       )}
 
