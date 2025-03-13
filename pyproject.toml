@@ -21,7 +21,7 @@ license = {text = "GPL2"}
 dynamic = [ "version" ]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "C", "W", "RUF", "UP", "SIM", "PIE", "PLE", "S", "G", "PT", "RET"]

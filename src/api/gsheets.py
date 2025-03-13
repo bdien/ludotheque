@@ -46,7 +46,7 @@ def publish_gsheets():
             ]
             for user in users
         ]
-    range = f"A2:{chr(65+len(user_data[0]))}{len(user_data)+1}"
+    range = f"A2:{chr(65 + len(user_data[0]))}{len(user_data) + 1}"
     wks.update(range, user_data)
 
     # Build user mapping
@@ -98,5 +98,5 @@ def publish_gsheets():
             for i in query.objects()
         ]
 
-    range = f"A2:{chr(65+len(data[0]))}{len(data)+1}"
+    range = f"A2:{chr(65 + len(data[0]))}{len(data) + 1}"
     wks.update(range, data)

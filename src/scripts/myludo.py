@@ -38,7 +38,7 @@ class MyLudo:
         )
 
         game_list = r.json()["list"]
-        return {f'{i["title"]} ({i["id"]})': i["id"] for i in game_list}
+        return {f"{i['title']} ({i['id']})": i["id"] for i in game_list}
 
     def game(self, game_id: int) -> dict:
         r = self.session.get(
