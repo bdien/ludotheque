@@ -2,6 +2,7 @@ import datetime
 import os
 import json
 import peewee
+from collections import defaultdict
 import gspread
 from api.pwmodels import db, User, Loan, Item, EMail
 
@@ -32,13 +33,26 @@ def publish_gsheets():
             .switch()
             .left_outer_join(
                 Loan,
-                on=(
-                    (Loan.user == User.id)
-                    & (Loan.status == "out")
-                    & (Loan.start > one_year_ago)
-                ),
+                on=((Loan.user == User.id) & (Loan.status == "out")),
             )
             .group_by(User.id)
+        )
+
+        # Total number of loans + mean time
+        totalloans_per_userid = defaultdict(
+            lambda: (0, 0),
+            {
+                i.user_id: (i.nb, i.time / i.nb)
+                for i in Loan.select(
+                    Loan.user,
+                    peewee.fn.Count(1).alias("nb"),
+                    peewee.fn.Sum(
+                        peewee.fn.julianday(Loan.stop) - peewee.fn.julianday(Loan.start)
+                    ).alias("time"),
+                )
+                .where(Loan.start > one_year_ago)
+                .group_by(Loan.user)
+            },
         )
 
         user_data = [
@@ -47,6 +61,8 @@ def publish_gsheets():
                 user.name,
                 (user.email_set and user.email_set[0].email) or "",
                 (user.enabled and " ") or "Désactivé",
+                totalloans_per_userid[user.id][0],
+                totalloans_per_userid[user.id][1],
                 user.loans,
                 (user.oldest_loan and user.oldest_loan.strftime("%d/%m/%Y")) or "",
                 user.credit,
@@ -101,7 +117,7 @@ def publish_gsheets():
                 or ((not i.enabled) and "Désactivé")
                 or " ",
                 ((i.status == "out") and user_mapping[i.user_id]) or " ",
-                i.notes,
+                i.notes or " ",
                 (i.lastloan and i.lastloan.strftime("%d/%m/%Y")) or " ",
                 i.lastseen.strftime("%d/%m/%Y"),
                 i.created_at.strftime("%d/%m/%Y"),
