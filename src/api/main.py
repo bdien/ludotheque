@@ -22,6 +22,8 @@ with contextlib.suppress(Exception):
 async def lifespan(app: FastAPI):
     scheduler = BackgroundScheduler()
 
+    api.gsheets.publish_gsheets()
+
     # Every day at 13h, update Google Sheets
     scheduler.add_job(
         api.gsheets.publish_gsheets,

@@ -258,6 +258,6 @@ def log_event(user: User, text: str):
 
 
 def clear_logs():
-    onemonth_ago = datetime.date.today() - datetime.timedelta(days=31)
+    three_months_ago = datetime.date.today() - datetime.timedelta(weeks=12)
     with db:
-        Log.delete().where(Log.created_at < onemonth_ago).execute()
+        Log.delete().where(Log.created_at < three_months_ago).execute()
