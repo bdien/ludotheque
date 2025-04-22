@@ -1,3 +1,4 @@
+import datetime
 import os
 import json
 import peewee
@@ -17,6 +18,7 @@ def publish_gsheets():
 
     gc = gspread.service_account_from_dict(account)
     sht = gc.open_by_key(SHEET_ID)
+    one_year_ago = datetime.date.today() - datetime.timedelta(days=365)
 
     wks = sht.worksheet("Adhérents")
     with db:
@@ -28,7 +30,14 @@ def publish_gsheets():
             )
             .left_outer_join(EMail)
             .switch()
-            .left_outer_join(Loan, on=((Loan.user == User.id) & (Loan.status == "out")))
+            .left_outer_join(
+                Loan,
+                on=(
+                    (Loan.user == User.id)
+                    & (Loan.status == "out")
+                    & (Loan.start > one_year_ago)
+                ),
+            )
             .group_by(User.id)
         )
 
@@ -38,7 +47,7 @@ def publish_gsheets():
                 user.name,
                 (user.email_set and user.email_set[0].email) or "",
                 (user.enabled and " ") or "Désactivé",
-                user.loans / max(1, len(user.email_set)),
+                user.loans,
                 (user.oldest_loan and user.oldest_loan.strftime("%d/%m/%Y")) or "",
                 user.credit,
                 user.subscription.strftime("%d/%m/%Y"),
@@ -70,7 +79,9 @@ def publish_gsheets():
                 peewee.fn.Max(Loan.stop).alias("lastloan"),
             )
             .order_by(Item.id)
-            .left_outer_join(Loan)
+            .left_outer_join(
+                Loan, on=((Loan.item == Item.id) & (Loan.start > one_year_ago))
+            )
             .group_by(Item.id)
         )
 
