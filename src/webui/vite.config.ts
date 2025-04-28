@@ -42,7 +42,8 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
   manifest: {
     name: "Ludo du Poisson-Lune",
     short_name: "Ludothèque",
-    description: "Ludothèque du Poisson-Lune d'Acigné. Gérez vos emprunts, parcourez la liste des jeux.",
+    description:
+      "Ludothèque du Poisson-Lune d'Acigné. Gérez vos emprunts, parcourez la liste des jeux.",
     lang: "fr",
     screenshots: [
       {
@@ -62,7 +63,7 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
         sizes: "376x731",
         form_factor: "narrow",
         type: "image/webp",
-      }
+      },
     ],
     icons: [
       {
@@ -107,6 +108,7 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
 export default defineConfig({
   plugins: [react(), VitePWA(manifestForPlugin)],
   server: {
+    allowedHosts: ["ludotest.10av.fr"],
     proxy: {
       "/api": {
         target: "http://localhost:8000",

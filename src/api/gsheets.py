@@ -67,6 +67,7 @@ def publish_gsheets():
                 (user.oldest_loan and user.oldest_loan.strftime("%d/%m/%Y")) or "",
                 user.credit,
                 user.subscription.strftime("%d/%m/%Y"),
+                user.lastseen.strftime("%d/%m/%Y"),
                 user.created_at.strftime("%d/%m/%Y"),
             ]
             for user in users

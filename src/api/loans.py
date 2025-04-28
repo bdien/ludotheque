@@ -90,8 +90,9 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         topay_fromcredit = min(total_costitems, user.credit)
         topay_realmoney += total_costitems - topay_fromcredit
 
-        # Update user credit
+        # Update user credit and lastseen
         user.credit -= topay_fromcredit
+        user.lastseen = datetime.date.today()
 
         # Write in DB
         loans = []
@@ -186,6 +187,11 @@ def close_loan(loan_id: int, auth=Depends(auth_user)):
         loan.stop = datetime.date.today()
         loan.status = "in"
         loan.save()
+
+        # Update user lastseen column
+        User.update(lastseen=datetime.date.today()).where(
+            User.id == loan.user
+        ).execute()
 
         # Update item lastseen column
         Item.update(lastseen=datetime.date.today()).where(

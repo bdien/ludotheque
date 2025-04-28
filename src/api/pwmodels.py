@@ -72,6 +72,7 @@ class User(BaseModel):
     apikey = peewee.CharField(null=True)
     created_at = peewee.DateField(default=date.today)
     last_warning = peewee.DateField(null=True)
+    lastseen = peewee.DateField(default=date.today)
 
 
 class EMail(BaseModel):
