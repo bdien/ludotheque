@@ -68,7 +68,7 @@ export function ImageChooser(props: ImageChooserProps) {
         <input
           type="file"
           onChange={(e) => handleFilePicker(e)}
-          accept="image/*"
+          accept="image/*,android14/force-camera-workaround"
           hidden
         />
       </Button>
