@@ -4,7 +4,7 @@ import { Auth0Provider } from "@auth0/auth0-react";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { fr } from "date-fns/locale/fr";
 import theme from "./theme";
 import App from "./App.tsx";

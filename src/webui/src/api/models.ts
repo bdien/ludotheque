@@ -87,6 +87,7 @@ export interface ItemModel {
   links?: ItemLinkModel[];
   created_at?: string;
   lastseen?: string;
+  loanstop?: string;
   status?: string;
   return?: string;
   loans?: Loan[];
@@ -152,6 +153,10 @@ export type Stats = Record<
       totalout: number;
       in: number;
       out: number;
+    };
+    users: {
+      month: number;
+      day: number;
     };
   }
 >;

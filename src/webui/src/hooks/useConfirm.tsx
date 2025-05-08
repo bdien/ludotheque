@@ -4,7 +4,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 
 // From https://medium.com/@kch062522/useconfirm-a-custom-react-hook-to-prompt-confirmation-before-action-f4cb746ebd4e
 
@@ -34,7 +34,7 @@ export function useConfirm(title: string, message: string) {
     handleClose();
   };
 
-  function ConfirmDialog(): JSX.Element {
+  function ConfirmDialog(): ReactElement {
     return (
       <Dialog
         open={promise !== null}
