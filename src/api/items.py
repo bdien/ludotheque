@@ -80,11 +80,18 @@ async def create_item(request: Request, auth: AuthUser | None = Depends(auth_use
 
 
 @router.get("/items", tags=["items"])
-def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
-    # Subquery, all item loaned
-    subquery = Loan.select(Loan.item_id, Loan.status).where(Loan.status == "out")
+def get_items(
+    auth: AuthUser | None = Depends(auth_user),
+    nb: int = 0,
+    sort: str | None = None,
+    q: str | None = None,
+):
+    # Subquery (to add the last loan)
+    subquery = Loan.select(
+        Loan.item_id, peewee.fn.MAX(Loan.stop).alias("loanstop")
+    ).group_by(Loan.item_id)
 
-    query = Item.select(
+    columns = (
         Item.id,
         Item.name,
         Item.enabled,
@@ -94,8 +101,12 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
         Item.big,
         Item.outside,
         Item.created_at,
-        subquery.c.status,
+        subquery.c.loanstop,
     )
+    if auth and auth.role == "admin":
+        columns += (Item.lastseen,)
+
+    query = Item.select(*columns)
     if nb:
         query = query.limit(nb)
     if q:
@@ -112,7 +123,15 @@ def get_items(nb: int = 0, sort: str | None = None, q: str | None = None):
     )
 
     with db:
-        return list(query.dicts())
+        now = datetime.date.today().strftime("%Y-%m-%d")
+        items = []
+        for i in query.dicts():
+            status = (((i["loanstop"] or "") < now) and "in") or "out"
+            i["status"] = status
+            if not auth or auth.role != "admin":
+                del i["loanstop"]
+            items.append(i)
+        return items
 
 
 @router.get("/items/export", tags=["items", "admin"], response_class=PlainTextResponse)

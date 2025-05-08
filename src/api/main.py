@@ -13,13 +13,25 @@ import api.ledger
 import api.gsheets
 import api.bookings
 
-logging.basicConfig(level=logging.DEBUG)
-with contextlib.suppress(Exception):
-    locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
-
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Logging
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+    rootlogger = logging.getLogger()
+    for ln in ("uvicorn.error", "uvicorn.access", "uvicorn"):
+        logger = logging.getLogger(ln)
+        for i in logger.handlers:
+            logger.removeHandler(i)
+        logger.addHandler(rootlogger.handlers[0])
+
+    # Set locale to French
+    with contextlib.suppress(Exception):
+        locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
+
     scheduler = BackgroundScheduler()
 
     # Every day at 13h, update Google Sheets
