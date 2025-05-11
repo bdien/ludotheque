@@ -33,10 +33,9 @@ export function Main() {
       )}
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
-          Pour passer un bon moment en famille ou avec les copains...
+          La<b> Ludo du Poisson Lune</b> vous propose un espace jeux pour passer
+          un bon moment en famille ou avec les copains...
           <br />
-          <br />
-          La<b> Ludo du Poisson Lune</b> vous propose un espace jeux.
           <br />
           Nous sommes ouverts <b> tous les samedis de 10h30 à 12h00</b>, hors
           les samedis du milieu des vacances scolaires, au{" "}
@@ -44,11 +43,10 @@ export function Main() {
           Acigné. Vous pouvez passer également passer pour jouer sur place !
         </p>
         <p>
-          La Ludo, c'est un choix de{" "}
-          <b>{info ? info.nbitems : "près de 1000"} jeux</b> pour tout public
-          (de 9 mois à 99 ans), pour jouer sur place ou à la maison.
-        </p>
-        <p>
+          La Ludo, c'est un choix de {info ? info.nbitems : "près de 1000"} jeux
+          pour tout public (de 9 mois à 99 ans), pour jouer sur place ou à la
+          maison.
+          <br />
           Vous pouvez nous contacter par e-mail à{" "}
           <a href="mailto:laludodupoissonlune@gmail.com">
             laludodupoissonlune@gmail.com

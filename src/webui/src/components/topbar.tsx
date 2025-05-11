@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -10,7 +10,6 @@ import Menu from "@mui/material/Menu";
 import { useAuth0 } from "@auth0/auth0-react";
 import Drawer from "@mui/material/Drawer";
 import Box from "@mui/material/Box";
-import { RandomColors } from "./random_colors";
 import Avatar from "@mui/material/Avatar";
 import { SideMenu } from "./sidemenu";
 
@@ -19,11 +18,6 @@ interface TopBarProps {
 }
 
 export function TopBar(props: TopBarProps) {
-  const logotxt = useMemo(
-    () => <RandomColors txt="Ludo du Poisson-Lune" />,
-    [],
-  );
-
   const [anchorUserMenu, setAnchorUserMenu] = useState<null | HTMLElement>(
     null,
   );
@@ -63,12 +57,30 @@ export function TopBar(props: TopBarProps) {
             <Typography
               sx={{
                 flexGrow: 1,
-                fontFamily: "Satisfy",
+                fontFamily: "Chewy",
                 fontSize: "clamp(5px, 7vw, 36px)",
-                textShadow: "1px 1px 5px rgba(0,0,0,0.5)",
+                textShadow: "1px 1px 4px rgba(0, 0, 0, 0.8)",
               }}
             >
-              {logotxt}
+              <span
+                style={{
+                  color: "hsl(6, 84.90%, 61.00%)",
+                  marginRight: "0.8rem",
+                }}
+              >
+                Ludo
+              </span>
+              <span
+                style={{ color: "hsl(42, 98.3%, 63%)", marginRight: "0.8rem" }}
+              >
+                du
+              </span>
+              <span
+                style={{ color: "hsl(158, 51.1%, 65%)", marginRight: "0.5rem" }}
+              >
+                Poisson
+              </span>
+              <span style={{ color: "hsl(195, 82.5%, 60%)" }}>Lune</span>
             </Typography>
 
             {isAuthenticated && user && (
