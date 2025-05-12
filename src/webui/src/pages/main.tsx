@@ -14,9 +14,9 @@ export function Main() {
   const { items } = useItems({ sort: "created_at", nb: 4 });
 
   // Filtres les jeux de moins de 3 mois
-  var lastitems: ItemListEntry[] = [];
+  let lastitems: ItemListEntry[] = [];
   if (items) {
-    var lastitems = Array.from(items.values()).filter(
+    lastitems = Array.from(items.values()).filter(
       (i) => differenceInDays(new Date(), i.created_at) <= 90 && i.enabled,
     );
   }
@@ -35,8 +35,8 @@ export function Main() {
         <p>
           La<b> Ludo du Poisson Lune</b> vous propose un espace jeux pour passer
           un bon moment en famille ou avec les copains...
-          <br />
-          <br />
+        </p>
+        <p>
           Nous sommes ouverts <b> tous les samedis de 10h30 à 12h00</b>, hors
           les samedis du milieu des vacances scolaires, au{" "}
           <b>pôle enfance de la Passerelle</b>, à proximité de la médiathèque à
@@ -85,6 +85,7 @@ export function Main() {
               <li>Adhésion annuelle familiale de {info.pricing.yearly}€.</li>
               <li>
                 Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines.
+                ({info.loan.maxitems} jeux maximum en même temps)
               </li>
               <li>
                 Carte prépayée (Optionnelle): {info.pricing.card}€ (

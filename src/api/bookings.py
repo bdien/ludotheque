@@ -4,7 +4,7 @@ from api.pwmodels import (
     db,
 )
 from api.system import auth_user, check_auth
-from api.config import BOOKING_MAX
+from api.config import BOOKING_MAXITEMS
 from fastapi import APIRouter, HTTPException, Request, Depends
 
 router = APIRouter()
@@ -27,7 +27,7 @@ async def book_item(request: Request, auth=Depends(auth_user)):
 
         # Check number of bookings
         nb_bookings = Booking.select().where(Booking.user == auth.id).count()
-        if nb_bookings >= BOOKING_MAX:
+        if nb_bookings >= BOOKING_MAXITEMS:
             raise HTTPException(403, "Too many bookings")
 
         # Create booking

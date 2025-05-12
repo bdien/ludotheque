@@ -10,7 +10,7 @@ export function Inventory() {
   const { items, mutate } = useItemsLastseen();
   if (!items) return "Loading";
 
-  let inputRef: React.RefObject<HTMLInputElement | null> = createRef();
+  const inputRef: React.RefObject<HTMLInputElement | null> = createRef();
 
   function onClick() {
     setItemId(undefined);

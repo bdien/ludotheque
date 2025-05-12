@@ -44,6 +44,14 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
             logging.error("User '%s' not matching", body["user"])
             raise HTTPException(400, "No such user")
 
+        # List of items already borrowed by the user
+        user_items_borrowed = (
+            loan.item_id
+            for loan in Loan.select(Loan.item).where(
+                Loan.user == user, Loan.status == "out"
+            )
+        )
+
         # Will contains the final prices for all items + subscription + card
         final_prices = body["items"].copy()
 
@@ -63,13 +71,8 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
             raise HTTPException(400, "Cannot find some items")
 
         # Check if any item was already borrowed by the same user
-        already_borrowed = (
-            Loan.select()
-            .where(Loan.user == user, Loan.item.in_(items), Loan.status == "out")
-            .count()
-        )
-        if already_borrowed:
-            logging.error("%d items are already borrowed by the user", already_borrowed)
+        if any(item.id in user_items_borrowed for item in items):
+            logging.error("items are already borrowed by the user")
             raise HTTPException(400, "Some items are already borrowed by the same user")
 
         # Money to pay from "real" money in any case

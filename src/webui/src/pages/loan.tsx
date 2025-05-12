@@ -148,16 +148,28 @@ export function Loan() {
       )}
 
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>
+        <Typography variant="h5" sx={{ mb: 1 }}>
           Emprunteur
         </Typography>
         <UserSearch user={user} setUser={changeUser} />
       </Box>
 
       <Box sx={{ mb: 2 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>
+        <Typography variant="h5" sx={{ mb: 1 }}>
           Jeux
         </Typography>
+
+        {info &&
+          user &&
+          user.loans &&
+          user.loans.length + items.length >= info.loan.maxitems && (
+            <Alert severity="warning" variant="filled" sx={{ mb: 1 }}>
+              Le nombre max ({info.loan.maxitems}) d'emprunts a été atteint.
+              <br />
+              Merci de ne pas ajouter d'autres jeux.
+            </Alert>
+          )}
+
         <Box display="flex" sx={{ mb: 1.5 }}>
           <ItemSearch setItem={addItem} excludesIds={items.map((i) => i.id)} />
 

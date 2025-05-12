@@ -1,7 +1,7 @@
 from api.main import app
 from api.system import auth_user
 from api.pwmodels import User, Item, db, Booking
-from api.config import BOOKING_MAX
+from api.config import BOOKING_MAXITEMS
 from fastapi.testclient import TestClient
 from conftest import AUTH_USER, AUTH_USER_ID, fake_auth_user
 
@@ -43,11 +43,11 @@ def test_book_twice():
     assert response.status_code == 400
 
 
-def test_book_BOOKING_MAX():
+def test_book_BOOKING_MAXITEMS():
     with db:
-        items = [Item.create(name="item") for _ in range(BOOKING_MAX + 1)]
+        items = [Item.create(name="item") for _ in range(BOOKING_MAXITEMS + 1)]
 
-    for i in range(BOOKING_MAX):
+    for i in range(BOOKING_MAXITEMS):
         response = client.post(
             "/bookings", json={"item": items[i].id}, headers=AUTH_USER
         )

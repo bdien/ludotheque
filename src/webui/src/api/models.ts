@@ -10,10 +10,11 @@ export interface Info {
     card: number;
   };
   loan: {
+    maxitems: number;
     weeks: number;
   };
   booking: {
-    max: number;
+    maxitems: number;
     weeks: number;
   };
   image_max: number;

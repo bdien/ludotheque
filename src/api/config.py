@@ -10,6 +10,7 @@ PRICING = {
 }
 
 LOAN_WEEKS = 3
+LOAN_MAXITEMS = 8
 
 APIKEY_PREFIX = "akld"
 
@@ -25,5 +26,5 @@ EMAIL_MINPERIOD = 15
 EMAIL_MINLATE = 1
 
 # Maximum number of bookings per user
-BOOKING_MAX = 4
+BOOKING_MAXITEMS = 4
 BOOKING_WEEKS = 3

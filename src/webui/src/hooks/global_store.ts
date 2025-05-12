@@ -22,10 +22,11 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
       card: 0,
     },
     loan: {
+      maxitems: 0,
       weeks: 0,
     },
     booking: {
-      max: 0,
+      maxitems: 0,
       weeks: 0,
     },
     image_max: 0,
