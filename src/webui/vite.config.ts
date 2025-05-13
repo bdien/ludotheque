@@ -97,6 +97,12 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
         purpose: "maskable",
       },
     ],
+    shorcuts: [
+      {
+        name: "Liste des jeux",
+        url: "/items",
+      },
+    ],
     background_color: "#FFFFFF",
     theme_color: "#556cd6",
     display: "standalone",
