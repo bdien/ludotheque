@@ -106,8 +106,9 @@ interface useItemsLastseenProps {
   days?: number;
 }
 
-interface ItemLastseenEntry {
+export interface ItemLastseenEntry {
   id: number;
+  age: number;
   lastseen: string;
 }
 

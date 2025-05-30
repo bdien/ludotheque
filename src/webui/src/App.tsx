@@ -23,6 +23,7 @@ import { Documents } from "./pages/documents";
 import { Inventory } from "./pages/inventory";
 import { useGlobalStore } from "./hooks/global_store";
 import { LessLoaned } from "./pages/lessloaned";
+import { InventoryRev } from "./pages/inventoryrev";
 
 function App() {
   const { info } = useInfo();
@@ -138,6 +139,7 @@ function App() {
 
           <Route path="/ledger" component={Ledger} />
           <Route path="/inventory" component={Inventory} />
+          <Route path="/inventoryrev" component={InventoryRev} />
           <Route path="/lessloaned" component={LessLoaned} />
           <Route path="/documents" component={Documents} />
           <Route path="/stats" component={Stats} />

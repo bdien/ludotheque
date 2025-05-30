@@ -15,9 +15,15 @@ export function SideMenu(props: SideMenuProps) {
   const [location] = useLocation();
   const { info, account } = useGlobalStore();
   const [adminOpen, adminSetOpen] = useState(false);
+  const [inventoryOpen, inventorySetOpen] = useState(false);
 
-  const handleClick = () => {
+  const handleClickAdmin = () => {
     adminSetOpen(!adminOpen);
+    inventorySetOpen(false);
+  };
+  const handleClickInventaire = () => {
+    inventorySetOpen(!inventoryOpen);
+    adminSetOpen(false);
   };
 
   function styleUrl(url: string) {
@@ -115,7 +121,7 @@ export function SideMenu(props: SideMenuProps) {
 
             <Divider />
 
-            <ListItem sx={{ ...styleUrl("/admin") }} onClick={handleClick}>
+            <ListItem sx={{ ...styleUrl("/admin") }} onClick={handleClickAdmin}>
               <ListItemIcon sx={{ color: "inherit" }}>
                 <Icon>star_border</Icon>
               </ListItemIcon>
@@ -163,19 +169,6 @@ export function SideMenu(props: SideMenuProps) {
                   <ListItemText primary="Jeux en retards" />
                 </ListItem>
 
-                {/* Inventaire */}
-                {/* <ListItem
-                  component={Link}
-                  to="/inventory"
-                  onClick={() => props.setIsDrawerOpen(false)}
-                  sx={{ ...styleUrl("/inventory"), pl: 4 }}
-                >
-                  <ListItemIcon sx={{ color: "inherit" }}>
-                    <Icon>list_alt</Icon>
-                  </ListItemIcon>
-                  <ListItemText primary="Inventaire" />
-                </ListItem> */}
-
                 {/* Documents */}
                 <ListItem
                   component={Link}
@@ -200,6 +193,50 @@ export function SideMenu(props: SideMenuProps) {
                     <Icon>numbers</Icon>
                   </ListItemIcon>
                   <ListItemText primary="Statistiques" />
+                </ListItem>
+              </List>
+            </Collapse>
+
+            <ListItem
+              sx={{ ...styleUrl("/inventorymenu") }}
+              onClick={handleClickInventaire}
+            >
+              <ListItemIcon sx={{ color: "inherit" }}>
+                <Icon>find_replace</Icon>
+              </ListItemIcon>
+              <ListItemText primary="Inventaire" />
+              {inventoryOpen ? (
+                <Icon>expand_less</Icon>
+              ) : (
+                <Icon>expand_more</Icon>
+              )}
+            </ListItem>
+            <Collapse in={inventoryOpen} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {/* Inventaire */}
+                <ListItem
+                  component={Link}
+                  to="/inventory"
+                  onClick={() => props.setIsDrawerOpen(false)}
+                  sx={{ ...styleUrl("/inventory"), pl: 4 }}
+                >
+                  <ListItemIcon sx={{ color: "inherit" }}>
+                    <Icon>list_alt</Icon>
+                  </ListItemIcon>
+                  <ListItemText primary="Scanner" />
+                </ListItem>
+
+                {/* Inventaire inverse */}
+                <ListItem
+                  component={Link}
+                  to="/inventoryrev"
+                  onClick={() => props.setIsDrawerOpen(false)}
+                  sx={{ ...styleUrl("/inventoryrev"), pl: 4 }}
+                >
+                  <ListItemIcon sx={{ color: "inherit" }}>
+                    <Icon>settings_backup_restore</Icon>
+                  </ListItemIcon>
+                  <ListItemText primary="Trouve les jeux" />
                 </ListItem>
               </List>
             </Collapse>

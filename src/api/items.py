@@ -168,9 +168,11 @@ def get_items_lastseen(days: int = 365):
     with db:
         start = datetime.date.today() - datetime.timedelta(days=days)
         return list(
-            Item.select(Item.id, Item.lastseen)
+            Item.select(Item.id, Item.age, Item.lastseen)
             .where(Item.lastseen < start)
             .where(Item.enabled)
+            .where(Item.outside == False)  # noqa: E712
+            .where(Item.big == False)  # noqa: E712
             .order_by(Item.lastseen.asc())
             .dicts()
         )

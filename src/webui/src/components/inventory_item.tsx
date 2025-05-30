@@ -1,16 +1,14 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useItem } from "../api/hooks";
-import { format, formatDistanceToNow, differenceInDays } from "date-fns";
+import { formatDistanceToNow, differenceInDays } from "date-fns";
 import { fr } from "date-fns/locale";
-import Button from "@mui/material/Button";
-import { updateItem } from "../api/calls";
 import Link from "@mui/material/Link";
 import Icon from "@mui/material/Icon";
+import { AgeChip } from "./age_chip";
 
 interface InventoryItemProps {
   id: number;
-  onClick: () => void;
 }
 
 function dayscolor(days: number) {
@@ -20,17 +18,7 @@ function dayscolor(days: number) {
 }
 
 export function InventoryItem(props: InventoryItemProps) {
-  const { item, error, mutate } = useItem(props.id);
-
-  function onClick() {
-    if (item && mutate)
-      updateItem(item.id, { lastseen: format(new Date(), "yyyy-MM-dd") }).then(
-        () => {
-          mutate();
-          props.onClick();
-        },
-      );
-  }
+  const { item, error } = useItem(props.id);
 
   if (error) return <div>Jeu non trouvé</div>;
   if (!item) return <></>;
@@ -44,14 +32,12 @@ export function InventoryItem(props: InventoryItemProps) {
   // render data
   return (
     <>
-      <Button sx={{ m: 1 }} variant="contained" onClick={onClick}>
-        Marquer comme vu
-      </Button>
-      <br />
-
       <Box sx={{ mt: 1 }}>
         <Typography variant="h5">
-          <Link href={`/items/${item.id}`}>{item ? item.name : ""}</Link>
+          <Link sx={{ mr: 1 }} href={`/items/${item.id}`}>
+            {item.name} ({item.id})
+          </Link>
+          <AgeChip age={item.age} />
           {item.status == "out" && (
             <Icon
               fontSize="small"

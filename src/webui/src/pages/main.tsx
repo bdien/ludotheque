@@ -33,12 +33,12 @@ export function Main() {
       )}
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
-          La<b> Ludo du Poisson Lune</b> vous propose un espace jeux pour passer
+          La <b>Ludo du Poisson Lune</b> vous propose un espace jeux pour passer
           un bon moment en famille ou avec les copains...
         </p>
         <p>
-          Nous sommes ouverts <b> tous les samedis de 10h30 à 12h00</b>, hors
-          les samedis du milieu des vacances scolaires, au{" "}
+          Nous sommes ouverts <b>tous les samedis de 10h30 à 12h00</b>, hors les
+          samedis du milieu des vacances scolaires, au{" "}
           <b>pôle enfance de la Passerelle</b>, à proximité de la médiathèque à
           Acigné. Vous pouvez passer également passer pour jouer sur place !
         </p>
@@ -85,7 +85,7 @@ export function Main() {
               <li>Adhésion annuelle familiale de {info.pricing.yearly}€.</li>
               <li>
                 Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines.
-                ({info.loan.maxitems} jeux maximum en même temps)
+                ({info.loan.maxitems} jeux max en même temps)
               </li>
               <li>
                 Carte prépayée (Optionnelle): {info.pricing.card}€ (

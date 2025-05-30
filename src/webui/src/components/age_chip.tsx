@@ -1,7 +1,7 @@
 import { Chip, Icon } from "@mui/material";
 
 interface AgeChipProps {
-  age: number;
+  age?: number;
   size?: "small" | "medium";
   icon?: string;
 }
@@ -16,7 +16,7 @@ const colorMap = new Map([
 ]);
 
 export function AgeChip(props: AgeChipProps) {
-  const color = colorMap.get(props.age);
+  const color = colorMap.get(props.age ?? 0);
   if (!props.icon)
     return (
       <span
@@ -24,6 +24,7 @@ export function AgeChip(props: AgeChipProps) {
           padding: "0.1em 8px",
           borderRadius: "16px",
           backgroundColor: color,
+          border: "1px solid #DDDDDD",
         }}
       >
         {props.age}+

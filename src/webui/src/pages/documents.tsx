@@ -38,6 +38,15 @@ export function Documents() {
           </Stack>
         </Link>
       </Box>
+
+      <Box sx={{ p: 2 }}>
+        <Link href="https://docs.google.com/spreadsheets/d/1G8smBWLbcLIQwFoR6EiAawQDAAPJjQQIdLczJ1gcPN8">
+          <Stack alignItems="center" direction="row" gap={1}>
+            <Icon fontSize="large">grid_on</Icon>
+            Listes des Adhérents et Jeux
+          </Stack>
+        </Link>
+      </Box>
     </Box>
   );
 }

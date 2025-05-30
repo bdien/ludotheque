@@ -205,7 +205,7 @@ export function Loan() {
 
       {loanResult && (
         <Box>
-          <Typography variant="h6" sx={{ mb: 0 }}>
+          <Typography variant="h5" sx={{ mb: 0 }}>
             Total
           </Typography>
           <Typography sx={{ mr: "10%" }} align="right" variant="h2">
