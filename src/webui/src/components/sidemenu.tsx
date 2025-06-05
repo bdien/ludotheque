@@ -236,7 +236,7 @@ export function SideMenu(props: SideMenuProps) {
                   <ListItemIcon sx={{ color: "inherit" }}>
                     <Icon>settings_backup_restore</Icon>
                   </ListItemIcon>
-                  <ListItemText primary="Trouve les jeux" />
+                  <ListItemText primary="Trouve le jeu" />
                 </ListItem>
               </List>
             </Collapse>

@@ -48,6 +48,13 @@ export function InventoryRev() {
     );
   }
 
+  // Build number of items per age
+  const age_items = new Map();
+  [0, 2, 4, 6, 8, 10].forEach((age) => {
+    const nb = items.filter((i) => i.age == age).length;
+    if (nb) age_items.set(age, nb);
+  });
+
   return (
     <>
       <Typography variant="h5" sx={{ py: 1, mb: 2 }}>
@@ -62,10 +69,11 @@ export function InventoryRev() {
           label="Filtrer sur l'age"
           onChange={(i) => setFilterAge(i.target.value)}
         >
-          <MenuItem value={-1}>Tous</MenuItem>
-          {[0, 2, 4, 6, 8, 10].map((i) => (
-            <MenuItem value={i}>
-              <AgeChip age={i} />
+          <MenuItem value={-1}>Tous ({items.length} Jeux)</MenuItem>
+          {Array.from(age_items).map(([age, nb]) => (
+            <MenuItem value={age}>
+              <AgeChip age={age} />
+              &nbsp;&nbsp;({nb} Jeux)
             </MenuItem>
           ))}
         </Select>
