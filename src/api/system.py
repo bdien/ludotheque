@@ -14,6 +14,7 @@ from starlette.background import BackgroundTask
 from fastapi import APIRouter, Depends, HTTPException, Header
 from api.pwmodels import Item, Loan, User, EMail, Log, db
 from api import config
+import api.gsheets
 
 
 router = APIRouter()
@@ -123,6 +124,24 @@ def create_backup(auth=Depends(auth_user)):
     now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     final_fn = f"ludotheque_{now}.tar"
     return FileResponse(fn, filename=final_fn, background=BackgroundTask(os.remove, fn))
+
+
+@router.get("/maintenance")
+def run_maintenance(auth=Depends(auth_user)):
+    "Run maintenance tasks"
+
+    check_auth(auth, "admin")
+
+    # Vaccuum table + Sync WAL journal to DB
+    db.connect()
+    db.execute_sql("VACUUM")
+    db.execute_sql("PRAGMA wal_checkpoint(TRUNCATE)")
+    db.close()
+
+    # Update google sheets
+    api.gsheets.publish_gsheets()
+
+    return "OK"
 
 
 def stats_per_day(stop_day, duration_weeks=4):

@@ -108,7 +108,7 @@ def main():
         to_update["name"] = myludo_game["title"]
 
     # Description
-    if args.force or not game.get("description"):
+    if myludo_game["description"] and (args.force or not game.get("description")):
         desc = html.unescape(myludo_game["description"])
         desc = re.sub(r"<ul>(.*?)</ul>", r"\n\1", desc)
         desc = re.sub(r"<li>(.*?)</li>", r" - \1\n", desc)

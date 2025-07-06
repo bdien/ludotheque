@@ -35,7 +35,7 @@ export function InventoryRev() {
   if (!items) return "Loading";
 
   function onClick(found: boolean) {
-    if (!itemId) return;
+    if (itemId == 0) return;
     if (!found && items) {
       setItemId(randomItem(items, filterAge));
       return;
@@ -54,6 +54,8 @@ export function InventoryRev() {
     const nb = items.filter((i) => i.age == age).length;
     if (nb) age_items.set(age, nb);
   });
+
+  if (items.length == 0) return "Tout est trouvé, merci";
 
   return (
     <>
@@ -96,7 +98,7 @@ export function InventoryRev() {
             color="error"
             onClick={() => onClick(false)}
           >
-            Pas trouvé
+            Passer
           </Button>
         </Box>
         <InventoryItem id={itemId} />
