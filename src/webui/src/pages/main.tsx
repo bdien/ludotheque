@@ -40,8 +40,16 @@ export function Main() {
           Nous sommes ouverts <b>tous les samedis de 10h30 à 12h00</b>, hors les
           samedis du milieu des vacances scolaires, au{" "}
           <b>pôle enfance de la Passerelle</b>, à proximité de la médiathèque à
-          Acigné. Vous pouvez passer également passer pour jouer sur place !
+          Acigné. Vous pouvez passer également passer pour jouer sur place.
         </p>
+        {isAuthenticated && (
+          <p>
+            Si vous souhaitez aider aux permanences, n'hésitez pas à vous
+            inscrire sur{" "}
+            <a href="https://framadate.org/iq7g6GZcr3rECGcC">le planning</a>.
+            Les emprunts sont gratuits votre jour de permanence !
+          </p>
+        )}
         <p>
           La Ludo, c'est un choix de {info ? info.nbitems : "près de 1000"} jeux
           pour tout public (de 9 mois à 99 ans), pour jouer sur place ou à la
@@ -82,10 +90,13 @@ export function Main() {
               <br />
             </p>
             <ul>
-              <li>Adhésion annuelle familiale de {info.pricing.yearly}€.</li>
               <li>
-                Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines.
-                ({info.loan.maxitems} jeux max en même temps)
+                Adhésion annuelle familiale de {info.pricing.yearly}€ (Caution
+                de 40€).
+              </li>
+              <li>
+                Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines
+                ({info.loan.maxitems} jeux max en même temps).
               </li>
               <li>
                 Carte prépayée (Optionnelle): {info.pricing.card}€ (
@@ -99,7 +110,7 @@ export function Main() {
                     {info.pricing.big_associations}€ pour les associations
                   </li>
                   <li>
-                    Caution (chèque non-encaissé)
+                    Caution (non-encaissé):
                     <ul>
                       <li>1 Jeu: 80€</li>
                       <li>2 Jeux et plus: 50€ + 50€/jeu</li>
