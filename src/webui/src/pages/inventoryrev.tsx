@@ -28,7 +28,7 @@ export function InventoryRev() {
   const [itemId, setItemId] = useState<number>(0);
 
   useEffect(() => {
-    if (!items) return;
+    if (!items || items.length == 0) return;
     setItemId(randomItem(items, filterAge));
   }, [items, filterAge]);
 
