@@ -86,9 +86,9 @@ def get_items(
     sort: str | None = None,
     q: str | None = None,
 ):
-    # Subquery (to add the last loan)
+    # Subquery (to add the last loan and extract status)
     subquery = Loan.select(
-        Loan.item_id, peewee.fn.MAX(Loan.stop).alias("loanstop")
+        Loan.item_id, peewee.fn.MAX(Loan.stop), Loan.status
     ).group_by(Loan.item_id)
 
     columns = (
@@ -101,7 +101,7 @@ def get_items(
         Item.big,
         Item.outside,
         Item.created_at,
-        subquery.c.loanstop,
+        subquery.c.status,
     )
     if auth and auth.role == "admin":
         columns += (Item.lastseen,)
@@ -123,15 +123,7 @@ def get_items(
     )
 
     with db:
-        now = datetime.date.today().strftime("%Y-%m-%d")
-        items = []
-        for i in query.dicts():
-            status = (((i["loanstop"] or "") < now) and "in") or "out"
-            i["status"] = status
-            if not auth or auth.role != "admin":
-                del i["loanstop"]
-            items.append(i)
-        return items
+        return list(query.dicts())
 
 
 @router.get("/items/export", tags=["items", "admin"], response_class=PlainTextResponse)
