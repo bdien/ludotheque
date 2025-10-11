@@ -12,7 +12,35 @@ interface MiniItemHistoryProps {
 export function MiniItemHistory(props: MiniItemHistoryProps) {
   const { item, error } = useItem(props.loan.item);
 
-  if (error) return <div>Impossible de charger: {error}</div>;
+  if (error)
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          height: "clamp(100px, 15vw, 120px)",
+          width: "min(100%, 450px)",
+          mb: 1,
+          p: 0.5,
+        }}
+      >
+        <div style={{ width: "40%" }}>
+          <img
+            style={{
+              height: "100%",
+              width: "100%",
+              objectFit: "contain",
+            }}
+            src="/storage/thumb/notavailable.png"
+          />
+        </div>
+        <div style={{ width: "60%", marginLeft: "10px" }}>
+          <Typography component="div" fontWeight={600}>
+            Jeu supprimé ({props.loan.item})
+          </Typography>
+        </div>
+      </Box>
+    );
+
   const picture = item?.pictures?.length
     ? item.pictures[0]
     : "../../notavailable.webp";
