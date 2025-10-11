@@ -26,6 +26,7 @@ import { useState } from "react";
 import { exportUsers } from "../api/calls";
 import { Loading } from "../components/loading";
 import { ShortUser } from "../components/short_user";
+import { sub } from "date-fns";
 
 function exportCSV() {
   exportUsers().then((txt) => {
@@ -82,6 +83,7 @@ export function UserList() {
   nbHidden -= displayed.length;
 
   const today = new Date();
+  const oldsubscription = sub(today, { months: 18 });
 
   return (
     <Box>
@@ -197,7 +199,11 @@ export function UserList() {
                           new Date(row.subscription) <= today && (
                             <Icon
                               title="Adhésion expirée"
-                              color="secondary"
+                              color={
+                                new Date(row.subscription) <= oldsubscription
+                                  ? "error"
+                                  : "secondary"
+                              }
                               sx={{ mx: 0.5 }}
                             >
                               error_outline
