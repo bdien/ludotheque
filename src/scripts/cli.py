@@ -1,9 +1,10 @@
+import datetime
+import functools
 import os
 import sys
+
 import oidc_client
 import requests
-import functools
-import datetime
 
 
 class Ludotheque:

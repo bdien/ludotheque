@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-import io
-import requests
-import logging
-import re
 import collections
+import io
+import logging
 import os
-from api.pwmodels import Item, ItemPicture, create_all_tables
+import re
+
+import requests
 from PIL import Image
+
+from api.pwmodels import Item, ItemPicture, create_all_tables
 
 Jeu = collections.namedtuple(
     "Jeu", "id, photo, nom, type, editeur, joueurs_min, joueurs_max, age, resume"

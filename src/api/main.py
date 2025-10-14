@@ -1,17 +1,19 @@
 import contextlib
 import locale
 import logging
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-import api.users
+
+import api.bookings
+import api.gsheets
 import api.items
+import api.ledger
 import api.loans
 import api.system
-import api.ledger
-import api.gsheets
-import api.bookings
+import api.users
 
 
 @contextlib.asynccontextmanager

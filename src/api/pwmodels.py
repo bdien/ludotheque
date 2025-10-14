@@ -1,9 +1,11 @@
-import re
 import os
+import re
 from datetime import date, datetime, timedelta
+
 import peewee
-from playhouse.sqlite_ext import SqliteExtDatabase, JSONField
 from playhouse.shortcuts import model_to_dict
+from playhouse.sqlite_ext import JSONField, SqliteExtDatabase
+
 from api.config import LOAN_WEEKS
 
 db = peewee.DatabaseProxy()

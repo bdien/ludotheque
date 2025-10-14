@@ -1,12 +1,13 @@
 import datetime
-import pytest
-from api.main import app
-from api.system import auth_user
-from api.pwmodels import Loan, User, Item, db
-from api.config import PRICING
-from fastapi.testclient import TestClient
-from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 
+import pytest
+from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
+from fastapi.testclient import TestClient
+
+from api.config import PRICING
+from api.main import app
+from api.pwmodels import Item, Loan, User, db
+from api.system import auth_user
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user

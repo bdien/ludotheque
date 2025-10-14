@@ -1,9 +1,10 @@
 import pytest
-from api.main import app
-from api.system import auth_user
-from api.pwmodels import EMail, Item, User, Loan, db
-from fastapi.testclient import TestClient
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
+from fastapi.testclient import TestClient
+
+from api.main import app
+from api.pwmodels import EMail, Item, Loan, User, db
+from api.system import auth_user
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user

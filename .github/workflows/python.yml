@@ -8,15 +8,12 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Python and PDM
-        uses: pdm-project/setup-pdm@v4
+      - uses: actions/checkout@v5
+      - name: Setup Python and UV
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.11"
-          cache: true
-      - name: Install dependencies
-        run: pdm install --dev
+          python-version: "3.13"
       - name: Run Python Linter
-        run: pdm run ruff check .
+        run: uv run ruff check .
       - name: Run Python tests
-        run: pdm run pytest
+        run: uv run pytest

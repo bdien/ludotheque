@@ -1,18 +1,20 @@
+import csv
 import datetime
 import io
-import csv
 import logging
 import pathlib
 import re
-from fastapi.responses import PlainTextResponse
+from typing import Annotated
+
 import jinja2
 import peewee
-from api.pwmodels import Booking, Favorite, Item, Loan, User, EMail, db
-from fastapi import APIRouter, HTTPException, Request, Depends
-from api.system import auth_user, send_email, check_auth, log_event
-from api.config import EMAIL_MINPERIOD
-
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import PlainTextResponse
 from playhouse.shortcuts import model_to_dict
+
+from api.config import EMAIL_MINPERIOD
+from api.pwmodels import Booking, EMail, Favorite, Item, Loan, User, db
+from api.system import AuthUser, auth_user, check_auth, log_event, send_email
 
 router = APIRouter()
 
@@ -233,7 +235,9 @@ def get_user_history(user_id: int, auth=Depends(auth_user)):
 
 
 @router.post("/users/{user_id}", tags=["users", "admin"])
-async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
+async def modify_user(
+    user_id: int, request: Request, auth: Annotated[AuthUser, Depends(auth_user)]
+):
     check_auth(auth, "admin")
     body = await request.json()
 
@@ -266,7 +270,7 @@ async def modify_user(user_id: int, request: Request, auth=Depends(auth_user)):
 
 
 @router.delete("/users/{user_id}", tags=["users", "admin"])
-async def delete_user(user_id: int, auth=Depends(auth_user)):
+async def delete_user(user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]):
     check_auth(auth, "admin")
     with db:
         user = User.get_or_none(User.id == user_id)
@@ -287,7 +291,11 @@ def shortDate(d: datetime.date):
 
 
 @router.get("/users/{user_id}/email", tags=["users", "admin"])
-def send_user_email(user_id: int, send: bool | None = False, auth=Depends(auth_user)):
+def send_user_email(
+    user_id: int,
+    send: bool | None = False,
+    auth=Annotated[AuthUser, Depends(auth_user)],
+):
     check_auth(auth, "admin")
     with db:
         user = User.get_or_none(User.id == user_id)

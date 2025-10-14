@@ -6,23 +6,23 @@
 
 ## Prerequisites
 
-- Python: [pdm](https://pdm.fming.dev/latest/)
+- Python: [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - TypeScript: [pnpm](https://pnpm.io/fr/)
 - Node 16+
 
 ## Serveur
 
-Le serveur est en Python 3.11+ avec FastAPI, peewee.
+Le serveur est en Python 3.13+ avec FastAPI, peewee.
 
-Pour installer les dependances: `pdm install`
-Pour lancer le serveur: `pdm run api`
+Pour lancer les tests: `uv run pytest`
+Pour lancer le serveur: `uv run task api`
 
 ## WebUI
 
 La webUI est en React 18+, MaterialUI 5+.
 
 Pour installer les dependances: `pnpm install`
-Pour lancer le serveur: `pdm run webui`
+Pour lancer le serveur: `uv run task webui`
 
 ## Fichiers hors projets
 

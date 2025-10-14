@@ -1,12 +1,13 @@
-import pytest
-import api.system
 import freezegun
-from api.main import app
-from api.system import auth_user
-from api.pwmodels import EMail, User, db
-from api.config import APIKEY_PREFIX
-from fastapi.testclient import TestClient
+import pytest
 from conftest import AUTH_USER, fake_auth_user
+from fastapi.testclient import TestClient
+
+import api.system
+from api.config import APIKEY_PREFIX
+from api.main import app
+from api.pwmodels import EMail, User, db
+from api.system import auth_user
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user

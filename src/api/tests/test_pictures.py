@@ -1,10 +1,12 @@
 import base64
 import os
-from api.main import app
-from api.system import auth_user
-from api.pwmodels import Item, db
-from fastapi.testclient import TestClient
+
 from conftest import AUTH_ADMIN, fake_auth_user
+from fastapi.testclient import TestClient
+
+from api.main import app
+from api.pwmodels import Item, db
+from api.system import auth_user
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user

@@ -2,28 +2,30 @@ import base64
 import contextlib
 import csv
 import datetime
+import hashlib
 import io
-from fastapi.responses import PlainTextResponse
+import os
+from typing import Annotated
+
 import peewee
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import PlainTextResponse
+from PIL import Image
+from playhouse.shortcuts import model_to_dict
+
+from api.config import IMAGE_MAX_DIM, THUMB_DIM
 from api.pwmodels import (
     Booking,
     Category,
     Favorite,
+    Item,
     ItemCategory,
     ItemLink,
     Loan,
-    Item,
     Rating,
     db,
 )
 from api.system import AuthUser, auth_user, check_auth, log_event
-from api.config import IMAGE_MAX_DIM, THUMB_DIM
-from fastapi import APIRouter, HTTPException, Request, Depends
-from playhouse.shortcuts import model_to_dict
-import os
-import hashlib
-from PIL import Image
-
 
 LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 
@@ -31,7 +33,9 @@ router = APIRouter()
 
 
 @router.post("/items", tags=["items", "admin"])
-async def create_item(request: Request, auth: AuthUser | None = Depends(auth_user)):
+async def create_item(
+    request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
+):
     check_auth(auth, "admin")
     body = await request.json()
 
@@ -81,7 +85,7 @@ async def create_item(request: Request, auth: AuthUser | None = Depends(auth_use
 
 @router.get("/items", tags=["items"])
 def get_items(
-    auth: AuthUser | None = Depends(auth_user),
+    auth: Annotated[AuthUser | None, Depends(auth_user)],
     nb: int = 0,
     sort: str | None = None,
     q: str | None = None,
@@ -127,7 +131,7 @@ def get_items(
 
 
 @router.get("/items/export", tags=["items", "admin"], response_class=PlainTextResponse)
-def export_items(auth: AuthUser | None = Depends(auth_user)):
+def export_items(auth: Annotated[AuthUser | None, Depends(auth_user)]):
     "Export CSV"
 
     check_auth(auth, "admin")
@@ -213,7 +217,7 @@ def search_item(q: str | None = None):
 @router.get("/items/{item_id}", tags=["items"])
 def get_item(
     item_id: int,
-    auth: AuthUser | None = Depends(auth_user),
+    auth: Annotated[AuthUser | None, Depends(auth_user)],
 ):
     # Retrieve item + pictures + status (Limit to the last 10 loans)
     # sourcery skip: use-named-expression
@@ -331,7 +335,7 @@ def modif_pictures(
 
 @router.post("/items/{item_id}", tags=["items", "benevole"])
 async def modify_item(
-    item_id: int, request: Request, auth: AuthUser | None = Depends(auth_user)
+    item_id: int, request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
 ):
     check_auth(auth, "benevole")
     body = await request.json()
@@ -387,7 +391,7 @@ async def modify_item(
 
 @router.post("/items/{item_id}/rating", tags=["items"])
 async def create_item_rating(
-    item_id: int, request: Request, auth: AuthUser | None = Depends(auth_user)
+    item_id: int, request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
 ):
     "Add rating"
 
@@ -416,7 +420,9 @@ async def create_item_rating(
 
 
 @router.post("/items/{item_id}/favorites", tags=["items"])
-async def set_item_favorites(item_id: int, auth: AuthUser | None = Depends(auth_user)):
+async def set_item_favorites(
+    item_id: int, auth: Annotated[AuthUser | None, Depends(auth_user)]
+):
     check_auth(auth)
 
     with db, contextlib.suppress(Exception):
@@ -425,7 +431,7 @@ async def set_item_favorites(item_id: int, auth: AuthUser | None = Depends(auth_
 
 @router.delete("/items/{item_id}/favorites", tags=["items"])
 async def remove_item_favorites(
-    item_id: int, auth: AuthUser | None = Depends(auth_user)
+    item_id: int, auth: Annotated[AuthUser | None, Depends(auth_user)]
 ):
     check_auth(auth)
 
@@ -436,7 +442,9 @@ async def remove_item_favorites(
 
 
 @router.delete("/items/{item_id}", tags=["users", "admin"])
-async def delete_item(item_id: int, auth: AuthUser | None = Depends(auth_user)):
+async def delete_item(
+    item_id: int, auth: Annotated[AuthUser | None, Depends(auth_user)]
+):
     check_auth(auth, "admin")
     with db:
         item = Item.get_or_none(Item.id == item_id)
@@ -464,7 +472,9 @@ def get_categories():
 
 
 @router.post("/categories", tags=["categories", "admin"])
-async def create_category(request: Request, auth: AuthUser | None = Depends(auth_user)):
+async def create_category(
+    request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
+):
     check_auth(auth, "admin")
     body = await request.json()
     with db:
@@ -474,7 +484,7 @@ async def create_category(request: Request, auth: AuthUser | None = Depends(auth
 
 @router.post("/categories/{cat_id}", tags=["categories", "admin"])
 async def update_category(
-    cat_id: int, request: Request, auth: AuthUser | None = Depends(auth_user)
+    cat_id: int, request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
 ):
     check_auth(auth, "admin")
     body = await request.json()

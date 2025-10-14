@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
+import argparse
 import contextlib
 import html
-import os
-import re
 import json
+import os
 import pathlib
+import re
 import sys
+
 import questionary
 import requests
-import argparse
 from cli import Ludotheque
 
 

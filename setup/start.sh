@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 
 nginx
-python -m pdm run api_prod
+cd /app/src/api && uv run --no-dev uvicorn main:app --uds /tmp/uvicorn.sock

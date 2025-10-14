@@ -1,11 +1,12 @@
 import peewee
+from fastapi import APIRouter, Depends, HTTPException, Request
+
+from api.config import BOOKING_MAXITEMS
 from api.pwmodels import (
     Booking,
     db,
 )
 from api.system import auth_user, check_auth
-from api.config import BOOKING_MAXITEMS
-from fastapi import APIRouter, HTTPException, Request, Depends
 
 router = APIRouter()
 

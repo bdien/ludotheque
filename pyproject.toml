@@ -16,15 +16,19 @@ dependencies = [
     "apscheduler>=3.11.0",
     "jinja2>=3.1.4",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 license = {text = "GPL2"}
-dynamic = [ "version" ]
+version = "0.0.0"
+
+[build-system]
+requires = ["uv_build>=0.8.17,<0.9.0"]
+build-backend = "uv_build"
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py313"
 
 [tool.ruff.lint]
-select = ["E", "F", "B", "C", "W", "RUF", "UP", "SIM", "PIE", "PLE", "S", "G", "PT", "RET"]
+select = ["E", "F", "B", "C", "W", "RUF", "UP", "SIM", "PIE", "PLE", "S", "G", "PT", "RET", "FAST", "I"]
 ignore = ["E402", "E501"]
 # E402: module level import not at top of file
 # E501: Line too loog
@@ -33,24 +37,17 @@ ignore = ["E402", "E501"]
 max-complexity = 28
 
 [tool.ruff.lint.per-file-ignores]
-"src/tests_api/*.py" = ["S101"]
+"src/api/tests/*.py" = ["S101"]
 "src/api/*.py" = ["B008"]
 # S101: Use of assert
 # B008: Do not perform function call `Depends` in argument defaults
 
-[tool.pytest.ini_options]
-addopts = "--ignore=__pypackages__ --cov=api --cov-report html"
-
-[tool.pdm]
-[tool.pdm.version]
-source = "scm"
-
-[tool.pdm.scripts]
-build = {shell = "cd src/webui && pnpm run build"}
-api = {shell = "cd src/api && uvicorn main:app --reload"}
-api_prod = {shell = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"}
-webui = {shell = "cd src/webui && pnpm run dev --host 0.0.0.0"}
-restore = { shell = "rm -rf storage/img storage/thumb storage/ludotheque.db; curl -H \"Authorization: Bearer $LUDOTHEQUE_APIKEY\" -s https://ludotheque.fly.dev/api/backup | tar x" }
+[tool.taskipy.tasks]
+build = "cd src/webui && pnpm run build"
+api = "cd src/api && uvicorn main:app --reload"
+api_prod = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"
+webui = "cd src/webui && pnpm run dev --host 0.0.0.0"
+restore = "rm -rf storage/img storage/thumb storage/ludotheque.db; curl -H \"Authorization: Bearer $LUDOTHEQUE_APIKEY\" -s https://ludotheque.fly.dev/api/backup | tar x"
 
 [dependency-groups]
 dev = [
@@ -61,6 +58,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "mypy>=1.13.0",
     "freezegun>=1.5.1",
+    "taskipy>=1.14.1",
 ]
 cli = [
     "questionary>=2.0.1",
