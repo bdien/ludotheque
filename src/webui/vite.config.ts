@@ -97,7 +97,7 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
         purpose: "maskable",
       },
     ],
-    shorcuts: [
+    shortcuts: [
       {
         name: "Liste des jeux",
         url: "/items",

@@ -1,6 +1,7 @@
 import contextlib
 import locale
 import logging
+import os
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
@@ -68,6 +69,13 @@ async def lifespan(app: FastAPI):
     # Shutdown
     scheduler.shutdown()
 
+
+if os.getenv("SENTRY_ENABLED") == "true":
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn="https://710788b421039580e66670882d5ff003@o4510192818454528.ingest.de.sentry.io/4510192825598032",
+    )
 
 app = FastAPI(root_path="/api", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins="*")

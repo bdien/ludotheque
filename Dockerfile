@@ -13,6 +13,7 @@ RUN cd /app/src/webui && pnpm install && pnpm run build
 FROM alpine:3.22
 
 ENV TZ=Europe/Paris
+ENV SENTRY_ENABLED=true
 ENV MUSL_LOCPATH=/usr/share/i18n/locales/musl
 ENV LUDO_STORAGE=/app/storage
 VOLUME /app/storage
