@@ -1,7 +1,0 @@
-{
-  "python.testing.pytestEnabled": true,
-  "python.analysis.inlayHints.functionReturnTypes": true,
-  "python.analysis.inlayHints.pytestParameters": true,
-  "python.autoComplete.extraPaths": ["__pypackages__/3.11/lib"],
-  "python.analysis.extraPaths": ["__pypackages__/3.11/lib"]
-}

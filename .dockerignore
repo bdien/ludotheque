@@ -2,5 +2,12 @@
 **/__pypackages__
 storage
 src/webui/public/storage
+src/webui/public/favicon.png
+src/webui/public/photomain.png
+src/webui/public/photomain_500.png
+src/webui/public/pwaicon-max.png
+src/webui/public/logo.png
+src/webui/public/logosmall.png
 src/webui/dist
+src/api/tests
 .git
