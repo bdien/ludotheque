@@ -142,7 +142,8 @@ def main():
             ratings = {game_rating["average"]: game_rating["audience"]}
         rating = sum(k * v for k, v in ratings.items()) / sum(ratings.values())
 
-        links[-1]["extra"] = {"rating": round(rating, 2)}
+        if sum(ratings.values()) >= 100:
+            links[-1]["extra"] = {"rating": round(rating, 2)}
 
     # Categories
     if args.force or not game.get("categories"):
