@@ -77,6 +77,7 @@ function nb_loans_percent(item: ItemModel, maxdays: number) {
 }
 
 function renderItemLink(link: ItemLinkModel) {
+  let rating = link.extra?.rating;
   if (link.name == "myludo")
     return (
       <Chip
@@ -86,7 +87,7 @@ function renderItemLink(link: ItemLinkModel) {
         color="primary"
         size="small"
         icon={<Icon>link</Icon>}
-        label="MyLudo"
+        label={"MyLudo" + (rating ? ` (${rating.toFixed(1)})` : "")}
         onClick={() =>
           window.open(`https://www.myludo.fr/#!/game/${link.ref}`, "_blank")
         }
@@ -101,7 +102,7 @@ function renderItemLink(link: ItemLinkModel) {
         color="primary"
         size="small"
         icon={<Icon>link</Icon>}
-        label="BGG"
+        label={"BGG" + (rating ? ` (${rating.toFixed(1)})` : "")}
         onClick={() =>
           window.open(
             `https://boardgamegeek.com/boardgame/${link.ref}`,
