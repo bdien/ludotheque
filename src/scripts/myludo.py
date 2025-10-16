@@ -124,9 +124,10 @@ def main():
         desc = re.sub("<.*?>", "", desc)
         to_update["description"] = desc.strip()
 
-    # Links
-    if args.force or not game.get("links"):
-        to_update["links"] = [{"name": "myludo", "ref": myludo_game["id"]}]
+    # Links: Remove any previous link and add new one
+    links = [i for i in game.get("links", []) if i["name"] != "myludo"]
+    links.append({"name": "myludo", "ref": myludo_game["id"]})
+    to_update["links"] = links
 
     # Categories
     if args.force or not game.get("categories"):

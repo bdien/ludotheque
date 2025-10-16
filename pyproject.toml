@@ -60,8 +60,6 @@ dev = [
     "mypy>=1.13.0",
     "freezegun>=1.5.1",
     "taskipy>=1.14.1",
-]
-cli = [
     "questionary>=2.0.1",
     "oidc-client>=0.2.6",
 ]

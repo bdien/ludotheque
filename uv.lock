@@ -43,17 +43,15 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-cli = [
-    { name = "oidc-client" },
-    { name = "questionary" },
-]
 dev = [
     { name = "freezegun" },
     { name = "httpx" },
     { name = "mypy" },
+    { name = "oidc-client" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "questionary" },
     { name = "ruff" },
     { name = "taskipy" },
 ]
@@ -74,17 +72,15 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-cli = [
-    { name = "oidc-client", specifier = ">=0.2.6" },
-    { name = "questionary", specifier = ">=2.0.1" },
-]
 dev = [
     { name = "freezegun", specifier = ">=1.5.1" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "mypy", specifier = ">=1.13.0" },
+    { name = "oidc-client", specifier = ">=0.2.6" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pytest", specifier = ">=8.3.4" },
     { name = "pytest-cov", specifier = ">=6.0.0" },
+    { name = "questionary", specifier = ">=2.0.1" },
     { name = "ruff", specifier = ">=0.8.3" },
     { name = "taskipy", specifier = ">=1.14.1" },
 ]

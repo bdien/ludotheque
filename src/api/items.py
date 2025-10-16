@@ -267,14 +267,18 @@ def get_item(
                     ]
 
             # Ratings
-            ratings = list(
-                Rating.select(Rating.weight, Rating.rating)
+            ratings = (
+                Rating.select(
+                    Rating.source,
+                    peewee.fn.sum(Rating.weight * Rating.rating).alias("sum"),
+                    peewee.fn.sum(Rating.weight).alias("total"),
+                )
                 .where(Rating.item == item_id)
-                .tuples()
+                .group_by(Rating.source)
             )
-            ratings_tot = sum(w for w, r in ratings)
-            if ratings_tot:
-                base["rating"] = round(sum(w * r for w, r in ratings) / ratings_tot, 1)
+            base["ratings"] = {
+                i.source: round(i.sum / i.total, 1) for i in ratings if i.total
+            }
 
             if loans:
                 base["status"] = loans[0].status
