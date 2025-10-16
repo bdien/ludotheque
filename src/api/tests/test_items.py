@@ -326,26 +326,22 @@ def test_get_loans():
 def test_get_item_ratings():
     # Create items
     item1 = {"name": "obj1", "age": 10, "players_min": 2, "players_max": 7}
+    item1["links"] = [
+        {
+            "name": "myludo",
+            "ref": 1234,
+            "extra": {"rating": 7.8},
+        },
+        {"name": "bgg", "ref": 5678, "extra": {"rating": 6.3, "complexity": 2.1}},
+    ]
     response = client.post("/items", json=item1, headers=AUTH_ADMIN)
     item_id = response.json()["id"]
-
-    # Post ratings
-    ratings = {
-        "source": "myludo",
-        "ratings": {2: 2, 3: 3, 4: 3, 5: 10, 6: 45, 7: 109, 8: 223, 9: 99, 10: 44},
-    }
-    response = client.post(f"/items/{item_id}/rating", json=ratings, headers=AUTH_ADMIN)
-    ratings = {
-        "source": "bgg",
-        "ratings": {2: 200, 3: 3, 4: 3, 5: 10, 6: 45, 7: 109, 8: 223, 9: 99, 10: 44},
-    }
-    response = client.post(f"/items/{item_id}/rating", json=ratings, headers=AUTH_ADMIN)
 
     # Check in API
     response = client.get(f"/items/{item_id}")
     items = response.json()
-    assert "ratings" in items
-    assert "myludo" in items["ratings"]
-    assert "bgg" in items["ratings"]
-    assert items["ratings"]["myludo"] == 7.8
-    assert items["ratings"]["bgg"] == 6.3
+    assert "links" in items
+    assert items["links"] == [
+        {"name": "myludo", "ref": "1234", "extra": {"rating": 7.8}},
+        {"name": "bgg", "ref": "5678", "extra": {"rating": 6.3, "complexity": 2.1}},
+    ]

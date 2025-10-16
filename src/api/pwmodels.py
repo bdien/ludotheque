@@ -123,6 +123,7 @@ class ItemLink(BaseModel):
     item = peewee.ForeignKeyField(model=Item)
     name = peewee.CharField()
     ref = peewee.CharField()
+    extra = JSONField(default={})
 
     class Meta:
         primary_key = peewee.CompositeKey("item", "name")

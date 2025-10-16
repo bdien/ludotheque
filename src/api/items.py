@@ -63,7 +63,7 @@ async def create_item(
             # Insert item links
             for i in body.get("links", []):
                 ItemLink.insert(
-                    item=item, name=i["name"], ref=i["ref"]
+                    item=item, name=i["name"], ref=i["ref"], extra=i.get("extra", {})
                 ).on_conflict_replace().execute()
 
             # Insert item category
@@ -242,7 +242,7 @@ def get_item(
             ]
 
             base["links"] = [
-                {"name": i.name, "ref": i.ref}
+                {"name": i.name, "ref": i.ref, "extra": i.extra}
                 for i in ItemLink.select().where(ItemLink.item == item_id)
             ]
 
@@ -377,7 +377,7 @@ async def modify_item(
                 ItemLink.item == item_id, ItemLink.name.not_in(names)
             ).execute()
             ItemLink.insert(
-                item=item_id, name=i["name"], ref=i["ref"]
+                item=item_id, name=i["name"], ref=i["ref"], extra=i.get("extra", {})
             ).on_conflict_replace().execute()
 
         # Modify item categories

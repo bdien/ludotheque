@@ -129,6 +129,21 @@ def main():
     links.append({"name": "myludo", "ref": myludo_game["id"]})
     to_update["links"] = links
 
+    # Ratings
+    if myludo_game.get("rating"):
+        game_rating = myludo_game["rating"]["game"]
+        if "sharing" in game_rating:
+            ratings = {
+                int(k): v["audience"]
+                for k, v in game_rating["sharing"].items()
+                if v != 0
+            }
+        else:
+            ratings = {game_rating["average"]: game_rating["audience"]}
+        rating = sum(k * v for k, v in ratings.items()) / sum(ratings.values())
+
+        links[-1]["extra"] = {"rating": round(rating, 2)}
+
     # Categories
     if args.force or not game.get("categories"):
         myludo_categories = (
@@ -171,20 +186,6 @@ def main():
                 gametime = (high - low) // 2
 
         to_update["gametime"] = gametime
-
-    # Ratings
-    if myludo_game.get("rating"):
-        game_rating = myludo_game["rating"]["game"]
-        if "sharing" in game_rating:
-            ratings = {
-                int(k): v["audience"]
-                for k, v in game_rating["sharing"].items()
-                if v != 0
-            }
-        else:
-            ratings = {game_rating["average"]: game_rating["audience"]}
-        print("Ratings:", ratings)
-        ludo.update_item_rating(args.game_id, {"source": "myludo", "ratings": ratings})
 
     # Filter everything empty
     to_update = {k: v for k, v in to_update.items() if v}
