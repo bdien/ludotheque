@@ -404,7 +404,7 @@ async def create_item_rating(
         raise HTTPException(403)
 
     with db:
-        if source == "myludo":
+        if source in ("myludo", "bgg"):
             Rating.delete().where(
                 Rating.item == item_id, Rating.source == source
             ).execute()

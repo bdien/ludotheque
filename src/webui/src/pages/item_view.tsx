@@ -92,6 +92,24 @@ function renderItemLink(link: ItemLinkModel) {
         }
       />
     );
+  if (link.name == "bgg")
+    return (
+      <Chip
+        key={link.name}
+        sx={{ p: 1, m: 0.25, borderRadius: "8px" }}
+        variant="outlined"
+        color="primary"
+        size="small"
+        icon={<Icon>link</Icon>}
+        label="BGG"
+        onClick={() =>
+          window.open(
+            `https://boardgamegeek.com/boardgame/${link.ref}`,
+            "_blank",
+          )
+        }
+      />
+    );
   if (link.name == "manuel")
     return (
       <Chip
