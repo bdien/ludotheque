@@ -9,6 +9,9 @@ const theme = createTheme({
     primary: {
       main: "#556cd6",
     },
+    success: {
+      main: "#28a745",
+    },
     secondary: {
       main: "#556cd6",
     },

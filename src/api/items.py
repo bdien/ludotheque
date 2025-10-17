@@ -286,12 +286,12 @@ def get_item(
 
         if loans:
             base["status"] = loans[0].status
-            base["return"] = loans[0].stop
             if auth:
                 # Filter own loans
                 if auth.role != "admin":
                     loans = [i for i in loans if i.user_id == auth.id]
                 base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
+                base["return"] = loans[0].stop
 
         return base
 
