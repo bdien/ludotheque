@@ -24,6 +24,7 @@ import { Inventory } from "./pages/inventory";
 import { useGlobalStore } from "./hooks/global_store";
 import { LessLoaned } from "./pages/lessloaned";
 import { InventoryRev } from "./pages/inventoryrev";
+import { UserMyAccount } from "./pages/user_myaccount";
 
 function App() {
   const { info } = useInfo();
@@ -143,6 +144,7 @@ function App() {
           <Route path="/lessloaned" component={LessLoaned} />
           <Route path="/documents" component={Documents} />
           <Route path="/stats" component={Stats} />
+          <Route path="/myaccount" component={UserMyAccount} />
 
           <Route path="/" component={Main} />
         </Switch>
