@@ -9,7 +9,7 @@ from typing import Annotated
 
 import peewee
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from PIL import Image
 from playhouse.shortcuts import model_to_dict
 
@@ -220,7 +220,7 @@ def get_item(
     auth: Annotated[AuthUser | None, Depends(auth_user)],
 ):
     # Retrieve item + pictures + status (Limit to the last 10 loans)
-    # sourcery skip: use-named-expression
+
     with db:
         items = (
             Item.select(Item, Loan)
@@ -230,67 +230,93 @@ def get_item(
             .order_by(-Loan.stop)
         )
 
-        if items:
-            # First item is the latest loan
-            item = items[0]
-            base = model_to_dict(item, recurse=False)
-            loans = [i.loan for i in items] if hasattr(item, "loan") else []
-            base["status"] = "in"
-            base["categories"] = [
-                i.category_id
-                for i in ItemCategory.select().where(ItemCategory.item == item_id)
-            ]
+        if not items:
+            raise HTTPException(404)
 
-            base["links"] = [
-                {"name": i.name, "ref": i.ref, "extra": i.extra}
-                for i in ItemLink.select().where(ItemLink.item == item_id)
-            ]
+        # First item is the latest loan
+        item = items[0]
+        base = model_to_dict(item, recurse=False)
+        loans = [i.loan for i in items] if hasattr(item, "loan") else []
+        base["status"] = "in"
+        base["categories"] = [
+            i.category_id
+            for i in ItemCategory.select().where(ItemCategory.item == item_id)
+        ]
 
-            # Remove notes for non-admin
-            if not auth or auth.role != "admin":
-                del base["notes"]
+        base["links"] = [
+            {"name": i.name, "ref": i.ref, "extra": i.extra}
+            for i in ItemLink.select().where(ItemLink.item == item_id)
+        ]
 
-            # Bookings
-            bookings = list(
-                Booking.select()
-                .where(Booking.item == item_id)
-                .order_by(Booking.created_at)
-                .dicts()
+        # Remove fields for non-admin
+        if not auth or auth.role != "admin":
+            del base["notes"]
+            del base["lastseen"]
+            del base["created_at"]
+
+        # Bookings
+        bookings = list(
+            Booking.select()
+            .where(Booking.item == item_id)
+            .order_by(Booking.created_at)
+            .dicts()
+        )
+        base["bookings"] = {"nb": len(bookings)}
+        if auth:
+            if auth.role == "admin":
+                base["bookings"]["entries"] = bookings
+            else:
+                base["bookings"]["entries"] = [
+                    i for i in bookings if i["user"] == auth.id
+                ]
+
+        # Ratings
+        ratings = (
+            Rating.select(
+                Rating.source,
+                peewee.fn.sum(Rating.weight * Rating.rating).alias("sum"),
+                peewee.fn.sum(Rating.weight).alias("total"),
             )
-            base["bookings"] = {"nb": len(bookings)}
+            .where(Rating.item == item_id)
+            .group_by(Rating.source)
+        )
+        base["ratings"] = {
+            i.source: round(i.sum / i.total, 1) for i in ratings if i.total
+        }
+
+        if loans:
+            base["status"] = loans[0].status
+            base["return"] = loans[0].stop
             if auth:
-                if auth.role == "admin":
-                    base["bookings"]["entries"] = bookings
-                else:
-                    base["bookings"]["entries"] = [
-                        i for i in bookings if i["user"] == auth.id
-                    ]
+                # Filter own loans
+                if auth.role != "admin":
+                    loans = [i for i in loans if i.user_id == auth.id]
+                base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
 
-            # Ratings
-            ratings = (
-                Rating.select(
-                    Rating.source,
-                    peewee.fn.sum(Rating.weight * Rating.rating).alias("sum"),
-                    peewee.fn.sum(Rating.weight).alias("total"),
-                )
-                .where(Rating.item == item_id)
-                .group_by(Rating.source)
-            )
-            base["ratings"] = {
-                i.source: round(i.sum / i.total, 1) for i in ratings if i.total
-            }
+        return base
 
-            if loans:
-                base["status"] = loans[0].status
-                base["return"] = loans[0].stop
-                if auth:
-                    # Filter own loans
-                    if auth.role != "admin":
-                        loans = [i for i in loans if i.user_id == auth.id]
-                    base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
 
-            return base
-    raise HTTPException(404)
+@router.get("/items/{item_id}/opengraph", tags=["items"], response_class=HTMLResponse)
+def get_item_opengraph(item_id: int):
+    # Render a public opengraph preview for bots
+    with db:
+        item = Item.get_or_none(Item.id == item_id)
+        if not item:
+            raise HTTPException(404)
+
+        html = "<!doctype html>\n<html>\n<head>\n"
+        html += f"  <title>{item.name}</title>\n"
+        html += f'  <meta property="og:title" content="{item.name}"/>\n'
+        html += '  <meta property="og:type" content="website"/>\n'
+        html += '  <meta property="og:site_name" content="Ludo du Poisson-Lune"/>\n'
+        html += '  <meta property="og:locale" content="fr_FR"/>\n'
+        html += f'  <meta property="og:url" content="https://ludotheque.fly.dev/items/{item.id}"/>\n'
+        description = item.description.replace("\n", "").replace('"', "&quot;")
+        html += f'  <meta property="og:description" content="{description}"/>\n'
+        for i in item.pictures:
+            html += f'  <meta property="og:image" content="https://ludotheque.fly.dev/storage/img/{i}"/>\n'
+        html += "</head>\n<body></body>\n</html>\n"
+        return html
 
 
 def modif_pictures(
