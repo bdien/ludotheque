@@ -271,6 +271,22 @@ export function Item(props: ItemProps) {
             </Icon>
           </IconButton>
         )}
+
+        {/* Share button */}
+        {navigator.share && (
+          <IconButton
+            sx={{ fontSize: "1.5em" }}
+            aria-label="share"
+            title="Partager"
+            onClick={() => {
+              navigator.share({ url: window.location.href, title: item.name });
+            }}
+          >
+            <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
+              share
+            </Icon>
+          </IconButton>
+        )}
       </Box>
 
       <Box display="flex" sx={{ height: "clamp(200px, 35vh, 550px)" }}>
