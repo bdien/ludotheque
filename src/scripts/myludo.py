@@ -8,6 +8,7 @@ import pathlib
 import re
 import sys
 
+import diskcache
 import questionary
 import requests
 from cli import Ludotheque
@@ -17,6 +18,7 @@ class MyLudo:
     def __init__(self):
         # Get session ID cookie
         self.session = requests.Session()
+        self.cache = diskcache.Cache(".ludoweb_cache")
 
         # Find CSRF-Token
         r = self.session.get("https://www.myludo.fr/#!/home")
@@ -34,24 +36,33 @@ class MyLudo:
         )
 
     def search(self, name, limit=18):
-        r = self.session.get(
-            f"https://www.myludo.fr/views/search/datas.php?type=search&tab=games&words={name}&limit={limit}&order=bymagic"
-        )
+        data = self.cache.get(f"myludo_search_{name}")
+        if not data:
+            r = self.session.get(
+                f"https://www.myludo.fr/views/search/datas.php?type=search&tab=games&words={name}&limit={limit}&order=bymagic"
+            )
+            data = r.json()["list"]
+            self.cache.set(f"myludo_search_{name}", data, expire=604800)  # 1 week
 
-        game_list = r.json()["list"]
-        return {f"{i['title']} ({i['id']})": i["id"] for i in game_list}
+        return {f"{i['title']} ({i['id']})": i["id"] for i in data}
 
     def game(self, game_id: int) -> dict:
-        r = self.session.get(
-            f"https://www.myludo.fr/views/game/datas.php?type=game&id={game_id}"
-        )
-        desc = r.json()
+        desc = self.cache.get(f"myludo_game_{game_id}")
+        if not desc:
+            r = self.session.get(
+                f"https://www.myludo.fr/views/game/datas.php?type=game&id={game_id}"
+            )
+            desc = r.json()
+            self.cache.set(f"myludo_game_{game_id}", desc, expire=604800)  # 1 week
 
         # New requests to get content + descriptions
-        r = self.session.get(
-            f"https://www.myludo.fr/views/game/datas.php?type=info&id={game_id}"
-        )
-        game_info = r.json()
+        game_info = self.cache.get(f"myludo_info_{game_id}")
+        if not game_info:
+            r = self.session.get(
+                f"https://www.myludo.fr/views/game/datas.php?type=info&id={game_id}"
+            )
+            game_info = r.json()
+            self.cache.set(f"myludo_info_{game_id}", game_info, expire=604800)  # 1 week
 
         for i in "content", "description", "themes":
             desc[i] = game_info[i]
@@ -142,7 +153,7 @@ def main():
             ratings = {game_rating["average"]: game_rating["audience"]}
         rating = sum(k * v for k, v in ratings.items()) / sum(ratings.values())
 
-        if sum(ratings.values()) >= 100:
+        if sum(ratings.values()) >= 50:
             links[-1]["extra"] = {"rating": round(rating, 2)}
 
     # Categories

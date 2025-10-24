@@ -5,6 +5,7 @@ import os
 import re
 import sys
 
+import diskcache
 import questionary
 import requests
 from cli import Ludotheque
@@ -14,6 +15,7 @@ class BGG:
     def __init__(self):
         # Get session ID cookie
         self.session = requests.Session()
+        self.cache = diskcache.Cache(".ludoweb_cache")
 
         # Add headers
         self.session.headers.update({"referer": "https://boardgamegeek.com/"})
@@ -25,11 +27,16 @@ class BGG:
         self.session.headers.update({"accept": "application/json, text/plain, */*"})
 
     def search(self, name, limit=18):
-        r = self.session.get(
-            f"https://boardgamegeek.com/search/boardgame?nosession=1&q={name}&showcount=20"
-        )
+        # Cache
+        data = self.cache.get(f"bgg_search_{name}")
+        if not data:
+            r = self.session.get(
+                f"https://boardgamegeek.com/search/boardgame?nosession=1&q={name}&showcount=20"
+            )
+            data = r.json()
+            self.cache.set(f"bgg_search_{name}", data, expire=604800)  # 1 week
 
-        return {f"{i['name']} ({i['id']})": i["id"] for i in r.json()["items"]}
+        return {f"{i['name']} ({i['id']})": i["id"] for i in data["items"]}
 
     def game(self, game_id: int) -> dict:
         # Get game description
@@ -39,14 +46,18 @@ class BGG:
         # desc = r.json()
         desc = {"id": game_id}
 
-        # Get statistics
-        r = self.session.get(
-            f"https://boardgamegeek.com/boardgame/{game_id}/stats/stats"
-        )
-        jsonstr = re.search(r"GEEK.geekitemPreload = (.*?);\n", r.text)
-        game_data = json.loads(jsonstr[1])
-        stats = game_data["item"]["stats"]
+        # Cache
+        data = self.cache.get(f"bgg_stats_{game_id}")
+        if not data:
+            # Get statistics
+            r = self.session.get(
+                f"https://boardgamegeek.com/boardgame/{game_id}/stats/stats"
+            )
+            jsonstr = re.search(r"GEEK.geekitemPreload = (.*?);\n", r.text)
+            data = json.loads(jsonstr[1])
+            self.cache.set(f"bgg_stats_{game_id}", data, expire=604800)  # 1 week
 
+        stats = data["item"]["stats"]
         desc["rating"] = float(stats["average"])
         desc["complexity"] = float(stats["avgweight"])
 
