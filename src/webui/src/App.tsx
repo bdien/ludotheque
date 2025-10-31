@@ -72,8 +72,8 @@ function App() {
 
   return (
     <Box
-      height="100vh"
-      width="100vw"
+      height="100dvh"
+      width="100dvw"
       display="flex"
       sx={{ mx: "auto", maxWidth: 1700 }}
     >
@@ -82,7 +82,7 @@ function App() {
       <Box
         component="main"
         sx={{
-          height: "calc(100vh - 130px)",
+          height: "calc(100dvh - 100px)",
           flexGrow: 1,
           p: 1,
           width: { sm: `calc(100% - 240px)` },
