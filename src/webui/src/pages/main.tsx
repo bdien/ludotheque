@@ -84,6 +84,7 @@ export function Main() {
         <img
           src="/photomain.webp"
           alt="Logo Picture"
+          fetchPriority="high"
           style={{ maxWidth: "100%", borderRadius: "2%" }}
         />
         {info?.pricing && (

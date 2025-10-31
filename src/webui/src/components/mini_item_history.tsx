@@ -68,6 +68,7 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
                 objectFit: "contain",
               }}
               src={`/storage/thumb/${picture}`}
+              loading="lazy"
             />
           </Link>
         ) : (

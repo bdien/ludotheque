@@ -43,7 +43,11 @@ export function SideMenu(props: SideMenuProps) {
           to="/"
           onClick={() => props.setIsDrawerOpen(false)}
         >
-          <img src="/logosmall.webp" style={{ maxWidth: "100%" }} />
+          <img
+            src="/logosmall.webp"
+            style={{ maxWidth: "100%" }}
+            loading="lazy"
+          />
         </ListItem>
         <ListItem
           component={Link}
