@@ -1,6 +1,6 @@
 import { useItems } from "../api/hooks";
 import { useGlobalStore } from "../hooks/global_store";
-import { ItemModel } from "../api/models";
+import { ItemListEntry } from "../api/models";
 import { Link } from "wouter";
 import { AgeChip } from "../components/age_chip";
 import { forwardRef, useState } from "react";
@@ -26,6 +26,7 @@ import {
   Menu,
   MenuList,
 } from "@mui/material";
+import { differenceInDays } from "date-fns";
 
 function exportCSV() {
   exportItems().then((txt) => {
@@ -45,7 +46,7 @@ function exportCSV() {
   });
 }
 
-function nameDisplay(item: ItemModel) {
+function nameDisplay(item: ItemListEntry) {
   return (
     <Link href={`/items/${item.id}`} style={{ textDecoration: "none" }}>
       <Box
@@ -64,6 +65,21 @@ function nameDisplay(item: ItemModel) {
           }}
         >
           {item.name}
+          {differenceInDays(new Date(), item.created_at) < 45 && (
+            <span
+              style={{
+                padding: "0.2em 4px",
+                fontSize: "0.75em",
+                fontWeight: "400",
+                borderRadius: "6px",
+                marginLeft: "4px",
+                backgroundColor: "hsl(50, 100%, 70%)",
+                border: "1px solid #DDDDDD",
+              }}
+            >
+              New
+            </span>
+          )}
         </Box>
         {item.status == "out" && (
           <Icon
@@ -110,7 +126,7 @@ function nameDisplay(item: ItemModel) {
   );
 }
 
-function playerDisplay(item: ItemModel) {
+function playerDisplay(item: ItemListEntry) {
   const txt = item.players_min;
   if (item.players_min == item.players_max) return <>{txt}</>;
   if (item.players_max == 99) return <>{txt}+</>;
@@ -121,7 +137,7 @@ function playerDisplay(item: ItemModel) {
   );
 }
 
-const TableComps: TableComponents<ItemModel> = {
+const TableComps: TableComponents<ItemListEntry> = {
   Scroller: forwardRef((props, ref) => (
     <TableContainer component={Paper} {...props} ref={ref} />
   )),
@@ -195,6 +211,7 @@ export function ItemList() {
   if (filter.disabled) {
     displayed = displayed.filter((i) => i.enabled);
   }
+  displayed.sort((a, b) => (b.id > a.id ? 1 : -1));
 
   return (
     <>
