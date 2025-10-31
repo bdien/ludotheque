@@ -39,8 +39,11 @@ export function Main() {
         <p>
           Nous sommes ouverts <b>tous les samedis de 10h30 à 12h00</b>, hors les
           samedis du milieu des vacances scolaires, au{" "}
-          <b>pôle enfance de la Passerelle</b>, à proximité de la médiathèque à
-          Acigné. Vous pouvez passer également passer pour jouer sur place.
+          <b>pôle enfance de la Passerelle</b>,{" "}
+          <a href="https://www.google.com/maps/place/48%C2%B008'04.6%22N+1%C2%B032'15.6%22W">
+            à proximité du cinéma
+          </a>{" "}
+          à Acigné. Vous pouvez passer également passer pour jouer sur place.
         </p>
         {isAuthenticated && (
           <p>
