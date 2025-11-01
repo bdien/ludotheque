@@ -82,7 +82,7 @@ function App() {
       <Box
         component="main"
         sx={{
-          height: "calc(100dvh - 100px)",
+          height: "calc(100dvh - 110px)",
           flexGrow: 1,
           p: 1,
           width: { sm: `calc(100% - 240px)` },

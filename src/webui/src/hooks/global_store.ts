@@ -14,6 +14,7 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
     nbitems: 0,
     domain: "",
     version: "",
+    next_opening: "",
     pricing: {
       regular: 0,
       big: 0,

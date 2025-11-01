@@ -11,7 +11,7 @@ import { Typography } from "@mui/material";
 export function Main() {
   const { info, account } = useGlobalStore();
   const { isAuthenticated, user } = useAuth0();
-  const { items } = useItems({ sort: "created_at", nb: 4 });
+  const { items } = useItems({ sort: "created_at", nb: 8 });
 
   // Filtres les jeux de moins de 3 mois
   let lastitems: ItemListEntry[] = [];
@@ -20,6 +20,14 @@ export function Main() {
       (i) => differenceInDays(new Date(), i.created_at) <= 90 && i.enabled,
     );
   }
+
+  // Check if we're open now
+  const now = new Date();
+  const isToday =
+    new Date(info.next_opening).toDateString() === now.toDateString();
+  const currentTime = now.getHours();
+  +now.getMinutes() / 60;
+  const isOpenNow = isToday && currentTime >= 10.5 && currentTime < 12;
 
   return (
     <>
@@ -31,6 +39,31 @@ export function Main() {
           Pourriez-vous nous contacter afin de résoudre ce problème ?
         </Alert>
       )}
+
+      {/* Prochaine ouverture */}
+      {info.next_opening && (
+        <Alert
+          sx={{ my: 1, border: "1px solid #bebebeff" }}
+          severity={isOpenNow ? "success" : "info"}
+        >
+          {isOpenNow ? (
+            <>Nous sommes actuellement ouverts jusqu'à 12h !</>
+          ) : (
+            <>
+              Réouverture{" "}
+              <b>
+                {new Date(info.next_opening).toLocaleString("fr-FR", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}
+              </b>{" "}
+              de 10h30 à 12h.
+            </>
+          )}
+        </Alert>
+      )}
+
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
           La <b>Ludo du Poisson Lune</b> vous propose un espace jeux pour passer
@@ -38,7 +71,7 @@ export function Main() {
         </p>
         <p>
           Nous sommes ouverts <b>tous les samedis de 10h30 à 12h00</b>, hors les
-          samedis du milieu des vacances scolaires, au{" "}
+          samedis du milieu des vacances scolaires et jours fériés, au{" "}
           <b>pôle enfance de la Passerelle</b>,{" "}
           <a href="https://www.google.com/maps/place/48%C2%B008'04.6%22N+1%C2%B032'15.6%22W">
             à proximité du cinéma
@@ -66,27 +99,36 @@ export function Main() {
 
         {lastitems.length > 1 && (
           <Box
-            sx={{ backgroundColor: "white", px: 1, mb: 1, borderRadius: "8px" }}
+            sx={{
+              backgroundColor: "white",
+              px: 1,
+              mb: 1,
+              width: "100%",
+              borderRadius: "8px",
+            }}
           >
             <Typography variant="overline" fontSize="1rem">
               Dernières arrivées
             </Typography>
             <Box
-              sx={{ display: "flex", pb: 1, maxHeight: "15vh", gap: "10px" }}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                flexWrap: "wrap",
+                pb: 1,
+                width: "100%",
+                gap: "2vw",
+              }}
             >
               {lastitems.map((i) => (
-                <ItemImage key={i.id} id={i.id} />
+                <div style={{ maxWidth: "21vw" }} key={i.id}>
+                  <ItemImage id={i.id} />
+                </div>
               ))}
             </Box>
           </Box>
         )}
 
-        <img
-          src="/photomain.webp"
-          alt="Logo Picture"
-          fetchPriority="high"
-          style={{ maxWidth: "100%", borderRadius: "2%" }}
-        />
         {info?.pricing && (
           <>
             <p>
@@ -126,6 +168,13 @@ export function Main() {
           </>
         )}
       </Box>
+
+      <img
+        src="/photomain.webp"
+        alt="Logo Picture"
+        fetchPriority="high"
+        style={{ maxWidth: "50vw", borderRadius: "2%" }}
+      />
     </>
   );
 }

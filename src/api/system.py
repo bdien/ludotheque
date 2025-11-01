@@ -12,14 +12,15 @@ import cachetools.func
 import requests
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import FileResponse
+from jours_feries_france import JoursFeries
 from starlette.background import BackgroundTask
+from vacances_scolaires_france import SchoolHolidayDates
 
 import api.gsheets
 from api import config
 from api.pwmodels import EMail, Item, Loan, Log, User, db
 
 router = APIRouter()
-auth_cache = cachetools.TTLCache(maxsize=64, ttl=60 * 2)
 stats_cache = {}
 
 
@@ -42,7 +43,7 @@ def __validate_token(authorization: str) -> str | None:
     return r.json().get("email")
 
 
-@cachetools.func.ttl_cache
+@cachetools.func.ttl_cache(ttl=600)
 def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser | None:
     "Authenticate the user and return id/email/role"
     if (not authorization) or (not authorization.lower().startswith("bearer")):
@@ -218,6 +219,25 @@ def stats(auth=Depends(auth_user)):
         return ret
 
 
+@cachetools.func.ttl_cache(ttl=6 * 3600)
+def get_next_saturday():
+    "Return next saturday (not during holidays or public holiday)"
+    today = datetime.date.today()
+    next_sat = today + datetime.timedelta(days=(5 - today.weekday() + 7) % 7)
+
+    # Today is already over 12h
+    if next_sat == today and datetime.datetime.now().hour >= 12:
+        next_sat += datetime.timedelta(days=7)
+
+    shd = SchoolHolidayDates()
+    jf = JoursFeries
+
+    while shd.is_holiday_for_zone(next_sat, "B") or jf.is_bank_holiday(next_sat):
+        next_sat += datetime.timedelta(days=7)
+
+    return next_sat.isoformat()
+
+
 @router.get("/info")
 def info():
     "Return global information about the system"
@@ -227,6 +247,7 @@ def info():
             "nbitems": Item.select().where(Item.enabled).count(),
             "domain": config.AUTH_DOMAIN,
             "pricing": config.PRICING,
+            "next_opening": get_next_saturday(),
             "loan": {"maxitems": config.LOAN_MAXITEMS, "weeks": config.LOAN_WEEKS},
             "booking": {
                 "maxitems": config.BOOKING_MAXITEMS,
