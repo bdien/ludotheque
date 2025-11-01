@@ -2,6 +2,7 @@ export interface Info {
   nbitems: number;
   domain: string;
   version: string;
+  next_opening: string;
   pricing: {
     regular: number;
     big: number;
