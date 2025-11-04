@@ -279,7 +279,9 @@ export function Item(props: ItemProps) {
             aria-label="share"
             title="Partager"
             onClick={() => {
-              navigator.share({ url: window.location.href, title: item.name });
+              navigator
+                .share({ url: window.location.href, title: item.name })
+                .catch((e) => console.warn(e.message));
             }}
           >
             <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
