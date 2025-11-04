@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA, VitePWAOptions } from "vite-plugin-pwa";
@@ -116,7 +117,20 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), VitePWA(manifestForPlugin)],
+  plugins: [
+    react(),
+    VitePWA(manifestForPlugin),
+    sentryVitePlugin({
+      org: "none-euz",
+      project: "javascript-react",
+      telemetry: false,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      sourcemaps: {
+        filesToDeleteAfterUpload: "**/*.js.map",
+      },
+    }),
+  ],
+
   server: {
     allowedHosts: ["ludotest.10av.fr"],
     proxy: {
@@ -125,5 +139,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
+  },
+
+  build: {
+    sourcemap: true,
   },
 });

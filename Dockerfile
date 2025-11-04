@@ -1,5 +1,7 @@
 FROM alpine:3.22 AS build
 EXPOSE 80
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
 
 # Build website
 RUN apk add nodejs
