@@ -92,7 +92,7 @@ def get_items(
 ):
     # Subquery (to add the last loan and extract status)
     subquery = Loan.select(
-        Loan.item_id, peewee.fn.MAX(Loan.stop), Loan.status
+        Loan.item_id, peewee.fn.MAX(Loan.stop).alias("loanstop"), Loan.status
     ).group_by(Loan.item_id)
 
     columns = (
@@ -108,7 +108,7 @@ def get_items(
         subquery.c.status,
     )
     if auth and auth.role == "admin":
-        columns += (Item.lastseen,)
+        columns += (Item.lastseen, subquery.c.loanstop)
 
     query = Item.select(*columns)
     if nb:
