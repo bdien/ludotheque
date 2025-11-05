@@ -13,6 +13,8 @@ import App from "./App.tsx";
 if (import.meta.env.PROD) {
   Sentry.init({
     dsn: "https://41b29de14247a00231ca28ebd998e737@o4510192818454528.ingest.de.sentry.io/4510193008377936",
+    integrations: [Sentry.browserTracingIntegration()],
+    tracesSampleRate: 0.5,
   });
 }
 
