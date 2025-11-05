@@ -2,9 +2,7 @@
 import argparse
 import contextlib
 import html
-import json
 import os
-import pathlib
 import re
 import sys
 
@@ -73,8 +71,8 @@ class MyLudo:
 def main():
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("game_id", help="Game ID to search")
+    parser.add_argument("--id", help="Force MyLudo ID")
     parser.add_argument("--apikey", default=os.getenv("LUDOTHEQUE_APIKEY"))
-    parser.add_argument("--json", "-j", help="Use JSON", type=pathlib.Path)
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dryrun", action="store_true")
     args = parser.parse_args()
@@ -90,28 +88,21 @@ def main():
     categories = {i["name"].lower(): i["id"] for i in ludo.get_categories()}
 
     # Game from myludo
-    if args.json and args.json.exists():
-        myludo_game = json.loads(args.json.read_text())
-    else:
-        myludo = MyLudo()
+    myludo = MyLudo()
 
-        myludo_id = next(
-            (i["ref"] for i in game.get("links") if i["name"] == "myludo"), None
-        )
-        # Search in MyLudo
-        if not myludo_id:
-            entries = myludo.search(game["name"])
-            if not entries:
-                sys.exit(f"Nothing found in myludo for '{game['name']}'")
-            entry = questionary.select("Which game?", choices=entries.keys()).ask()
-            myludo_id = entries[entry]
+    myludo_id = args.id or next(
+        (i["ref"] for i in game.get("links") if i["name"] == "myludo"), None
+    )
+    # Search in MyLudo
+    if not myludo_id:
+        entries = myludo.search(game["name"])
+        if not entries:
+            sys.exit(f"Nothing found in myludo for '{game['name']}'")
+        entry = questionary.select("Which game?", choices=entries.keys()).ask()
+        myludo_id = entries[entry]
 
-        # Query MyLudo
-        myludo_game = myludo.game(myludo_id)
-
-        if args.json:
-            args.json.write_text(json.dumps(myludo_game, indent=2))
-            print(f"'{args.json.as_posix()}' written")
+    # Query MyLudo
+    myludo_game = myludo.game(myludo_id)
 
     to_update = {}
 
@@ -151,10 +142,11 @@ def main():
             }
         else:
             ratings = {game_rating["average"]: game_rating["audience"]}
-        rating = sum(k * v for k, v in ratings.items()) / sum(ratings.values())
+        if sum(ratings.keys()) != 0:
+            rating = sum(k * v for k, v in ratings.items()) / sum(ratings.values())
 
-        if sum(ratings.values()) >= 50:
-            links[-1]["extra"] = {"rating": round(rating, 2)}
+            if sum(ratings.values()) >= 40:
+                links[-1]["extra"] = {"rating": round(rating, 2)}
 
     # Categories
     if args.force or not game.get("categories"):

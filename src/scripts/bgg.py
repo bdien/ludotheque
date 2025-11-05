@@ -58,8 +58,9 @@ class BGG:
             self.cache.set(f"bgg_stats_{game_id}", data, expire=604800)  # 1 week
 
         stats = data["item"]["stats"]
-        desc["rating"] = float(stats["average"])
-        desc["complexity"] = float(stats["avgweight"])
+        if int(stats.get("usersrated", "0")) > 30:
+            desc["rating"] = float(stats["average"])
+            desc["complexity"] = float(stats["avgweight"])
 
         return desc
 
@@ -67,6 +68,7 @@ class BGG:
 def main():
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("game_id", help="Game ID to search")
+    parser.add_argument("--id", help="Force BGG id")
     parser.add_argument("--apikey", default=os.getenv("LUDOTHEQUE_APIKEY"))
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--dryrun", action="store_true")
@@ -83,7 +85,9 @@ def main():
     # Game from myludo
     bgg = BGG()
 
-    bgg_id = next((i["ref"] for i in game.get("links") if i["name"] == "bgg"), None)
+    bgg_id = args.id or next(
+        (i["ref"] for i in game.get("links") if i["name"] == "bgg"), None
+    )
     # Search in BGG
     if not bgg_id:
         entries = bgg.search(game["name"])
