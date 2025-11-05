@@ -76,6 +76,30 @@ function nb_loans_percent(item: ItemModel, maxdays: number) {
   return Math.round((100 * loan_times) / nbdays);
 }
 
+function renderComplexityChip(complexity: number) {
+  const [color, text] =
+    complexity < 1.3
+      ? ["success" as const, "Facile à jouer"]
+      : complexity <= 2
+        ? ["info" as const, "Rapide à comprendre"]
+        : complexity <= 3
+          ? ["info" as const, "Un peu complexe"]
+          : complexity <= 4
+            ? ["warning" as const, "Mécanique complexe"]
+            : ["error" as const, "Règles difficiles"];
+
+  return (
+    <Chip
+      icon={<Icon>school</Icon>}
+      sx={{ p: 1, m: 0.25, borderRadius: "8px" }}
+      size="small"
+      variant="outlined"
+      color={color}
+      label={text}
+    />
+  );
+}
+
 function renderItemLink(link: ItemLinkModel) {
   let rating = link.extra?.rating;
   if (link.name == "myludo")
@@ -201,6 +225,9 @@ export function Item(props: ItemProps) {
   const pictures = item.pictures?.length
     ? item.pictures
     : ["../../notavailable.webp"];
+
+  // const myludo_link = item.links?.find(i => i.name === "myludo");
+  const bgg_link = item.links?.find((i) => i.name === "bgg");
 
   // Reset scroll position
   window.scrollTo(0, 0);
@@ -333,6 +360,19 @@ export function Item(props: ItemProps) {
         )}
       </Box>
 
+      {/* {myludo_link && myludo_link.extra?.rating && (
+        <MyludoScore
+          score={myludo_link.extra.rating}
+          myludoid={parseInt(myludo_link.ref)}
+        />
+      )}
+      {bgg_link && bgg_link.extra?.rating && (
+        <BGGScore
+          score={bgg_link.extra.rating}
+          bggid={parseInt(bgg_link.ref)}
+        />
+      )} */}
+
       {(item.description ||
         (item.categories && item.categories?.length > 0) ||
         (item.links && item.links?.length > 0)) && (
@@ -356,7 +396,14 @@ export function Item(props: ItemProps) {
           {/* Categories / Link */}
           {(item.categories || item.links) && (
             <Box>
+              {/* Complexité BGG */}
+              {bgg_link?.extra?.complexity &&
+                renderComplexityChip(bgg_link.extra.complexity)}
+
+              {/* Liens vers sites externes */}
               {item.links && item.links.map((lnk) => renderItemLink(lnk))}
+
+              {/* Catégories */}
               {item.categories &&
                 categories &&
                 item.categories.map((cat) => (
