@@ -7,7 +7,6 @@ import {
   LedgerEntry,
   Loan,
   User,
-  Users,
   Stats,
 } from "./models";
 import { SERVER_URL, fetcher } from "./calls";
@@ -224,7 +223,7 @@ export function useUserHistory(id?: number) {
 }
 
 export function useUsers() {
-  const { data, error, isLoading, mutate } = useSWR<Users>(
+  const { data, error, isLoading, mutate } = useSWR<User[]>(
     `${SERVER_URL}/users`,
     fetcher,
     { dedupingInterval: 60000 },

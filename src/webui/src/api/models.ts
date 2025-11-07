@@ -50,8 +50,6 @@ export interface User {
   last_warning?: string;
 }
 
-export type Users = User[];
-
 export interface ItemLinkModel {
   name: string;
   ref: string;

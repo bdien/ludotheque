@@ -293,8 +293,8 @@ def shortDate(d: datetime.date):
 @router.get("/users/{user_id}/email", tags=["users", "admin"])
 def send_user_email(
     user_id: int,
+    auth: Annotated[AuthUser, Depends(auth_user)],
     send: bool | None = False,
-    auth=Annotated[AuthUser, Depends(auth_user)],
 ):
     check_auth(auth, "admin")
     with db:
