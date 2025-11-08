@@ -140,7 +140,8 @@ def test_edit_item_attributes(toedit: dict):
     assert newjson.items() <= item.items()
 
 
-def test_get_items():
+@pytest.mark.parametrize("auth_role", (AUTH_ADMIN, AUTH_USER, None))
+def test_get_items(auth_role):
     # Create items
     item1 = {"name": "obj1", "age": 10, "players_min": 2, "players_max": 7}
     item2 = {"name": "obj2", "age": 5}
@@ -148,17 +149,32 @@ def test_get_items():
     response = client.post("/items", json=item2, headers=AUTH_ADMIN)
 
     # Check in API
-    response = client.get("/items")
+    response = client.get("/items", headers=auth_role)
     items = response.json()
     assert len(items) == 2
     assert item1.items() <= items[0].items()
     assert item2.items() <= items[1].items()
 
     # Limit get items to 1 item
-    response = client.get("/items?nb=1")
+    response = client.get("/items?nb=1", headers=auth_role)
     items = response.json()
     assert len(items) == 1
     assert item1.items() <= items[0].items()
+
+
+@pytest.mark.parametrize("auth_role", (AUTH_ADMIN, AUTH_USER, None))
+def test_get_item(auth_role):
+    # Create item
+    with db:
+        item = Item.create(id=66, name="obj1")
+        Loan.create(item=item, user=User.create(name="user"))
+
+    # Check in API
+    response = client.get(f"/items/{item.id}", headers=auth_role)
+    assert response.status_code == 200
+    apiitem = response.json()
+    assert apiitem["id"] == item.id
+    assert apiitem["name"] == "obj1"
 
 
 def test_get_items_loaned():

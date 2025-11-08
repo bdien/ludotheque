@@ -32,9 +32,10 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "C", "W", "RUF", "UP", "SIM", "PIE", "PLE", "S", "G", "PT", "RET", "FAST", "I"]
-ignore = ["E402", "E501"]
+ignore = ["E402", "E501", "PT007"]
 # E402: module level import not at top of file
 # E501: Line too loog
+# PT007: Wrong type in pytest.mark.parametrize
 
 [tool.ruff.lint.mccabe]
 max-complexity = 28
