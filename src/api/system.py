@@ -219,7 +219,7 @@ def stats(auth=Depends(auth_user)):
         return ret
 
 
-@cachetools.func.ttl_cache(ttl=6 * 3600)
+@cachetools.func.ttl_cache(ttl=3600)
 def get_next_saturday():
     "Return next saturday (not during holidays or public holiday)"
     today = datetime.date.today()
@@ -232,7 +232,22 @@ def get_next_saturday():
     shd = SchoolHolidayDates()
     jf = JoursFeries
 
-    while shd.is_holiday_for_zone(next_sat, "B") or jf.is_bank_holiday(next_sat):
+    def is_closed(date: datetime.date) -> bool:
+        # Férié
+        if jf.is_bank_holiday(date):
+            return True
+
+        # Vacances scolaires zone B (Except first and last saturday)
+        friday_before = date - datetime.timedelta(days=1)
+        monday_after = date + datetime.timedelta(days=2)
+
+        return (
+            shd.is_holiday_for_zone(date, "B")
+            and shd.is_holiday_for_zone(friday_before, "B")
+            and shd.is_holiday_for_zone(monday_after, "B")
+        )
+
+    while is_closed(next_sat):
         next_sat += datetime.timedelta(days=7)
 
     return next_sat.isoformat()

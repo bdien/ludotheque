@@ -7,15 +7,16 @@ import api.system
 from api.config import APIKEY_PREFIX
 from api.main import app
 from api.pwmodels import EMail, User, db
-from api.system import auth_user
+from api.system import auth_user, get_next_saturday
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user
 
 
 @pytest.fixture(autouse=True)
-def _clear_cache():
+def _clear_caches():
     auth_user.cache_clear()
+    get_next_saturday.cache_clear()
 
 
 def test_auth_apikey():
@@ -104,3 +105,21 @@ def test_backup():
         headers=AUTH_USER,
     )
     assert response.status_code == 403
+
+
+@pytest.mark.parametrize(
+    ("today", "expected"),
+    [
+        ("2025-11-08 11:59", "2025-11-08"),  # Samedi normal
+        ("2025-11-08 12:01", "2025-11-15"),  # Samedi normal après 12:00
+        ("2025-11-07", "2025-11-08"),  # Vendredi
+        ("2025-11-01", "2025-11-08"),  # Samedi férié
+        ("2025-10-31", "2025-11-08"),  # Vendredi avant férié
+        ("2025-12-19", "2025-12-20"),  # Avant vacances de Noël
+        ("2025-12-21", "2026-01-03"),  # Pendant vacances de Noël
+        ("2026-01-01", "2026-01-03"),  # Pendant vacances de Noël
+    ],
+)
+def test_get_next_saturday(today, expected):
+    with freezegun.freeze_time(today):
+        assert get_next_saturday() == expected
