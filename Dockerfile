@@ -1,4 +1,4 @@
-FROM alpine:3.22 AS build
+FROM alpine:3 AS build
 EXPOSE 80
 ARG SENTRY_AUTH_TOKEN
 ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
@@ -12,7 +12,7 @@ RUN sed -i "s/DEVDEV/`date +%m%d%H%M`/" /app/src/api/system.py /app/src/webui/sr
 RUN cd /app/src/webui && pnpm install && pnpm run build
 
 # Now build final image
-FROM alpine:3.22
+FROM ghcr.io/astral-sh/uv:alpine
 
 ENV TZ=Europe/Paris
 ENV SENTRY_ENABLED=true
@@ -20,7 +20,7 @@ ENV MUSL_LOCPATH=/usr/share/i18n/locales/musl
 ENV LUDO_STORAGE=/app/storage
 VOLUME /app/storage
 
-RUN apk add --no-cache uv nginx sqlite tzdata lang
+RUN apk add --no-cache nginx sqlite tzdata lang
 
 COPY --from=build /app/src/webui/dist /app/www
 COPY --from=build /app/src/api /app/src/api

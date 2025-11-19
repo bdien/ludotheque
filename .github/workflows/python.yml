@@ -12,7 +12,7 @@ jobs:
       - name: Setup Python and UV
         uses: astral-sh/setup-uv@v6
         with:
-          python-version: "3.13"
+          python-version: "3.14"
       - name: Run Python Linter
         run: uv run ruff check .
       - name: Run Python tests
