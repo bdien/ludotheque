@@ -18,31 +18,42 @@ export function NextOpening(props: NextOpeningProps) {
   const currentTime = now.getHours() + now.getMinutes() / 60;
   const isOpenNow = isToday && currentTime >= 10.5 && currentTime < 12;
 
-  {
-    /* Prochaine ouverture */
-  }
+  // Text
+  let nextOpeningText = <></>;
+  let alertSeverity = "info";
+  if (isOpenNow) {
+    alertSeverity = "success";
+    nextOpeningText = <>Nous sommes actuellement ouverts jusqu'à 12h !</>;
+  } else if (isToday && currentTime < 10.5) {
+    alertSeverity = "success";
+    nextOpeningText = <>Nous serons ouverts de 10h30 à 12h aujourd'hui !</>;
+  } else if (diffDays < 7)
+    nextOpeningText = (
+      <>
+        Réouverture <b>samedi prochain</b> de 10h30 à 12h.
+      </>
+    );
+  else
+    nextOpeningText = (
+      <>
+        Réouverture{" "}
+        <b>
+          {next.toLocaleString("fr-FR", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          })}
+        </b>{" "}
+        de 10h30 à 12h.
+      </>
+    );
+
   return (
     <Alert
       sx={{ my: 1, border: "1px solid #bebebeff" }}
-      severity={isOpenNow ? "success" : "info"}
+      severity={alertSeverity}
     >
-      {isOpenNow ? (
-        <>Nous sommes actuellement ouverts jusqu'à 12h !</>
-      ) : (
-        <>
-          Réouverture{" "}
-          <b>
-            {diffDays < 7
-              ? "samedi prochain"
-              : next.toLocaleString("fr-FR", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                })}
-          </b>{" "}
-          de 10h30 à 12h.
-        </>
-      )}
+      {nextOpeningText}
     </Alert>
   );
 }
