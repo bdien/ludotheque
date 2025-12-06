@@ -7,6 +7,7 @@ import { differenceInDays } from "date-fns";
 import { ItemListEntry } from "../api/models";
 import ItemImage from "../components/ItemImage";
 import { Typography } from "@mui/material";
+import { NextOpening } from "../components/NextOpening";
 
 export function Main() {
   const { info, account } = useGlobalStore();
@@ -21,14 +22,6 @@ export function Main() {
     );
   }
 
-  // Check if we're open now
-  const now = new Date();
-  const isToday =
-    new Date(info.next_opening).toDateString() === now.toDateString();
-  const currentTime = now.getHours();
-  +now.getMinutes() / 60;
-  const isOpenNow = isToday && currentTime >= 10.5 && currentTime < 12;
-
   return (
     <>
       {isAuthenticated && account && !account?.id && (
@@ -41,28 +34,7 @@ export function Main() {
       )}
 
       {/* Prochaine ouverture */}
-      {info.next_opening && (
-        <Alert
-          sx={{ my: 1, border: "1px solid #bebebeff" }}
-          severity={isOpenNow ? "success" : "info"}
-        >
-          {isOpenNow ? (
-            <>Nous sommes actuellement ouverts jusqu'à 12h !</>
-          ) : (
-            <>
-              Réouverture{" "}
-              <b>
-                {new Date(info.next_opening).toLocaleString("fr-FR", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                })}
-              </b>{" "}
-              de 10h30 à 12h.
-            </>
-          )}
-        </Alert>
-      )}
+      <NextOpening nextopening={info.next_opening} />
 
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
@@ -70,7 +42,7 @@ export function Main() {
           un bon moment en famille ou avec les copains...
         </p>
         <p>
-          Nous sommes ouverts <b>tous les samedis de 10h30 à 12h00</b>, hors les
+          Nous sommes ouverts <b>tous les samedis de 10h30 à 12h</b>, hors les
           samedis du milieu des vacances scolaires et jours fériés, au{" "}
           <b>pôle enfance de la Passerelle</b>,{" "}
           <a href="https://www.google.com/maps/place/48%C2%B008'04.6%22N+1%C2%B032'15.6%22W">
