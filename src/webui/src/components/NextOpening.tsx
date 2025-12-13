@@ -1,4 +1,4 @@
-import Alert from "@mui/material/Alert";
+import { Alert, AlertColor } from "@mui/material";
 import { differenceInDays } from "date-fns";
 
 interface NextOpeningProps {
@@ -51,7 +51,7 @@ export function NextOpening(props: NextOpeningProps) {
   return (
     <Alert
       sx={{ my: 1, border: "1px solid #bebebeff" }}
-      severity={alertSeverity}
+      severity={alertSeverity as AlertColor}
     >
       {nextOpeningText}
     </Alert>
