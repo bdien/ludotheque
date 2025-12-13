@@ -15,6 +15,7 @@ import api.ledger
 import api.loans
 import api.system
 import api.users
+from api.item_stats import update_olditems
 
 
 @contextlib.asynccontextmanager
@@ -34,6 +35,11 @@ async def lifespan(app: FastAPI):
     # Set locale to French
     with contextlib.suppress(Exception):
         locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
+
+    # Not in production, stop here
+    if os.getenv("LUDO_ENV") != "production":
+        yield
+        return
 
     scheduler = BackgroundScheduler()
 
@@ -59,6 +65,16 @@ async def lifespan(app: FastAPI):
         "cron",
         day_of_week="sun",
         hour=23,
+        misfire_grace_time=None,
+    )
+
+    # Game refresh (5 items every 12h)
+    scheduler.add_job(
+        update_olditems,
+        "interval",
+        hours=12,
+        jitter=1800,
+        args=[5],
         misfire_grace_time=None,
     )
 

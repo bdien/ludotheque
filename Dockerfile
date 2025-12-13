@@ -15,6 +15,7 @@ RUN cd /app/src/webui && pnpm install && pnpm run build
 FROM ghcr.io/astral-sh/uv:alpine
 
 ENV TZ=Europe/Paris
+ENV LUDO_ENV=production
 ENV SENTRY_ENABLED=true
 ENV MUSL_LOCPATH=/usr/share/i18n/locales/musl
 ENV LUDO_STORAGE=/app/storage

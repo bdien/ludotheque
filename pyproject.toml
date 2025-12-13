@@ -18,6 +18,7 @@ dependencies = [
     "sentry-sdk[fastapi]>=2.42.0",
     "vacances-scolaires-france>=0.10.0",
     "jours-feries-france>=0.7.0",
+    "bgg-api>=1.1.14",
 ]
 requires-python = ">=3.14"
 license = {text = "GPL2"}
