@@ -34,8 +34,8 @@ export function Main() {
       )}
 
       {/* Prochaine ouverture */}
-      <NextOpening nextopening={info.next_opening} />
-
+      {/*      <NextOpening nextopening={info.next_opening} />
+       */}
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
           La <b>Ludo du Poisson Lune</b> vous propose un espace jeux pour passer
