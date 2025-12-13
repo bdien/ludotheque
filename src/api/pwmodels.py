@@ -124,6 +124,7 @@ class ItemLink(BaseModel):
     name = peewee.CharField()
     ref = peewee.CharField()
     extra = JSONField(default={})
+    refreshed_at = peewee.DateField(default=date.today)
 
     class Meta:
         primary_key = peewee.CompositeKey("item", "name")
