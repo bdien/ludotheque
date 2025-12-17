@@ -7,7 +7,7 @@ from boardgamegeek import BGGClient
 
 from api.pwmodels import ItemLink, db
 
-MIN_NBRATINGS = 40
+MIN_RATINGS = 40
 
 
 class MyLudo:
@@ -87,7 +87,7 @@ def update_olditems(nb: int):
             .limit(nb)
         )
 
-        bgg = BGGClient(os.getenv("BGG_APIKEY"))
+        bgg = BGGClient(os.getenv("BGG_APIKEY", ""))
         myludo = MyLudo()
 
         for link in old_links:
@@ -101,9 +101,11 @@ def _update_item_bgg(bgg, bgg_link):
     "Update an item with BGG ratings"
 
     bgg_game = bgg.game(game_id=int(bgg_link.ref))
-    if bgg_game and bgg_game.users_commented > MIN_NBRATINGS:
-        rating = round(bgg_game.rating_average, 2)
-        complexity = round(bgg_game.rating_average_weight, 2)
+    if bgg_game and bgg_game.users_commented and bgg_game.users_commented > MIN_RATINGS:
+        if bgg_game.rating_average:
+            rating = round(bgg_game.rating_average, 2)
+        if bgg_game.rating_average_weight:
+            complexity = round(bgg_game.rating_average_weight, 2)
 
         bgg_link.extra = {
             "rating": rating,
@@ -121,7 +123,7 @@ def _update_item_myludo(myludo, myludo_link):
     ratings = myludo_game.get("ratings", {})
     nbratings = sum(ratings.values())
 
-    if nbratings > MIN_NBRATINGS:
+    if nbratings > MIN_RATINGS:
         average = sum(k * v for k, v in ratings.items()) / nbratings
         rating = round(average, 2)
 

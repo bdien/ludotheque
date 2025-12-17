@@ -421,7 +421,7 @@ async def modify_item(
 
 @router.post("/items/{item_id}/rating", tags=["items"])
 async def create_item_rating(
-    item_id: int, request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
+    item_id: int, request: Request, auth: Annotated[AuthUser, Depends(auth_user)]
 ):
     "Add rating"
 
@@ -451,7 +451,7 @@ async def create_item_rating(
 
 @router.post("/items/{item_id}/favorites", tags=["items"])
 async def set_item_favorites(
-    item_id: int, auth: Annotated[AuthUser | None, Depends(auth_user)]
+    item_id: int, auth: Annotated[AuthUser, Depends(auth_user)]
 ):
     check_auth(auth)
 
@@ -461,7 +461,7 @@ async def set_item_favorites(
 
 @router.delete("/items/{item_id}/favorites", tags=["items"])
 async def remove_item_favorites(
-    item_id: int, auth: Annotated[AuthUser | None, Depends(auth_user)]
+    item_id: int, auth: Annotated[AuthUser, Depends(auth_user)]
 ):
     check_auth(auth)
 
@@ -472,9 +472,7 @@ async def remove_item_favorites(
 
 
 @router.delete("/items/{item_id}", tags=["users", "admin"])
-async def delete_item(
-    item_id: int, auth: Annotated[AuthUser | None, Depends(auth_user)]
-):
+async def delete_item(item_id: int, auth: Annotated[AuthUser, Depends(auth_user)]):
     check_auth(auth, "admin")
     with db:
         item = Item.get_or_none(Item.id == item_id)

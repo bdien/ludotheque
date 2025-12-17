@@ -70,7 +70,7 @@ def re_acc(txt):
     return txt
 
 
-def uniquesplit(lst: list | None) -> list:
+def uniquesplit(lst: str | None) -> list:
     if not lst:
         return []
     return list(set(lst.split(",")))

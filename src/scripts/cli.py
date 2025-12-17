@@ -65,10 +65,10 @@ class Ludotheque:
         return self.__json_get(f"users/{user_id}")
 
     def update_user(self, user_id: int, params: dict) -> dict:
-        return self.__json_post(f"users/{user_id}", json=params)
+        return self.__json_post(f"users/{user_id}", params)
 
     def create_user(self, params: dict) -> dict:
-        return self.__json_post("users", json=params)
+        return self.__json_post("users", params)
 
     # Categories
 
@@ -147,14 +147,14 @@ class Ludotheque:
         self._tokens = {
             "access": auth.access_token,
             "expires_at": datetime.datetime.now()
-            + datetime.timedelta(seconds=auth.expires_in),
+            + datetime.timedelta(seconds=(auth.expires_in or 3600)),
             "id": auth.id_token,
             "refresh": auth.refresh_token,
         }
         self._session.headers.update(
             {"Authorization": f"Bearer {self._tokens['access']}"}
         )
-        self.__loginfunc = functools.partial(self.authenticate_interactive, self)
+        self.__loginfunc = functools.partial(self.auth_interactive, self)
         return True
 
     def auth_apikey(self, apikey: str) -> None:
@@ -163,7 +163,7 @@ class Ludotheque:
 
 
 if __name__ == "__main__":
-    apikey = os.getenv("LUDOTHEQUE_APIKEY")
+    apikey = os.getenv("LUDOTHEQUE_APIKEY", "")
     if not apikey:
         sys.exit("Please define LUDOTHEQUE_APIKEY")
 

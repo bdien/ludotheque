@@ -60,7 +60,7 @@ def fakestorage(monkeypatch):
 
 def fake_auth_user(
     authorization: Annotated[str | None, Header()] = None,
-) -> api.system.AuthUser:
+) -> api.system.AuthUser | None:
     if not authorization:
         return None
     user_id, user_role = authorization.split(",")

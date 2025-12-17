@@ -19,6 +19,9 @@ def main():
 
     if not args.apikey:
         parser.error("Please define LUDOTHEQUE_APIKEY or use --apikey")
+    bggkey = os.getenv("BGG_APIKEY", "")
+    if not bggkey:
+        parser.error("Please define BGG_APIKEY")
 
     # Original game
     ludo = Ludotheque("https://ludotheque.fly.dev")
@@ -26,10 +29,10 @@ def main():
     game = ludo.get_item(args.game_id)
 
     # Game from myludo
-    bgg = BGGClient(os.getenv("BGG_APIKEY"))
+    bgg = BGGClient(bggkey)
 
     bgg_id = args.id or next(
-        (i["ref"] for i in game.get("links") if i["name"] == "bgg"), None
+        (i["ref"] for i in game.get("links", []) if i["name"] == "bgg"), None
     )
     # Search in BGG
     bgg_game = None
@@ -58,9 +61,11 @@ def main():
 
     # Ratings
     extra = {}
-    if bgg_game.users_commented > 50:
-        extra["rating"] = round(bgg_game.rating_average, 2)
-        extra["complexity"] = round(bgg_game.rating_average_weight, 2)
+    if bgg_game.users_commented and bgg_game.users_commented > 50:
+        if bgg_game.rating_average:
+            extra["rating"] = round(bgg_game.rating_average, 2)
+        if bgg_game.rating_average_weight:
+            extra["complexity"] = round(bgg_game.rating_average_weight, 2)
     links[-1]["extra"] = extra
 
     # Filter everything empty

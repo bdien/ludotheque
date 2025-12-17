@@ -91,7 +91,7 @@ def main():
     myludo = MyLudo()
 
     myludo_id = args.id or next(
-        (i["ref"] for i in game.get("links") if i["name"] == "myludo"), None
+        (i["ref"] for i in game.get("links", []) if i["name"] == "myludo"), None
     )
     # Search in MyLudo
     if not myludo_id:
@@ -167,7 +167,7 @@ def main():
 
     # Content
     if (args.force or not game.get("content")) and myludo_game.get("content"):
-        content = html.unescape(myludo_game.get("content"))
+        content = html.unescape(myludo_game.get("content", ""))
         content = re.sub("<.*?>", "", content.replace("</li>", "\n"))
         content = [line.strip() for line in content.split("\n") if line.strip()]
         to_update["content"] = content
@@ -176,7 +176,7 @@ def main():
     if args.force or not game.get("gametime"):
         gametime = None
         with contextlib.suppress(ValueError):
-            gametime = int(myludo_game.get("duration"))
+            gametime = int(myludo_game.get("duration", "0"))
 
         # Otherwise use community
         if not gametime:
@@ -184,12 +184,13 @@ def main():
 
         # Otherwise use main card, but could be a string
         if not gametime:
-            gametime = myludo_game.get("duration").replace("—", "-")
+            gametime = myludo_game.get("duration", "").replace("—", "-")
             if "-" in str(gametime):
                 (low, high) = (int(i) for i in gametime.split("-"))
                 gametime = (high - low) // 2
 
-        to_update["gametime"] = gametime
+        if gametime:
+            to_update["gametime"] = gametime
 
     # Filter everything empty
     to_update = {k: v for k, v in to_update.items() if v}

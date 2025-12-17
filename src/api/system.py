@@ -93,7 +93,7 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
     return AuthUser(user.id, user.role)
 
 
-def check_auth(auth: AuthUser, minlevel: str = "user") -> None:
+def check_auth(auth: AuthUser | None, minlevel: str = "user") -> None:
     "Check that the user is authenticated and at minimum level, throw exception"
 
     if not auth:
@@ -290,7 +290,7 @@ def send_email(recipients: list[str], subject: str, body: str):
 
         recipients.append(config.EMAIL_CC)
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(config.EMAIL_SENDER, os.getenv("SMTP_PASSWORD"))
+            server.login(config.EMAIL_SENDER, os.environ["SMTP_PASSWORD"])
             server.sendmail(config.EMAIL_SENDER, recipients, html_message.as_string())
 
         return {"sent": True}
@@ -306,11 +306,12 @@ def remove_all_benevoles():
         User.update(role="user").where(User.role == "benevole").execute()
 
 
-def log_event(user: User, text: str):
+def log_event(user: User | AuthUser | None, text: str):
     try:
+        user_id = (user and user.id) or None
         if db_need_opening := db.is_closed():
             db.connect()
-        Log.create(user=user.id, text=text)
+        Log.create(user=user_id, text=text)
     finally:
         if db_need_opening:
             db.close()

@@ -20,7 +20,7 @@ def get_loans(auth=Depends(auth_user)):
 
 
 @router.get("/loans/late", tags=["loans", "admin"])
-def get_loans_late(mindays: int | None = 0, auth=Depends(auth_user)):
+def get_loans_late(mindays: int = 0, auth=Depends(auth_user)):
     check_auth(auth, "admin")
     stop_date = datetime.date.today() - datetime.timedelta(days=mindays)
 
