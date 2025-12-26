@@ -171,7 +171,6 @@ const DEFAULT_USER: User = {
   id: 0,
   name: "",
   emails: [],
-  favorites: [],
   bookings: [],
   role: "user",
   credit: 0,

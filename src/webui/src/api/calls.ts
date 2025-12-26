@@ -95,18 +95,6 @@ export async function unbook(bookingId: number) {
   });
 }
 
-export async function favItem(itemId: number) {
-  await fetchWithToken(`${SERVER_URL}/items/${itemId}/favorites`, {
-    method: "POST",
-  });
-}
-
-export async function unfavItem(itemId: number) {
-  await fetchWithToken(`${SERVER_URL}/items/${itemId}/favorites`, {
-    method: "DELETE",
-  });
-}
-
 // Loan
 // -------------------
 

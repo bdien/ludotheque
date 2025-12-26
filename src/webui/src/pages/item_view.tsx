@@ -6,7 +6,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { useCategories, useItem, useUser } from "../api/hooks";
+import { useCategories, useItem } from "../api/hooks";
 import { useGlobalStore } from "../hooks/global_store";
 import { AgeChip } from "../components/age_chip";
 import { ItemLinkModel, ItemModel, Loan } from "../api/models";
@@ -30,7 +30,6 @@ import { ShortUser } from "../components/short_user";
 import EmblaCarousel from "../components/EmblaCarousel";
 import { differenceInDays, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
-import { favItem, unfavItem } from "../api/calls";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
@@ -200,27 +199,15 @@ export function Item(props: ItemProps) {
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up("sm"));
   const { account } = useGlobalStore();
-  const { user, mutate: mutateUser } = useUser(account.id);
   const { item, error } = useItem(props.id);
   const { categories } = useCategories();
 
   if (error) return <div>Server error: {error.cause}</div>;
   if (!item) return <></>;
 
-  function changeFav(item_id: number, isFav: boolean) {
-    let promise = favItem;
-    if (isFav) promise = unfavItem;
-
-    promise(item_id).then(() => {
-      if (mutateUser) mutateUser();
-    });
-  }
-
   const ownLoans = item.loans
     ? item.loans.filter((i) => i.user == account.id)
     : [];
-
-  const isFav = user?.favorites.indexOf(item.id) != -1;
 
   const pictures = item.pictures?.length
     ? item.pictures
@@ -288,15 +275,6 @@ export function Item(props: ItemProps) {
               </Icon>
             </IconButton>
           </>
-        )}
-
-        {/* Favorite button */}
-        {user && user.id != 0 && (
-          <IconButton onClick={() => changeFav(item.id, isFav)}>
-            <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
-              {isFav ? "favorite" : "favorite_outline"}
-            </Icon>
-          </IconButton>
         )}
 
         {/* Share button */}

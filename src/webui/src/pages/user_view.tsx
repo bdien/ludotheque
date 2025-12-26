@@ -14,7 +14,6 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { useState } from "react";
 import { UserHistory } from "../components/user_history";
 import { UserLoans } from "../components/user_loans";
-import { unfavItem } from "../api/calls";
 
 interface UserViewProps {
   id: number;
@@ -27,9 +26,6 @@ export function UserView(props: UserViewProps) {
 
   if (error) return <div>Impossible de charger: {error}</div>;
   if (!user || !mutate) return <Loading />;
-
-  if (user.favorites.length == 0 && tabIndex == "favorites")
-    setTabIndex("loans");
 
   return (
     <>
@@ -44,9 +40,6 @@ export function UserView(props: UserViewProps) {
               onChange={(_event, value) => setTabIndex(value)}
             >
               <Tab label="Emprunts" value="loans" />
-              {user.favorites.length > 0 && (
-                <Tab label="Favoris" value="favorites" />
-              )}
               <Tab label="Historique" value="history" />
               {user.bookings.length > 0 && (
                 <Tab label="Resas" value="bookings" />
@@ -60,23 +53,6 @@ export function UserView(props: UserViewProps) {
             loans={user.loans ?? []}
             buttons={account?.role == "admin" || account?.role == "benevole"}
           />
-        </TabPanel>
-
-        <TabPanel value="favorites" sx={{ p: 0, pt: 2 }}>
-          <Box display="flex" flexWrap="wrap">
-            {user.favorites.map((objid) => (
-              <MiniItem
-                key={objid}
-                id={objid}
-                action={{
-                  text: <Icon>heart_broken</Icon>,
-                  func: () => {
-                    unfavItem(objid).then(() => mutate());
-                  },
-                }}
-              />
-            ))}
-          </Box>
         </TabPanel>
 
         <TabPanel value="history" sx={{ p: 0, pt: 1 }}>

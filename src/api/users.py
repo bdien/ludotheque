@@ -13,7 +13,7 @@ from fastapi.responses import PlainTextResponse
 from playhouse.shortcuts import model_to_dict
 
 from api.config import EMAIL_MINPERIOD
-from api.pwmodels import Booking, EMail, Favorite, Item, Loan, User, db
+from api.pwmodels import Booking, EMail, Item, Loan, User, db
 from api.system import AuthUser, auth_user, check_auth, log_event, send_email
 
 router = APIRouter()
@@ -183,12 +183,6 @@ def get_user(user_id: int, auth=Depends(auth_user)):
             raise HTTPException(404)
         ret = model_to_dict(user, recurse=False)
         ret["emails"] = [i.email for i in user.email_set]
-
-        # Favorites
-        ret["favorites"] = [
-            i.item_id
-            for i in Favorite.select(Favorite.item_id).where(Favorite.user == user)
-        ]
 
         # Loans
         ret["loans"] = list(

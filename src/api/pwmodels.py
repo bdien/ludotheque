@@ -36,7 +36,6 @@ def create_all_tables(drop=False):
         EMail,
         Item,
         ItemLink,
-        Favorite,
         Category,
         ItemCategory,
         Loan,
@@ -97,14 +96,6 @@ class Item(BaseModel):
     notes = peewee.TextField(null=True)
     lastseen = peewee.DateField(default=date.today)
     created_at = peewee.DateField(default=date.today)
-
-
-class Favorite(BaseModel):
-    user = peewee.ForeignKeyField(model=User)
-    item = peewee.ForeignKeyField(model=Item)
-
-    class Meta:
-        indexes = ((("user", "item"), True),)
 
 
 class Category(BaseModel):

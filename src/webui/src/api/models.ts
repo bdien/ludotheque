@@ -35,7 +35,6 @@ export interface User {
   name: string;
   enabled: boolean;
   emails: string[];
-  favorites: number[];
   role: string;
   credit: number;
   oldest_loan?: string;
