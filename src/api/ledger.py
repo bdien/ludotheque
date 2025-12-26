@@ -6,7 +6,7 @@ from api.system import auth_user, check_auth
 router = APIRouter()
 
 
-@router.get("/ledger", tags=["ledger", "admin"])
+@router.get("/ledger", tags=["ledger"])
 async def get_ledger(auth=Depends(auth_user)) -> list:
     check_auth(auth, "admin")
     with db:

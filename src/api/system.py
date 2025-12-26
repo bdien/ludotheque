@@ -105,7 +105,7 @@ def check_auth(auth: AuthUser | None, minlevel: str = "user") -> None:
         raise HTTPException(403)
 
 
-@router.get("/backup")
+@router.get("/backup", tags=["admin"])
 def create_backup(auth=Depends(auth_user)):
     "Create a TAR file with the DB and images"
 
@@ -128,7 +128,7 @@ def create_backup(auth=Depends(auth_user)):
     return FileResponse(fn, filename=final_fn, background=BackgroundTask(os.remove, fn))
 
 
-@router.get("/maintenance")
+@router.get("/maintenance", tags=["admin"])
 def run_maintenance(auth=Depends(auth_user)):
     "Run maintenance tasks"
 
@@ -196,7 +196,7 @@ def stats_per_day(stop_day, duration_weeks=4):
     return stats_cache[stop_day]
 
 
-@router.get("/stats")
+@router.get("/stats", tags=["admin"])
 def stats(auth=Depends(auth_user)):
     "Return stats (Loans, Users)"
 

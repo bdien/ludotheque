@@ -96,6 +96,14 @@ export interface ItemModel {
   };
 }
 
+export interface LoanHistoryItem {
+  id: number;
+  start: string;
+  stop: string;
+  item: number;
+  name: string;
+}
+
 export interface Loan {
   id: number;
   item: number;

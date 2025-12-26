@@ -3,10 +3,10 @@ import Typography from "@mui/material/Typography";
 import { useItem } from "../api/hooks";
 import { Link } from "wouter";
 import Skeleton from "@mui/material/Skeleton";
-import { Loan } from "../api/models";
+import { LoanHistoryItem } from "../api/models";
 
 interface MiniItemHistoryProps {
-  loan: Loan;
+  loan: LoanHistoryItem;
 }
 
 export function MiniItemHistory(props: MiniItemHistoryProps) {
@@ -98,13 +98,11 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
                 day: "numeric",
               })}
               {" → "}
-              {props.loan.status == "in"
-                ? new Date(props.loan.stop).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })
-                : "En cours"}
+              {new Date(props.loan.stop).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
             </Typography>
           </>
         ) : (

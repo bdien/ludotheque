@@ -8,6 +8,7 @@ import {
   Loan,
   User,
   Stats,
+  LoanHistoryItem,
 } from "./models";
 import { SERVER_URL, fetcher } from "./calls";
 
@@ -204,7 +205,7 @@ export function useUser(id?: number) {
 }
 
 export function useUserHistory(id?: number) {
-  const { data, error, isLoading, mutate } = useSWR<Loan[]>(
+  const { data, error, isLoading, mutate } = useSWR<LoanHistoryItem[]>(
     `${SERVER_URL}/users/${id}/history`,
     fetcher,
     {

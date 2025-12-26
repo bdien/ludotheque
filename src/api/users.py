@@ -11,6 +11,7 @@ import peewee
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from playhouse.shortcuts import model_to_dict
+from pydantic import BaseModel
 
 from api.config import EMAIL_MINPERIOD
 from api.pwmodels import Booking, EMail, Item, Loan, User, db
@@ -19,7 +20,7 @@ from api.system import AuthUser, auth_user, check_auth, log_event, send_email
 router = APIRouter()
 
 
-@router.post("/users", tags=["users", "admin"])
+@router.post("/users", tags=["users"])
 async def create_user(request: Request, auth=Depends(auth_user)):
     check_auth(auth, "admin")
     body = await request.json()
@@ -76,7 +77,7 @@ def uniquesplit(lst: str | None) -> list:
     return list(set(lst.split(",")))
 
 
-@router.get("/users", tags=["users", "benevole"])
+@router.get("/users", tags=["users"])
 def get_users(
     nb: int = 0, sort: str | None = None, q: str | None = None, auth=Depends(auth_user)
 ):
@@ -121,7 +122,7 @@ def get_users(
         return ret
 
 
-@router.get("/users/export", tags=["users", "admin"], response_class=PlainTextResponse)
+@router.get("/users/export", tags=["users"], response_class=PlainTextResponse)
 def export_users(auth=Depends(auth_user)):
     "Export CSV"
 
@@ -140,14 +141,14 @@ def export_users(auth=Depends(auth_user)):
         return f.getvalue()
 
 
-@router.get("/users/me", tags=["users"])
+@router.get("/users/me", tags=["user"])
 def get_myself(auth=Depends(auth_user)):
     if not auth:
         return {}
     return {"role": auth.role, "id": auth.id}
 
 
-@router.get("/users/search", tags=["users", "benevole"])
+@router.get("/users/search", tags=["users"])
 def search_user(q: str | None = None, auth=Depends(auth_user)):
     check_auth(auth, "benevole")
     if not q:
@@ -164,7 +165,7 @@ def search_user(q: str | None = None, auth=Depends(auth_user)):
         )
 
 
-@router.get("/users/{user_id}", tags=["users"])
+@router.get("/users/{user_id}", tags=["user"])
 def get_user(user_id: int, auth=Depends(auth_user)):
     # Must be authenticated. If not checking self, must be at least benevole
     check_auth(auth)
@@ -212,8 +213,16 @@ def get_user(user_id: int, auth=Depends(auth_user)):
     return ret
 
 
-@router.get("/users/{user_id}/history", tags=["users"])
-def get_user_history(user_id: int, auth=Depends(auth_user)):
+class LoanHistoryItem(BaseModel):
+    id: int
+    start: datetime.date
+    stop: datetime.date
+    item: int
+    name: str
+
+
+@router.get("/users/{user_id}/history", tags=["user"])
+def get_user_history(user_id: int, auth=Depends(auth_user)) -> list[LoanHistoryItem]:
     # Must be authenticated. If not checking self, must be at least admin
     check_auth(auth)
     if user_id != auth.id:
@@ -221,14 +230,15 @@ def get_user_history(user_id: int, auth=Depends(auth_user)):
 
     with db:
         return list(
-            Loan.select()
+            Loan.select(Loan.id, Loan.start, Loan.stop, Loan.item, Item.name)
             .where(Loan.user_id == user_id, Loan.status == "in")
+            .join(Item)
             .order_by(Loan.stop.desc())
             .dicts()
         )
 
 
-@router.post("/users/{user_id}", tags=["users", "admin"])
+@router.post("/users/{user_id}", tags=["user"])
 async def modify_user(
     user_id: int, request: Request, auth: Annotated[AuthUser, Depends(auth_user)]
 ):
@@ -263,7 +273,7 @@ async def modify_user(
     return {"id": user_id}
 
 
-@router.delete("/users/{user_id}", tags=["users", "admin"])
+@router.delete("/users/{user_id}", tags=["user"])
 async def delete_user(user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]):
     check_auth(auth, "admin")
     with db:
@@ -284,7 +294,7 @@ def shortDate(d: datetime.date):
     return d.strftime(fmt).lstrip("0")
 
 
-@router.get("/users/{user_id}/email", tags=["users", "admin"])
+@router.get("/users/{user_id}/email", tags=["user"])
 def send_user_email(
     user_id: int,
     auth: Annotated[AuthUser, Depends(auth_user)],

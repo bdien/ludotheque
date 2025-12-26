@@ -31,7 +31,7 @@ LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 router = APIRouter()
 
 
-@router.post("/items", tags=["items", "admin"])
+@router.post("/items", tags=["items"])
 async def create_item(
     request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
 ):
@@ -129,7 +129,7 @@ def get_items(
         return list(query.dicts())
 
 
-@router.get("/items/export", tags=["items", "admin"], response_class=PlainTextResponse)
+@router.get("/items/export", tags=["items"], response_class=PlainTextResponse)
 def export_items(auth: Annotated[AuthUser | None, Depends(auth_user)]):
     "Export CSV"
 
@@ -213,7 +213,7 @@ def search_item(q: str | None = None):
         )
 
 
-@router.get("/items/{item_id}", tags=["items"])
+@router.get("/items/{item_id}", tags=["item"])
 def get_item(
     item_id: int,
     auth: Annotated[AuthUser | None, Depends(auth_user)],
@@ -295,7 +295,7 @@ def get_item(
         return base
 
 
-@router.get("/items/{item_id}/opengraph", tags=["items"], response_class=HTMLResponse)
+@router.get("/items/{item_id}/opengraph", tags=["item"], response_class=HTMLResponse)
 def get_item_opengraph(item_id: int):
     # Render a public opengraph preview for bots
     with db:
@@ -362,7 +362,7 @@ def modif_pictures(
     return newpictures
 
 
-@router.post("/items/{item_id}", tags=["items", "benevole"])
+@router.post("/items/{item_id}", tags=["item"])
 async def modify_item(
     item_id: int, request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
 ):
@@ -418,7 +418,7 @@ async def modify_item(
     return {"id": item.id}
 
 
-@router.post("/items/{item_id}/rating", tags=["items"])
+@router.post("/items/{item_id}/rating", tags=["item"])
 async def create_item_rating(
     item_id: int, request: Request, auth: Annotated[AuthUser, Depends(auth_user)]
 ):
@@ -448,7 +448,7 @@ async def create_item_rating(
             ).execute()
 
 
-@router.delete("/items/{item_id}", tags=["users", "admin"])
+@router.delete("/items/{item_id}", tags=["item"])
 async def delete_item(item_id: int, auth: Annotated[AuthUser, Depends(auth_user)]):
     check_auth(auth, "admin")
     with db:
@@ -476,7 +476,7 @@ def get_categories():
         return list(Category.select().order_by(Category.name).dicts())
 
 
-@router.post("/categories", tags=["categories", "admin"])
+@router.post("/categories", tags=["categories"])
 async def create_category(
     request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
 ):
@@ -487,7 +487,7 @@ async def create_category(
         return model_to_dict(c)
 
 
-@router.post("/categories/{cat_id}", tags=["categories", "admin"])
+@router.post("/categories/{cat_id}", tags=["categories"])
 async def update_category(
     cat_id: int, request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
 ):

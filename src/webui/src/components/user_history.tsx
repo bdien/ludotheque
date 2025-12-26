@@ -1,15 +1,16 @@
 import { useUserHistory } from "../api/hooks";
 import Box from "@mui/material/Box";
 import { MiniItemHistory } from "../components/mini_item_history";
-import { Loan } from "../api/models";
-import { Icon, Typography } from "@mui/material";
+import { LoanHistoryItem } from "../api/models";
+import { Icon, TextField, Typography } from "@mui/material";
 import { Loading } from "../components/loading";
+import { useState } from "react";
 
 interface UserHistoryProps {
   id: number;
 }
 
-function categorize(loan: Loan): string {
+function categorize(loan: LoanHistoryItem): string {
   return new Date(loan.start).toLocaleDateString(undefined, {
     year: "numeric",
     month: "long",
@@ -17,7 +18,8 @@ function categorize(loan: Loan): string {
 }
 
 export function UserHistory(props: UserHistoryProps) {
-  const { history } = useUserHistory(props.id);
+  let { history } = useUserHistory(props.id);
+  const [filter, setFilter] = useState("");
 
   if (!history) return <Loading />;
 
@@ -32,6 +34,12 @@ export function UserHistory(props: UserHistoryProps) {
       </Box>
     );
 
+  // Filter
+  if (filter != "") {
+    const f = filter.toLowerCase();
+    history = history.filter((loan) => loan.name.toLowerCase().includes(f));
+  }
+
   // Group by "starting month" category
   const grouped = history.reduce((map, loan) => {
     const cat = categorize(loan);
@@ -42,6 +50,20 @@ export function UserHistory(props: UserHistoryProps) {
 
   return (
     <>
+      {/* Filtering */}
+      <div>
+        <TextField
+          size="small"
+          label="Filtrer par nom"
+          type="search"
+          defaultValue={filter}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setFilter(event.target.value);
+          }}
+          sx={{ backgroundColor: "white", width: "100%", mb: 1 }}
+        />
+      </div>
+
       {Array.from(grouped.keys()).map((startdate) => (
         <span key={startdate}>
           <Typography variant="overline" fontSize="1.2rem" color="primary">
@@ -49,7 +71,7 @@ export function UserHistory(props: UserHistoryProps) {
           </Typography>
 
           <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 1 }}>
-            {grouped.get(startdate).map((obj: Loan) => (
+            {grouped.get(startdate).map((obj: LoanHistoryItem) => (
               <MiniItemHistory key={obj.id} loan={obj} />
             ))}
           </Box>

@@ -11,7 +11,7 @@ from api.system import auth_user, check_auth
 router = APIRouter()
 
 
-@router.get("/loans", tags=["loans", "admin"])
+@router.get("/loans", tags=["loans"])
 def get_loans(auth=Depends(auth_user)):
     check_auth(auth, "admin")
     loans = Loan.select().order_by(Loan.stop, Loan.user)
@@ -19,7 +19,7 @@ def get_loans(auth=Depends(auth_user)):
         return list(loans.dicts())
 
 
-@router.get("/loans/late", tags=["loans", "admin"])
+@router.get("/loans/late", tags=["loans"])
 def get_loans_late(mindays: int = 0, auth=Depends(auth_user)):
     check_auth(auth, "admin")
     stop_date = datetime.date.today() - datetime.timedelta(days=mindays)
@@ -170,7 +170,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
         }
 
 
-@router.get("/loans/{loan_id}", tags=["loans", "benevole"])
+@router.get("/loans/{loan_id}", tags=["loan"])
 def get_loan(loan_id: int, auth=Depends(auth_user)):
     check_auth(auth, "benevole")
     with db:
@@ -179,7 +179,7 @@ def get_loan(loan_id: int, auth=Depends(auth_user)):
     raise HTTPException(404)
 
 
-@router.get("/loans/{loan_id}/close", tags=["loans", "benevole"])
+@router.get("/loans/{loan_id}/close", tags=["loan"])
 def close_loan(loan_id: int, auth=Depends(auth_user)):
     check_auth(auth, "benevole")
     with db:
@@ -206,7 +206,7 @@ def close_loan(loan_id: int, auth=Depends(auth_user)):
         return model_to_dict(loan, recurse=False)
 
 
-@router.delete("/loans/{loan_id}", tags=["loans", "admin"])
+@router.delete("/loans/{loan_id}", tags=["loan"])
 async def delete_loan(loan_id: int, auth=Depends(auth_user)):
     check_auth(auth, "admin")
     with db:
