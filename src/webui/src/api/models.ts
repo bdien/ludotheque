@@ -33,20 +33,21 @@ export interface Booking {
 export interface User {
   id: number;
   name: string;
-  enabled: boolean;
-  emails: string[];
+  enabled?: boolean;
   role: string;
+  emails: string[];
+  bookings?: Booking[];
   credit: number;
-  oldest_loan?: string;
-  loans?: Loan[];
-  bookings: Booking[];
-  nbloans?: number;
   notes?: string;
   informations?: string;
   subscription?: string;
   apikey?: string;
   created_at?: string;
   last_warning?: string;
+  loans?: APILoan[];
+
+  oldest_loan?: string;
+  nbloans?: number;
 }
 
 export interface ItemLinkModel {
@@ -89,14 +90,14 @@ export interface ItemModel {
   loanstop?: string;
   status?: string;
   return?: string;
-  loans?: Loan[];
+  loans?: APILoan[];
   bookings?: {
     nb: number;
     entries?: Booking[];
   };
 }
 
-export interface LoanHistoryItem {
+export interface APIUserHistoryItem {
   id: number;
   start: string;
   stop: string;
@@ -104,12 +105,17 @@ export interface LoanHistoryItem {
   name: string;
 }
 
-export interface Loan {
+export interface APILoan {
   id: number;
   item: number;
+  name?: string;
   start: string;
   stop: string;
-  status: string;
+  status?: string;
+  user?: number;
+}
+
+export interface APILoanWithUser extends APILoan {
   user: number;
 }
 
@@ -126,7 +132,7 @@ export interface LoanCreateResult {
     real: number;
   };
   new_credit: number;
-  loans: Loan[];
+  loans: APILoan[];
 }
 
 export interface ApiError {

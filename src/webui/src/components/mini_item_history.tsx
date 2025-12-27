@@ -3,10 +3,10 @@ import Typography from "@mui/material/Typography";
 import { useItem } from "../api/hooks";
 import { Link } from "wouter";
 import Skeleton from "@mui/material/Skeleton";
-import { LoanHistoryItem } from "../api/models";
+import { APILoan } from "../api/models";
 
 interface MiniItemHistoryProps {
-  loan: LoanHistoryItem;
+  loan: APILoan;
 }
 
 export function MiniItemHistory(props: MiniItemHistoryProps) {

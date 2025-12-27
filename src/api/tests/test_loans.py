@@ -139,7 +139,7 @@ def test_close_loan(dbitems):
     # Check item in user loans
     response = client.get(f"/users/{USER_ID}", headers=AUTH_ADMIN)
     user = response.json()
-    assert not user["loans"]
+    assert not user.get("loans")
 
 
 def test_delete_loan():

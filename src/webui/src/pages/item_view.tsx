@@ -9,7 +9,7 @@ import Typography from "@mui/material/Typography";
 import { useCategories, useItem } from "../api/hooks";
 import { useGlobalStore } from "../hooks/global_store";
 import { AgeChip } from "../components/age_chip";
-import { ItemLinkModel, ItemModel, Loan } from "../api/models";
+import { ItemLinkModel, ItemModel, APILoan } from "../api/models";
 import Icon from "@mui/material/Icon";
 import { navigate } from "wouter/use-browser-location";
 import TableHead from "@mui/material/TableHead";
@@ -48,7 +48,7 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
   },
 }));
 
-function loan_time(i: Loan) {
+function loan_time(i: APILoan) {
   if (i.status == "in") return differenceInDays(i.stop, i.start);
   return differenceInDays(new Date(), i.start);
 }
@@ -500,8 +500,10 @@ export function Item(props: ItemProps) {
                           >
                             Vous
                           </Link>
-                        ) : (
+                        ) : i.user ? (
                           <ShortUser user_id={i.user} />
+                        ) : (
+                          "Inconnu"
                         )}
                       </TableCell>
                       <TableCell>

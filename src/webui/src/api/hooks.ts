@@ -5,10 +5,10 @@ import {
   ItemListEntry,
   ItemModel,
   LedgerEntry,
-  Loan,
+  APILoan,
   User,
   Stats,
-  LoanHistoryItem,
+  APILoanWithUser,
 } from "./models";
 import { SERVER_URL, fetcher } from "./calls";
 
@@ -205,7 +205,7 @@ export function useUser(id?: number) {
 }
 
 export function useUserHistory(id?: number) {
-  const { data, error, isLoading, mutate } = useSWR<LoanHistoryItem[]>(
+  const { data, error, isLoading, mutate } = useSWR<APILoan[]>(
     `${SERVER_URL}/users/${id}/history`,
     fetcher,
     {
@@ -238,7 +238,7 @@ export function useUsers() {
 }
 
 export function useLoansLate(mindays = 0) {
-  const { data, error, isLoading } = useSWR<Loan[]>(
+  const { data, error, isLoading } = useSWR<APILoanWithUser[]>(
     `${SERVER_URL}/loans/late?mindays=${mindays}`,
     fetcher,
     { revalidateOnFocus: false },
@@ -252,7 +252,7 @@ export function useLoansLate(mindays = 0) {
 }
 
 export function useLoans() {
-  const { data, error, isLoading } = useSWR<Loan[]>(
+  const { data, error, isLoading } = useSWR<APILoanWithUser[]>(
     `${SERVER_URL}/loans`,
     fetcher,
     { revalidateOnFocus: false },
@@ -266,7 +266,7 @@ export function useLoans() {
 }
 
 export function useLoan(id: number) {
-  const { data, error, isLoading, mutate } = useSWR<Loan>(
+  const { data, error, isLoading, mutate } = useSWR<APILoan>(
     `${SERVER_URL}/loans/${id}`,
     fetcher,
     { revalidateOnFocus: false },

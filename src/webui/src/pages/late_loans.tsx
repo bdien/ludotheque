@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import { useLoansLate } from "../api/hooks";
 import { Typography, Table, TableCell, TableRow } from "@mui/material";
 import { differenceInDays } from "date-fns";
-import { Loan } from "../api/models";
+import { APILoanWithUser } from "../api/models";
 import { ShortUser } from "../components/short_user";
 import { ShortItem } from "../components/short_item";
 import { Loading } from "../components/loading";
@@ -44,7 +44,7 @@ export function LateLoans() {
   if (!loans) return <Loading />;
 
   // Group by "late" category
-  const grouped = loans.reduce((grp: Loan[][], loan) => {
+  const grouped = loans.reduce((grp: APILoanWithUser[][], loan) => {
     const cat = categorize(loan.stop);
     if (cat) {
       if (grp[cat] == null) grp[cat] = [];

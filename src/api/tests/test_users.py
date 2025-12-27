@@ -176,7 +176,7 @@ def test_get_users_loancount():
     # Check API
     response = client.get(f"/users/{user_id}", headers=AUTH_ADMIN)
     user = response.json()
-    assert len(user["loans"]) == 0
+    assert len(user.get("loans", [])) == 0
 
     # Create a loan
     response = client.post("/items", json={"name": "obj"}, headers=AUTH_ADMIN)

@@ -3,7 +3,7 @@ import Typography from "@mui/material/Typography";
 import { useLoan } from "../api/hooks";
 import { closeLoan, fetchItem } from "../api/calls";
 import { useEffect, useState } from "react";
-import { ItemModel, Loan } from "../api/models";
+import { ItemModel, APILoan } from "../api/models";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-browser-location";
@@ -37,7 +37,7 @@ export function LoanClose(props: LoanCloseProps) {
     ? item.pictures[0]
     : "../../notavailable.webp";
 
-  function onSubmit(loan: Loan) {
+  function onSubmit(loan: APILoan) {
     setApiError(null);
     setEditBusy(true);
 

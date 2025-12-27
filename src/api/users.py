@@ -11,9 +11,9 @@ import peewee
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from playhouse.shortcuts import model_to_dict
-from pydantic import BaseModel
 
 from api.config import EMAIL_MINPERIOD
+from api.models import APILoan, APIUser
 from api.pwmodels import Booking, EMail, Item, Loan, User, db
 from api.system import AuthUser, auth_user, check_auth, log_event, send_email
 
@@ -22,6 +22,7 @@ router = APIRouter()
 
 @router.post("/users", tags=["users"])
 async def create_user(request: Request, auth=Depends(auth_user)):
+    "Create a new user"
     check_auth(auth, "admin")
     body = await request.json()
 
@@ -165,8 +166,8 @@ def search_user(q: str | None = None, auth=Depends(auth_user)):
         )
 
 
-@router.get("/users/{user_id}", tags=["user"])
-def get_user(user_id: int, auth=Depends(auth_user)):
+@router.get("/users/{user_id}", tags=["user"], response_model_exclude_defaults=True)
+def get_user(user_id: int, auth=Depends(auth_user)) -> APIUser:
     # Must be authenticated. If not checking self, must be at least benevole
     check_auth(auth)
     if user_id != auth.id:
@@ -210,19 +211,13 @@ def get_user(user_id: int, auth=Depends(auth_user)):
         if user_id != auth.id:
             del ret["emails"]
 
-    return ret
+    return APIUser.model_validate(ret)
 
 
-class LoanHistoryItem(BaseModel):
-    id: int
-    start: datetime.date
-    stop: datetime.date
-    item: int
-    name: str
-
-
-@router.get("/users/{user_id}/history", tags=["user"])
-def get_user_history(user_id: int, auth=Depends(auth_user)) -> list[LoanHistoryItem]:
+@router.get(
+    "/users/{user_id}/history", tags=["user"], response_model_exclude_defaults=True
+)
+def get_user_history(user_id: int, auth=Depends(auth_user)) -> list[APILoan]:
     # Must be authenticated. If not checking self, must be at least admin
     check_auth(auth)
     if user_id != auth.id:

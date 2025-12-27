@@ -41,7 +41,7 @@ export function UserView(props: UserViewProps) {
             >
               <Tab label="Emprunts" value="loans" />
               <Tab label="Historique" value="history" />
-              {user.bookings.length > 0 && (
+              {user.bookings && user.bookings.length > 0 && (
                 <Tab label="Resas" value="bookings" />
               )}
             </TabList>
@@ -61,24 +61,25 @@ export function UserView(props: UserViewProps) {
 
         <TabPanel value="bookings" sx={{ p: 0, pt: 2 }}>
           <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
-            {user.bookings.map((obj) => (
-              <MiniItem
-                key={obj.item}
-                id={obj.item}
-                subtext={
-                  "Réservé le " +
-                  new Date(obj.created_at).toLocaleDateString("fr", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })
-                }
-                action={{
-                  text: "Annuler",
-                  func: () => {},
-                }}
-              />
-            ))}
+            {user.bookings &&
+              user.bookings.map((obj) => (
+                <MiniItem
+                  key={obj.item}
+                  id={obj.item}
+                  subtext={
+                    "Réservé le " +
+                    new Date(obj.created_at).toLocaleDateString("fr", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
+                  }
+                  action={{
+                    text: "Annuler",
+                    func: () => {},
+                  }}
+                />
+              ))}
           </Box>
         </TabPanel>
       </TabContext>

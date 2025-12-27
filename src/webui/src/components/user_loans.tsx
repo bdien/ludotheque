@@ -1,11 +1,11 @@
 import Box from "@mui/material/Box";
 import { navigate } from "wouter/use-browser-location";
 import { MiniItem } from "./mini_item";
-import { Loan } from "../api/models";
+import { APILoan } from "../api/models";
 import { Icon } from "@mui/material";
 
 interface UserLoansProps {
-  loans: Loan[];
+  loans: APILoan[];
   buttons: boolean;
 }
 

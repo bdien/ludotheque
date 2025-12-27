@@ -11,7 +11,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { LedgerEntry, Loan } from "../api/models";
+import { LedgerEntry, APILoanWithUser } from "../api/models";
 import { ShortUser } from "../components/short_user";
 import { Loading } from "../components/loading";
 
@@ -53,7 +53,7 @@ function highlevelSummary(
   return summary.join(", ");
 }
 
-function summary(entries: LedgerEntry[], loansIn: Loan[]) {
+function summary(entries: LedgerEntry[], loansIn: APILoanWithUser[]) {
   const entriesByUser = groupBy(entries, (i) => i.user); // loans+card+subscription
   const loansInByUser = groupBy(loansIn, (i) => i.user); // returns
 
@@ -97,7 +97,7 @@ function summary(entries: LedgerEntry[], loansIn: Loan[]) {
   );
 }
 
-function summaryPerUser(entries: LedgerEntry[], loansIn: Loan[]) {
+function summaryPerUser(entries: LedgerEntry[], loansIn: APILoanWithUser[]) {
   const summary = [];
 
   const adherentCount = entries.filter((e) => e.item_id === -1).length;
