@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import APIRouter, Depends
 
 from api.pwmodels import Ledger, db
@@ -10,4 +12,7 @@ router = APIRouter()
 async def get_ledger(auth=Depends(auth_user)) -> list:
     check_auth(auth, "admin")
     with db:
-        return list(Ledger.select().order_by(Ledger.day).dicts())
+        last_year = datetime.datetime.now() - datetime.timedelta(days=365)
+        return list(
+            Ledger.select().where(Ledger.day > last_year).order_by(Ledger.day).dicts()
+        )
