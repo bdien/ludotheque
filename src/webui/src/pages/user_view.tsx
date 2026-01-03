@@ -85,7 +85,7 @@ export function UserView(props: UserViewProps) {
       </TabContext>
 
       {/* Edit button */}
-      {(account?.role == "admin" || account?.role == "benevole") && (
+      {account?.role == "admin" && (
         <SpeedDial
           ariaLabel="Actions"
           sx={{
@@ -95,24 +95,18 @@ export function UserView(props: UserViewProps) {
           }}
           icon={<SpeedDialIcon />}
         >
-          {account?.role == "admin" ? (
-            <SpeedDialAction
-              key="edit"
-              tooltipOpen={true}
-              icon={<Icon>edit</Icon>}
-              tooltipTitle="Edition"
-              onClick={() => {
-                navigate(`/users/${user.id}/edit`);
-              }}
-            />
-          ) : (
-            ""
-          )}
+          <SpeedDialAction
+            key="edit"
+            icon={<Icon>edit</Icon>}
+            slotProps={{ tooltip: { open: true, title: "Edition" } }}
+            onClick={() => {
+              navigate(`/users/${user.id}/edit`);
+            }}
+          />
           <SpeedDialAction
             key="emprunter"
-            tooltipOpen={true}
             icon={<Icon>logout</Icon>}
-            tooltipTitle="Faire un emprunt"
+            slotProps={{ tooltip: { open: true, title: "Faire un emprunt" } }}
             onClick={() => {
               navigate(`/loans/new?user=${user.id}`);
             }}

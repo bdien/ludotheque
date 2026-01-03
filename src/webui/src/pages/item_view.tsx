@@ -232,7 +232,7 @@ export function Item(props: ItemProps) {
           flexDirection: desktop ? "row" : "column-reverse",
         }}
       >
-        {(account?.role == "admin" || account?.role == "benevole") && (
+        {account?.role == "admin" && (
           <>
             {/* Loan button */}
             {item.status == "out" ? (
