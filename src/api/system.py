@@ -30,6 +30,18 @@ class AuthUser:
     role: str
 
 
+@dataclasses.dataclass(frozen=True)
+class BenevoleUser(AuthUser):
+    id: int
+    role: str = "benevole"
+
+
+@dataclasses.dataclass(frozen=True)
+class AdminUser(AuthUser):
+    id: int
+    role: str = "admin"
+
+
 def __validate_token(authorization: str) -> str | None:
     "Validate token, fetch user info and extract email"
     r = requests.get(
@@ -44,7 +56,9 @@ def __validate_token(authorization: str) -> str | None:
 
 
 @cachetools.func.ttl_cache(ttl=600)
-def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser | None:
+def auth_user(
+    authorization: Annotated[str | None, Header()] = None,
+) -> AuthUser | BenevoleUser | AdminUser | None:
     "Authenticate the user and return id/email/role"
     if (not authorization) or (not authorization.lower().startswith("bearer")):
         return None
@@ -90,6 +104,10 @@ def auth_user(authorization: Annotated[str | None, Header()] = None) -> AuthUser
     if user.role == "benevole" and not (now.weekday() == 5 and (10 <= now.hour <= 12)):
         user.role = "user"
 
+    if user.role == "admin":
+        return AdminUser(user.id)
+    if user.role == "benevole":
+        return BenevoleUser(user.id)
     return AuthUser(user.id, user.role)
 
 

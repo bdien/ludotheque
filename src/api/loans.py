@@ -1,27 +1,26 @@
 import datetime
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from playhouse.shortcuts import model_to_dict
 
 from api.config import PRICING
 from api.pwmodels import Item, Ledger, Loan, User, db
-from api.system import auth_user, check_auth
+from api.system import AdminUser, BenevoleUser, auth_user
 
 router = APIRouter()
 
 
 @router.get("/loans", tags=["loans"])
-def get_loans(auth=Depends(auth_user)):
-    check_auth(auth, "admin")
+def get_loans(auth: Annotated[AdminUser, Depends(auth_user)]):
     loans = Loan.select().order_by(Loan.stop, Loan.user)
     with db:
         return list(loans.dicts())
 
 
 @router.get("/loans/late", tags=["loans"])
-def get_loans_late(mindays: int = 0, auth=Depends(auth_user)):
-    check_auth(auth, "admin")
+def get_loans_late(auth: Annotated[AdminUser, Depends(auth_user)], mindays: int = 0):
     stop_date = datetime.date.today() - datetime.timedelta(days=mindays)
 
     loans = Loan.select().order_by(Loan.stop, Loan.user)
@@ -32,8 +31,7 @@ def get_loans_late(mindays: int = 0, auth=Depends(auth_user)):
 
 
 @router.post("/loans", tags=["loans"])
-async def create_loan(request: Request, auth=Depends(auth_user)):
-    check_auth(auth, "admin")
+async def create_loan(request: Request, auth: Annotated[AdminUser, Depends(auth_user)]):
     body = await request.json()
     for i in "user", "items":
         if i not in body:
@@ -171,8 +169,7 @@ async def create_loan(request: Request, auth=Depends(auth_user)):
 
 
 @router.get("/loans/{loan_id}", tags=["loan"])
-def get_loan(loan_id: int, auth=Depends(auth_user)):
-    check_auth(auth, "benevole")
+def get_loan(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
     with db:
         if loan := Loan.get_or_none(loan_id):
             return model_to_dict(loan, recurse=False)
@@ -180,8 +177,7 @@ def get_loan(loan_id: int, auth=Depends(auth_user)):
 
 
 @router.get("/loans/{loan_id}/close", tags=["loan"])
-def close_loan(loan_id: int, auth=Depends(auth_user)):
-    check_auth(auth, "benevole")
+def close_loan(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
     with db:
         loan = Loan.get_or_none(Loan.id == loan_id)
         if not loan:
@@ -207,8 +203,7 @@ def close_loan(loan_id: int, auth=Depends(auth_user)):
 
 
 @router.delete("/loans/{loan_id}", tags=["loan"])
-async def delete_loan(loan_id: int, auth=Depends(auth_user)):
-    check_auth(auth, "admin")
+async def delete_loan(loan_id: int, auth: Annotated[AdminUser, Depends(auth_user)]):
     with db:
         loan = Loan.get_or_none(Loan.id == loan_id)
         if not loan:

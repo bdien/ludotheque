@@ -14,6 +14,7 @@ from PIL import Image
 from playhouse.shortcuts import model_to_dict
 
 from api.config import IMAGE_MAX_DIM, THUMB_DIM
+from api.models import APIItem
 from api.pwmodels import (
     Booking,
     Category,
@@ -24,7 +25,7 @@ from api.pwmodels import (
     Rating,
     db,
 )
-from api.system import AuthUser, auth_user, check_auth, log_event
+from api.system import AdminUser, AuthUser, BenevoleUser, auth_user, log_event
 
 LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 
@@ -32,10 +33,7 @@ router = APIRouter()
 
 
 @router.post("/items", tags=["items"])
-async def create_item(
-    request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
-):
-    check_auth(auth, "admin")
+async def create_item(request: Request, auth: Annotated[AdminUser, Depends(auth_user)]):
     body = await request.json()
 
     # Avoid some properties
@@ -130,10 +128,9 @@ def get_items(
 
 
 @router.get("/items/export", tags=["items"], response_class=PlainTextResponse)
-def export_items(auth: Annotated[AuthUser | None, Depends(auth_user)]):
+def export_items(auth: Annotated[AdminUser, Depends(auth_user)]):
     "Export CSV"
 
-    check_auth(auth, "admin")
     f = io.StringIO()
     csvwriter = csv.DictWriter(
         f,
@@ -156,21 +153,21 @@ def export_items(auth: Annotated[AuthUser | None, Depends(auth_user)]):
         return f.getvalue()
 
 
-@router.get("/items/lastseen", tags=["items"])
-def get_items_lastseen(days: int = 365):
+@router.get("/items/lastseen", tags=["items"], response_model_exclude_defaults=True)
+def get_items_lastseen(days: int = 365) -> list[APIItem]:
     "Return a list of items sorted by lastseen and limit in time"
 
     with db:
         start = datetime.date.today() - datetime.timedelta(days=days)
-        return list(
-            Item.select(Item.id, Item.age, Item.lastseen)
+        return [
+            APIItem.model_validate(i)
+            for i in Item.select(Item.id, Item.age, Item.lastseen)
             .where(Item.lastseen < start)
             .where(Item.enabled)
             .where(Item.outside == False)  # noqa: E712
             .where(Item.big == False)  # noqa: E712
             .order_by(Item.lastseen.asc())
-            .dicts()
-        )
+        ]
 
 
 @router.get("/items/nbloans", tags=["items"])
@@ -364,9 +361,8 @@ def modif_pictures(
 
 @router.post("/items/{item_id}", tags=["item"])
 async def modify_item(
-    item_id: int, request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
+    item_id: int, request: Request, auth: Annotated[BenevoleUser, Depends(auth_user)]
 ):
-    check_auth(auth, "benevole")
     body = await request.json()
 
     # Avoid some properties
@@ -424,7 +420,6 @@ async def create_item_rating(
 ):
     "Add rating"
 
-    check_auth(auth)
     body = await request.json()
     source = body.get("source", "website")
     weight = body.get("weight", 1)
@@ -449,8 +444,8 @@ async def create_item_rating(
 
 
 @router.delete("/items/{item_id}", tags=["item"])
-async def delete_item(item_id: int, auth: Annotated[AuthUser, Depends(auth_user)]):
-    check_auth(auth, "admin")
+async def delete_item(item_id: int, auth: Annotated[AdminUser, Depends(auth_user)]):
+    "Delete an item"
     with db:
         item = Item.get_or_none(Item.id == item_id)
         if not item:
@@ -478,9 +473,8 @@ def get_categories():
 
 @router.post("/categories", tags=["categories"])
 async def create_category(
-    request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
+    request: Request, auth: Annotated[AdminUser, Depends(auth_user)]
 ):
-    check_auth(auth, "admin")
     body = await request.json()
     with db:
         c = Category.create(name=body["name"])
@@ -489,9 +483,8 @@ async def create_category(
 
 @router.post("/categories/{cat_id}", tags=["categories"])
 async def update_category(
-    cat_id: int, request: Request, auth: Annotated[AuthUser | None, Depends(auth_user)]
+    cat_id: int, request: Request, auth: Annotated[AdminUser, Depends(auth_user)]
 ):
-    check_auth(auth, "admin")
     body = await request.json()
     with db:
         Category.update(name=body["name"]).where(Category.id == cat_id).execute()

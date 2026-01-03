@@ -15,15 +15,22 @@ from playhouse.shortcuts import model_to_dict
 from api.config import EMAIL_MINPERIOD
 from api.models import APILoan, APIUser
 from api.pwmodels import Booking, EMail, Item, Loan, User, db
-from api.system import AuthUser, auth_user, check_auth, log_event, send_email
+from api.system import (
+    AdminUser,
+    AuthUser,
+    BenevoleUser,
+    auth_user,
+    check_auth,
+    log_event,
+    send_email,
+)
 
 router = APIRouter()
 
 
 @router.post("/users", tags=["users"])
-async def create_user(request: Request, auth=Depends(auth_user)):
+async def create_user(request: Request, auth: Annotated[AdminUser, Depends(auth_user)]):
     "Create a new user"
-    check_auth(auth, "admin")
     body = await request.json()
 
     # Lowercase emails
@@ -80,10 +87,12 @@ def uniquesplit(lst: str | None) -> list:
 
 @router.get("/users", tags=["users"])
 def get_users(
-    nb: int = 0, sort: str | None = None, q: str | None = None, auth=Depends(auth_user)
+    auth: Annotated[BenevoleUser, Depends(auth_user)],
+    nb: int = 0,
+    sort: str | None = None,
+    q: str | None = None,
 ):
-    check_auth(auth, "benevole")
-
+    "Return a list of users"
     query = (
         User.select(
             User.id,
@@ -124,10 +133,9 @@ def get_users(
 
 
 @router.get("/users/export", tags=["users"], response_class=PlainTextResponse)
-def export_users(auth=Depends(auth_user)):
+def export_users(auth: Annotated[AdminUser, Depends(auth_user)]):
     "Export CSV"
 
-    check_auth(auth, "admin")
     f = io.StringIO()
     csvwriter = csv.DictWriter(
         f,
@@ -143,15 +151,16 @@ def export_users(auth=Depends(auth_user)):
 
 
 @router.get("/users/me", tags=["user"])
-def get_myself(auth=Depends(auth_user)):
+def get_myself(auth: Annotated[AuthUser | None, Depends(auth_user)]):
     if not auth:
         return {}
     return {"role": auth.role, "id": auth.id}
 
 
 @router.get("/users/search", tags=["users"])
-def search_user(q: str | None = None, auth=Depends(auth_user)):
-    check_auth(auth, "benevole")
+def search_user(
+    auth: Annotated[BenevoleUser, Depends(auth_user)], q: str | None = None
+):
     if not q:
         return []
 
@@ -167,9 +176,8 @@ def search_user(q: str | None = None, auth=Depends(auth_user)):
 
 
 @router.get("/users/{user_id}", tags=["user"], response_model_exclude_defaults=True)
-def get_user(user_id: int, auth=Depends(auth_user)) -> APIUser:
+def get_user(user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]) -> APIUser:
     # Must be authenticated. If not checking self, must be at least benevole
-    check_auth(auth)
     if user_id != auth.id:
         check_auth(auth, "benevole")
 
@@ -217,9 +225,10 @@ def get_user(user_id: int, auth=Depends(auth_user)) -> APIUser:
 @router.get(
     "/users/{user_id}/history", tags=["user"], response_model_exclude_defaults=True
 )
-def get_user_history(user_id: int, auth=Depends(auth_user)) -> list[APILoan]:
+def get_user_history(
+    user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]
+) -> list[APILoan]:
     # Must be authenticated. If not checking self, must be at least admin
-    check_auth(auth)
     if user_id != auth.id:
         check_auth(auth, "admin")
 
@@ -235,9 +244,8 @@ def get_user_history(user_id: int, auth=Depends(auth_user)) -> list[APILoan]:
 
 @router.post("/users/{user_id}", tags=["user"])
 async def modify_user(
-    user_id: int, request: Request, auth: Annotated[AuthUser, Depends(auth_user)]
+    user_id: int, request: Request, auth: Annotated[AdminUser, Depends(auth_user)]
 ):
-    check_auth(auth, "admin")
     body = await request.json()
 
     # Lowercase emails
@@ -269,8 +277,7 @@ async def modify_user(
 
 
 @router.delete("/users/{user_id}", tags=["user"])
-async def delete_user(user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]):
-    check_auth(auth, "admin")
+async def delete_user(user_id: int, auth: Annotated[AdminUser, Depends(auth_user)]):
     with db:
         user = User.get_or_none(User.id == user_id)
         if not user:
@@ -292,10 +299,9 @@ def shortDate(d: datetime.date):
 @router.get("/users/{user_id}/email", tags=["user"])
 def send_user_email(
     user_id: int,
-    auth: Annotated[AuthUser, Depends(auth_user)],
+    auth: Annotated[AdminUser, Depends(auth_user)],
     send: bool | None = False,
 ):
-    check_auth(auth, "admin")
     with db:
         user = User.get_or_none(User.id == user_id)
         if not user:

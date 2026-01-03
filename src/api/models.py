@@ -41,3 +41,23 @@ class APIUser(BaseModel):
     loans: list[APILoan] = []
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class APIItem(BaseModel):
+    id: int
+    name: str
+    enabled: bool
+    description: str | None = None
+    players_min: int | None = None
+    players_max: int | None = None
+    gametime: int | None = None
+    age: int | None = None
+    big: bool = False
+    outside: bool = False
+    content: dict | None = None
+    pictures: list[str] = []
+    notes: str | None = None
+    lastseen: datetime.date | None = None
+    created_at: datetime.date | None = None
+
+    model_config = ConfigDict(from_attributes=True)
