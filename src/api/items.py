@@ -14,7 +14,6 @@ from PIL import Image
 from playhouse.shortcuts import model_to_dict
 
 from api.config import IMAGE_MAX_DIM, THUMB_DIM
-from api.models import APIItem
 from api.pwmodels import (
     Booking,
     Category,
@@ -153,21 +152,21 @@ def export_items(auth: Annotated[AdminUser, Depends(auth_user)]):
         return f.getvalue()
 
 
-@router.get("/items/lastseen", tags=["items"], response_model_exclude_defaults=True)
-def get_items_lastseen(days: int = 365) -> list[APIItem]:
+@router.get("/items/lastseen", tags=["items"])
+def get_items_lastseen(days: int = 365):
     "Return a list of items sorted by lastseen and limit in time"
 
     with db:
         start = datetime.date.today() - datetime.timedelta(days=days)
-        return [
-            APIItem.model_validate(i)
-            for i in Item.select(Item.id, Item.age, Item.lastseen)
+        return list(
+            Item.select(Item.id, Item.age, Item.lastseen)
             .where(Item.lastseen < start)
             .where(Item.enabled)
             .where(Item.outside == False)  # noqa: E712
             .where(Item.big == False)  # noqa: E712
             .order_by(Item.lastseen.asc())
-        ]
+            .dicts()
+        )
 
 
 @router.get("/items/nbloans", tags=["items"])
