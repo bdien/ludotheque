@@ -27,6 +27,12 @@ export function NextOpening(props: NextOpeningProps) {
   } else if (isToday && currentTime < 10.5) {
     alertSeverity = "success";
     nextOpeningText = <>Nous serons ouverts de 10h30 à 12h aujourd'hui !</>;
+  } else if (diffDays < 1) {
+    nextOpeningText = (
+      <>
+        Nous serons ouverts <b>demain</b> de 10h30 à 12h.
+      </>
+    );
   } else if (diffDays < 7)
     nextOpeningText = (
       <>
