@@ -118,26 +118,15 @@ export function Loan() {
     setUser(user);
   }
 
-  // Initial Item (If present in URL)
-  if (initialItem)
-    fetchItem(parseInt(initialItem)).then((item) => {
-      addItem(item);
-      window.history.replaceState(
-        {},
-        document.title,
-        location.href.split("?")[0],
-      );
-    });
-  // Initial User (if present in URL)
-  if (initialUser)
-    fetchUser(parseInt(initialUser)).then((user) => {
-      changeUser(user);
-      window.history.replaceState(
-        {},
-        document.title,
-        location.href.split("?")[0],
-      );
-    });
+  if (initialItem || initialUser) {
+    window.history.replaceState(
+      {},
+      document.title,
+      location.href.split("?")[0],
+    );
+  }
+  if (initialItem) fetchItem(parseInt(initialItem)).then(addItem);
+  if (initialUser) fetchUser(parseInt(initialUser)).then(changeUser);
 
   return (
     <Box sx={{ m: 0.5 }}>
@@ -160,13 +149,12 @@ export function Loan() {
         </Typography>
 
         {info &&
-          user &&
-          user.loans &&
-          user.loans.length + items.length >= info.loan.maxitems && (
+          (user?.loans?.length ?? 0) + items.filter((i) => i.id > 0).length >=
+            info.loan.maxitems && (
             <Alert severity="warning" variant="filled" sx={{ mb: 1 }}>
-              Le nombre max ({info.loan.maxitems}) d'emprunts a été atteint.
+              Le maximum d'emprunts ({info.loan.maxitems}) a été atteint.
               <br />
-              Merci de ne pas ajouter d'autres jeux.
+              Il est recommandé de ne pas ajouter d'autres jeux.
             </Alert>
           )}
 
