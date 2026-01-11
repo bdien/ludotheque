@@ -9,6 +9,7 @@ interface MiniItemProps {
   id: number;
   late?: boolean;
   subtext?: string;
+  button?: React.ReactElement;
   action?: {
     text: string | React.ReactElement;
     func: () => void;
@@ -90,6 +91,8 @@ export function MiniItem(props: MiniItemProps) {
                 {props.subtext}
               </Typography>
             )}
+
+            {props.button && props.button}
 
             {props.action && (
               <Button

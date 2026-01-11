@@ -1,12 +1,49 @@
 import Box from "@mui/material/Box";
-import { navigate } from "wouter/use-browser-location";
 import { MiniItem } from "./mini_item";
 import { APILoan } from "../api/models";
-import { Icon } from "@mui/material";
+import { Button, CircularProgress, Icon } from "@mui/material";
+import React, { useState } from "react";
+import { closeLoan } from "../api/calls";
 
 interface UserLoansProps {
   loans: APILoan[];
   buttons: boolean;
+}
+
+function generateCloseLoanButton(loanId: number) {
+  const [disabled, setDisabled] = useState<boolean>(false);
+  const [txt, setTxt] = useState<string | React.ReactElement>("Rendre");
+  return (
+    <Button
+      size="large"
+      variant="outlined"
+      disabled={disabled}
+      sx={{ mt: 1 }}
+      onClick={() => {
+        //setDisabled(true);
+        setTxt(
+          <>
+            Retour <CircularProgress sx={{ ml: 1 }} size="16px" />
+          </>,
+        );
+        closeLoan(loanId)
+          .then(() => {
+            setTxt(
+              <>
+                Rendu <Icon sx={{ ml: 1 }}>check_circle</Icon>
+              </>,
+            );
+            setDisabled(true);
+          })
+          .catch(() => {
+            setTxt("Erreur");
+            setDisabled(false);
+          });
+      }}
+    >
+      {txt}
+    </Button>
+  );
 }
 
 export function UserLoans(props: UserLoansProps) {
@@ -40,18 +77,7 @@ export function UserLoans(props: UserLoansProps) {
                 day: "numeric",
               })
             }
-            action={
-              props.buttons
-                ? {
-                    text: "Rendre",
-                    func: () => {
-                      navigate(
-                        `/loans/${obj.id}/close?return=${window.location.pathname}`,
-                      );
-                    },
-                  }
-                : undefined
-            }
+            button={generateCloseLoanButton(obj.id)}
           />
         );
       })}
