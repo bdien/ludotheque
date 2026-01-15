@@ -1,56 +1,60 @@
 import Box from "@mui/material/Box";
 import { MiniItem } from "./mini_item";
 import { APILoan } from "../api/models";
-import { Button, CircularProgress, Icon } from "@mui/material";
-import React, { useState } from "react";
+import { Button, Icon } from "@mui/material";
+import { useState } from "react";
 import { closeLoan } from "../api/calls";
+import { mutate } from "swr";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 interface UserLoansProps {
+  userId: number;
   loans: APILoan[];
   buttons: boolean;
 }
 
-function generateCloseLoanButton(loanId: number) {
-  const [disabled, setDisabled] = useState<boolean>(false);
-  const [txt, setTxt] = useState<string | React.ReactElement>("Rendre");
+function CloseLoanButton({
+  userId,
+  loanId,
+}: {
+  userId: number;
+  loanId: number;
+}) {
+  const [loading, setLoading] = useState<boolean>(false);
   return (
     <Button
       size="large"
       variant="outlined"
-      disabled={disabled}
-      sx={{ mt: 1 }}
+      loading={loading}
+      sx={{ mt: 0.5 }}
       onClick={() => {
-        //setDisabled(true);
-        setTxt(
-          <>
-            Retour <CircularProgress sx={{ ml: 1 }} size="16px" />
-          </>,
-        );
+        setLoading(true);
         closeLoan(loanId)
           .then(() => {
-            setTxt(
-              <>
-                Rendu <Icon sx={{ ml: 1 }}>check_circle</Icon>
-              </>,
-            );
-            setDisabled(true);
+            mutate(`/api/loans/${loanId}`);
+            mutate(`/api/users/${userId}`);
+            mutate(`/api/users`);
           })
           .catch(() => {
-            setTxt("Erreur");
-            setDisabled(false);
+            setLoading(false);
           });
       }}
     >
-      {txt}
+      Rendre
     </Button>
   );
 }
 
 export function UserLoans(props: UserLoansProps) {
+  const today = new Date();
+  const [parent] = useAutoAnimate();
+
   if (props.loans.length == 0)
     return (
       <Box sx={{ mx: "auto", textAlign: "center" }}>
-        <Icon sx={{ opacity: 0.1, fontSize: "min(40vw, 250px)", mt: 4 }}>
+        <Icon
+          sx={{ color: "text.disabled", fontSize: "min(40vw, 250px)", mt: 4 }}
+        >
           info
         </Icon>
         <br />
@@ -58,10 +62,8 @@ export function UserLoans(props: UserLoansProps) {
       </Box>
     );
 
-  const today = new Date();
-
   return (
-    <Box display="flex" flexWrap="wrap">
+    <Box display="flex" flexWrap="wrap" ref={parent}>
       {props.loans?.map((obj) => {
         const objstop = new Date(obj.stop);
         return (
@@ -77,7 +79,7 @@ export function UserLoans(props: UserLoansProps) {
                 day: "numeric",
               })
             }
-            button={generateCloseLoanButton(obj.id)}
+            button={<CloseLoanButton userId={props.userId} loanId={obj.id} />}
           />
         );
       })}

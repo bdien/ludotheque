@@ -50,6 +50,7 @@ export function UserView(props: UserViewProps) {
 
         <TabPanel value="loans" sx={{ p: 0, pt: 2 }}>
           <UserLoans
+            userId={user.id}
             loans={user.loans ?? []}
             buttons={account?.role == "admin" || account?.role == "benevole"}
           />
