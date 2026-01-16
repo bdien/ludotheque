@@ -9,7 +9,6 @@ import Button from "@mui/material/Button";
 import { navigate } from "wouter/use-browser-location";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-import LoadingButton from "@mui/lab/LoadingButton";
 
 interface LoanCloseProps {
   id: number;
@@ -115,7 +114,7 @@ export function LoanClose(props: LoanCloseProps) {
         )}
       </Box>
 
-      <LoadingButton
+      <Button
         variant="contained"
         fullWidth
         color="secondary"
@@ -125,7 +124,7 @@ export function LoanClose(props: LoanCloseProps) {
         onClick={() => onSubmit(loan)}
       >
         Rendre
-      </LoadingButton>
+      </Button>
 
       <Button
         variant="outlined"

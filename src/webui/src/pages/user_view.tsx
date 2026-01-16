@@ -77,7 +77,9 @@ export function UserView(props: UserViewProps) {
                   }
                   action={{
                     text: "Annuler",
-                    func: () => {},
+                    func: () => {
+                      console.log("TODO");
+                    },
                   }}
                 />
               ))}

@@ -19,7 +19,6 @@ import Checkbox from "@mui/material/Checkbox";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
 import { AlertTitle } from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
 
 interface UserEditProps {
   id?: number;
@@ -157,13 +156,13 @@ export function UserEdit(props: UserEditProps) {
         {/* Delete button */}
         {user.id != 0 && account?.role == "admin" && (
           <>
-            <LoadingButton
+            <Button
               color="warning"
               loading={deleteBusy}
               onClick={handleSubmit(() => onDelete(user.id))}
             >
               <Icon>delete</Icon>
-            </LoadingButton>
+            </Button>
             <ConfirmDialog />
           </>
         )}
@@ -303,7 +302,7 @@ export function UserEdit(props: UserEditProps) {
         label="Désactiver l'adhérent"
       />
 
-      <LoadingButton
+      <Button
         variant="contained"
         fullWidth
         color="secondary"
@@ -313,7 +312,7 @@ export function UserEdit(props: UserEditProps) {
         onClick={handleSubmit((formdata) => onSubmit(user, formdata))}
       >
         {user.id == 0 ? "Créer" : "Modifier"}
-      </LoadingButton>
+      </Button>
 
       <Button
         variant="outlined"

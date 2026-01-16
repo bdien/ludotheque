@@ -26,7 +26,6 @@ import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import ToggleButton from "@mui/material/ToggleButton";
 import Alert from "@mui/material/Alert";
-import LoadingButton from "@mui/lab/LoadingButton";
 import Typography from "@mui/material/Typography";
 import Icon from "@mui/material/Icon";
 
@@ -186,13 +185,13 @@ export function ItemEdit(props: ItemEditProps) {
         {/* Delete button */}
         {item.id != 0 && account?.role == "admin" && (
           <>
-            <LoadingButton
+            <Button
               color="warning"
               loading={deleteBusy}
               onClick={handleSubmit(() => onDelete(item.id))}
             >
               <Icon>delete</Icon>
-            </LoadingButton>
+            </Button>
             <ConfirmDialog />
           </>
         )}
@@ -480,7 +479,7 @@ export function ItemEdit(props: ItemEditProps) {
           </Table>
         </TableContainer>
 
-        <LoadingButton
+        <Button
           variant="contained"
           fullWidth
           color="secondary"
@@ -490,7 +489,7 @@ export function ItemEdit(props: ItemEditProps) {
           onClick={handleSubmit((formdata) => onSubmit(item, formdata))}
         >
           {item.id == 0 ? "Créer" : "Modifier"}
-        </LoadingButton>
+        </Button>
 
         <Button
           variant="outlined"
