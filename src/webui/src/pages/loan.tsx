@@ -16,8 +16,9 @@ import {
 } from "../components/loan_item_table";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import LoadingButton from "@mui/lab/LoadingButton";
 import Alert from "@mui/material/Alert";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 
 const fakeItemAdhesion: ItemModel = { id: -1, name: "Adhésion" };
 const fakeItemCarte: ItemModel = { id: -2, name: "Remplissage carte" };
@@ -97,11 +98,16 @@ export function Loan() {
   }
 
   // Transform items into LoanItemTableEntry
-  const loanItems: LoanItemTableEntry[] = items.map((i, idx) => ({
-    name: i.id > 0 ? `[${i.id}] ${i.name}` : i.name,
-    price: itemPrice(i),
-    simulatedPrice: loanResult?.items_cost[idx],
-  }));
+  const loanItems: LoanItemTableEntry[] = items.map((i, idx) => {
+    console.log(i);
+    return {
+      id: i.id,
+      age: i.age,
+      name: i.name,
+      price: itemPrice(i),
+      simulatedPrice: loanResult?.items_cost[idx],
+    };
+  });
 
   // Function to remove a specific index
   function removeItemIndex(idx: number) {
@@ -176,7 +182,10 @@ export function Loan() {
                 menuAddLoanClose();
               }}
             >
-              Adhésion
+              <ListItemIcon>
+                <Icon>credit_score</Icon>
+              </ListItemIcon>
+              <ListItemText>Adhésion</ListItemText>
             </MenuItem>
             <MenuItem
               onClick={() => {
@@ -184,7 +193,10 @@ export function Loan() {
                 menuAddLoanClose();
               }}
             >
-              Remplissage carte
+              <ListItemIcon>
+                <Icon>loyalty</Icon>
+              </ListItemIcon>
+              <ListItemText>Remplissage carte</ListItemText>
             </MenuItem>
           </Menu>
         </Box>
@@ -213,7 +225,7 @@ export function Loan() {
         </Box>
       )}
 
-      <LoadingButton
+      <Button
         variant="contained"
         fullWidth
         size="large"
@@ -224,7 +236,7 @@ export function Loan() {
         onClick={() => onSubmit(user as User, items)}
       >
         Valider
-      </LoadingButton>
+      </Button>
 
       <Button
         variant="outlined"

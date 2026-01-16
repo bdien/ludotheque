@@ -6,7 +6,7 @@ interface AgeChipProps {
   icon?: string;
 }
 
-const colorMap = new Map([
+export const colorMap = new Map([
   [0, "hsl(170, 100%, 90%)"],
   [2, "hsl(90, 100%, 80%)"],
   [4, "hsl(50, 100%, 70%)"],

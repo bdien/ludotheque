@@ -199,7 +199,7 @@ def search_item(q: str | None = None):
     with db:
         loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
         return list(
-            Item.select(Item.id, Item.name, Item.big)
+            Item.select(Item.id, Item.age, Item.name, Item.big)
             .where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
             .where(Item.id.not_in(loaned_items))
             .where(Item.enabled)
