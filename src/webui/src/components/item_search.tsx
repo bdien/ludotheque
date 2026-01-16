@@ -6,6 +6,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { debounce } from "@mui/material/utils";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
+import { colorMap } from "./age_chip";
 
 // ItemSearch allow to search for items
 // Note: It will NOT displayed items already loaned !
@@ -36,12 +37,31 @@ export function ItemSearch(props: ItemSearchProps) {
         noOptionsText={
           itemInput ? "Pas d'objet trouvé" : "Entrez un nom pour chercher"
         }
-        getOptionLabel={(option: ItemModel) => `[${option.id}] ${option.name}`}
+        getOptionLabel={(option: ItemModel) => option.name}
+        renderOption={(props, option) => (
+          <li {...props}>
+            <Box
+              sx={{
+                borderRadius: 1,
+                textAlign: "center",
+                px: 0.5,
+                width: "3em",
+                border: "1px solid lightgrey",
+                color: "black",
+                backgroundColor: colorMap.get(option.age ?? 0),
+                mr: 1,
+              }}
+            >
+              {option.id}
+            </Box>
+            {option.name}
+          </li>
+        )}
         sx={{ flexGrow: 1 }}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         filterOptions={(x) => x}
         renderInput={(params) => (
-          <TextField {...params} placeholder="Ajouter un jeu" />
+          <TextField {...params} placeholder="Chercher un jeu" />
         )}
         onChange={async (_event, newValue: ItemModel | null) => {
           if (newValue) {
