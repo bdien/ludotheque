@@ -134,19 +134,16 @@ export function MiniUser(props: MiniUserProps) {
             )}
 
             {/* Credit sur la carte */}
-            {props.user?.credit > 0 && (
-              <Box sx={{ mr: 1, display: "flex" }}>
-                <Icon sx={{ mr: "0.15em" }}>savings</Icon>
-                <Typography
-                  component="span"
-                  fontWeight={500}
-                  sx={{ mr: "0.6ch" }}
-                >
-                  {props.user?.credit}€
-                </Typography>{" "}
-                sur la carte
-              </Box>
-            )}
+            <Box sx={{ mr: 1, display: "flex" }}>
+              <Icon sx={{ mr: "0.15em" }}>savings</Icon>
+              <Typography
+                component="span"
+                fontWeight={500}
+                sx={{ mr: "0.6ch" }}
+              >
+                {props.user?.credit}€
+              </Typography>
+            </Box>
 
             {/* Fin de l'adhésion */}
             {props.user?.subscription && (
