@@ -1,11 +1,22 @@
 import { Info, Account } from "../api/models";
 import { create } from "zustand";
 
+export interface SnackbarMessage {
+  message: string;
+  severity: "success" | "error" | "warning" | "info";
+}
+
 interface GlobalStore {
   info: Info;
   account: Account;
+  snackbar: SnackbarMessage | null;
   setInfo: (info: Info) => void;
   setAccount: (account: Account) => void;
+  showSnackbar: (
+    message: string,
+    severity?: SnackbarMessage["severity"],
+  ) => void;
+  hideSnackbar: () => void;
 }
 
 export const useGlobalStore = create<GlobalStore>((set) => ({
@@ -39,6 +50,12 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
     id: 0,
     role: "",
   },
+  snackbar: null,
   setInfo: (value: Info) => set(() => ({ info: value })),
   setAccount: (value: Account) => set(() => ({ account: value })),
+  showSnackbar: (
+    message: string,
+    severity: SnackbarMessage["severity"] = "success",
+  ) => set(() => ({ snackbar: { message, severity } })),
+  hideSnackbar: () => set(() => ({ snackbar: null })),
 }));

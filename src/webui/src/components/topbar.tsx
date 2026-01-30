@@ -86,7 +86,7 @@ export function TopBar(props: TopBarProps) {
             {isAuthenticated && user && (
               <div>
                 <IconButton
-                  aria-label="account of current user"
+                  aria-label="Menu utilisateur"
                   aria-haspopup="true"
                   onClick={handleUserMenu}
                   color="inherit"

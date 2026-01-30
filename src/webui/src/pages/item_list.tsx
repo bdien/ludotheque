@@ -83,7 +83,7 @@ function nameDisplay(item: ItemListEntry) {
         </Box>
         {item.status == "out" && (
           <Icon
-            title="Emprunté"
+            aria-label="Emprunté"
             fontSize="small"
             color="secondary"
             sx={{ pt: 0.2 }}
@@ -93,7 +93,7 @@ function nameDisplay(item: ItemListEntry) {
         )}
         {item.big && (
           <Icon
-            title="Surdimensionné"
+            aria-label="Surdimensionné"
             fontSize="small"
             color="secondary"
             sx={{ pt: 0.2 }}
@@ -103,7 +103,7 @@ function nameDisplay(item: ItemListEntry) {
         )}
         {item.outside && (
           <Icon
-            title="Jeu d'Extérieur"
+            aria-label="Jeu d'Extérieur"
             fontSize="small"
             color="secondary"
             sx={{ pt: 0.2 }}
@@ -113,7 +113,7 @@ function nameDisplay(item: ItemListEntry) {
         )}
         {!item.enabled && (
           <Icon
-            title="Indisponible"
+            aria-label="Indisponible"
             fontSize="small"
             color="warning"
             sx={{ pt: 0.2 }}

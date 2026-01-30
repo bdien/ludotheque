@@ -8,7 +8,7 @@ import { UserList } from "./pages/user_list";
 import { UserEdit } from "./pages/user_edit";
 import { UserView } from "./pages/user_view";
 import { Ledger } from "./pages/ledger";
-import { Box, Toolbar } from "@mui/material";
+import { Box, Toolbar, Snackbar, Alert } from "@mui/material";
 import { Main } from "./pages/main";
 import { LoanClose } from "./pages/loan_close";
 import { getAccount, setToken } from "./api/calls";
@@ -25,12 +25,15 @@ import { useGlobalStore } from "./hooks/global_store";
 import { LessLoaned } from "./pages/lessloaned";
 import { InventoryRev } from "./pages/inventoryrev";
 import { UserMyAccount } from "./pages/user_myaccount";
+import { Loading } from "./components/loading";
 
 function App() {
   const { info } = useInfo();
   const [authdone, setAuthDone] = useState(false);
   const globalStoreSetAccount = useGlobalStore((state) => state.setAccount);
   const globalStoreSetInfo = useGlobalStore((state) => state.setInfo);
+  const snackbar = useGlobalStore((state) => state.snackbar);
+  const hideSnackbar = useGlobalStore((state) => state.hideSnackbar);
   const { isAuthenticated, isLoading, getAccessTokenSilently, logout } =
     useAuth0();
 
@@ -67,7 +70,7 @@ function App() {
 
   // Do not display anything if /info and /account are not done
   if (!info || !authdone) {
-    return <></>;
+    return <Loading />;
   }
 
   return (
@@ -147,6 +150,23 @@ function App() {
         {/* Only way I found to keep some space at the very bottom */}
         <Box height="10px"></Box>
       </Box>
+
+      {/* Global Snackbar for notifications */}
+      <Snackbar
+        open={!!snackbar}
+        autoHideDuration={5000}
+        onClose={hideSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={hideSnackbar}
+          severity={snackbar?.severity ?? "success"}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar?.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

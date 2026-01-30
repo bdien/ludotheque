@@ -29,7 +29,9 @@ export function Main() {
           Nous n'arrivons pas à trouver l'adhérent correspondant à votre email (
           {user?.email}).
           <br />
-          Pourriez-vous nous contacter afin de résoudre ce problème ?
+          Pourriez-vous{" "}
+          <a href="mailto:laludodupoissonlune@gmail.com">nous contacter</a> afin
+          de résoudre ce problème ?
         </Alert>
       )}
 

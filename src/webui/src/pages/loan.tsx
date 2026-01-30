@@ -19,6 +19,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Alert from "@mui/material/Alert";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import { useGlobalStore } from "../hooks/global_store";
 
 const fakeItemAdhesion: ItemModel = { id: -1, name: "Adhésion" };
 const fakeItemCarte: ItemModel = { id: -2, name: "Remplissage carte" };
@@ -29,6 +30,7 @@ export function Loan() {
   const initialUser = queryParameters.get("user");
   const { mutate } = useSWRConfig();
   const { info } = useInfo();
+  const showSnackbar = useGlobalStore((state) => state.showSnackbar);
   const [_location, setLocation] = useLocation();
   const [editBusy, setEditBusy] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -69,6 +71,7 @@ export function Loan() {
       .then(() => {
         mutate(`/api/users/${user.id}`);
         items.map((i) => mutate(`/api/items/${i.id}`));
+        showSnackbar("Emprunt enregistré");
         setLocation(`/users/${user.id}`);
       })
       .catch((err) => {

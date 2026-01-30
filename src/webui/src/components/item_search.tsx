@@ -71,7 +71,7 @@ export function ItemSearch(props: ItemSearchProps) {
         }}
         onInputChange={debounce((_event, newInputValue) => {
           setItemInput(newInputValue);
-        }, 400)}
+        }, 250)}
       />
     </Box>
   );
