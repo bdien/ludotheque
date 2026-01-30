@@ -2,17 +2,19 @@ import Box from "@mui/material/Box";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useItems } from "../api/hooks";
 import { useGlobalStore } from "../hooks/global_store";
+import { useOnlineStatus } from "../hooks/useOnlineStatus";
 import Alert from "@mui/material/Alert";
 import { differenceInDays } from "date-fns";
 import { ItemListEntry } from "../api/models";
 import ItemImage from "../components/ItemImage";
-import { Typography } from "@mui/material";
+import { Icon, Typography } from "@mui/material";
 import { NextOpening } from "../components/NextOpening";
 
 export function Main() {
   const { info, account } = useGlobalStore();
   const { isAuthenticated, user } = useAuth0();
   const { items } = useItems({ sort: "created_at", nb: 8 });
+  const isOnline = useOnlineStatus();
 
   // Filtres les jeux de moins de 3 mois
   let lastitems: ItemListEntry[] = [];
@@ -24,6 +26,12 @@ export function Main() {
 
   return (
     <>
+      {!isOnline && (
+        <Alert severity="warning" icon={<Icon>wifi_off</Icon>} sx={{ mb: 2 }}>
+          Vous êtes hors-ligne. Certaines fonctionnalités peuvent être limitées.
+        </Alert>
+      )}
+
       {isAuthenticated && account && !account?.id && (
         <Alert severity="error">
           Nous n'arrivons pas à trouver l'adhérent correspondant à votre email (
