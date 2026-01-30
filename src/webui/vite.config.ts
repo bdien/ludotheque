@@ -5,11 +5,26 @@ import { VitePWA, VitePWAOptions } from "vite-plugin-pwa";
 
 const manifestForPlugin: Partial<VitePWAOptions> = {
   registerType: "autoUpdate",
-  includeAssets: ["favicon.ico"],
+  includeAssets: ["favicon.ico", "logosmall.webp"],
   workbox: {
-    globPatterns: ["*.webp", "index.html", "assets/*", "*.js"],
-    navigateFallback: null,
+    globPatterns: ["**/*.{js,css,html,webp,woff,woff2}"],
+    navigateFallback: "/index.html",
+    navigateFallbackDenylist: [/^\/api/, /^\/storage/],
     runtimeCaching: [
+      {
+        urlPattern: /^https:\/\/.*\/api\/info/i,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "api-info",
+          expiration: {
+            maxEntries: 1,
+            maxAgeSeconds: 3600 * 24 * 7,
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
+        },
+      },
       {
         urlPattern: /^https:\/\/.*\/api\/items\/?\d*/i,
         handler: "NetworkFirst",
@@ -31,6 +46,20 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
           cacheName: "api-categories",
           expiration: {
             maxEntries: 1,
+            maxAgeSeconds: 3600 * 24 * 31,
+          },
+          cacheableResponse: {
+            statuses: [0, 200],
+          },
+        },
+      },
+      {
+        urlPattern: /^https:\/\/.*\/storage\/thumb\/.*/i,
+        handler: "CacheFirst",
+        options: {
+          cacheName: "thumbnails",
+          expiration: {
+            maxEntries: 200,
             maxAgeSeconds: 3600 * 24 * 31,
           },
           cacheableResponse: {
