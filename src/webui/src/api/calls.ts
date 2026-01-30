@@ -111,7 +111,9 @@ export async function createLoan(
 }
 
 export async function closeLoan(loanId: number): Promise<ItemModel> {
-  const response = await fetchWithToken(`${SERVER_URL}/loans/${loanId}/close`);
+  const response = await fetchWithToken(`${SERVER_URL}/loans/${loanId}/close`, {
+    method: "POST",
+  });
   return response.json();
 }
 
@@ -168,7 +170,7 @@ export async function emailUser(userId: number, send = false): Promise<EMail> {
   const response = await fetchWithToken(
     `${SERVER_URL}/users/${userId}/email${send ? "?send=1" : ""}`,
     {
-      method: "GET",
+      method: "POST",
     },
   );
   return response.json();

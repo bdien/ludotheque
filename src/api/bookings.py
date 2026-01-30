@@ -52,4 +52,4 @@ async def unbook_item(booking_id: int, auth=Depends(auth_user)):
         )
         if nb == 0:
             raise HTTPException(400, "Booking not found")
-    return {"sucess": True}
+    return {"success": True}

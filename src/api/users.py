@@ -43,7 +43,7 @@ async def create_user(request: Request, auth: Annotated[AdminUser, Depends(auth_
     # Checks
     if not params:
         raise HTTPException(400, "Nothing to create")
-    if not (0 <= int(params.get("credit", 0)) <= 100):
+    if not (0 <= params.get("credit", 0) <= 100):
         raise HTTPException(400, "Invalid credit")
 
     with db:
@@ -294,6 +294,15 @@ def plural(lst, plural="s", singular="") -> str:
 def shortDate(d: datetime.date):
     fmt = "%d %B %Y" if d.year != datetime.date.today().year else "%d %B"
     return d.strftime(fmt).lstrip("0")
+
+
+@router.post("/users/{user_id}/email", tags=["user"])
+def send_user_email_post(
+    user_id: int,
+    auth: Annotated[AdminUser, Depends(auth_user)],
+    send: bool | None = False,
+):
+    return send_user_email(user_id, auth, send)
 
 
 @router.get("/users/{user_id}/email", tags=["user"])

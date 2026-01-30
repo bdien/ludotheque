@@ -72,7 +72,7 @@ def test_create_loan_twice(dbitems):
     assert response.status_code != 200
 
     # Return the object, should work now
-    client.get(f"/loans/{loan_id}/close", headers=AUTH_ADMIN)
+    client.post(f"/loans/{loan_id}/close", headers=AUTH_ADMIN)
     response = client.post(
         "/loans",
         json={"user": USER_ID, "items": [ITEM_ID]},
@@ -128,7 +128,7 @@ def test_close_loan(dbitems):
     loan_id = user["loans"][0]["id"]
 
     # Try to close it
-    response = client.get(f"/loans/{loan_id}/close", headers=AUTH_ADMIN)
+    response = client.post(f"/loans/{loan_id}/close", headers=AUTH_ADMIN)
     assert response.status_code == 200
 
     # Check status of loan

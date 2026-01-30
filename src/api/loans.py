@@ -128,7 +128,7 @@ async def create_loan(request: Request, auth: Annotated[AdminUser, Depends(auth_
                 )
 
                 # Update item lastseen column
-                i.lastseen = today = datetime.date.today()
+                i.lastseen = datetime.date.today()
                 i.save()
 
             # Update user credit and subscription (And reenable if needed)
@@ -174,6 +174,11 @@ def get_loan(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
         if loan := Loan.get_or_none(loan_id):
             return model_to_dict(loan, recurse=False)
     raise HTTPException(404)
+
+
+@router.post("/loans/{loan_id}/close", tags=["loan"])
+def close_loan_post(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
+    return close_loan(loan_id, auth)
 
 
 @router.get("/loans/{loan_id}/close", tags=["loan"])
