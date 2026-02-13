@@ -6,6 +6,7 @@ import { useState } from "react";
 import { closeLoan } from "../api/calls";
 import { mutate } from "swr";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { useGlobalStore } from "../hooks/global_store";
 
 interface UserLoansProps {
   userId: number;
@@ -46,6 +47,7 @@ function CloseLoanButton({
 }
 
 export function UserLoans(props: UserLoansProps) {
+  const { account } = useGlobalStore();
   const today = new Date();
   const [parent] = useAutoAnimate();
 
@@ -79,7 +81,11 @@ export function UserLoans(props: UserLoansProps) {
                 day: "numeric",
               })
             }
-            button={<CloseLoanButton userId={props.userId} loanId={obj.id} />}
+            button={
+              account.role === "admin" ? (
+                <CloseLoanButton userId={props.userId} loanId={obj.id} />
+              ) : undefined
+            }
           />
         );
       })}
