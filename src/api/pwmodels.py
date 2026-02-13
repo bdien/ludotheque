@@ -127,6 +127,7 @@ class Loan(BaseModel):
     start = peewee.DateField(default=date.today)
     stop = peewee.DateField(default=today_plus_loantime, index=True)
     status = peewee.CharField(default="out", index=True)
+    extended = peewee.IntegerField(default=0)
 
 
 class Booking(BaseModel):
