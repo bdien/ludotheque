@@ -21,6 +21,7 @@ export interface Info {
   image_max: number;
   email_minperiod: number;
   email_minlate: number;
+  item_new_days: number;
 }
 
 export interface Booking {

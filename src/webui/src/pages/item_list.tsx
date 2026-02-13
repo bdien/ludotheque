@@ -1,6 +1,6 @@
 import { useItems } from "../api/hooks";
 import { useGlobalStore } from "../hooks/global_store";
-import { ItemListEntry } from "../api/models";
+import { Info, ItemListEntry } from "../api/models";
 import { Link } from "wouter";
 import { AgeChip } from "../components/age_chip";
 import { forwardRef, useState } from "react";
@@ -46,7 +46,7 @@ function exportCSV() {
   });
 }
 
-function nameDisplay(item: ItemListEntry) {
+function nameDisplay(item: ItemListEntry, info: Info) {
   return (
     <Link href={`/items/${item.id}`} style={{ textDecoration: "none" }}>
       <Box
@@ -65,7 +65,8 @@ function nameDisplay(item: ItemListEntry) {
           }}
         >
           {item.name}
-          {differenceInDays(new Date(), item.created_at) < 45 && (
+          {differenceInDays(new Date(), item.created_at) <=
+            info.item_new_days && (
             <span
               style={{
                 padding: "0.2em 4px",
@@ -160,7 +161,7 @@ interface ItemListFilters {
 }
 
 export function ItemList() {
-  const { account } = useGlobalStore();
+  const { account, info } = useGlobalStore();
   const { items } = useItems();
   const [filter, setFilter] = useSessionStorage<ItemListFilters>(
     "itemSearchFilters",
@@ -377,7 +378,7 @@ export function ItemList() {
             >
               {row.id}
             </TableCell>
-            <TableCell sx={{ p: 0.5 }}>{nameDisplay(row)}</TableCell>
+            <TableCell sx={{ p: 0.5 }}>{nameDisplay(row, info)}</TableCell>
             <TableCell
               sx={{ width: "clamp(66px, 10vw, 240px)", textAlign: "center" }}
             >

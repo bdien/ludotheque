@@ -289,6 +289,7 @@ def info():
             "image_max": config.IMAGE_MAX_DIM,
             "email_minperiod": config.EMAIL_MINPERIOD,
             "email_minlate": config.EMAIL_MINLATE,
+            "item_new_days": config.ITEM_NEW_DAYS,
             "version": "DEVDEV",
         }
 

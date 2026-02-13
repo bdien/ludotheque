@@ -20,7 +20,9 @@ export function Main() {
   let lastitems: ItemListEntry[] = [];
   if (items) {
     lastitems = Array.from(items.values()).filter(
-      (i) => differenceInDays(new Date(), i.created_at) <= 90 && i.enabled,
+      (i) =>
+        differenceInDays(new Date(), i.created_at) <= info.item_new_days &&
+        i.enabled,
     );
   }
 

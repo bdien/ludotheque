@@ -28,3 +28,6 @@ EMAIL_MINLATE = 1
 # Maximum number of bookings per user
 BOOKING_MAXITEMS = 4
 BOOKING_WEEKS = 3
+
+# Number of days after which an item is considered new
+ITEM_NEW_DAYS = 60
