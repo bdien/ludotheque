@@ -52,7 +52,10 @@ export function SideMenu(props: SideMenuProps) {
         <ListItem
           component={Link}
           to="/items"
-          onClick={() => props.setIsDrawerOpen(false)}
+          onClick={() => {
+            window.umami?.track("SideBar: Liste des Jeux");
+            props.setIsDrawerOpen(false);
+          }}
           sx={{ ...styleUrl("/items") }}
         >
           <ListItemIcon sx={{ color: "inherit" }}>
@@ -64,7 +67,10 @@ export function SideMenu(props: SideMenuProps) {
           <ListItem
             component={Link}
             to={`/users/${account.id}`}
-            onClick={() => props.setIsDrawerOpen(false)}
+            onClick={() => {
+              window.umami?.track("SideBar: Mon Compte");
+              props.setIsDrawerOpen(false);
+            }}
             sx={{ ...styleUrl(`/users/${account.id}`) }}
           >
             <ListItemIcon sx={{ color: "inherit" }}>
@@ -81,7 +87,10 @@ export function SideMenu(props: SideMenuProps) {
             <ListItem
               component={Link}
               to="/loans/new"
-              onClick={() => props.setIsDrawerOpen(false)}
+              onClick={() => {
+                window.umami?.track("SideBar: Nouvel Emprunt");
+                props.setIsDrawerOpen(false);
+              }}
               sx={{
                 ...styleUrl("/loans/new"),
               }}
@@ -99,7 +108,10 @@ export function SideMenu(props: SideMenuProps) {
             <ListItem
               component={Link}
               to="/users"
-              onClick={() => props.setIsDrawerOpen(false)}
+              onClick={() => {
+                window.umami?.track("SideBar: Liste Adhérents");
+                props.setIsDrawerOpen(false);
+              }}
               sx={{ ...styleUrl("/users") }}
             >
               <ListItemIcon sx={{ color: "inherit" }}>
@@ -114,7 +126,10 @@ export function SideMenu(props: SideMenuProps) {
             <ListItem
               component={Link}
               to="/users/new"
-              onClick={() => props.setIsDrawerOpen(false)}
+              onClick={() => {
+                window.umami?.track("SideBar: Nouvel Adhérent");
+                props.setIsDrawerOpen(false);
+              }}
               sx={{ ...styleUrl("/users/new") }}
             >
               <ListItemIcon sx={{ color: "inherit" }}>
@@ -151,7 +166,10 @@ export function SideMenu(props: SideMenuProps) {
                 <ListItem
                   component={Link}
                   to="/ledger"
-                  onClick={() => props.setIsDrawerOpen(false)}
+                  onClick={() => {
+                    window.umami?.track("SideBar: Feuille de Caisse");
+                    props.setIsDrawerOpen(false);
+                  }}
                   sx={{ ...styleUrl("/ledger"), pl: 4 }}
                 >
                   <ListItemIcon sx={{ color: "inherit" }}>
@@ -164,7 +182,10 @@ export function SideMenu(props: SideMenuProps) {
                 <ListItem
                   component={Link}
                   to="/loans/late"
-                  onClick={() => props.setIsDrawerOpen(false)}
+                  onClick={() => {
+                    window.umami?.track("SideBar: Emprunts en retard");
+                    props.setIsDrawerOpen(false);
+                  }}
                   sx={{ ...styleUrl("/loans/late"), pl: 4 }}
                 >
                   <ListItemIcon sx={{ color: "inherit" }}>
@@ -177,7 +198,10 @@ export function SideMenu(props: SideMenuProps) {
                 <ListItem
                   component={Link}
                   to="/documents"
-                  onClick={() => props.setIsDrawerOpen(false)}
+                  onClick={() => {
+                    window.umami?.track("SideBar: Documents");
+                    props.setIsDrawerOpen(false);
+                  }}
                   sx={{ ...styleUrl("/documents"), pl: 4 }}
                 >
                   <ListItemIcon sx={{ color: "inherit" }}>
@@ -190,7 +214,10 @@ export function SideMenu(props: SideMenuProps) {
                 <ListItem
                   component={Link}
                   to="/stats"
-                  onClick={() => props.setIsDrawerOpen(false)}
+                  onClick={() => {
+                    window.umami?.track("SideBar: Statistiques");
+                    props.setIsDrawerOpen(false);
+                  }}
                   sx={{ ...styleUrl("/stats"), pl: 4 }}
                 >
                   <ListItemIcon sx={{ color: "inherit" }}>
@@ -221,7 +248,10 @@ export function SideMenu(props: SideMenuProps) {
                 <ListItem
                   component={Link}
                   to="/inventory"
-                  onClick={() => props.setIsDrawerOpen(false)}
+                  onClick={() => {
+                    window.umami?.track("SideBar: Inventaire Scan");
+                    props.setIsDrawerOpen(false);
+                  }}
                   sx={{ ...styleUrl("/inventory"), pl: 4 }}
                 >
                   <ListItemIcon sx={{ color: "inherit" }}>
@@ -234,7 +264,10 @@ export function SideMenu(props: SideMenuProps) {
                 <ListItem
                   component={Link}
                   to="/inventoryrev"
-                  onClick={() => props.setIsDrawerOpen(false)}
+                  onClick={() => {
+                    window.umami?.track("SideBar: Inventaire Inverse");
+                    props.setIsDrawerOpen(false);
+                  }}
                   sx={{ ...styleUrl("/inventoryrev"), pl: 4 }}
                 >
                   <ListItemIcon sx={{ color: "inherit" }}>

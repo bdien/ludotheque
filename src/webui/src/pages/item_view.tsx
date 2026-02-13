@@ -239,13 +239,14 @@ export function Item(props: ItemProps) {
               <IconButton
                 sx={{ fontSize: "1.5em" }}
                 title="Rendre"
-                onClick={() =>
+                onClick={() => {
+                  window.umami?.track("FicheJeu: Rendre");
                   navigate(
                     `/loans/${item.loans ? item.loans[0].id : 0}/close?return=${
                       window.location.pathname
                     }`,
-                  )
-                }
+                  );
+                }}
               >
                 <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
                   login
@@ -255,7 +256,10 @@ export function Item(props: ItemProps) {
               <IconButton
                 sx={{ fontSize: "1.5em" }}
                 title="Emprunter"
-                onClick={() => navigate(`/loans/new?item=${item.id}`)}
+                onClick={() => {
+                  window.umami?.track("FicheJeu: Emprunter");
+                  navigate(`/loans/new?item=${item.id}`);
+                }}
               >
                 <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
                   logout
@@ -268,7 +272,10 @@ export function Item(props: ItemProps) {
               sx={{ fontSize: "1.5em" }}
               aria-label="edit"
               title="Editer"
-              onClick={() => navigate(`/items/${item.id}/edit`)}
+              onClick={() => {
+                window.umami?.track("FicheJeu: Editer");
+                navigate(`/items/${item.id}/edit`);
+              }}
             >
               <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
                 edit
@@ -284,6 +291,7 @@ export function Item(props: ItemProps) {
             aria-label="share"
             title="Partager"
             onClick={() => {
+              window.umami?.track("FicheJeu: Partager");
               navigator
                 .share({ url: window.location.href, title: item.name })
                 .catch((e) => console.warn(e.message));

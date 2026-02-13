@@ -27,6 +27,15 @@ import { InventoryRev } from "./pages/inventoryrev";
 import { UserMyAccount } from "./pages/user_myaccount";
 import { Loading } from "./components/loading";
 
+declare global {
+  interface Window {
+    umami?: {
+      identify: (data: { name?: string; role: string }) => void;
+      track: (event: string) => void;
+    };
+  }
+}
+
 function App() {
   const { info } = useInfo();
   const [authdone, setAuthDone] = useState(false);
@@ -57,6 +66,9 @@ function App() {
         .then((token) => {
           setToken(token);
           getAccount().then((data) => {
+            if (data.id == 14)
+              window.umami?.identify({ name: "Benoit", role: data.role });
+            else window.umami?.identify({ role: data.role });
             globalStoreSetAccount(data);
             setAuthDone(true);
           });
