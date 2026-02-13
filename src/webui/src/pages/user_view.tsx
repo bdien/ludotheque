@@ -32,15 +32,18 @@ export function UserView(props: UserViewProps) {
       <MiniUser display_loans={false} user={user} />
 
       <TabContext value={tabIndex}>
-        {/* Only display tabs for current user or admin */}
-        {(account?.id == user.id || account?.role == "admin") && (
+        {/* Only display tabs if allowed */}
+        {(account?.id == user.id || account?.rights.includes("user_list")) && (
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <TabList
               variant="fullWidth"
               onChange={(_event, value) => setTabIndex(value)}
             >
               <Tab label="Emprunts" value="loans" />
-              <Tab label="Historique" value="history" />
+              {(account?.id == user.id ||
+                account?.rights.includes("user_manage")) && (
+                <Tab label="Historique" value="history" />
+              )}
               {user.bookings && user.bookings.length > 0 && (
                 <Tab label="Resas" value="bookings" />
               )}
@@ -52,7 +55,7 @@ export function UserView(props: UserViewProps) {
           <UserLoans
             userId={user.id}
             loans={user.loans ?? []}
-            buttons={account?.role == "admin" || account?.role == "benevole"}
+            buttons={account?.rights.includes("loan_manage")}
           />
         </TabPanel>
 
@@ -88,7 +91,7 @@ export function UserView(props: UserViewProps) {
       </TabContext>
 
       {/* Edit button */}
-      {account?.role == "admin" && (
+      {account?.rights.includes("user_manage") && (
         <SpeedDial
           ariaLabel="Actions"
           sx={{

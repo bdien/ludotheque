@@ -131,7 +131,7 @@ export function UserList() {
         </Menu>
 
         {/* Export CSV */}
-        {account?.role == "admin" && (
+        {account?.rights.includes("user_manage") && (
           <Tooltip
             title="Exporter en CSV"
             sx={{ display: { xs: "none", sm: "block" } }}

@@ -5,22 +5,26 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
 from playhouse.shortcuts import model_to_dict
 
-from api.config import PRICING
+from api.config import LOAN_EXTEND_MAX, PRICING
 from api.pwmodels import Item, Ledger, Loan, User, db
-from api.system import AdminUser, BenevoleUser, auth_user
+from api.system import AuthUser, auth_user_required
 
 router = APIRouter()
 
 
 @router.get("/loans", tags=["loans"])
-def get_loans(auth: Annotated[AdminUser, Depends(auth_user)]):
+def get_loans(auth: Annotated[AuthUser, Depends(auth_user_required)]):
+    auth.check_right("loan_manage")
     loans = Loan.select().order_by(Loan.stop, Loan.user)
     with db:
         return list(loans.dicts())
 
 
 @router.get("/loans/late", tags=["loans"])
-def get_loans_late(auth: Annotated[AdminUser, Depends(auth_user)], mindays: int = 0):
+def get_loans_late(
+    auth: Annotated[AuthUser, Depends(auth_user_required)], mindays: int = 0
+):
+    auth.check_right("loan_manage")
     stop_date = datetime.date.today() - datetime.timedelta(days=mindays)
 
     loans = Loan.select().order_by(Loan.stop, Loan.user)
@@ -31,7 +35,10 @@ def get_loans_late(auth: Annotated[AdminUser, Depends(auth_user)], mindays: int 
 
 
 @router.post("/loans", tags=["loans"])
-async def create_loan(request: Request, auth: Annotated[AdminUser, Depends(auth_user)]):
+async def create_loan(
+    request: Request, auth: Annotated[AuthUser, Depends(auth_user_required)]
+):
+    auth.check_right("loan_create")
     body = await request.json()
     for i in "user", "items":
         if i not in body:
@@ -169,7 +176,8 @@ async def create_loan(request: Request, auth: Annotated[AdminUser, Depends(auth_
 
 
 @router.get("/loans/{loan_id}", tags=["loan"])
-def get_loan(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
+def get_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]):
+    auth.check_right("loan_manage")
     with db:
         if loan := Loan.get_or_none(loan_id):
             return model_to_dict(loan, recurse=False)
@@ -177,12 +185,16 @@ def get_loan(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
 
 
 @router.post("/loans/{loan_id}/close", tags=["loan"])
-def close_loan_post(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
+def close_loan_post(
+    loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]
+):
+    auth.check_right("loan_manage")
     return close_loan(loan_id, auth)
 
 
 @router.get("/loans/{loan_id}/close", tags=["loan"])
-def close_loan(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
+def close_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]):
+    auth.check_right("loan_manage")
     with db:
         loan = Loan.get_or_none(Loan.id == loan_id)
         if not loan:
@@ -207,8 +219,30 @@ def close_loan(loan_id: int, auth: Annotated[BenevoleUser, Depends(auth_user)]):
         return model_to_dict(loan, recurse=False)
 
 
+@router.post("/loans/{loan_id}/extend", tags=["loan"])
+def extend_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]):
+    auth.check_right("loan_manage")
+    with db:
+        loan = Loan.get_or_none(Loan.id == loan_id)
+        if not loan:
+            raise HTTPException(400, "No such loan")
+        if loan.status != "out":
+            raise HTTPException(400, "Already closed")
+        if loan.extended >= LOAN_EXTEND_MAX:
+            raise HTTPException(400, "Maximum number of extensions reached")
+
+        loan.stop += datetime.timedelta(days=15)
+        loan.extended += 1
+        loan.save()
+
+        return model_to_dict(loan, recurse=False)
+
+
 @router.delete("/loans/{loan_id}", tags=["loan"])
-async def delete_loan(loan_id: int, auth: Annotated[AdminUser, Depends(auth_user)]):
+async def delete_loan(
+    loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]
+):
+    auth.check_right("loan_delete")
     with db:
         loan = Loan.get_or_none(Loan.id == loan_id)
         if not loan:

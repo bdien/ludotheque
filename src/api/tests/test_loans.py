@@ -4,7 +4,7 @@ import pytest
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 from fastapi.testclient import TestClient
 
-from api.config import PRICING
+from api.config import LOAN_EXTEND_MAX, PRICING
 from api.main import app
 from api.pwmodels import Item, Loan, User, db
 from api.system import auth_user
@@ -127,7 +127,11 @@ def test_close_loan(dbitems):
     user = response.json()
     loan_id = user["loans"][0]["id"]
 
-    # Try to close it
+    # Try to close it as user: Should fail
+    response = client.post(f"/loans/{loan_id}/close", headers=AUTH_USER)
+    assert response.status_code >= 400
+
+    # Try to close it as admin: Should work
     response = client.post(f"/loans/{loan_id}/close", headers=AUTH_ADMIN)
     assert response.status_code == 200
 
@@ -140,6 +144,29 @@ def test_close_loan(dbitems):
     response = client.get(f"/users/{USER_ID}", headers=AUTH_ADMIN)
     user = response.json()
     assert not user.get("loans")
+
+
+def test_extend_loan(dbitems):
+    # Create loan
+    response = client.post(
+        "/loans",
+        json={"user": USER_ID, "items": [ITEM_ID]},
+        headers=AUTH_ADMIN,
+    )
+    loan_id = response.json()["loans"][0]["id"]
+
+    # Extend it
+    for _ in range(LOAN_EXTEND_MAX):
+        response = client.post(f"/loans/{loan_id}/extend", headers=AUTH_ADMIN)
+        assert response.status_code == 200
+
+    # Further extension should not work
+    response = client.post(f"/loans/{loan_id}/extend", headers=AUTH_ADMIN)
+    assert response.status_code == 400
+
+    # Close loan
+    response = client.post(f"/loans/{loan_id}/close", headers=AUTH_ADMIN)
+    assert response.status_code == 200
 
 
 def test_delete_loan():

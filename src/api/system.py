@@ -28,18 +28,52 @@ stats_cache = {}
 class AuthUser:
     id: int
     role: str
+    rights: list[str]
+
+    def has_right(self, right: str) -> bool:
+        return right in self.rights
+
+    def check_right(self, right: str):
+        if not self.has_right(right):
+            logging.warning(
+                "User %d with role '%s' does not have right '%s'",
+                self.id,
+                self.role,
+                right,
+            )
+            raise HTTPException(403, "Forbidden")
 
 
-@dataclasses.dataclass(frozen=True)
-class BenevoleUser(AuthUser):
-    id: int
-    role: str = "benevole"
+def _compute_rights(role: str) -> list[str]:
+    rights = set()
+
+    # Allow to create loans/items/users
+    if __check_role(role, "admin"):
+        rights.update({"user_create", "item_create", "loan_create", "booking_create"})
+
+    # Allow to manage loans/items (return, extend, edit) + list users (To close loans)
+    if __check_role(role, "admin"):
+        rights.update({"loan_manage", "item_manage", "booking_manage", "user_list"})
+
+    # Allow to manage users (export, edit, enable/disable, email)
+    if __check_role(role, "admin"):
+        rights.update({"user_list", "user_manage"})
+
+    # Allow to delete users/items/loans
+    if __check_role(role, "admin"):
+        rights.update({"user_delete", "item_delete", "loan_delete", "booking_delete"})
+
+    # Allow to do maintenance, access stats, ledger, backup
+    if __check_role(role, "admin"):
+        rights.add("system")
+
+    return list(rights)
 
 
-@dataclasses.dataclass(frozen=True)
-class AdminUser(AuthUser):
-    id: int
-    role: str = "admin"
+def __check_role(role: str, minrole: str = "user") -> bool:
+    if (minrole == "admin") and (role != "admin"):
+        return False
+    return not ((minrole == "benevole") and (role not in ("admin", "benevole")))
 
 
 def __validate_token(authorization: str) -> str | None:
@@ -58,7 +92,7 @@ def __validate_token(authorization: str) -> str | None:
 @cachetools.func.ttl_cache(ttl=600)
 def auth_user(
     authorization: Annotated[str | None, Header()] = None,
-) -> AuthUser | BenevoleUser | AdminUser | None:
+) -> AuthUser | None:
     "Authenticate the user and return id/email/role"
     if (not authorization) or (not authorization.lower().startswith("bearer")):
         return None
@@ -100,34 +134,32 @@ def auth_user(
                 return None
 
     # Role benevole is only valid on saturdays 10h->13h
-    now = datetime.datetime.now()
-    if user.role == "benevole" and not (now.weekday() == 5 and (10 <= now.hour <= 12)):
-        user.role = "user"
+    if os.getenv("LUDO_ENV") == "production":
+        now = datetime.datetime.now()
+        if user.role == "benevole" and not (
+            now.weekday() == 5 and (10 <= now.hour <= 12)
+        ):
+            user.role = "user"
 
-    if user.role == "admin":
-        return AdminUser(user.id)
-    if user.role == "benevole":
-        return BenevoleUser(user.id)
-    return AuthUser(user.id, user.role)
+    # Compute rights
+    rights = _compute_rights(user.role)
+
+    return AuthUser(user.id, user.role, rights)
 
 
-def check_auth(auth: AuthUser | None, minlevel: str = "user") -> None:
-    "Check that the user is authenticated and at minimum level, throw exception"
-
-    if not auth:
-        raise HTTPException(401)
-
-    if (minlevel == "admin") and (auth.role != "admin"):
-        raise HTTPException(403)
-    if (minlevel == "benevole") and (auth.role not in ("admin", "benevole")):
-        raise HTTPException(403)
+def auth_user_required(
+    auth: Annotated[AuthUser | None, Depends(auth_user)],
+) -> AuthUser:
+    if auth is None:
+        raise HTTPException(401, "Une authentification est nécessaire")
+    return auth
 
 
 @router.get("/backup", tags=["admin"])
-def create_backup(auth=Depends(auth_user)):
+def create_backup(auth=Depends(auth_user_required)):
     "Create a TAR file with the DB and images"
 
-    check_auth(auth, "admin")
+    auth.check_right("system")
     storage_path = os.getenv("LUDO_STORAGE", "../../storage")
 
     # Vaccuum table + Sync WAL journal to DB
@@ -147,10 +179,10 @@ def create_backup(auth=Depends(auth_user)):
 
 
 @router.get("/maintenance", tags=["admin"])
-def run_maintenance(auth=Depends(auth_user)):
+def run_maintenance(auth=Depends(auth_user_required)):
     "Run maintenance tasks"
 
-    check_auth(auth, "admin")
+    auth.check_right("system")
 
     # Vaccuum table + Sync WAL journal to DB
     db.connect()
@@ -215,10 +247,10 @@ def stats_per_day(stop_day, duration_weeks=4):
 
 
 @router.get("/stats", tags=["admin"])
-def stats(auth=Depends(auth_user)):
+def stats(auth=Depends(auth_user_required)):
     "Return stats (Loans, Users)"
 
-    check_auth(auth, "admin")
+    auth.check_right("system")
 
     with db:
         # Active users (Loans in/out last month) / week
@@ -281,7 +313,11 @@ def info():
             "domain": config.AUTH_DOMAIN,
             "pricing": config.PRICING,
             "next_opening": get_next_saturday(),
-            "loan": {"maxitems": config.LOAN_MAXITEMS, "weeks": config.LOAN_WEEKS},
+            "loan": {
+                "maxitems": config.LOAN_MAXITEMS,
+                "weeks": config.LOAN_WEEKS,
+                "extend_max": config.LOAN_EXTEND_MAX,
+            },
             "booking": {
                 "maxitems": config.BOOKING_MAXITEMS,
                 "weeks": config.BOOKING_WEEKS,

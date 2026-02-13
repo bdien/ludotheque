@@ -59,7 +59,7 @@ function App() {
       return;
     }
     if (!isAuthenticated) {
-      globalStoreSetAccount({ id: 0, role: "" });
+      globalStoreSetAccount({ id: 0, role: "", rights: [] });
       setAuthDone(true);
     } else {
       getAccessTokenSilently()

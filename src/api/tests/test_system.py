@@ -90,6 +90,7 @@ def test_auth_benevole_limit(datetime, role, monkeypatch):
     "Test that benevole cannot be benevole outside of saturday 10->13"
 
     # Setup
+    monkeypatch.setenv("LUDO_ENV", "production")
     monkeypatch.setattr(api.system, "__validate_token", lambda e: e.split(" ", 1)[1])
     with db:
         user = User.create(name="A", role="benevole")

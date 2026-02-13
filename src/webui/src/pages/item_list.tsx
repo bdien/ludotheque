@@ -316,7 +316,7 @@ export function ItemList() {
         </Menu>
 
         {/* Export CSV */}
-        {account?.role == "admin" && (
+        {account?.rights.includes("item_manage") && (
           <Tooltip
             title="Exporter en CSV"
             sx={{ display: { xs: "none", sm: "block" } }}

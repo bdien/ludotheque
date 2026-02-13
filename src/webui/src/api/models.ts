@@ -13,6 +13,7 @@ export interface Info {
   loan: {
     maxitems: number;
     weeks: number;
+    extend_max: number;
   };
   booking: {
     maxitems: number;
@@ -113,6 +114,7 @@ export interface APILoan {
   start: string;
   stop: string;
   status?: string;
+  extended?: number;
   user?: number;
 }
 
@@ -123,6 +125,7 @@ export interface APILoanWithUser extends APILoan {
 export interface Account {
   id: number;
   role: string;
+  rights: string[];
 }
 
 export interface LoanCreateResult {

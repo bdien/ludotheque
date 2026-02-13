@@ -6,16 +6,16 @@ from api.pwmodels import (
     Booking,
     db,
 )
-from api.system import auth_user, check_auth
+from api.system import auth_user_required
 
 router = APIRouter()
 
 
 @router.post("/bookings", tags=["bookings"])
-async def book_item(request: Request, auth=Depends(auth_user)):
+async def book_item(request: Request, auth=Depends(auth_user_required)):
     "Book an item"
 
-    check_auth(auth)
+    auth.check_right("booking_create")
     body = await request.json()
     if not body.get("item"):
         raise HTTPException(400, "Missing item")
@@ -39,10 +39,10 @@ async def book_item(request: Request, auth=Depends(auth_user)):
 
 
 @router.delete("/bookings/{booking_id}", tags=["bookings"])
-async def unbook_item(booking_id: int, auth=Depends(auth_user)):
+async def unbook_item(booking_id: int, auth=Depends(auth_user_required)):
     "Unbook an item"
 
-    check_auth(auth)
+    auth.check_right("booking_delete")
 
     with db:
         nb = (

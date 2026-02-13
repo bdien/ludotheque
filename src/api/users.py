@@ -16,11 +16,9 @@ from api.config import EMAIL_MINPERIOD
 from api.models import APILoan, APIUser
 from api.pwmodels import Booking, EMail, Item, Loan, User, db
 from api.system import (
-    AdminUser,
     AuthUser,
-    BenevoleUser,
     auth_user,
-    check_auth,
+    auth_user_required,
     log_event,
     send_email,
 )
@@ -29,8 +27,11 @@ router = APIRouter()
 
 
 @router.post("/users", tags=["users"])
-async def create_user(request: Request, auth: Annotated[AdminUser, Depends(auth_user)]):
+async def create_user(
+    request: Request, auth: Annotated[AuthUser, Depends(auth_user_required)]
+):
     "Create a new user"
+    auth.check_right("user_create")
     body = await request.json()
 
     # Lowercase emails
@@ -87,12 +88,14 @@ def uniquesplit(lst: str | None) -> list:
 
 @router.get("/users", tags=["users"])
 def get_users(
-    auth: Annotated[BenevoleUser, Depends(auth_user)],
+    auth: Annotated[AuthUser, Depends(auth_user)],
     nb: int = 0,
     sort: str | None = None,
     q: str | None = None,
 ):
     "Return a list of users"
+    auth.check_right("user_list")
+
     query = (
         User.select(
             User.id,
@@ -126,15 +129,17 @@ def get_users(
                 "oldest_loan": user.oldest_loan,
                 "emails": uniquesplit(user.emails),
             }
-            if auth.role != "admin":
+            if not auth.has_right("user_manage"):
                 del elem["emails"]
             ret.append(elem)
         return ret
 
 
 @router.get("/users/export", tags=["users"], response_class=PlainTextResponse)
-def export_users(auth: Annotated[AdminUser, Depends(auth_user)]):
+def export_users(auth: Annotated[AuthUser, Depends(auth_user_required)]):
     "Export CSV"
+
+    auth.check_right("user_manage")
 
     f = io.StringIO()
     csvwriter = csv.DictWriter(
@@ -154,13 +159,14 @@ def export_users(auth: Annotated[AdminUser, Depends(auth_user)]):
 def get_myself(auth: Annotated[AuthUser | None, Depends(auth_user)]):
     if not auth:
         return {}
-    return {"role": auth.role, "id": auth.id}
+    return {"role": auth.role, "id": auth.id, "rights": auth.rights}
 
 
 @router.get("/users/search", tags=["users"])
 def search_user(
-    auth: Annotated[BenevoleUser, Depends(auth_user)], q: str | None = None
+    auth: Annotated[AuthUser, Depends(auth_user_required)], q: str | None = None
 ):
+    auth.check_right("user_list")
     if not q:
         return []
 
@@ -176,10 +182,12 @@ def search_user(
 
 
 @router.get("/users/{user_id}", tags=["user"], response_model_exclude_defaults=True)
-def get_user(user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]) -> APIUser:
+def get_user(
+    user_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]
+) -> APIUser:
     # Must be authenticated. If not checking self, must be at least benevole
     if user_id != auth.id:
-        check_auth(auth, "benevole")
+        auth.check_right("user_list")
 
     with db:
         user = (
@@ -210,9 +218,8 @@ def get_user(user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]) -> API
             .dicts()
         )
 
-    if auth.role not in ("admin", "benevole"):
+    if not auth.has_right("user_manage"):
         del ret["notes"]
-    if auth.role != "admin":
         del ret["informations"]
         del ret["apikey"]
         del ret["last_warning"]
@@ -228,9 +235,9 @@ def get_user(user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]) -> API
 def get_user_history(
     user_id: int, auth: Annotated[AuthUser, Depends(auth_user)]
 ) -> list[APILoan]:
-    # Must be authenticated. If not checking self, must be at least admin
+    # Must be authenticated. If not checking self, must have the right
     if user_id != auth.id:
-        check_auth(auth, "admin")
+        auth.check_right("user_manage")
 
     with db:
         return list(
@@ -244,8 +251,11 @@ def get_user_history(
 
 @router.post("/users/{user_id}", tags=["user"])
 async def modify_user(
-    user_id: int, request: Request, auth: Annotated[AdminUser, Depends(auth_user)]
+    user_id: int,
+    request: Request,
+    auth: Annotated[AuthUser, Depends(auth_user_required)],
 ):
+    auth.check_right("user_manage")
     body = await request.json()
 
     # Lowercase emails
@@ -277,7 +287,10 @@ async def modify_user(
 
 
 @router.delete("/users/{user_id}", tags=["user"])
-async def delete_user(user_id: int, auth: Annotated[AdminUser, Depends(auth_user)]):
+async def delete_user(
+    user_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]
+):
+    auth.check_right("user_delete")
     with db:
         user = User.get_or_none(User.id == user_id)
         if not user:
@@ -297,20 +310,12 @@ def shortDate(d: datetime.date):
 
 
 @router.post("/users/{user_id}/email", tags=["user"])
-def send_user_email_post(
-    user_id: int,
-    auth: Annotated[AdminUser, Depends(auth_user)],
-    send: bool | None = False,
-):
-    return send_user_email(user_id, auth, send)
-
-
-@router.get("/users/{user_id}/email", tags=["user"])
 def send_user_email(
     user_id: int,
-    auth: Annotated[AdminUser, Depends(auth_user)],
+    auth: Annotated[AuthUser, Depends(auth_user_required)],
     send: bool | None = False,
 ):
+    auth.check_right("user_manage")
     with db:
         user = User.get_or_none(User.id == user_id)
         if not user:

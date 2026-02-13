@@ -183,7 +183,7 @@ export function ItemEdit(props: ItemEditProps) {
         <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }} />
 
         {/* Delete button */}
-        {item.id != 0 && account?.role == "admin" && (
+        {item.id != 0 && account?.rights.includes("item_delete") && (
           <>
             <Button
               color="warning"

@@ -3,14 +3,14 @@ import datetime
 from fastapi import APIRouter, Depends
 
 from api.pwmodels import Ledger, db
-from api.system import auth_user, check_auth
+from api.system import auth_user_required
 
 router = APIRouter()
 
 
 @router.get("/ledger", tags=["ledger"])
-async def get_ledger(auth=Depends(auth_user)) -> list:
-    check_auth(auth, "admin")
+async def get_ledger(auth=Depends(auth_user_required)) -> list:
+    auth.check_right("system")
     with db:
         last_year = datetime.datetime.now() - datetime.timedelta(days=365)
         return list(

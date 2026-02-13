@@ -81,7 +81,7 @@ export function SideMenu(props: SideMenuProps) {
         ) : (
           ""
         )}
-        {account?.role == "admin" && (
+        {account?.rights.includes("loan_create") && (
           <>
             <Divider />
             <ListItem
@@ -102,7 +102,7 @@ export function SideMenu(props: SideMenuProps) {
             </ListItem>
           </>
         )}
-        {(account?.role == "admin" || account?.role == "benevole") && (
+        {account?.rights.includes("user_list") && (
           <>
             <Divider />
             <ListItem
@@ -121,7 +121,7 @@ export function SideMenu(props: SideMenuProps) {
             </ListItem>
           </>
         )}
-        {account?.role == "admin" && (
+        {account?.rights.includes("user_create") && (
           <>
             <ListItem
               component={Link}
@@ -139,7 +139,10 @@ export function SideMenu(props: SideMenuProps) {
             </ListItem>
 
             <Divider />
-
+          </>
+        )}
+        {account?.rights.includes("system") && (
+          <>
             <ListItem sx={{ ...styleUrl("/admin") }} onClick={handleClickAdmin}>
               <ListItemIcon sx={{ color: "inherit" }}>
                 <Icon>star_border</Icon>

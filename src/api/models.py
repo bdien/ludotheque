@@ -18,6 +18,7 @@ class APILoan(BaseModel):
     start: datetime.date
     stop: datetime.date
     status: str | None = None
+    extended: int | None = None
 
 
 class APILoanWithUser(APILoan):

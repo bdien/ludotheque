@@ -205,7 +205,7 @@ export function MiniUser(props: MiniUserProps) {
         <Alert elevation={1} severity="error" sx={{ my: 1 }}>
           {late_loans} jeu{late_loans > 1 ? "x" : ""} en retard
           {/* Emails pour retard */}
-          {account?.role == "admin" && verylate_loans
+          {account?.rights.includes("user_manage") && verylate_loans
             ? emailLate(props.user)
             : ""}
         </Alert>

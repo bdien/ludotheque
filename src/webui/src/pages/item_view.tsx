@@ -232,56 +232,54 @@ export function Item(props: ItemProps) {
           flexDirection: desktop ? "row" : "column-reverse",
         }}
       >
-        {account?.role == "admin" && (
-          <>
-            {/* Loan button */}
-            {item.status == "out" ? (
-              <IconButton
-                sx={{ fontSize: "1.5em" }}
-                title="Rendre"
-                onClick={() => {
-                  window.umami?.track("FicheJeu: Rendre");
-                  navigate(
-                    `/loans/${item.loans ? item.loans[0].id : 0}/close?return=${
-                      window.location.pathname
-                    }`,
-                  );
-                }}
-              >
-                <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
-                  login
-                </Icon>
-              </IconButton>
-            ) : (
-              <IconButton
-                sx={{ fontSize: "1.5em" }}
-                title="Emprunter"
-                onClick={() => {
-                  window.umami?.track("FicheJeu: Emprunter");
-                  navigate(`/loans/new?item=${item.id}`);
-                }}
-              >
-                <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
-                  logout
-                </Icon>
-              </IconButton>
-            )}
+        {account?.rights.includes("loan_manage") && item.status == "out" && (
+          <IconButton
+            sx={{ fontSize: "1.5em" }}
+            title="Rendre"
+            onClick={() => {
+              window.umami?.track("FicheJeu: Rendre");
+              navigate(
+                `/loans/${item.loans ? item.loans[0].id : 0}/close?return=${
+                  window.location.pathname
+                }`,
+              );
+            }}
+          >
+            <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
+              login
+            </Icon>
+          </IconButton>
+        )}
+        {account?.rights.includes("loan_create") && item.status == "in" && (
+          <IconButton
+            sx={{ fontSize: "1.5em" }}
+            title="Emprunter"
+            onClick={() => {
+              window.umami?.track("FicheJeu: Emprunter");
+              navigate(`/loans/new?item=${item.id}`);
+            }}
+          >
+            <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
+              logout
+            </Icon>
+          </IconButton>
+        )}
 
-            {/* Edit Button */}
-            <IconButton
-              sx={{ fontSize: "1.5em" }}
-              aria-label="edit"
-              title="Editer"
-              onClick={() => {
-                window.umami?.track("FicheJeu: Editer");
-                navigate(`/items/${item.id}/edit`);
-              }}
-            >
-              <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
-                edit
-              </Icon>
-            </IconButton>
-          </>
+        {/* Edit Button */}
+        {account?.rights.includes("item_manage") && (
+          <IconButton
+            sx={{ fontSize: "1.5em" }}
+            aria-label="edit"
+            title="Editer"
+            onClick={() => {
+              window.umami?.track("FicheJeu: Editer");
+              navigate(`/items/${item.id}/edit`);
+            }}
+          >
+            <Icon sx={{ fontSize: "1.5em", textShadow: "0 0 3px white" }}>
+              edit
+            </Icon>
+          </IconButton>
         )}
 
         {/* Share button */}

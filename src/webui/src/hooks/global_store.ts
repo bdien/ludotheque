@@ -36,6 +36,7 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
     loan: {
       maxitems: 0,
       weeks: 0,
+      extend_max: 0,
     },
     booking: {
       maxitems: 0,
@@ -50,6 +51,7 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
   account: {
     id: 0,
     role: "",
+    rights: [],
   },
   snackbar: null,
   setInfo: (value: Info) => set(() => ({ info: value })),

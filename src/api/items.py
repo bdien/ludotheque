@@ -24,7 +24,7 @@ from api.pwmodels import (
     Rating,
     db,
 )
-from api.system import AdminUser, AuthUser, BenevoleUser, auth_user, log_event
+from api.system import AuthUser, auth_user, auth_user_required, log_event
 
 LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 
@@ -32,7 +32,10 @@ router = APIRouter()
 
 
 @router.post("/items", tags=["items"])
-async def create_item(request: Request, auth: Annotated[AdminUser, Depends(auth_user)]):
+async def create_item(
+    request: Request, auth: Annotated[AuthUser, Depends(auth_user_required)]
+):
+    auth.check_right("item_create")
     body = await request.json()
 
     # Avoid some properties
@@ -103,7 +106,7 @@ def get_items(
         Item.created_at,
         subquery.c.status,
     )
-    if auth and auth.role == "admin":
+    if auth and auth.has_right("item_manage"):
         columns += (Item.lastseen, subquery.c.loanstop)
 
     query = Item.select(*columns)
@@ -127,9 +130,10 @@ def get_items(
 
 
 @router.get("/items/export", tags=["items"], response_class=PlainTextResponse)
-def export_items(auth: Annotated[AdminUser, Depends(auth_user)]):
+def export_items(auth: Annotated[AuthUser, Depends(auth_user_required)]):
     "Export CSV"
 
+    auth.check_right("item_manage")
     f = io.StringIO()
     csvwriter = csv.DictWriter(
         f,
@@ -153,9 +157,12 @@ def export_items(auth: Annotated[AdminUser, Depends(auth_user)]):
 
 
 @router.get("/items/lastseen", tags=["items"])
-def get_items_lastseen(days: int = 365):
+def get_items_lastseen(
+    auth: Annotated[AuthUser, Depends(auth_user_required)], days: int = 365
+):
     "Return a list of items sorted by lastseen and limit in time"
 
+    auth.check_right("item_manage")
     with db:
         start = datetime.date.today() - datetime.timedelta(days=days)
         return list(
@@ -170,7 +177,8 @@ def get_items_lastseen(days: int = 365):
 
 
 @router.get("/items/nbloans", tags=["items"])
-def get_items_nbloans():
+def get_items_nbloans(auth: Annotated[AuthUser, Depends(auth_user_required)]):
+    auth.check_right("item_manage")
     with db:
         subquery = (
             Item.select(
@@ -243,8 +251,8 @@ def get_item(
             for i in ItemLink.select().where(ItemLink.item == item_id)
         ]
 
-        # Remove fields for non-admin
-        if not auth or auth.role != "admin":
+        # Remove fields if needed
+        if not auth or not auth.has_right("item_manage"):
             del base["notes"]
             del base["lastseen"]
             del base["created_at"]
@@ -258,7 +266,7 @@ def get_item(
         )
         base["bookings"] = {"nb": len(bookings)}
         if auth:
-            if auth.role == "admin":
+            if auth.has_right("booking_manage"):
                 base["bookings"]["entries"] = bookings
             else:
                 base["bookings"]["entries"] = [
@@ -284,7 +292,7 @@ def get_item(
             if auth:
                 base["return"] = loans[0].stop
                 # Filter own loans
-                if auth.role != "admin":
+                if not auth.has_right("item_manage"):
                     loans = [i for i in loans if i.user_id == auth.id]
                 base["loans"] = [model_to_dict(i, recurse=False) for i in loans]
 
@@ -360,8 +368,11 @@ def modif_pictures(
 
 @router.post("/items/{item_id}", tags=["item"])
 async def modify_item(
-    item_id: int, request: Request, auth: Annotated[BenevoleUser, Depends(auth_user)]
+    item_id: int,
+    request: Request,
+    auth: Annotated[AuthUser, Depends(auth_user_required)],
 ):
+    auth.check_right("item_manage")
     body = await request.json()
 
     # Avoid some properties
@@ -415,7 +426,9 @@ async def modify_item(
 
 @router.post("/items/{item_id}/rating", tags=["item"])
 async def create_item_rating(
-    item_id: int, request: Request, auth: Annotated[AuthUser, Depends(auth_user)]
+    item_id: int,
+    request: Request,
+    auth: Annotated[AuthUser, Depends(auth_user_required)],
 ):
     "Add rating"
 
@@ -423,7 +436,7 @@ async def create_item_rating(
     source = body.get("source", "website")
     weight = body.get("weight", 1)
 
-    if (source != "website" or weight != 1) and auth.role != "admin":
+    if (source != "website" or weight != 1) and not auth.has_right("item_manage"):
         raise HTTPException(403)
 
     with db:
@@ -443,8 +456,11 @@ async def create_item_rating(
 
 
 @router.delete("/items/{item_id}", tags=["item"])
-async def delete_item(item_id: int, auth: Annotated[AdminUser, Depends(auth_user)]):
+async def delete_item(
+    item_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]
+):
     "Delete an item"
+    auth.check_right("item_delete")
     with db:
         item = Item.get_or_none(Item.id == item_id)
         if not item:
@@ -472,8 +488,9 @@ def get_categories():
 
 @router.post("/categories", tags=["categories"])
 async def create_category(
-    request: Request, auth: Annotated[AdminUser, Depends(auth_user)]
+    request: Request, auth: Annotated[AuthUser, Depends(auth_user_required)]
 ):
+    auth.check_right("item_manage")
     body = await request.json()
     with db:
         c = Category.create(name=body["name"])
@@ -482,8 +499,11 @@ async def create_category(
 
 @router.post("/categories/{cat_id}", tags=["categories"])
 async def update_category(
-    cat_id: int, request: Request, auth: Annotated[AdminUser, Depends(auth_user)]
+    cat_id: int,
+    request: Request,
+    auth: Annotated[AuthUser, Depends(auth_user_required)],
 ):
+    auth.check_right("item_manage")
     body = await request.json()
     with db:
         Category.update(name=body["name"]).where(Category.id == cat_id).execute()

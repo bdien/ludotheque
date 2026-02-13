@@ -3,7 +3,7 @@ import { MiniItem } from "./mini_item";
 import { APILoan } from "../api/models";
 import { Button, Icon } from "@mui/material";
 import { useState } from "react";
-import { closeLoan } from "../api/calls";
+import { closeLoan, extendLoan } from "../api/calls";
 import { mutate } from "swr";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useGlobalStore } from "../hooks/global_store";
@@ -14,40 +14,45 @@ interface UserLoansProps {
   buttons: boolean;
 }
 
-function CloseLoanButton({
+function ModifyLoanButton({
   userId,
   loanId,
+  actionfunction,
+  text,
 }: {
   userId: number;
   loanId: number;
+  actionfunction: (loanId: number) => Promise<any>;
+  text: string;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
   return (
     <Button
-      size="large"
+      size="medium"
       variant="outlined"
       loading={loading}
       sx={{ mt: 0.5 }}
       onClick={() => {
+        window.umami?.track("FicheUser: " + text);
         setLoading(true);
-        closeLoan(loanId)
+        actionfunction(loanId)
           .then(() => {
             mutate(`/api/loans/${loanId}`);
             mutate(`/api/users/${userId}`);
             mutate(`/api/users`);
           })
-          .catch(() => {
+          .finally(() => {
             setLoading(false);
           });
       }}
     >
-      Rendre
+      {text}
     </Button>
   );
 }
 
 export function UserLoans(props: UserLoansProps) {
-  const { account } = useGlobalStore();
+  const { info, account } = useGlobalStore();
   const today = new Date();
   const [parent] = useAutoAnimate();
 
@@ -82,8 +87,23 @@ export function UserLoans(props: UserLoansProps) {
               })
             }
             button={
-              account.role === "admin" ? (
-                <CloseLoanButton userId={props.userId} loanId={obj.id} />
+              account.rights.includes("loan_manage") ? (
+                <span style={{ display: "flex", gap: "5px" }}>
+                  <ModifyLoanButton
+                    userId={props.userId}
+                    loanId={obj.id}
+                    actionfunction={closeLoan}
+                    text="Rendre"
+                  />
+                  {obj.extended! < info.loan.extend_max && (
+                    <ModifyLoanButton
+                      userId={props.userId}
+                      loanId={obj.id}
+                      actionfunction={extendLoan}
+                      text="Prolonger"
+                    />
+                  )}
+                </span>
               ) : undefined
             }
           />

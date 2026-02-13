@@ -154,7 +154,7 @@ export function UserEdit(props: UserEditProps) {
         <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }} />
 
         {/* Delete button */}
-        {user.id != 0 && account?.role == "admin" && (
+        {user.id != 0 && account?.rights.includes("user_delete") && (
           <>
             <Button
               color="warning"

@@ -10,10 +10,12 @@ from playhouse.sqlite_ext import SqliteExtDatabase
 import api.items
 import api.pwmodels
 import api.system
+from api.system import _compute_rights
 
 AUTH_USER = {"Authorization": "8,user"}
 AUTH_USER_ID = 8
 AUTH_ADMIN = {"Authorization": "1,admin"}
+AUTH_ADMIN_ID = 1
 
 
 def headers_auth(user: api.pwmodels.User) -> dict[str, str]:
@@ -64,4 +66,5 @@ def fake_auth_user(
     if not authorization:
         return None
     user_id, user_role = authorization.split(",")
-    return api.system.AuthUser(int(user_id), user_role)
+    rights = _compute_rights(user_role)
+    return api.system.AuthUser(int(user_id), user_role, rights)
