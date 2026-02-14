@@ -5,7 +5,7 @@ import pytest
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 from fastapi.testclient import TestClient
 
-from api.config import LOAN_EXTEND_MAX, PRICING
+from api.config import LOAN_EXTEND_DAYS, LOAN_EXTEND_MAX, PRICING
 from api.main import app
 from api.pwmodels import Item, Loan, User, db
 from api.system import auth_user
@@ -175,26 +175,35 @@ def test_close_loan(dbitems):
     assert not user.get("loans")
 
 
-def test_extend_loan(dbitems):
+@pytest.mark.parametrize(
+    "stopdate",
+    (datetime.date.today(), datetime.date.today() - datetime.timedelta(days=1)),
+)
+def test_extend_loan(dbitems, stopdate):
     # Create loan
-    response = client.post(
-        "/loans",
-        json={"user": USER_ID, "items": [ITEM_ID]},
-        headers=AUTH_ADMIN,
-    )
-    loan_id = response.json()["loans"][0]["id"]
+    with db:
+        loan = Loan.create(user=USER_ID, item=ITEM_ID, stop=stopdate)
 
     # Extend it
     for _ in range(LOAN_EXTEND_MAX):
-        response = client.post(f"/loans/{loan_id}/extend", headers=AUTH_ADMIN)
+        response = client.post(f"/loans/{loan.id}/extend", headers=AUTH_ADMIN)
         assert response.status_code == 200
+        body = response.json()
+
+        # In both case, it should be today + LOAN_EXTEND_DAYS
+        assert (
+            body["stop"]
+            == (
+                datetime.date.today() + datetime.timedelta(days=LOAN_EXTEND_DAYS)
+            ).isoformat()
+        )
 
     # Further extension should not work
-    response = client.post(f"/loans/{loan_id}/extend", headers=AUTH_ADMIN)
+    response = client.post(f"/loans/{loan.id}/extend", headers=AUTH_ADMIN)
     assert response.status_code == 400
 
     # Close loan
-    response = client.post(f"/loans/{loan_id}/close", headers=AUTH_ADMIN)
+    response = client.post(f"/loans/{loan.id}/close", headers=AUTH_ADMIN)
     assert response.status_code == 200
 
 

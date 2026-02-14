@@ -251,7 +251,8 @@ def extend_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_requir
         if loan.extended >= LOAN_EXTEND_MAX:
             raise HTTPException(400, "Maximum number of extensions reached")
 
-        loan.stop += datetime.timedelta(days=15)
+        # Take the most recent date (today or current stop) and add 15 days
+        loan.stop = max(datetime.date.today(), loan.stop) + datetime.timedelta(days=15)
         loan.extended += 1
         loan.save()
 
