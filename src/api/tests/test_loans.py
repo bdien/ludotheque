@@ -1,5 +1,6 @@
 import datetime
 
+import freezegun
 import pytest
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 from fastapi.testclient import TestClient
@@ -51,6 +52,34 @@ def test_create_loan(dbitems):
     response = client.get(f"/loans/{loan_id}", headers=AUTH_ADMIN)
     assert response.status_code == 200
     assert response.json()["status"] == "out"
+
+
+@pytest.mark.parametrize(
+    ("today", "expected"),
+    [
+        ("2025-11-08 11:59", "2025-11-29"),  # Samedi normal
+        ("2025-11-08 12:01", "2025-11-29"),  # Samedi normal après 12:00
+        ("2025-10-11", "2025-11-08"),  # Samedi 2025-11-01 férié
+        ("2025-12-13", "2026-01-03"),  # Pile pour la réouverture le 3
+        ("2025-12-06", "2026-01-03"),  # Une semaine avant la réouverture le 3
+        ("2026-07-04", "2026-09-05"),  # Dernier samedi avant Vacances d'été
+        ("2026-06-20", "2026-07-04"),  # Avant Vacances d'été -> Retour avant vacances
+        ("2026-06-27", "2026-07-04"),  # Avant Vacances d'été -> Retour avant vacances
+    ],
+)
+def test_create_loan_stopdate(dbitems, today, expected):
+    "Check that stop date is set to the next saturday + LOAN_WEEKS"
+
+    with freezegun.freeze_time(today):
+        response = client.post(
+            "/loans",
+            json={"user": USER_ID, "items": [ITEM_ID]},
+            headers=AUTH_ADMIN,
+        )
+        assert response.status_code == 200
+
+        body = response.json()
+        assert body["loans"][0]["stop"] == expected
 
 
 def test_create_loan_twice(dbitems):

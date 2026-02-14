@@ -22,6 +22,7 @@ from api.pwmodels import EMail, Item, Loan, Log, User, db
 
 router = APIRouter()
 stats_cache = {}
+__shd = SchoolHolidayDates()
 
 
 @dataclasses.dataclass(frozen=True)
@@ -270,37 +271,42 @@ def stats(auth=Depends(auth_user_required)):
 
 
 @cachetools.func.ttl_cache(ttl=3600)
-def get_next_saturday():
-    "Return next saturday (not during holidays or public holiday)"
-    today = datetime.date.today()
+def get_next_opening():
+    "Return next opening day (not during holidays or public holiday)"
+
+    now = datetime.datetime.now()
+
+    # If today is a saturday and it is after 12h, select the next day
+    if now.weekday() == 5 and now.hour >= 12:
+        now += datetime.timedelta(days=1)
+
+    return get_next_saturday(now.date()).isoformat()
+
+
+def is_closed(date: datetime.date) -> bool:
+    # Férié
+    if JoursFeries.is_bank_holiday(date):
+        return True
+
+    # Vacances scolaires zone B (Except first and last saturday)
+    friday_before = date - datetime.timedelta(days=1)
+    monday_after = date + datetime.timedelta(days=2)
+
+    return (
+        __shd.is_holiday_for_zone(date, "B")
+        and __shd.is_holiday_for_zone(friday_before, "B")
+        and __shd.is_holiday_for_zone(monday_after, "B")
+    )
+
+
+def get_next_saturday(today: datetime.date) -> datetime.date:
+    "Return the following opened saturday (not during holidays or public holiday)"
+
     next_sat = today + datetime.timedelta(days=(5 - today.weekday() + 7) % 7)
-
-    # Today is already over 12h
-    if next_sat == today and datetime.datetime.now().hour >= 12:
-        next_sat += datetime.timedelta(days=7)
-
-    shd = SchoolHolidayDates()
-    jf = JoursFeries
-
-    def is_closed(date: datetime.date) -> bool:
-        # Férié
-        if jf.is_bank_holiday(date):
-            return True
-
-        # Vacances scolaires zone B (Except first and last saturday)
-        friday_before = date - datetime.timedelta(days=1)
-        monday_after = date + datetime.timedelta(days=2)
-
-        return (
-            shd.is_holiday_for_zone(date, "B")
-            and shd.is_holiday_for_zone(friday_before, "B")
-            and shd.is_holiday_for_zone(monday_after, "B")
-        )
-
     while is_closed(next_sat):
         next_sat += datetime.timedelta(days=7)
 
-    return next_sat.isoformat()
+    return next_sat
 
 
 @router.get("/info")
@@ -312,7 +318,7 @@ def info():
             "nbitems": Item.select().where(Item.enabled).count(),
             "domain": config.AUTH_DOMAIN,
             "pricing": config.PRICING,
-            "next_opening": get_next_saturday(),
+            "next_opening": get_next_opening(),
             "loan": {
                 "maxitems": config.LOAN_MAXITEMS,
                 "weeks": config.LOAN_WEEKS,

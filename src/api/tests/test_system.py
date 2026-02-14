@@ -7,7 +7,7 @@ import api.system
 from api.config import APIKEY_PREFIX
 from api.main import app
 from api.pwmodels import EMail, User, db
-from api.system import auth_user, get_next_saturday
+from api.system import auth_user, get_next_opening
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user
@@ -16,7 +16,7 @@ app.dependency_overrides[auth_user] = fake_auth_user
 @pytest.fixture(autouse=True)
 def _clear_caches():
     auth_user.cache_clear()
-    get_next_saturday.cache_clear()
+    get_next_opening.cache_clear()
 
 
 def test_auth_apikey():
@@ -123,4 +123,4 @@ def test_backup():
 )
 def test_get_next_saturday(today, expected):
     with freezegun.freeze_time(today):
-        assert get_next_saturday() == expected
+        assert get_next_opening() == expected

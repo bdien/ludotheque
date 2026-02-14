@@ -5,9 +5,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
 from playhouse.shortcuts import model_to_dict
 
-from api.config import LOAN_EXTEND_MAX, PRICING
+from api.config import LOAN_EXTEND_MAX, LOAN_WEEKS, PRICING
 from api.pwmodels import Item, Ledger, Loan, User, db
-from api.system import AuthUser, auth_user_required
+from api.system import AuthUser, auth_user_required, get_next_saturday, is_closed
 
 router = APIRouter()
 
@@ -32,6 +32,25 @@ def get_loans_late(
 
     with db:
         return list(loans.dicts())
+
+
+def calculate_loan_stop_date() -> datetime.date:
+    "Calculate the stop date for a new loan, based on the next opening saturday + LOAN_WEEKS"
+
+    today = datetime.date.today()
+    theorical_date = today + datetime.timedelta(days=7 * LOAN_WEEKS)
+
+    # Adjusted for public holidays
+    adjusted = get_next_saturday(theorical_date)
+
+    # If the jump is huge, check for the opening before the theorical date
+    if (adjusted - theorical_date).days > 30:
+        while theorical_date > today:
+            if not is_closed(theorical_date):
+                return theorical_date
+            theorical_date -= datetime.timedelta(days=7)
+
+    return adjusted
 
 
 @router.post("/loans", tags=["loans"])
@@ -108,6 +127,7 @@ async def create_loan(
         loans = []
         if not simulation:
             today = datetime.date.today()
+            loan_stop_date = calculate_loan_stop_date()
             remaining_topay_fromcredit = topay_fromcredit
 
             # For each item, forget any other loan and create a new one
@@ -116,8 +136,8 @@ async def create_loan(
                     Loan.item == i, Loan.status == "out"
                 ).execute()
 
-                # Loan start/stop/status are set as default in pwmodels
-                loan = Loan.create(user=user, item=i)
+                # Loan start/status are set as default in pwmodels
+                loan = Loan.create(user=user, item=i, stop=loan_stop_date)
                 loans.append(model_to_dict(loan))
 
                 # Real Money (If paid from credit, it is not real money)
