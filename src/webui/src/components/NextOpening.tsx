@@ -1,17 +1,26 @@
 import { Alert, AlertColor } from "@mui/material";
 import { differenceInDays } from "date-fns";
+import { useEffect, useState } from "react";
 
 interface NextOpeningProps {
   nextopening: string;
 }
 
 export function NextOpening(props: NextOpeningProps) {
+  const [now, setNow] = useState(new Date());
   if (!props.nextopening) {
     return <></>;
   }
 
+  // Refresh display every 15 minutes
+  useEffect(() => {
+    const id = setInterval(() => {
+      setNow(new Date());
+    }, 15 * 60000);
+    return () => clearInterval(id);
+  }, []);
+
   // Check if we're open now
-  const now = new Date();
   const next = new Date(props.nextopening);
   const diffDays = differenceInDays(next, now);
   const isToday = next.toDateString() === now.toDateString();
