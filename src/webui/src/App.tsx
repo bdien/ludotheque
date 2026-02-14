@@ -60,6 +60,7 @@ function App() {
     }
     if (!isAuthenticated) {
       globalStoreSetAccount({ id: 0, role: "", rights: [] });
+      window.umami?.identify({ role: "notlogged" });
       setAuthDone(true);
     } else {
       getAccessTokenSilently()
