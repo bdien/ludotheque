@@ -64,7 +64,7 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
                 height: "100%",
                 width: "100%",
                 borderRadius: "10px",
-                filter: "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
+                filter: "drop-shadow(3px 6px 8px rgba(0,0,0,0.3))",
                 objectFit: "contain",
               }}
               src={`/storage/thumb/${picture}`}

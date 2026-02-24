@@ -32,6 +32,7 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
       big_associations: 0,
       yearly: 0,
       card: 0,
+      card_value: 0,
     },
     loan: {
       maxitems: 0,

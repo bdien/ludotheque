@@ -4,11 +4,13 @@
   margin-left: auto;
   margin-right: auto;
   width: 100%;
+  height: 100%;
 }
 
 .embla__viewport {
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .embla__container {
@@ -25,6 +27,17 @@
   min-width: 100%;
   height: 100%;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 8px 0;
+  box-sizing: border-box;
+}
+
+.embla__slide img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .embla__button {

@@ -206,7 +206,7 @@ def get_user(
         ret["loans"] = list(
             Loan.select()
             .where(Loan.user == user, Loan.status == "out")
-            .order_by(Loan.stop)
+            .order_by(Loan.start)
             .dicts()
         )
 

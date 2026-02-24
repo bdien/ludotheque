@@ -8,9 +8,6 @@ interface NextOpeningProps {
 
 export function NextOpening(props: NextOpeningProps) {
   const [now, setNow] = useState(new Date());
-  if (!props.nextopening) {
-    return <></>;
-  }
 
   // Refresh display every 15 minutes
   useEffect(() => {
@@ -19,6 +16,10 @@ export function NextOpening(props: NextOpeningProps) {
     }, 15 * 60000);
     return () => clearInterval(id);
   }, []);
+
+  if (!props.nextopening) {
+    return <></>;
+  }
 
   // Check if we're open now
   const next = new Date(props.nextopening);
