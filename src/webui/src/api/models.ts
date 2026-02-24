@@ -9,6 +9,7 @@ export interface Info {
     big_associations: number;
     yearly: number;
     card: number;
+    card_value: number;
   };
   loan: {
     maxitems: number;

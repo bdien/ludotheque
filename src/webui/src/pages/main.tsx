@@ -130,7 +130,10 @@ export function Main() {
               </li>
               <li>
                 Carte prépayée (Optionnelle): {info.pricing.card}€ (
-                {info.pricing.card / info.pricing.regular} jeux + 1 gratuit).
+                {info.pricing.card / info.pricing.regular} jeux +{" "}
+                {(info.pricing.card_value - info.pricing.card) /
+                  info.pricing.regular}{" "}
+                gratuits).
               </li>
               <li>
                 Jeux surdimensionnés:

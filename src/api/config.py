@@ -5,7 +5,7 @@ PRICING = {
     "big": 5,
     "big_associations": 7,
     "card": 12,
-    "card_value": 12.5,
+    "card_value": 14,
     "yearly": 10,
 }
 
