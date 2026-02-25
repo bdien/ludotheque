@@ -3,7 +3,7 @@ import Icon from "@mui/material/Icon";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Paper from "@mui/material/Paper";
-import { colorMap } from "./age_chip";
+import { ageColors } from "./age_chip";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
@@ -30,6 +30,7 @@ function iconForId(id: number, age?: number) {
   if (id == -2)
     return <Icon sx={{ color: "primary.main", fontSize: 32 }}>loyalty</Icon>;
 
+  const [bgColor, fgColor] = ageColors(age);
   return (
     <Box
       sx={{
@@ -38,8 +39,8 @@ function iconForId(id: number, age?: number) {
         px: 0.5,
         width: "3em",
         border: "1px solid lightgrey",
-        color: "black",
-        backgroundColor: colorMap.get(age ?? 0),
+        backgroundColor: bgColor,
+        color: fgColor,
       }}
     >
       {id}

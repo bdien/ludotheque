@@ -8,7 +8,7 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { useCategories, useItem } from "../api/hooks";
 import { useGlobalStore } from "../hooks/global_store";
-import { colorMap } from "../components/age_chip";
+import { ageColors } from "../components/age_chip";
 import { ItemLinkModel, ItemModel, APILoan } from "../api/models";
 import Icon from "@mui/material/Icon";
 import { navigate } from "wouter/use-browser-location";
@@ -204,7 +204,7 @@ function displayPlayersText(item: ItemModel) {
 /* ── Status badge ────────────────────────────────────────────── */
 function StatusBadge({ item }: { item: ItemModel }) {
   const available = item?.enabled && item?.status === "in";
-  const color = available ? "success.main" : "error.main";
+  const color = available ? "success.main" : "text.secondary";
   const icon = available ? "check_circle" : "cancel";
   let label = available ? "Disponible" : "Indisponible";
   if (!item?.enabled) label = "Retiré";
@@ -416,11 +416,11 @@ export function Item(props: ItemProps) {
                   display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  bgcolor: colorMap.get(item.age ?? 0) ?? "#eee",
+                  bgcolor: ageColors(item.age)[0],
                   border: "1.5px solid rgba(0,0,0,0.12)",
                   borderRadius: "10px",
                   px: 1,
-                  py: 0.25,
+                  py: 0.5,
                   minWidth: 36,
                   flexShrink: 0,
                   boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
@@ -430,7 +430,7 @@ export function Item(props: ItemProps) {
                   sx={{
                     fontWeight: 800,
                     fontSize: desktop ? "1.1rem" : "0.95rem",
-                    color: "rgba(0,0,0,0.55)",
+                    color: ageColors(item.age)[1],
                     lineHeight: 1,
                   }}
                 >

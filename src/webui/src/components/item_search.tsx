@@ -6,7 +6,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { debounce } from "@mui/material/utils";
 import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
-import { colorMap } from "./age_chip";
+import { ageColors } from "./age_chip";
 
 // ItemSearch allow to search for items
 // Note: It will NOT displayed items already loaned !
@@ -47,8 +47,8 @@ export function ItemSearch(props: ItemSearchProps) {
                 px: 0.5,
                 width: "3em",
                 border: "1px solid lightgrey",
-                color: "black",
-                backgroundColor: colorMap.get(option.age ?? 0),
+                backgroundColor: ageColors(option.age)[0],
+                color: ageColors(option.age)[1],
                 mr: 1,
               }}
             >
