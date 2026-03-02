@@ -29,7 +29,7 @@ import Chip from "@mui/material/Chip";
 import ReactMarkdown from "react-markdown";
 import { ShortUser } from "../components/short_user";
 import EmblaCarousel from "../components/EmblaCarousel";
-import { differenceInDays, formatDistanceToNow } from "date-fns";
+import { differenceInDays, formatDistanceToNow, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -73,6 +73,16 @@ const AccordionSummary = styled((props: AccordionSummaryProps) => (
 }));
 
 /* ── Helpers ─────────────────────────────────────────────────── */
+function formatRelativeTime(date: Date | string | number) {
+  if (isToday(new Date(date))) {
+    return "aujourd'hui";
+  }
+  return formatDistanceToNow(new Date(date), {
+    locale: fr,
+    addSuffix: true,
+  });
+}
+
 function loan_time(i: APILoan) {
   if (i.status == "in") return differenceInDays(i.stop, i.start);
   return differenceInDays(new Date(), i.start);
@@ -479,10 +489,7 @@ export function Item(props: ItemProps) {
                   sx={{ fontWeight: 500 }}
                 >
                   Vous avez emprunté ce jeu{" "}
-                  {formatDistanceToNow(ownLoans[0].start, {
-                    locale: fr,
-                    addSuffix: true,
-                  })}
+                  {formatRelativeTime(ownLoans[0].start)}
                 </Typography>
               </Stack>
             )}
