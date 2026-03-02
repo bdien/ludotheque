@@ -4,6 +4,7 @@ import { useItem } from "../api/hooks";
 import { Link } from "wouter";
 import Button from "@mui/material/Button";
 import Skeleton from "@mui/material/Skeleton";
+import { ItemIdBox } from "./itemIdBox";
 
 interface MiniItemProps {
   id: number;
@@ -33,12 +34,12 @@ export function MiniItem(props: MiniItemProps) {
         display: "flex",
         height: "clamp(100px, 15vw, 200px)",
         width: "min(100%, 485px)",
-        mb: 1,
+        mb: 2,
         p: 0.5,
       }}
     >
       <Box
-        sx={{ width: "40%", mr: 2 }}
+        sx={{ width: "35%", mr: 2 }}
         display="flex"
         justifyContent="center"
         alignItems="center"
@@ -70,11 +71,21 @@ export function MiniItem(props: MiniItemProps) {
           />
         )}
       </Box>
-      <Box width="60%">
+      <Box width="65%">
         {item ? (
           <Typography component="div" fontWeight={600}>
             <Link href={`/items/${item.id}`} style={{ textDecoration: "none" }}>
-              {item.name} ({item.id})
+              <Box
+                sx={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                <ItemIdBox item={item} />
+                {item.name}
+              </Box>
             </Link>
           </Typography>
         ) : (

@@ -8,7 +8,6 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { useCategories, useItem } from "../api/hooks";
 import { useGlobalStore } from "../hooks/global_store";
-import { ageColors } from "../components/age_chip";
 import { ItemLinkModel, ItemModel, APILoan } from "../api/models";
 import Icon from "@mui/material/Icon";
 import { navigate } from "wouter/use-browser-location";
@@ -35,6 +34,7 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Rating from "@mui/material/Rating";
 import { useState, useRef, useEffect } from "react";
+import { ItemIdBox } from "../components/itemIdBox";
 
 interface ItemProps {
   id: number;
@@ -421,32 +421,7 @@ export function Item(props: ItemProps) {
               >
                 {item.name}
               </Typography>
-              <Box
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  bgcolor: ageColors(item.age)[0],
-                  border: "1.5px solid rgba(0,0,0,0.12)",
-                  borderRadius: "10px",
-                  px: 1,
-                  py: 0.5,
-                  minWidth: 36,
-                  flexShrink: 0,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontWeight: 800,
-                    fontSize: desktop ? "1.1rem" : "0.95rem",
-                    color: ageColors(item.age)[1],
-                    lineHeight: 1,
-                  }}
-                >
-                  {item.id}
-                </Typography>
-              </Box>
+              <ItemIdBox item={item} />
             </Stack>
             <Stack
               direction="row"
