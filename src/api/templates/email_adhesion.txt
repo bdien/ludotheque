@@ -1,0 +1,14 @@
+Cher⸱e adhérent⸱e de la ludothèque d'Acigné,
+
+Votre adhésion annuelle sera bientôt expirée le {{ subscription_stop | shortdate }}.
+Nous espérons que vous continuerez à venir profiter des jeux avec nous. Dans ce cas, rendez-vous la prochaine fois avec votre chéquier pour renouveller votre chèque de caution.
+
+{%- if card_items }
+Pour information, vous disposez encore de {{ card_items }} {{ card_items|plural("jeux", "jeu") }} empruntables sur votre carte.
+{%- endif %-}
+Vous pouvez consulter votre adhésion en cours en vous connectant sur notre site {{ "https://ludotheque.fly.dev" | urlize }}.
+
+Nous vous remercions encore de votre confiance.
+
+Cordialement,
+L'équipe de la Ludo du Poisson Lune
