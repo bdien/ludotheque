@@ -123,4 +123,4 @@ def test_backup():
 )
 def test_get_next_saturday(today, expected):
     with freezegun.freeze_time(today):
-        assert get_next_opening() == expected
+        assert get_next_opening().isoformat() == expected

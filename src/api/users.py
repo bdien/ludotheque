@@ -12,13 +12,15 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from playhouse.shortcuts import model_to_dict
 
-from api.config import EMAIL_MINPERIOD
+from api.config import EMAIL_MINLATE, EMAIL_MINPERIOD
 from api.models import APILoan, APIUser
 from api.pwmodels import Booking, EMail, Item, Loan, User, db
 from api.system import (
     AuthUser,
     auth_user,
     auth_user_required,
+    get_next_opening,
+    is_holiday,
     log_event,
     send_email,
 )
@@ -310,59 +312,103 @@ def shortDate(d: datetime.date):
 
 
 @router.post("/users/{user_id}/email", tags=["user"])
-def send_user_email(
+def send_late_email_manually(
     user_id: int,
     auth: Annotated[AuthUser, Depends(auth_user_required)],
     send: bool | None = False,
 ):
     auth.check_right("user_manage")
     with db:
-        user = User.get_or_none(User.id == user_id)
-        if not user:
-            raise HTTPException(400, "No such user")
-        if (
-            user.last_warning
-            and (datetime.date.today() - user.last_warning).days < EMAIL_MINPERIOD
-        ):
-            raise HTTPException(400, "Too frequent emails")
-
-        emails = [i.email for i in EMail.select().where(EMail.user == user_id)]
-        if not emails:
-            raise HTTPException(400, "No emails")
-
-        loans = (
-            Loan.select(Loan.stop, Item.name, Item.id)
-            .join(Item)
-            .where(
-                Loan.status == "out",
-                Loan.stop < datetime.date.today(),
-                Loan.user == user_id,
-            )
-            .order_by(Loan.stop, Loan.user)
-        )
-        nb = len(loans)
-        if not nb:
-            raise HTTPException(400, "No late loan")
-
-        # Render email
-        env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(pathlib.Path(__file__).parent / "templates"),
-            autoescape=True,
-        )
-        env.filters.update({"plural": plural, "shortdate": shortDate})
-        txt = env.get_template("email_retard.txt").render(loans=loans)
-        txt = txt.replace("\n", "<br/>")
-
-        # Send email
-        result = {"title": "Jeux en retard", "body": txt, "to": emails, "sent": False}
         if send:
-            result |= send_email(result["to"], result["title"], result["body"])
+            log_event(auth, f"Demande d'envoi d'email à '{user_id}'")
+        return send_late_email(user_id, send)
 
-        # Update last warning date
-        if result["sent"]:
-            user.last_warning = datetime.date.today()
-            user.save()
 
-        log_event(auth, f"Email envoyé à '{user.name}' ({user.id})")
+def send_late_email(user_id: int, send: bool | None = True):
+    user = User.get_or_none(User.id == user_id)
+    if not user:
+        raise HTTPException(400, "No such user")
+    if (
+        user.last_warning
+        and (datetime.date.today() - user.last_warning).days < EMAIL_MINPERIOD
+    ):
+        raise HTTPException(400, "Too frequent emails")
 
-        return result
+    emails = [i.email for i in EMail.select().where(EMail.user == user_id)]
+    if not emails:
+        raise HTTPException(400, "No emails")
+
+    loans = (
+        Loan.select(Loan.stop, Item.name, Item.id)
+        .join(Item)
+        .where(
+            Loan.status == "out",
+            Loan.stop < datetime.date.today(),
+            Loan.user == user_id,
+        )
+        .order_by(Loan.stop, Loan.user)
+    )
+    nb = len(loans)
+    if not nb:
+        raise HTTPException(400, "No late loan")
+
+    # Render email
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(pathlib.Path(__file__).parent / "templates"),
+        autoescape=True,
+    )
+    env.filters.update({"plural": plural, "shortdate": shortDate})
+    txt = env.get_template("email_retard.txt").render(
+        loans=loans, next_opening=get_next_opening()
+    )
+    txt = txt.replace("\n", "<br/>")
+
+    # Send email
+    result = {"title": "Jeux en retard", "body": txt, "to": emails, "sent": False}
+    if send:
+        result |= send_email(result["to"], result["title"], result["body"])
+
+    # Update last warning date
+    if result["sent"]:
+        user.last_warning = datetime.date.today()
+        user.save()
+        log_event(None, f"Email envoyé à '{user.name}' ({user.id})")
+
+    return result
+
+
+def _users_to_notify_lateloand() -> list[int]:
+    "Get all users with late loans that haven't been notified in N days"
+
+    last_warning_limit = datetime.date.today() - datetime.timedelta(EMAIL_MINPERIOD)
+    loan_stop_mindate = datetime.date.today() - datetime.timedelta(EMAIL_MINLATE)
+
+    query = (
+        User.select(User.id)
+        .join(Loan, on=((Loan.user == User.id) & (Loan.status == "out")))
+        .group_by(User.id)
+        .where(
+            User.enabled,
+            (User.last_warning == None) | (User.last_warning < last_warning_limit),  # noqa: E711
+            Loan.stop < loan_stop_mindate,
+        )
+    )
+
+    return [i.id for i in query]
+
+
+def automatic_email_late():
+    "Send an email when items are too late"
+
+    # Do not run on holidays
+    if is_holiday(datetime.date.today()):
+        return
+
+    log_event(None, "Automatic notification of late loans")
+    with db:
+        # Get list of users to notify
+        users = _users_to_notify_lateloand()
+
+        for i in users:
+            log_event(None, f"Automatic email to {i}")
+            send_late_email(i)

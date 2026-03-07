@@ -8,8 +8,10 @@ Voici {{ loans|plural("les jeux concernés", "le jeu concerné") }} :
   - <a href="https://ludotheque.fly.dev/items/{{l.item.id}}">{{ l.item.name }}</a> (à ramener le {{ l.stop | shortdate }})
 {%- endfor %}
 
-La ludothèque est ouverte tous les samedis de 10h30 à 12h00 (hors les samedis du milieu des vacances scolaires).
-Vous pouvez également consulter vos prêts en cours en vous connectant sur notre site {{ "https://ludotheque.fly.dev" | urlize }}
+Notre prochaine ouverture est le {{ next_opening | shortdate }}, mais la ludothèque est ouverte tous les samedis de 10h30 à 12h00 (hors les samedis du milieu des vacances scolaires).
+
+Vous pouvez consulter vos prêts en cours en vous connectant sur notre site {{ "https://ludotheque.fly.dev" | urlize }}.
+<b>Note</b>: Il est possible de prolonger gratuitement vos prêts pour deux semaines. Contactez-nous en répondant à cet email.
 
 Nous vous remercions de votre compréhension et restons à votre disposition pour toute question éventuelle.
 

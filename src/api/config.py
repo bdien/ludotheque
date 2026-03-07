@@ -23,9 +23,9 @@ EMAIL_SENDER = "laludodupoissonlune@gmail.com"
 EMAIL_CC = "benoit.dien@gmail.com"
 
 # Minimum number of days between emails
-EMAIL_MINPERIOD = 15
+EMAIL_MINPERIOD = 21
 # Minimum number of lateness before sending an email is possible
-EMAIL_MINLATE = 1
+EMAIL_MINLATE = 14
 
 # Maximum number of bookings per user
 BOOKING_MAXITEMS = 4

@@ -6,6 +6,7 @@ import { APILoanWithUser } from "../api/models";
 import { ShortUser } from "../components/short_user";
 import { ShortItem } from "../components/short_item";
 import { Loading } from "../components/loading";
+import { useGlobalStore } from "../hooks/global_store";
 
 const categories = new Map([
   [365, "Plus d'un an"],
@@ -39,7 +40,8 @@ function categorize(stop_txt: string): number | null {
 }
 
 export function LateLoans() {
-  const { loans } = useLoansLate(14);
+  const { info } = useGlobalStore();
+  const { loans } = useLoansLate(info.email_minlate);
 
   if (!loans) return <Loading />;
 

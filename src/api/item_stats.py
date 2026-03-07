@@ -6,6 +6,7 @@ import requests_cache
 from boardgamegeek import BGGClient
 
 from api.pwmodels import ItemLink, db
+from api.system import log_event
 
 MIN_RATINGS = 40
 
@@ -91,6 +92,7 @@ def update_olditems(nb: int):
         myludo = MyLudo()
 
         for link in old_links:
+            log_event(None, f"Automatic refresh of item '{link.item_id}")
             if link.name == "bgg":
                 _update_item_bgg(bgg, link)
             elif link.name == "myludo":

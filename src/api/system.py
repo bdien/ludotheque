@@ -280,10 +280,10 @@ def get_next_opening():
     if now.weekday() == 5 and now.hour >= 12:
         now += datetime.timedelta(days=1)
 
-    return get_next_saturday(now.date()).isoformat()
+    return get_next_saturday(now.date())
 
 
-def is_closed(date: datetime.date) -> bool:
+def is_holiday(date: datetime.date) -> bool:
     # Férié
     if JoursFeries.is_bank_holiday(date):
         return True
@@ -303,7 +303,7 @@ def get_next_saturday(today: datetime.date) -> datetime.date:
     "Return the following opened saturday (not during holidays or public holiday)"
 
     next_sat = today + datetime.timedelta(days=(5 - today.weekday() + 7) % 7)
-    while is_closed(next_sat):
+    while is_holiday(next_sat):
         next_sat += datetime.timedelta(days=7)
 
     return next_sat
@@ -318,7 +318,7 @@ def info():
             "nbitems": Item.select().where(Item.enabled).count(),
             "domain": config.AUTH_DOMAIN,
             "pricing": config.PRICING,
-            "next_opening": get_next_opening(),
+            "next_opening": get_next_opening().isoformat(),
             "loan": {
                 "maxitems": config.LOAN_MAXITEMS,
                 "weeks": config.LOAN_WEEKS,
@@ -372,6 +372,7 @@ def log_event(user: User | AuthUser | None, text: str):
         user_id = (user and user.id) or None
         if db_need_opening := db.is_closed():
             db.connect()
+        logging.info(text)
         Log.create(user=user_id, text=text)
     finally:
         if db_need_opening:

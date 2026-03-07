@@ -1,10 +1,14 @@
+import datetime
+
 import pytest
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 from fastapi.testclient import TestClient
 
+from api.config import EMAIL_MINLATE, EMAIL_MINPERIOD
 from api.main import app
 from api.pwmodels import EMail, Item, Loan, User, db
 from api.system import auth_user
+from api.users import _users_to_notify_lateloand
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user
@@ -221,3 +225,50 @@ def test_user_use_lowest_id():
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
     newUser = response.json()
     assert newUser["id"] == 2
+
+
+def test_users_to_notify_lateloand():
+    # Create two users
+    with db:
+        User.create(name="User1")
+        user2 = User.create(name="User2")
+        item1 = Item.create(name="Jeu1")
+        loan1 = Loan.create(user=user2, item=item1)
+
+        # Should not return anything
+        assert not _users_to_notify_lateloand()
+
+        # Update the loan to be nearly late -> Nobody
+        loan1.stop = datetime.date.today() - datetime.timedelta(days=EMAIL_MINLATE - 1)
+        loan1.save()
+        assert not _users_to_notify_lateloand()
+
+        # Update the loan to be late -> User2
+        loan1.stop = datetime.date.today() - datetime.timedelta(days=EMAIL_MINLATE + 1)
+        loan1.save()
+        assert _users_to_notify_lateloand() == [user2.id]
+
+        # Disable user2
+        user2.enabled = False
+        user2.save()
+        assert not _users_to_notify_lateloand()
+        user2.enabled = True
+
+        # User2 was notified not too long ago
+        user2.last_warning = datetime.date.today() - datetime.timedelta(
+            days=EMAIL_MINPERIOD - 1
+        )
+        user2.save()
+        assert not _users_to_notify_lateloand()
+
+        # User2 was notified a while ago
+        user2.last_warning = datetime.date.today() - datetime.timedelta(
+            days=EMAIL_MINPERIOD + 1
+        )
+        user2.save()
+        assert _users_to_notify_lateloand() == [user2.id]
+
+        # Loan has been returned
+        loan1.status = "in"
+        loan1.save()
+        assert not _users_to_notify_lateloand()

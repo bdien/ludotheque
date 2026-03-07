@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
         minute=45,
         misfire_grace_time=None,
     )
-    # Every week, clear logs
+    # Every sunday at 23h, clear old logs
     scheduler.add_job(
         api.system.clear_logs,
         "cron",
@@ -67,7 +67,6 @@ async def lifespan(app: FastAPI):
         hour=23,
         misfire_grace_time=None,
     )
-
     # Game refresh (5 items every 12h)
     scheduler.add_job(
         update_olditems,
@@ -75,6 +74,14 @@ async def lifespan(app: FastAPI):
         hours=12,
         jitter=1800,
         args=[5],
+        misfire_grace_time=None,
+    )
+    # Email for late loans (Every thursday at 19h)
+    scheduler.add_job(
+        api.users.automatic_email_late,
+        "cron",
+        day_of_week="thu",
+        hour=19,
         misfire_grace_time=None,
     )
 

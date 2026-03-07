@@ -7,7 +7,7 @@ from playhouse.shortcuts import model_to_dict
 
 from api.config import LOAN_EXTEND_MAX, LOAN_WEEKS, PRICING
 from api.pwmodels import Item, Ledger, Loan, User, db
-from api.system import AuthUser, auth_user_required, get_next_saturday, is_closed
+from api.system import AuthUser, auth_user_required, get_next_saturday, is_holiday
 
 router = APIRouter()
 
@@ -46,7 +46,7 @@ def calculate_loan_stop_date() -> datetime.date:
     # If the jump is huge, check for the opening before the theorical date
     if (adjusted - theorical_date).days > 30:
         while theorical_date > today:
-            if not is_closed(theorical_date):
+            if not is_holiday(theorical_date):
                 return theorical_date
             theorical_date -= datetime.timedelta(days=7)
 
