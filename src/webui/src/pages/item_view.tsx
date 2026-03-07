@@ -1,40 +1,30 @@
-import Link from "@mui/material/Link";
+import { Accordion, AccordionDetails, Divider, Fab, Paper, Stack, styled } from "@mui/material";
+import MuiAccordionSummary, { type AccordionSummaryProps } from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
+import Icon from "@mui/material/Icon";
+import Link from "@mui/material/Link";
+import Rating from "@mui/material/Rating";
+import { useTheme } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
-import { useCategories, useItem } from "../api/hooks";
-import { useGlobalStore } from "../hooks/global_store";
-import { ItemLinkModel, ItemModel, APILoan } from "../api/models";
-import Icon from "@mui/material/Icon";
-import { navigate } from "wouter/use-browser-location";
-import TableHead from "@mui/material/TableHead";
-import {
-  AccordionDetails,
-  Accordion,
-  styled,
-  Paper,
-  Divider,
-  Stack,
-  Fab,
-} from "@mui/material";
-import MuiAccordionSummary, {
-  AccordionSummaryProps,
-} from "@mui/material/AccordionSummary";
-import Chip from "@mui/material/Chip";
-import ReactMarkdown from "react-markdown";
-import { ShortUser } from "../components/short_user";
-import EmblaCarousel from "../components/EmblaCarousel";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { differenceInDays, formatDistanceToNow, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import Rating from "@mui/material/Rating";
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { navigate } from "wouter/use-browser-location";
+import { useCategories, useItem } from "../api/hooks";
+import type { APILoan, ItemLinkModel, ItemModel } from "../api/models";
+import EmblaCarousel from "../components/EmblaCarousel";
 import { ItemIdBox } from "../components/itemIdBox";
+import { ShortUser } from "../components/short_user";
+import { useGlobalStore } from "../hooks/global_store";
 
 interface ItemProps {
   id: number;
@@ -84,7 +74,7 @@ function formatRelativeTime(date: Date | string | number) {
 }
 
 function loan_time(i: APILoan) {
-  if (i.status == "in") return differenceInDays(i.stop, i.start);
+  if (i.status === "in") return differenceInDays(i.stop, i.start);
   return differenceInDays(new Date(), i.start);
 }
 
@@ -97,7 +87,7 @@ function nb_loans_percent(item: ItemModel, maxdays: number) {
     if (start_date < item_created_at) start_date = item_created_at;
   }
   const nbdays = differenceInDays(new Date(), start_date);
-  if (nbdays == 0) return 100;
+  if (nbdays === 0) return 100;
   const local_loans = item.loans.filter((i) => new Date(i.start) >= start_date);
   const loan_times = local_loans.reduce((a, i) => a + loan_time(i), 0);
   return Math.round((100 * loan_times) / nbdays);
@@ -117,8 +107,7 @@ function calculateItemScore(item: ItemModel) {
   ) ?? { sum: 0, count: 0 };
 
   // Rating between 0 and 10
-  const avgRating =
-    item_score.count > 0 ? item_score.sum / item_score.count : null;
+  const avgRating = item_score.count > 0 ? item_score.sum / item_score.count : null;
 
   // Scale linearly: below 3 → 0, above 8.5 → 5
   if (avgRating === null) return null;
@@ -151,7 +140,7 @@ function renderComplexityChip(complexity: number) {
 function renderItemLink(link: ItemLinkModel) {
   const rating = link.extra?.rating;
   const sx = { borderRadius: "20px" };
-  if (link.name == "myludo")
+  if (link.name === "myludo")
     return (
       <Chip
         key={link.name}
@@ -161,13 +150,11 @@ function renderItemLink(link: ItemLinkModel) {
         size="small"
         icon={<Icon>link</Icon>}
         clickable
-        label={"MyLudo" + (rating ? ` (${rating.toFixed(1)})` : "")}
-        onClick={() =>
-          window.open(`https://www.myludo.fr/#!/game/${link.ref}`, "_blank")
-        }
+        label={`MyLudo${rating ? ` (${rating.toFixed(1)})` : ""}`}
+        onClick={() => window.open(`https://www.myludo.fr/#!/game/${link.ref}`, "_blank")}
       />
     );
-  if (link.name == "bgg")
+  if (link.name === "bgg")
     return (
       <Chip
         key={link.name}
@@ -177,16 +164,11 @@ function renderItemLink(link: ItemLinkModel) {
         size="small"
         icon={<Icon>link</Icon>}
         clickable
-        label={"BGG" + (rating ? ` (${rating.toFixed(1)})` : "")}
-        onClick={() =>
-          window.open(
-            `https://boardgamegeek.com/boardgame/${link.ref}`,
-            "_blank",
-          )
-        }
+        label={`BGG${rating ? ` (${rating.toFixed(1)})` : ""}`}
+        onClick={() => window.open(`https://boardgamegeek.com/boardgame/${link.ref}`, "_blank")}
       />
     );
-  if (link.name == "manuel")
+  if (link.name === "manuel")
     return (
       <Chip
         key={link.name}
@@ -200,14 +182,13 @@ function renderItemLink(link: ItemLinkModel) {
         onClick={() => window.open(link.ref, "_blank")}
       />
     );
-  return <></>;
+  return;
 }
 
 function displayPlayersText(item: ItemModel) {
   let txt = item.players_min?.toString() ?? "";
-  if (item.players_max == 99) txt += "+";
-  else if (item.players_min != item.players_max)
-    txt += " – " + item.players_max?.toString();
+  if (item.players_max === 99) txt += "+";
+  else if (item.players_min !== item.players_max) txt += ` – ${item.players_max?.toString()}`;
   return txt;
 }
 
@@ -225,10 +206,7 @@ function StatusBadge({ item }: { item: ItemModel }) {
   return (
     <Stack direction="row" alignItems="center" spacing={0.5}>
       <Icon sx={{ fontSize: "1rem", color }}>{icon}</Icon>
-      <Typography
-        variant="body2"
-        sx={{ fontWeight: 600, fontSize: "0.8rem", color }}
-      >
+      <Typography variant="body2" sx={{ fontWeight: 600, fontSize: "0.8rem", color }}>
         {label}
       </Typography>
     </Stack>
@@ -236,15 +214,7 @@ function StatusBadge({ item }: { item: ItemModel }) {
 }
 
 /* ── Quick‑stat item for the metadata row ────────────────────── */
-function QuickStat({
-  icon,
-  value,
-  label,
-}: {
-  icon: string;
-  value: string;
-  label: string;
-}) {
+function QuickStat({ icon, value, label }: { icon: string; value: string; label: string }) {
   return (
     <Stack alignItems="center" spacing={0.25} sx={{ minWidth: 56 }}>
       <Icon sx={{ fontSize: "1.3rem", color: "primary.main" }}>{icon}</Icon>
@@ -274,17 +244,13 @@ export function Item(props: ItemProps) {
   useEffect(() => {
     const el = descRef.current;
     if (el) setDescOverflows(el.scrollHeight > el.clientHeight);
-  }, [item?.description]);
+  }, []);
 
   if (error) return <div>Server error: {error.cause}</div>;
-  if (!item) return <></>;
+  if (!item) return;
 
-  const ownLoans = item.loans
-    ? item.loans.filter((i) => i.user == account.id)
-    : [];
-  const pictures = item.pictures?.length
-    ? item.pictures
-    : ["../../notavailable.webp"];
+  const ownLoans = item.loans ? item.loans.filter((i) => i.user === account.id) : [];
+  const pictures = item.pictures?.length ? item.pictures : ["../../notavailable.webp"];
   const bgg_link = item.links?.find((i) => i.name === "bgg");
 
   // Calculate item score
@@ -292,10 +258,7 @@ export function Item(props: ItemProps) {
 
   window.scrollTo(0, 0);
 
-  const hasTags =
-    item.categories?.length ||
-    item.links?.length ||
-    bgg_link?.extra?.complexity;
+  const hasTags = item.categories?.length || item.links?.length || bgg_link?.extra?.complexity;
 
   /* ── Shared FAB style ─────────────────────────────────────── */
   const fabSx = {
@@ -314,7 +277,7 @@ export function Item(props: ItemProps) {
         spacing={1}
         sx={{ position: "absolute", top: 8, right: 8, zIndex: 10 }}
       >
-        {account?.rights.includes("loan_manage") && item.status == "out" && (
+        {account?.rights.includes("loan_manage") && item.status === "out" && (
           <Fab
             size="small"
             title="Rendre"
@@ -329,7 +292,7 @@ export function Item(props: ItemProps) {
             <Icon>login</Icon>
           </Fab>
         )}
-        {account?.rights.includes("loan_create") && item.status == "in" && (
+        {account?.rights.includes("loan_create") && item.status === "in" && (
           <Fab
             size="small"
             title="Emprunter"
@@ -375,7 +338,7 @@ export function Item(props: ItemProps) {
       {/* ── Image carousel ──────────────────────────────── */}
       <Box sx={{ height: "clamp(200px, 38vh, 480px)", mb: 2 }}>
         <EmblaCarousel
-          slides={pictures.map((pic, i) => (
+          slides={pictures.map((pic, _i) => (
             <Box
               component="img"
               className="embla__slide"
@@ -384,7 +347,7 @@ export function Item(props: ItemProps) {
                 maxHeight: "100%",
                 filter: "drop-shadow(3px 6px 8px rgba(0,0,0,0.18))",
               }}
-              key={i}
+              key={pic}
               src={`/storage/img/${pic}`}
             />
           ))}
@@ -404,12 +367,7 @@ export function Item(props: ItemProps) {
         >
           {/* Title + Status */}
           <Box sx={{ px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 2.5 }, pb: 1 }}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={1}
-              flexWrap="nowrap"
-            >
+            <Stack direction="row" alignItems="center" spacing={1} flexWrap="nowrap">
               <Typography
                 variant={desktop ? "h4" : "h5"}
                 fontWeight={800}
@@ -432,39 +390,18 @@ export function Item(props: ItemProps) {
               <StatusBadge item={item} />
               {itemScore !== null && (
                 <Stack direction="row" alignItems="center" spacing={0.5}>
-                  <Rating
-                    value={itemScore}
-                    precision={0.5}
-                    size="small"
-                    readOnly
-                  />
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ fontWeight: 600 }}
-                  >
+                  <Rating value={itemScore} precision={0.5} size="small" readOnly />
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
                     {itemScore.toFixed(1)}
                   </Typography>
                 </Stack>
               )}
             </Stack>
             {ownLoans.length > 0 && (
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={0.5}
-                sx={{ mt: 0.75 }}
-              >
-                <Icon sx={{ fontSize: "0.95rem", color: "info.main" }}>
-                  info_outline
-                </Icon>
-                <Typography
-                  variant="caption"
-                  color="info.main"
-                  sx={{ fontWeight: 500 }}
-                >
-                  Vous avez emprunté ce jeu{" "}
-                  {formatRelativeTime(ownLoans[0].start)}
+              <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.75 }}>
+                <Icon sx={{ fontSize: "0.95rem", color: "info.main" }}>info_outline</Icon>
+                <Typography variant="caption" color="info.main" sx={{ fontWeight: 500 }}>
+                  Vous avez emprunté ce jeu {formatRelativeTime(ownLoans[0].start)}
                 </Typography>
               </Stack>
             )}
@@ -473,17 +410,9 @@ export function Item(props: ItemProps) {
           {/* Quick stats strip */}
           <Divider />
           <Stack direction="row" justifyContent="space-evenly" sx={{ py: 1.5 }}>
-            <QuickStat
-              icon="people_alt"
-              value={displayPlayersText(item)}
-              label="joueurs"
-            />
+            <QuickStat icon="people_alt" value={displayPlayersText(item)} label="joueurs" />
             {item.gametime ? (
-              <QuickStat
-                icon="schedule"
-                value={`${item.gametime}`}
-                label="minutes"
-              />
+              <QuickStat icon="schedule" value={`${item.gametime}`} label="minutes" />
             ) : null}
             {item.age !== undefined ? (
               <QuickStat icon="cake" value={`${item.age}+`} label="ans" />
@@ -511,10 +440,8 @@ export function Item(props: ItemProps) {
                     }),
                     ...(!descExpanded &&
                       descOverflows && {
-                        maskImage:
-                          "linear-gradient(to bottom, black 60%, transparent 100%)",
-                        WebkitMaskImage:
-                          "linear-gradient(to bottom, black 60%, transparent 100%)",
+                        maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+                        WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
                       }),
                     "& p": {
                       mt: 0,
@@ -552,7 +479,7 @@ export function Item(props: ItemProps) {
             </>
           )}
 
-          {/* Tags row: complexity · links · categories */}
+          {/* Tags row: complexity, links, categories */}
           {hasTags && (
             <>
               <Divider />
@@ -562,9 +489,8 @@ export function Item(props: ItemProps) {
                 gap={0.75}
                 sx={{ px: { xs: 2, sm: 3 }, py: 1.5 }}
               >
-                {bgg_link?.extra?.complexity &&
-                  renderComplexityChip(bgg_link.extra.complexity)}
-                {item.links && item.links.map((lnk) => renderItemLink(lnk))}
+                {bgg_link?.extra?.complexity && renderComplexityChip(bgg_link.extra.complexity)}
+                {item.links?.map((lnk) => renderItemLink(lnk))}
                 {item.categories &&
                   categories &&
                   item.categories.map((cat) => (
@@ -598,16 +524,10 @@ export function Item(props: ItemProps) {
             }}
           >
             <Stack direction="row" spacing={1} alignItems="flex-start">
-              <Icon
-                sx={{ color: "primary.main", fontSize: "1.15rem", mt: "3px" }}
-              >
+              <Icon sx={{ color: "primary.main", fontSize: "1.15rem", mt: "3px" }}>
                 sticky_note_2
               </Icon>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ lineHeight: 1.6 }}
-              >
+              <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                 {item.notes}
               </Typography>
             </Stack>
@@ -620,9 +540,7 @@ export function Item(props: ItemProps) {
         <Section>
           <StyledAccordion>
             <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-              <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>
-                inventory_2
-              </Icon>
+              <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>inventory_2</Icon>
               <Typography fontWeight={600} variant="body2">
                 Contenu du jeu
               </Typography>
@@ -641,6 +559,7 @@ export function Item(props: ItemProps) {
                 }}
               >
                 {item.content.map((row, idx) => (
+                  /* biome-ignore lint/suspicious/noArrayIndexKey: Stable index */
                   <li key={idx}>{row}</li>
                 ))}
               </Box>
@@ -649,59 +568,15 @@ export function Item(props: ItemProps) {
         </Section>
       )}
 
-      {/* ── Bookings ────────────────────────────────────────── */}
-      {item?.bookings?.entries?.length ? (
-        <Section>
-          <StyledAccordion>
-            <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-              <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>
-                bookmark
-              </Icon>
-              <Typography fontWeight={600} variant="body2">
-                {item.bookings.entries.length} réservation
-                {item.bookings.entries.length > 1 ? "s" : ""}
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ p: 0 }}>
-              <TableContainer>
-                <Table size="small">
-                  <TableBody>
-                    {item.bookings.entries.map((i, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell sx={{ width: "120px" }}>
-                          {new Date(i.start).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          <ShortUser user_id={i.user} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </AccordionDetails>
-          </StyledAccordion>
-        </Section>
-      ) : null}
-
       {/* ── Loan history ────────────────────────────────────── */}
       {item?.loans?.length ? (
         <Section>
           <StyledAccordion>
             <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-              <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>
-                history
-              </Icon>
+              <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>history</Icon>
               <Typography fontWeight={600} variant="body2">
                 {account.role === "admin" ? (
-                  <>
-                    Emprunts ({nb_loans_percent(item, 365)}% du temps cette
-                    année)
-                  </>
+                  <>Emprunts ({nb_loans_percent(item, 365)}% du temps cette année)</>
                 ) : (
                   "Vos emprunts"
                 )}
@@ -724,11 +599,8 @@ export function Item(props: ItemProps) {
                       <TableRow key={i.id}>
                         {account.role === "admin" && (
                           <TableCell>
-                            {account.id == i.user ? (
-                              <Link
-                                href={`/users/${i.user}`}
-                                style={{ textDecoration: "none" }}
-                              >
+                            {account.id === i.user ? (
+                              <Link href={`/users/${i.user}`} style={{ textDecoration: "none" }}>
                                 Vous
                               </Link>
                             ) : i.user ? (
@@ -746,7 +618,7 @@ export function Item(props: ItemProps) {
                           })}
                         </TableCell>
                         <TableCell>
-                          {i.status == "out"
+                          {i.status === "out"
                             ? "En cours"
                             : new Date(i.stop).toLocaleDateString(undefined, {
                                 year: "numeric",

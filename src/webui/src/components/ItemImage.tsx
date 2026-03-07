@@ -1,6 +1,6 @@
-import { useItem } from "../api/hooks";
-import { Link } from "wouter";
 import Skeleton from "@mui/material/Skeleton";
+import { Link } from "wouter";
+import { useItem } from "../api/hooks";
 
 interface ItemImageProps {
   id: number;
@@ -9,15 +9,14 @@ interface ItemImageProps {
 export function ItemImage(props: ItemImageProps) {
   const { item } = useItem(props.id);
 
-  const picture = item?.pictures?.length
-    ? item.pictures[0]
-    : "../../notavailable.webp";
+  const picture = item?.pictures?.length ? item.pictures[0] : "../../notavailable.webp";
 
   return (
     <>
       {item ? (
         <Link href={`/items/${item.id}`}>
           <img
+            alt={`Jeu ${item.name}`}
             style={{
               maxHeight: "100%",
               maxWidth: "100%",

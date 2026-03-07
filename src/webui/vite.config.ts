@@ -1,7 +1,7 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { VitePWA, VitePWAOptions } from "vite-plugin-pwa";
+import { defineConfig } from "vite";
+import { VitePWA, type VitePWAOptions } from "vite-plugin-pwa";
 
 const manifestForPlugin: Partial<VitePWAOptions> = {
   registerType: "autoUpdate",

@@ -1,24 +1,15 @@
-import { useEffect, useState } from "react";
-import { useItemsLastseen, ItemLastseenEntry } from "../api/hooks";
+import { Button, FormControl, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Typography,
-} from "@mui/material";
-import InventoryItem from "../components/inventory_item";
-import { AgeChip } from "../components/age_chip";
-import { updateItem } from "../api/calls";
-import { mutate as mutateSwr } from "swr";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { mutate as mutateSwr } from "swr";
+import { updateItem } from "../api/calls";
+import { type ItemLastseenEntry, useItemsLastseen } from "../api/hooks";
+import { AgeChip } from "../components/age_chip";
+import InventoryItem from "../components/inventory_item";
 
 function randomItem(items: ItemLastseenEntry[], filterAge: number) {
-  const itemsFiltered = items!.filter(
-    (i) => filterAge == -1 || i.age == filterAge,
-  );
+  const itemsFiltered = items?.filter((i) => filterAge === -1 || i.age === filterAge);
   return itemsFiltered[Math.floor(Math.random() * itemsFiltered.length)].id;
 }
 
@@ -28,34 +19,32 @@ export function InventoryRev() {
   const [itemId, setItemId] = useState<number>(0);
 
   useEffect(() => {
-    if (!items || items.length == 0) return;
+    if (!items || items.length === 0) return;
     setItemId(randomItem(items, filterAge));
   }, [items, filterAge]);
 
   if (!items) return "Loading";
 
   function onClick(found: boolean) {
-    if (itemId == 0) return;
+    if (itemId === 0) return;
     if (!found && items) {
       setItemId(randomItem(items, filterAge));
       return;
     }
-    updateItem(itemId, { lastseen: format(new Date(), "yyyy-MM-dd") }).then(
-      () => {
-        mutate();
-        mutateSwr(`/api/items/${itemId}`);
-      },
-    );
+    updateItem(itemId, { lastseen: format(new Date(), "yyyy-MM-dd") }).then(() => {
+      mutate();
+      mutateSwr(`/api/items/${itemId}`);
+    });
   }
 
   // Build number of items per age
   const age_items = new Map();
   [0, 2, 4, 6, 8, 10].forEach((age) => {
-    const nb = items.filter((i) => i.age == age).length;
+    const nb = items.filter((i) => i.age === age).length;
     if (nb) age_items.set(age, nb);
   });
 
-  if (items.length == 0) return "Tout est trouvé, merci";
+  if (items.length === 0) return "Tout est trouvé, merci";
 
   return (
     <>
@@ -71,9 +60,11 @@ export function InventoryRev() {
           label="Filtrer sur l'age"
           onChange={(i) => setFilterAge(i.target.value)}
         >
-          <MenuItem value={-1}>Tous ({items.length} Jeux)</MenuItem>
+          <MenuItem key={-1} value={-1}>
+            Tous ({items.length} Jeux)
+          </MenuItem>
           {Array.from(age_items).map(([age, nb]) => (
-            <MenuItem value={age}>
+            <MenuItem value={age} key={age}>
               <AgeChip age={age} />
               &nbsp;&nbsp;({nb} Jeux)
             </MenuItem>

@@ -1,9 +1,9 @@
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import { useItem } from "../api/hooks";
-import { Link } from "wouter";
 import Button from "@mui/material/Button";
 import Skeleton from "@mui/material/Skeleton";
+import Typography from "@mui/material/Typography";
+import { Link } from "wouter";
+import { useItem } from "../api/hooks";
 import { ItemIdBox } from "./itemIdBox";
 
 interface MiniItemProps {
@@ -23,9 +23,7 @@ export function MiniItem(props: MiniItemProps) {
   if (error) return <div>Impossible de charger: {error}</div>;
   if (!mutate) return <div>Erreur du serveur</div>;
 
-  const picture = item?.pictures?.length
-    ? item.pictures[0]
-    : "../../notavailable.webp";
+  const picture = item?.pictures?.length ? item.pictures[0] : "../../notavailable.webp";
 
   // render data
   return (
@@ -38,17 +36,9 @@ export function MiniItem(props: MiniItemProps) {
         p: 0.5,
       }}
     >
-      <Box
-        sx={{ width: "35%", mr: 2 }}
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-      >
+      <Box sx={{ width: "35%", mr: 2 }} display="flex" justifyContent="center" alignItems="center">
         {item ? (
-          <Link
-            href={`/items/${item.id}`}
-            style={{ height: "100%", width: "100%" }}
-          >
+          <Link href={`/items/${item.id}`} style={{ height: "100%", width: "100%" }}>
             <img
               style={{
                 height: "100%",
@@ -60,15 +50,11 @@ export function MiniItem(props: MiniItemProps) {
                   : "drop-shadow(6px 6px 8px rgba(0,0,0,0.3))",
               }}
               src={`/storage/thumb/${picture}`}
+              alt={`Aperçu du jeu ${item.name}`}
             />
           </Link>
         ) : (
-          <Skeleton
-            sx={{ bgcolor: "grey.200" }}
-            variant="rounded"
-            width="100%"
-            height="100%"
-          />
+          <Skeleton sx={{ bgcolor: "grey.200" }} variant="rounded" width="100%" height="100%" />
         )}
       </Box>
       <Box width="65%">
@@ -95,10 +81,7 @@ export function MiniItem(props: MiniItemProps) {
         {item ? (
           <>
             {props.subtext && (
-              <Typography
-                variant="subtitle2"
-                color={props.late ? "red" : "text.secondary"}
-              >
+              <Typography variant="subtitle2" color={props.late ? "red" : "text.secondary"}>
                 {props.subtext}
               </Typography>
             )}
@@ -106,12 +89,7 @@ export function MiniItem(props: MiniItemProps) {
             {props.button && props.button}
 
             {props.action && (
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={props.action.func}
-                sx={{ mt: 1 }}
-              >
+              <Button size="small" variant="outlined" onClick={props.action.func} sx={{ mt: 1 }}>
                 {props.action.text}
               </Button>
             )}

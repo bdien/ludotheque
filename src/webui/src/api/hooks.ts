@@ -1,22 +1,19 @@
 import useSWR from "swr";
 import useSWRImmutable from "swr/immutable";
-import {
+import { fetcher, SERVER_URL } from "./calls";
+import type {
+  APILoan,
+  APILoanWithUser,
   Info,
   ItemListEntry,
   ItemModel,
   LedgerEntry,
-  APILoan,
-  User,
   Stats,
-  APILoanWithUser,
+  User,
 } from "./models";
-import { SERVER_URL, fetcher } from "./calls";
 
 export function useInfo() {
-  const { data, error, isLoading } = useSWRImmutable<Info>(
-    `${SERVER_URL}/info`,
-    fetcher,
-  );
+  const { data, error, isLoading } = useSWRImmutable<Info>(`${SERVER_URL}/info`, fetcher);
 
   return {
     info: data,
@@ -26,10 +23,7 @@ export function useInfo() {
 }
 
 export function useStats() {
-  const { data, error, isLoading } = useSWRImmutable<Stats>(
-    `${SERVER_URL}/stats`,
-    fetcher,
-  );
+  const { data, error, isLoading } = useSWRImmutable<Stats>(`${SERVER_URL}/stats`, fetcher);
 
   return {
     stats: data,
@@ -38,31 +32,8 @@ export function useStats() {
   };
 }
 
-const DEFAULT_ITEM: ItemModel = {
-  id: 0,
-  age: 8,
-  big: false,
-  description: "",
-  categories: [],
-  name: "",
-  outside: false,
-  players_max: 4,
-  players_min: 1,
-  notes: "",
-  enabled: true,
-};
-
-export function useItem(id?: number) {
-  if (!id) {
-    return {
-      item: { ...DEFAULT_ITEM },
-      isLoading: false,
-      error: false,
-      mutate: undefined,
-    };
-  }
-
-  const url = `${SERVER_URL}/items/${id}`;
+export function useItem(id?: number | undefined) {
+  const url = `${SERVER_URL}/items/${id || 0}`;
 
   const { data, error, isLoading, mutate } = useSWR<ItemModel>(url, fetcher, {
     dedupingInterval: 30000,
@@ -95,7 +66,7 @@ export function useItems(props?: useItemsProps) {
   );
 
   return {
-    items: new Map(data ? data.map((i) => [i["id"], i]) : null),
+    items: new Map(data ? data.map((i) => [i.id, i]) : null),
     isLoading,
     error,
     mutate,
@@ -162,34 +133,14 @@ export function useCategories() {
   );
 
   return {
-    categories: data && new Map(data.map((i) => [i["id"], i["name"]])),
+    categories: data && new Map(data.map((i) => [i.id, i.name])),
     isLoading,
     error,
   };
 }
 
-const DEFAULT_USER: User = {
-  id: 0,
-  name: "",
-  emails: [],
-  bookings: [],
-  role: "user",
-  credit: 0,
-  notes: "",
-  enabled: true,
-};
-
 export function useUser(id?: number) {
-  if (!id) {
-    return {
-      user: { ...DEFAULT_USER },
-      isLoading: false,
-      error: false,
-      mutate: undefined,
-    };
-  }
-
-  const url = `${SERVER_URL}/users/${id}`;
+  const url = `${SERVER_URL}/users/${id || 0}`;
 
   const { data, error, isLoading, mutate } = useSWR<User>(url, fetcher, {
     revalidateOnFocus: false,
@@ -223,14 +174,12 @@ export function useUserHistory(id?: number) {
 }
 
 export function useUsers() {
-  const { data, error, isLoading, mutate } = useSWR<User[]>(
-    `${SERVER_URL}/users`,
-    fetcher,
-    { dedupingInterval: 60000 },
-  );
+  const { data, error, isLoading, mutate } = useSWR<User[]>(`${SERVER_URL}/users`, fetcher, {
+    dedupingInterval: 60000,
+  });
 
   return {
-    users: data && new Map(data.map((i) => [i["id"], i])),
+    users: data && new Map(data.map((i) => [i.id, i])),
     isLoading,
     error,
     mutate,
@@ -252,11 +201,9 @@ export function useLoansLate(mindays = 0) {
 }
 
 export function useLoans() {
-  const { data, error, isLoading } = useSWR<APILoanWithUser[]>(
-    `${SERVER_URL}/loans`,
-    fetcher,
-    { revalidateOnFocus: false },
-  );
+  const { data, error, isLoading } = useSWR<APILoanWithUser[]>(`${SERVER_URL}/loans`, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   return {
     loans: data,
@@ -266,11 +213,9 @@ export function useLoans() {
 }
 
 export function useLoan(id: number) {
-  const { data, error, isLoading, mutate } = useSWR<APILoan>(
-    `${SERVER_URL}/loans/${id}`,
-    fetcher,
-    { revalidateOnFocus: false },
-  );
+  const { data, error, isLoading, mutate } = useSWR<APILoan>(`${SERVER_URL}/loans/${id}`, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   return {
     loan: data,
@@ -281,11 +226,9 @@ export function useLoan(id: number) {
 }
 
 export function useLedger() {
-  const { data, error, isLoading } = useSWR<LedgerEntry[]>(
-    `${SERVER_URL}/ledger`,
-    fetcher,
-    { revalidateOnFocus: false },
-  );
+  const { data, error, isLoading } = useSWR<LedgerEntry[]>(`${SERVER_URL}/ledger`, fetcher, {
+    revalidateOnFocus: false,
+  });
 
   return {
     ledger: data,

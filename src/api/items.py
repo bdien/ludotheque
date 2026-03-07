@@ -14,6 +14,7 @@ from PIL import Image
 from playhouse.shortcuts import model_to_dict
 
 from api.config import IMAGE_MAX_DIM, THUMB_DIM
+from api.models import APIItem
 from api.pwmodels import (
     Booking,
     Category,
@@ -222,8 +223,11 @@ def get_item(
     item_id: int,
     auth: Annotated[AuthUser | None, Depends(auth_user)],
 ):
-    # Retrieve item + pictures + status (Limit to the last 10 loans)
+    # Special case: id = 0 -> new user
+    if item_id == 0:
+        return APIItem(id=0, name="", age=8, enabled=True, players_min=2, players_max=4)
 
+    # Retrieve item + pictures + status (Limit to the last 10 loans)
     with db:
         items = (
             Item.select(Item, Loan)

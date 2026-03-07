@@ -1,24 +1,21 @@
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Icon from "@mui/material/Icon";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Typography from "@mui/material/Typography";
+import { useEffect, useState } from "react";
 import { useSWRConfig } from "swr";
 import { useLocation } from "wouter";
 import { createLoan, fetchItem, fetchUser } from "../api/calls";
-import { useEffect, useState } from "react";
-import { User, ItemModel, LoanCreateResult } from "../api/models";
-import { UserSearch } from "../components/user_search";
-import { ItemSearch } from "../components/item_search";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
-import Icon from "@mui/material/Icon";
-import Typography from "@mui/material/Typography";
 import { useInfo } from "../api/hooks";
-import {
-  LoanItemTable,
-  LoanItemTableEntry,
-} from "../components/loan_item_table";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Alert from "@mui/material/Alert";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
+import type { ItemModel, LoanCreateResult, User } from "../api/models";
+import { ItemSearch } from "../components/item_search";
+import { LoanItemTable, type LoanItemTableEntry } from "../components/loan_item_table";
+import { UserSearch } from "../components/user_search";
 import { useGlobalStore } from "../hooks/global_store";
 
 const fakeItemAdhesion: ItemModel = { id: -1, name: "Adhésion" };
@@ -97,12 +94,11 @@ export function Loan() {
   }
   function removeItem(item: ItemModel) {
     const idx = items.indexOf(item);
-    if (idx != -1) removeItemIndex(idx);
+    if (idx !== -1) removeItemIndex(idx);
   }
 
   // Transform items into LoanItemTableEntry
   const loanItems: LoanItemTableEntry[] = items.map((i, idx) => {
-    console.log(i);
     return {
       id: i.id,
       age: i.age,
@@ -120,22 +116,17 @@ export function Loan() {
   // Function to add/remove items when changing user
   function changeUser(user: User | null) {
     // If user must renew its subscription, add it to the loans
-    if (user && new Date(user?.subscription ?? "") <= new Date())
-      addItem(fakeItemAdhesion);
+    if (user && new Date(user?.subscription ?? "") <= new Date()) addItem(fakeItemAdhesion);
     else removeItem(fakeItemAdhesion);
 
     setUser(user);
   }
 
   if (initialItem || initialUser) {
-    window.history.replaceState(
-      {},
-      document.title,
-      location.href.split("?")[0],
-    );
+    window.history.replaceState({}, document.title, location.href.split("?")[0]);
   }
-  if (initialItem) fetchItem(parseInt(initialItem)).then(addItem);
-  if (initialUser) fetchUser(parseInt(initialUser)).then(changeUser);
+  if (initialItem) fetchItem(parseInt(initialItem, 10)).then(addItem);
+  if (initialUser) fetchUser(parseInt(initialUser, 10)).then(changeUser);
 
   return (
     <Box sx={{ m: 0.5 }}>
@@ -173,12 +164,7 @@ export function Loan() {
           <Button onClick={menuAddLoanOpen}>
             <Icon>add</Icon>
           </Button>
-          <Menu
-            id="menu-add-loan"
-            anchorEl={anchorEl}
-            open={openAdd}
-            onClose={menuAddLoanClose}
-          >
+          <Menu id="menu-add-loan" anchorEl={anchorEl} open={openAdd} onClose={menuAddLoanClose}>
             <MenuItem
               onClick={() => {
                 addItem(fakeItemAdhesion);
@@ -215,12 +201,11 @@ export function Loan() {
             <b>{loanResult.topay.real}€</b>
           </Typography>
 
-          {loanResult.topay.credit || user?.role != "user" ? (
+          {loanResult.topay.credit || user?.role !== "user" ? (
             <Box sx={{ textAlign: "right", mr: "10%" }}>
-              {loanResult.topay.credit > 0 &&
-                `${loanResult.topay.credit}€ pris sur la carte`}
-              {user?.role == "benevole" && "Bénévole"}
-              {user?.role == "admin" && "Membre du Bureau"}
+              {loanResult.topay.credit > 0 && `${loanResult.topay.credit}€ pris sur la carte`}
+              {user?.role === "benevole" && "Bénévole"}
+              {user?.role === "admin" && "Membre du Bureau"}
             </Box>
           ) : (
             ""

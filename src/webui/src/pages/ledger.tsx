@@ -1,5 +1,3 @@
-import Box from "@mui/material/Box";
-import { useLedger, useLoans } from "../api/hooks";
 import {
   Accordion,
   AccordionDetails,
@@ -11,9 +9,11 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { LedgerEntry, APILoanWithUser } from "../api/models";
-import { ShortUser } from "../components/short_user";
+import Box from "@mui/material/Box";
+import { useLedger, useLoans } from "../api/hooks";
+import type { APILoanWithUser, LedgerEntry } from "../api/models";
 import { Loading } from "../components/loading";
+import { ShortUser } from "../components/short_user";
 
 function groupBy<T, K>(array: T[], keyFn: (item: T) => K) {
   const map = new Map<K, T[]>();
@@ -31,11 +31,7 @@ function groupBy<T, K>(array: T[], keyFn: (item: T) => K) {
   return map;
 }
 
-function highlevelSummary(
-  entries: LedgerEntry[],
-  nbLoansOut: number,
-  nbLoansIn: number,
-) {
+function highlevelSummary(entries: LedgerEntry[], nbLoansOut: number, nbLoansIn: number) {
   const summary = [];
 
   const adherentCount = entries.filter((e) => e.item_id === -1).length;
@@ -44,8 +40,7 @@ function highlevelSummary(
   }
 
   const carteCount = entries.filter((e) => e.item_id === -2).length;
-  if (carteCount)
-    summary.push(`${carteCount} carte${carteCount > 1 ? "s" : ""}`);
+  if (carteCount) summary.push(`${carteCount} carte${carteCount > 1 ? "s" : ""}`);
 
   if (nbLoansOut) summary.push(`${nbLoansOut} jeux`);
   if (nbLoansIn) summary.push(`${nbLoansIn} rendus`);
@@ -65,10 +60,7 @@ function summary(entries: LedgerEntry[], loansIn: APILoanWithUser[]) {
       {[...new Set(users)].map((userId) => {
         const userEntries = entriesByUser.get(userId) ?? [];
         const loansInEntries = loansInByUser.get(userId) ?? [];
-        const totalMoney = userEntries.reduce(
-          (total, entry) => total + entry.money,
-          0,
-        );
+        const totalMoney = userEntries.reduce((total, entry) => total + entry.money, 0);
 
         return (
           <TableRow key={userId}>
@@ -110,9 +102,8 @@ function summaryPerUser(entries: LedgerEntry[], loansIn: APILoanWithUser[]) {
   const itemCount = entries.filter((e) => e.item_id >= 0).length;
   if (itemCount) summary.push(`${itemCount} jeu${itemCount > 1 ? "x" : ""}`);
 
-  const itemReturned = loansIn.filter((i) => i.status == "in").length;
-  if (itemReturned)
-    summary.push(`${itemReturned} rendu${itemReturned > 1 ? "s" : ""}`);
+  const itemReturned = loansIn.filter((i) => i.status === "in").length;
+  if (itemReturned) summary.push(`${itemReturned} rendu${itemReturned > 1 ? "s" : ""}`);
 
   return summary.join(", ");
 }
@@ -140,18 +131,13 @@ export function Ledger() {
     <Box>
       {days.map((date) => {
         const ledgersDay = ledgerByDay.get(date) as LedgerEntry[];
-        const loansOut = loans ? loans.filter((i) => i.start == date) : [];
-        const loansIn = loans
-          ? loans.filter((i) => i.status == "in" && i.stop == date)
-          : [];
+        const loansOut = loans ? loans.filter((i) => i.start === date) : [];
+        const loansIn = loans ? loans.filter((i) => i.status === "in" && i.stop === date) : [];
         const total = ledgersDay.reduce((sum, e) => sum + e.money, 0);
 
         return (
           <Accordion TransitionProps={{ unmountOnExit: true }} key={date}>
-            <AccordionSummary
-              expandIcon={<Icon>expand_more</Icon>}
-              sx={{ px: 1, display: "flex" }}
-            >
+            <AccordionSummary expandIcon={<Icon>expand_more</Icon>} sx={{ px: 1, display: "flex" }}>
               <Typography
                 variant="subtitle1"
                 color="primary"

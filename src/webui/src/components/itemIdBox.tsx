@@ -1,7 +1,7 @@
-import useMediaQuery from "@mui/material/useMediaQuery";
 import { Box, Typography, useTheme } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import type { ItemModel } from "../api/models";
 import { ageColors } from "./age_chip";
-import { ItemModel } from "../api/models";
 
 export function ItemIdBox({ item }: { item: ItemModel }) {
   const theme = useTheme();

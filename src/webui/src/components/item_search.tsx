@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { searchItem as searchItem } from "../api/calls";
-import { ItemModel } from "../api/models";
-import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
-import { debounce } from "@mui/material/utils";
-import Icon from "@mui/material/Icon";
 import Box from "@mui/material/Box";
+import Icon from "@mui/material/Icon";
+import TextField from "@mui/material/TextField";
+import { debounce } from "@mui/material/utils";
+import { useEffect, useState } from "react";
+import { searchItem } from "../api/calls";
+import type { ItemModel } from "../api/models";
 import { ageColors } from "./age_chip";
 
 // ItemSearch allow to search for items
@@ -34,9 +34,7 @@ export function ItemSearch(props: ItemSearchProps) {
         disablePortal
         key={completeKey}
         options={itemChoices}
-        noOptionsText={
-          itemInput ? "Pas d'objet trouvé" : "Entrez un nom pour chercher"
-        }
+        noOptionsText={itemInput ? "Pas d'objet trouvé" : "Entrez un nom pour chercher"}
         getOptionLabel={(option: ItemModel) => option.name}
         renderOption={(props, option) => (
           <li {...props}>
@@ -60,9 +58,7 @@ export function ItemSearch(props: ItemSearchProps) {
         sx={{ flexGrow: 1 }}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         filterOptions={(x) => x}
-        renderInput={(params) => (
-          <TextField {...params} placeholder="Chercher un jeu" />
-        )}
+        renderInput={(params) => <TextField {...params} placeholder="Chercher un jeu" />}
         onChange={async (_event, newValue: ItemModel | null) => {
           if (newValue) {
             props.setItem(newValue);

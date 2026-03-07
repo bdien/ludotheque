@@ -52,6 +52,7 @@ build = "cd src/webui && pnpm run build"
 api = "cd src/api && uvicorn main:app --reload"
 api_prod = "cd src/api && uvicorn main:app --uds /tmp/uvicorn.sock"
 webui = "cd src/webui && pnpm run dev --host 0.0.0.0"
+weblint = "cd src/webui && pnpm run lint"
 restore = "rm -rf storage/img storage/thumb storage/ludotheque.db; curl -H \"Authorization: Bearer $LUDOTHEQUE_APIKEY\" -s https://ludotheque.fly.dev/api/backup | tar x"
 
 [dependency-groups]

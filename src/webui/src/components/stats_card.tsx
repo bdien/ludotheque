@@ -1,5 +1,5 @@
 import { Card, CardContent, Typography } from "@mui/material";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface StatsCardProps {
   title?: string;
@@ -18,10 +18,7 @@ export function StatsCard(props: StatsCardProps) {
     >
       <CardContent>
         {props.title ? (
-          <Typography
-            gutterBottom
-            sx={{ color: "text.secondary", fontSize: 14 }}
-          >
+          <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
             {props.title}
           </Typography>
         ) : (

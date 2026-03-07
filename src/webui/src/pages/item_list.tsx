@@ -1,36 +1,30 @@
-import { useItems } from "../api/hooks";
-import { useGlobalStore } from "../hooks/global_store";
-import { Info, ItemListEntry } from "../api/models";
-import { Link } from "wouter";
-import { AgeChip } from "../components/age_chip";
-import { forwardRef, useState } from "react";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import Icon from "@mui/material/Icon";
+import { Divider, ListItemIcon, ListItemText, Menu, MenuList } from "@mui/material";
 import Box from "@mui/material/Box";
+import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import MenuItem from "@mui/material/MenuItem";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import { TableVirtuoso, TableComponents } from "react-virtuoso";
-import useSessionStorage from "../hooks/useSessionStorage";
+import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-import { exportItems } from "../api/calls";
-import {
-  Divider,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuList,
-} from "@mui/material";
 import { differenceInDays } from "date-fns";
+import { forwardRef, useState } from "react";
+import { type TableComponents, TableVirtuoso } from "react-virtuoso";
+import { Link } from "wouter";
+import { exportItems } from "../api/calls";
+import { useItems } from "../api/hooks";
+import type { Info, ItemListEntry } from "../api/models";
+import { AgeChip } from "../components/age_chip";
+import { useGlobalStore } from "../hooks/global_store";
+import useSessionStorage from "../hooks/useSessionStorage";
 
 function exportCSV() {
   exportItems().then((txt) => {
-    const file = new File(("\ufeff" + txt).split("\n"), "jeux.csv", {
+    const file = new File(`\ufeff${txt}`.split("\n"), "jeux.csv", {
       type: "text/csv",
     });
     const link = document.createElement("a");
@@ -65,8 +59,7 @@ function nameDisplay(item: ItemListEntry, info: Info) {
           }}
         >
           {item.name}
-          {differenceInDays(new Date(), item.created_at) <=
-            info.item_new_days && (
+          {differenceInDays(new Date(), item.created_at) <= info.item_new_days && (
             <span
               style={{
                 padding: "0.2em 4px",
@@ -82,43 +75,23 @@ function nameDisplay(item: ItemListEntry, info: Info) {
             </span>
           )}
         </Box>
-        {item.status == "out" && (
-          <Icon
-            aria-label="Emprunté"
-            fontSize="small"
-            color="secondary"
-            sx={{ pt: 0.2 }}
-          >
+        {item.status === "out" && (
+          <Icon aria-label="Emprunté" fontSize="small" color="secondary" sx={{ pt: 0.2 }}>
             logout
           </Icon>
         )}
         {item.big && (
-          <Icon
-            aria-label="Surdimensionné"
-            fontSize="small"
-            color="secondary"
-            sx={{ pt: 0.2 }}
-          >
+          <Icon aria-label="Surdimensionné" fontSize="small" color="secondary" sx={{ pt: 0.2 }}>
             inventory
           </Icon>
         )}
         {item.outside && (
-          <Icon
-            aria-label="Jeu d'Extérieur"
-            fontSize="small"
-            color="secondary"
-            sx={{ pt: 0.2 }}
-          >
+          <Icon aria-label="Jeu d'Extérieur" fontSize="small" color="secondary" sx={{ pt: 0.2 }}>
             park
           </Icon>
         )}
         {!item.enabled && (
-          <Icon
-            aria-label="Indisponible"
-            fontSize="small"
-            color="warning"
-            sx={{ pt: 0.2 }}
-          >
+          <Icon aria-label="Indisponible" fontSize="small" color="warning" sx={{ pt: 0.2 }}>
             construction
           </Icon>
         )}
@@ -129,8 +102,8 @@ function nameDisplay(item: ItemListEntry, info: Info) {
 
 function playerDisplay(item: ItemListEntry) {
   const txt = item.players_min;
-  if (item.players_min == item.players_max) return <>{txt}</>;
-  if (item.players_max == 99) return <>{txt}+</>;
+  if (item.players_min === item.players_max) return <>{txt}</>;
+  if (item.players_max === 99) return <>{txt}+</>;
   return (
     <>
       {item.players_min} - {item.players_max}
@@ -139,12 +112,8 @@ function playerDisplay(item: ItemListEntry) {
 }
 
 const TableComps: TableComponents<ItemListEntry> = {
-  Scroller: forwardRef((props, ref) => (
-    <TableContainer component={Paper} {...props} ref={ref} />
-  )),
-  Table: (props) => (
-    <Table {...props} size="small" style={{ borderCollapse: "separate" }} />
-  ),
+  Scroller: forwardRef((props, ref) => <TableContainer component={Paper} {...props} ref={ref} />),
+  Table: (props) => <Table {...props} size="small" style={{ borderCollapse: "separate" }} />,
   TableRow: TableRow,
   TableBody: forwardRef<HTMLTableSectionElement>((props, ref) => (
     <TableBody {...props} ref={ref} />
@@ -163,17 +132,14 @@ interface ItemListFilters {
 export function ItemList() {
   const { account, info } = useGlobalStore();
   const { items } = useItems();
-  const [filter, setFilter] = useSessionStorage<ItemListFilters>(
-    "itemSearchFilters",
-    {
-      text: "",
-      age: [false, false, false, false, false, false],
-      outside: false,
-      big: false,
-      regular: false,
-      disabled: true,
-    },
-  );
+  const [filter, setFilter] = useSessionStorage<ItemListFilters>("itemSearchFilters", {
+    text: "",
+    age: [false, false, false, false, false, false],
+    outside: false,
+    big: false,
+    regular: false,
+    disabled: true,
+  });
 
   // Filter menu
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -192,9 +158,7 @@ export function ItemList() {
   if (filter.text) {
     const lw_filter = filter.text.toLowerCase();
     displayed = displayed.filter(
-      (i) =>
-        i.name.toLowerCase().includes(lw_filter) ||
-        i.id.toString().includes(lw_filter),
+      (i) => i.name.toLowerCase().includes(lw_filter) || i.id.toString().includes(lw_filter),
     );
   }
   if (filter.regular) {
@@ -207,7 +171,7 @@ export function ItemList() {
     displayed = displayed.filter((i) => !i.outside);
   }
   [0, 2, 4, 6, 8, 10].forEach((age, index) => {
-    if (filter.age[index]) displayed = displayed.filter((i) => i.age != age);
+    if (filter.age[index]) displayed = displayed.filter((i) => i.age !== age);
   });
   if (filter.disabled) {
     displayed = displayed.filter((i) => i.enabled);
@@ -317,10 +281,7 @@ export function ItemList() {
 
         {/* Export CSV */}
         {account?.rights.includes("item_manage") && (
-          <Tooltip
-            title="Exporter en CSV"
-            sx={{ display: { xs: "none", sm: "block" } }}
-          >
+          <Tooltip title="Exporter en CSV" sx={{ display: { xs: "none", sm: "block" } }}>
             <IconButton color="primary" onClick={exportCSV}>
               <Icon>file_download</Icon>
             </IconButton>
@@ -331,20 +292,13 @@ export function ItemList() {
       <TableVirtuoso
         data={displayed}
         components={TableComps}
-        initialTopMostItemIndex={parseInt(
-          sessionStorage.getItem("itemSearchIndex") ?? "0",
-        )}
+        initialTopMostItemIndex={parseInt(sessionStorage.getItem("itemSearchIndex") ?? "0", 10)}
         rangeChanged={(range) => {
-          sessionStorage.setItem(
-            "itemSearchIndex",
-            range.startIndex.toString(),
-          );
+          sessionStorage.setItem("itemSearchIndex", range.startIndex.toString());
         }}
         fixedHeaderContent={() => (
           <TableRow sx={{ background: "#F9FBFC" }}>
-            <TableCell sx={{ textAlign: "right", color: "#6B7582" }}>
-              #
-            </TableCell>
+            <TableCell sx={{ textAlign: "right", color: "#6B7582" }}>#</TableCell>
             <TableCell sx={{ p: 0.5, color: "#6B7582" }}>Nom</TableCell>
             <TableCell
               sx={{
@@ -379,9 +333,7 @@ export function ItemList() {
               {row.id}
             </TableCell>
             <TableCell sx={{ p: 0.5 }}>{nameDisplay(row, info)}</TableCell>
-            <TableCell
-              sx={{ width: "clamp(66px, 10vw, 240px)", textAlign: "center" }}
-            >
+            <TableCell sx={{ width: "clamp(66px, 10vw, 240px)", textAlign: "center" }}>
               {playerDisplay(row)}
             </TableCell>
             <TableCell sx={{ textAlign: "center", p: 0.75 }}>

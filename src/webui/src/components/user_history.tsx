@@ -1,10 +1,10 @@
-import { useUserHistory } from "../api/hooks";
-import Box from "@mui/material/Box";
-import { MiniItemHistory } from "../components/mini_item_history";
-import { APILoan } from "../api/models";
 import { Icon, TextField, Typography } from "@mui/material";
-import { Loading } from "../components/loading";
+import Box from "@mui/material/Box";
 import { useState } from "react";
+import { useUserHistory } from "../api/hooks";
+import type { APILoan } from "../api/models";
+import { Loading } from "../components/loading";
+import { MiniItemHistory } from "../components/mini_item_history";
 
 interface UserHistoryProps {
   id: number;
@@ -23,7 +23,7 @@ export function UserHistory(props: UserHistoryProps) {
 
   if (!history) return <Loading />;
 
-  if (history.length == 0)
+  if (history.length === 0)
     return (
       <Box sx={{ mx: "auto", textAlign: "center" }}>
         <Icon sx={{ opacity: 0.1, fontSize: "min(40vw, 250px)", mt: 4 }}>
@@ -35,7 +35,7 @@ export function UserHistory(props: UserHistoryProps) {
     );
 
   // Filter
-  if (filter != "") {
+  if (filter !== "") {
     const f = filter.toLowerCase();
     history = history.filter((loan) => loan.name?.toLowerCase().includes(f));
   }

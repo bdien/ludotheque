@@ -1,33 +1,33 @@
-import { Controller, useForm } from "react-hook-form";
-import { useItem, useCategories, useItems } from "../api/hooks";
-import { useGlobalStore } from "../hooks/global_store";
-import { ItemModel } from "../api/models";
-import { createItem, deleteItem, updateItem } from "../api/calls";
-import { useConfirm } from "../hooks/useConfirm";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Icon from "@mui/material/Icon";
+import InputAdornment from "@mui/material/InputAdornment";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
+import Slider from "@mui/material/Slider";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
-import Slider from "@mui/material/Slider";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import { AgeChip } from "../components/age_chip";
-import Button from "@mui/material/Button";
-import { navigate } from "wouter/use-browser-location";
-import { ImageChooser } from "../components/image_chooser";
-import { useState } from "react";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import FormControl from "@mui/material/FormControl";
-import InputAdornment from "@mui/material/InputAdornment";
-import InputLabel from "@mui/material/InputLabel";
 import ToggleButton from "@mui/material/ToggleButton";
-import Alert from "@mui/material/Alert";
 import Typography from "@mui/material/Typography";
-import Icon from "@mui/material/Icon";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { navigate } from "wouter/use-browser-location";
+import { createItem, deleteItem, updateItem } from "../api/calls";
+import { useCategories, useItem, useItems } from "../api/hooks";
+import type { ItemModel } from "../api/models";
+import { AgeChip } from "../components/age_chip";
+import { ImageChooser } from "../components/image_chooser";
+import { useGlobalStore } from "../hooks/global_store";
+import { useConfirm } from "../hooks/useConfirm";
 
 interface ItemEditProps {
   id?: number;
@@ -102,10 +102,7 @@ export function ItemEdit(props: ItemEditProps) {
     item.name = data.name.trim();
     item.description = data.description.trim();
     if (Array.isArray(data.categories)) item.categories = data.categories;
-    else
-      item.categories = (data.categories as string)
-        .split(",")
-        .map((i) => parseInt(i));
+    else item.categories = (data.categories as string).split(",").map((i) => parseInt(i, 10));
     item.age = data.age;
     item.gametime = data.gametime;
     item.big = data.big;
@@ -120,9 +117,7 @@ export function ItemEdit(props: ItemEditProps) {
       : [];
 
     // Update or create user
-    const promise = initialItemId
-      ? updateItem(item.id ?? 0, item)
-      : createItem(item);
+    const promise = initialItemId ? updateItem(item.id ?? 0, item) : createItem(item);
     promise
       .then((result) => {
         // Error
@@ -159,7 +154,7 @@ export function ItemEdit(props: ItemEditProps) {
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
-  if (!item) return <></>;
+  if (!item) return;
 
   // render data
   return (
@@ -171,11 +166,7 @@ export function ItemEdit(props: ItemEditProps) {
           alignItems: "flex-start",
         }}
       >
-        <Typography
-          variant="h5"
-          color="primary.main"
-          sx={{ pb: 2, flexGrow: 1 }}
-        >
+        <Typography variant="h5" color="primary.main" sx={{ pb: 2, flexGrow: 1 }}>
           {item.id ? `Edition d'un jeu (${item.id})` : "Nouveau jeu"}
         </Typography>
 
@@ -183,7 +174,7 @@ export function ItemEdit(props: ItemEditProps) {
         <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }} />
 
         {/* Delete button */}
-        {item.id != 0 && account?.rights.includes("item_delete") && (
+        {item.id !== 0 && account?.rights.includes("item_delete") && (
           <>
             <Button
               color="warning"
@@ -235,12 +226,7 @@ export function ItemEdit(props: ItemEditProps) {
                 </TableCell>
                 <TableCell style={{ display: "flex" }}>
                   {item?.id ? (
-                    <TextField
-                      label="Numéro du Jeu"
-                      type="number"
-                      value={item.id}
-                      disabled
-                    />
+                    <TextField label="Numéro du Jeu" type="number" value={item.id} disabled />
                   ) : (
                     <>
                       <ToggleButton
@@ -290,9 +276,7 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Description du jeu */}
               <TableRow>
-                <TableCell sx={{ color: "primary.main" }}>
-                  Description
-                </TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Description</TableCell>
                 <TableCell>
                   <TextField
                     fullWidth
@@ -350,13 +334,11 @@ export function ItemEdit(props: ItemEditProps) {
                 <TableCell sx={{ color: "primary.main" }}>Catégories</TableCell>
                 <TableCell>
                   <FormControl fullWidth>
-                    <InputLabel id="item-categories-label">
-                      Catégories
-                    </InputLabel>
+                    <InputLabel id="item-categories-label">Catégories</InputLabel>
                     <Select
                       label="Catégories"
                       multiple
-                      defaultValue={item.categories}
+                      defaultValue={item.categories || []}
                       sx={{ minWidth: "200px" }}
                       MenuProps={{
                         sx: {
@@ -380,9 +362,7 @@ export function ItemEdit(props: ItemEditProps) {
 
               {/* Durée d'une partie */}
               <TableRow>
-                <TableCell sx={{ color: "primary.main" }}>
-                  Durée de jeu
-                </TableCell>
+                <TableCell sx={{ color: "primary.main" }}>Durée de jeu</TableCell>
                 <TableCell>
                   <TextField
                     defaultValue={item.gametime}
@@ -391,9 +371,7 @@ export function ItemEdit(props: ItemEditProps) {
                     type="number"
                     InputProps={{
                       inputProps: { min: 0, max: 360 },
-                      endAdornment: (
-                        <InputAdornment position="end">min</InputAdornment>
-                      ),
+                      endAdornment: <InputAdornment position="end">min</InputAdornment>,
                     }}
                     {...register("gametime")}
                   />
@@ -405,9 +383,7 @@ export function ItemEdit(props: ItemEditProps) {
                 <TableCell sx={{ color: "primary.main" }}>Joueurs</TableCell>
                 <TableCell>
                   <Controller
-                    defaultValue={
-                      [item.players_min ?? 1, item.players_max ?? 4] as number[]
-                    }
+                    defaultValue={[item.players_min ?? 1, item.players_max ?? 4] as number[]}
                     control={control}
                     name="players"
                     render={({ field }) => (
@@ -455,22 +431,12 @@ export function ItemEdit(props: ItemEditProps) {
                   />
                   <br />
                   <FormControlLabel
-                    control={
-                      <Checkbox
-                        defaultChecked={item.outside}
-                        {...register("outside")}
-                      />
-                    }
+                    control={<Checkbox defaultChecked={item.outside} {...register("outside")} />}
                     label="Jeu d'extérieur"
                   />
                   <br />
                   <FormControlLabel
-                    control={
-                      <Checkbox
-                        defaultChecked={item.big}
-                        {...register("big")}
-                      />
-                    }
+                    control={<Checkbox defaultChecked={item.big} {...register("big")} />}
                     label="Jeu surdimensionné"
                   />
                 </TableCell>
@@ -488,7 +454,7 @@ export function ItemEdit(props: ItemEditProps) {
           sx={{ mt: "15px", p: 1.5 }}
           onClick={handleSubmit((formdata) => onSubmit(item, formdata))}
         >
-          {item.id == 0 ? "Créer" : "Modifier"}
+          {item.id === 0 ? "Créer" : "Modifier"}
         </Button>
 
         <Button

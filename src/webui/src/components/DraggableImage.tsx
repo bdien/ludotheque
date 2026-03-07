@@ -1,7 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Icon } from "@mui/material";
-import { CSSProperties } from "react";
+import type { CSSProperties } from "react";
 
 export interface DraggableImageProps {
   filename: string;
@@ -9,14 +9,9 @@ export interface DraggableImageProps {
 }
 
 export function DraggableImage(props: DraggableImageProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: props.filename });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: props.filename,
+  });
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -35,11 +30,8 @@ export function DraggableImage(props: DraggableImageProps) {
       <img
         {...attributes}
         {...listeners}
-        src={
-          props.filename.startsWith("data")
-            ? props.filename
-            : "/storage/img/" + props.filename
-        }
+        alt="Illustration"
+        src={props.filename.startsWith("data") ? props.filename : `/storage/img/${props.filename}`}
         style={{
           width: "100%",
           height: "100%",

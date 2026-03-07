@@ -1,24 +1,24 @@
+import { AlertTitle } from "@mui/material";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Icon from "@mui/material/Icon";
+import InputAdornment from "@mui/material/InputAdornment";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { formatISO, parseISO } from "date-fns";
+import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { navigate } from "wouter/use-browser-location";
-import { useUser, useUsers } from "../api/hooks";
 import { createUser, deleteUser, updateUser } from "../api/calls";
+import { useUser, useUsers } from "../api/hooks";
+import type { User } from "../api/models";
 import { useGlobalStore } from "../hooks/global_store";
-import { User } from "../api/models";
 import { useConfirm } from "../hooks/useConfirm";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import InputAdornment from "@mui/material/InputAdornment";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { parseISO, formatISO } from "date-fns";
-import Alert from "@mui/material/Alert";
-import { useState } from "react";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Icon from "@mui/material/Icon";
-import Box from "@mui/material/Box";
-import { AlertTitle } from "@mui/material";
 
 interface UserEditProps {
   id?: number;
@@ -85,15 +85,13 @@ export function UserEdit(props: UserEditProps) {
     user.role = data.role;
     user.notes = data.notes;
     user.informations = data.informations;
-    user.subscription = formatISO(data.subscription, {
+    user.subscription = formatISO(data.subscription || Date(), {
       representation: "date",
     });
     user.enabled = !data.disabled;
 
     // Update or create user
-    const promise = initialUserId
-      ? updateUser(user.id, user)
-      : createUser(user);
+    const promise = initialUserId ? updateUser(user.id, user) : createUser(user);
     promise
       .then((result) => {
         // Error
@@ -131,7 +129,7 @@ export function UserEdit(props: UserEditProps) {
   }
 
   if (error) return <div>Server error: {error.cause}</div>;
-  if (!user) return <></>;
+  if (!user) return;
 
   return (
     <>
@@ -142,11 +140,7 @@ export function UserEdit(props: UserEditProps) {
           alignItems: "flex-start",
         }}
       >
-        <Typography
-          variant="h5"
-          color="primary.main"
-          sx={{ pb: 2, flexGrow: 1 }}
-        >
+        <Typography variant="h5" color="primary.main" sx={{ pb: 2, flexGrow: 1 }}>
           {user.id ? `Edition d'un adhérent (${user.id})` : "Nouvel adhérent"}
         </Typography>
 
@@ -154,7 +148,7 @@ export function UserEdit(props: UserEditProps) {
         <Box sx={{ flexGrow: 1, display: { xs: "none", sm: "block" } }} />
 
         {/* Delete button */}
-        {user.id != 0 && account?.rights.includes("user_delete") && (
+        {user.id !== 0 && account?.rights.includes("user_delete") && (
           <>
             <Button
               color="warning"
@@ -175,15 +169,14 @@ export function UserEdit(props: UserEditProps) {
         </Alert>
       )}
 
-      {user?.id == 0 && (
+      {user?.id === 0 && (
         <Alert
           variant="outlined"
           severity="info"
           sx={{ backgroundColor: "rgba(85, 108, 214, 0.1)" }}
         >
           <AlertTitle>Adhésion et Remplissage de carte</AlertTitle>
-          Merci d'utiliser "Nouvel Emprunt" puis "+" pour l'adhésion et la carte
-          d'emprunt.
+          Merci d'utiliser "Nouvel Emprunt" puis "+" pour l'adhésion et la carte d'emprunt.
         </Alert>
       )}
 
@@ -212,25 +205,20 @@ export function UserEdit(props: UserEditProps) {
             </Button>
           </Box>
         ))}
-        <Button
-          startIcon={<Icon>add</Icon>}
-          onClick={() => append({ email: "" })}
-        >
+        <Button startIcon={<Icon>add</Icon>} onClick={() => append({ email: "" })}>
           Ajouter un EMail
         </Button>
       </Box>
 
-      {user?.id != 0 && (
+      {user?.id !== 0 && (
         <>
           <Alert elevation={1} severity="warning" sx={{ mt: 2, mb: 1 }}>
-            Evitez de modifier ces paramètres directement et passez plutôt par
-            "Nouvel Emprunt" puis "+".
+            Evitez de modifier ces paramètres directement et passez plutôt par "Nouvel Emprunt" puis
+            "+".
             <br />
             <Controller
               control={control}
-              defaultValue={
-                user.subscription ? parseISO(user.subscription) : new Date()
-              }
+              defaultValue={user.subscription ? parseISO(user.subscription) : new Date()}
               name="subscription"
               render={({ field }) => (
                 <DatePicker
@@ -293,11 +281,7 @@ export function UserEdit(props: UserEditProps) {
 
       <FormControlLabel
         control={
-          <Checkbox
-            color="error"
-            defaultChecked={!user.enabled}
-            {...register("disabled")}
-          />
+          <Checkbox color="error" defaultChecked={!user.enabled} {...register("disabled")} />
         }
         label="Désactiver l'adhérent"
       />
@@ -311,7 +295,7 @@ export function UserEdit(props: UserEditProps) {
         sx={{ mt: "15px", p: 1.5 }}
         onClick={handleSubmit((formdata) => onSubmit(user, formdata))}
       >
-        {user.id == 0 ? "Créer" : "Modifier"}
+        {user.id === 0 ? "Créer" : "Modifier"}
       </Button>
 
       <Button

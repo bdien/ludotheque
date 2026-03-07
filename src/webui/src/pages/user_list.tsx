@@ -1,15 +1,3 @@
-import { useUsers } from "../api/hooks";
-import { useGlobalStore } from "../hooks/global_store";
-import { Link } from "wouter";
-import Icon from "@mui/material/Icon";
-import Box from "@mui/material/Box";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
 import {
   IconButton,
   ListItemIcon,
@@ -22,15 +10,27 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import Box from "@mui/material/Box";
+import Icon from "@mui/material/Icon";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableRow from "@mui/material/TableRow";
+import Typography from "@mui/material/Typography";
+import { sub } from "date-fns";
 import { useState } from "react";
+import { Link } from "wouter";
 import { exportUsers } from "../api/calls";
+import { useUsers } from "../api/hooks";
 import { Loading } from "../components/loading";
 import { ShortUser } from "../components/short_user";
-import { sub } from "date-fns";
+import { useGlobalStore } from "../hooks/global_store";
 
 function exportCSV() {
   exportUsers().then((txt) => {
-    const file = new File(("\ufeff" + txt).split("\n"), "users.csv", {
+    const file = new File(`\ufeff${txt}`.split("\n"), "users.csv", {
       type: "text/csv",
     });
     const link = document.createElement("a");
@@ -52,9 +52,7 @@ export function UserList() {
   const [filterDisabled, setFilterDisabled] = useState<boolean>(false);
   const { users } = useUsers();
   const theme = useTheme();
-  const displaysm = useMediaQuery(theme.breakpoints.up("md"))
-    ? "block"
-    : "none";
+  const displaysm = useMediaQuery(theme.breakpoints.up("md")) ? "block" : "none";
 
   // Filter menu
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -132,10 +130,7 @@ export function UserList() {
 
         {/* Export CSV */}
         {account?.rights.includes("user_manage") && (
-          <Tooltip
-            title="Exporter en CSV"
-            sx={{ display: { xs: "none", sm: "block" } }}
-          >
+          <Tooltip title="Exporter en CSV" sx={{ display: { xs: "none", sm: "block" } }}>
             <IconButton color="primary" onClick={exportCSV}>
               <Icon>file_download</Icon>
             </IconButton>
@@ -147,10 +142,7 @@ export function UserList() {
         <Table size="small">
           <TableBody>
             {displayed.map((row) => (
-              <TableRow
-                key={row.id}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
+              <TableRow key={row.id} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                 <TableCell
                   scope="row"
                   sx={{
@@ -175,50 +167,33 @@ export function UserList() {
                         <Box display={displaysm}>{row.emails?.join(", ")}</Box>
                       </Box>
 
-                      <Box
-                        flexGrow={0.3}
-                        sx={{ textAlign: "right", my: "auto" }}
-                      >
+                      <Box flexGrow={0.3} sx={{ textAlign: "right", my: "auto" }}>
                         {row?.loans ? `${row?.loans} jeu` : ""}
-                        {row?.loans && (row?.loans as unknown as number) > 1
-                          ? "x"
-                          : ""}
+                        {row?.loans && (row?.loans as unknown as number) > 1 ? "x" : ""}
                       </Box>
 
                       <Box sx={{ width: 64, textAlign: "right", my: "auto" }}>
                         {row?.notes && (
-                          <Icon
-                            title={row.notes}
-                            color="secondary"
-                            sx={{ mx: 0.5 }}
-                          >
+                          <Icon title={row.notes} color="secondary" sx={{ mx: 0.5 }}>
                             notes
                           </Icon>
                         )}
-                        {row.subscription &&
-                          new Date(row.subscription) <= today && (
-                            <Icon
-                              title="Adhésion expirée"
-                              color={
-                                new Date(row.subscription) <= oldsubscription
-                                  ? "error"
-                                  : "secondary"
-                              }
-                              sx={{ mx: 0.5 }}
-                            >
-                              error_outline
-                            </Icon>
-                          )}
-                        {row.oldest_loan &&
-                          new Date(row.oldest_loan) < today && (
-                            <Icon
-                              title="Jeux en retard"
-                              color="warning"
-                              sx={{ mx: 0.5 }}
-                            >
-                              alarm
-                            </Icon>
-                          )}
+                        {row.subscription && new Date(row.subscription) <= today && (
+                          <Icon
+                            title="Adhésion expirée"
+                            color={
+                              new Date(row.subscription) <= oldsubscription ? "error" : "secondary"
+                            }
+                            sx={{ mx: 0.5 }}
+                          >
+                            error_outline
+                          </Icon>
+                        )}
+                        {row.oldest_loan && new Date(row.oldest_loan) < today && (
+                          <Icon title="Jeux en retard" color="warning" sx={{ mx: 0.5 }}>
+                            alarm
+                          </Icon>
+                        )}
                         &nbsp;
                       </Box>
                     </div>
@@ -236,7 +211,7 @@ export function UserList() {
         }}
       >
         {nbHidden > 1 && `+${nbHidden} adhérents désactivés`}
-        {nbHidden == 1 && `+${nbHidden} adhérent désactivé`}
+        {nbHidden === 1 && `+${nbHidden} adhérent désactivé`}
       </Box>
     </Box>
   );

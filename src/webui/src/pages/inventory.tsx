@@ -1,13 +1,12 @@
-import { useState, createRef } from "react";
-import { useItemsLastseen } from "../api/hooks";
-import Box from "@mui/material/Box";
 import { Button, TextField, Typography } from "@mui/material";
-
-import { format } from "date-fns";
-import InventoryItem from "../components/inventory_item";
+import Box from "@mui/material/Box";
 import { debounce } from "@mui/material/utils";
-import { updateItem } from "../api/calls";
+import { format } from "date-fns";
+import { createRef, useState } from "react";
 import { mutate as mutateSwr } from "swr";
+import { updateItem } from "../api/calls";
+import { useItemsLastseen } from "../api/hooks";
+import InventoryItem from "../components/inventory_item";
 
 export function Inventory() {
   const [itemId, setItemId] = useState<number | undefined>(undefined);
@@ -18,17 +17,15 @@ export function Inventory() {
 
   function onClick() {
     if (!itemId) return;
-    updateItem(itemId, { lastseen: format(new Date(), "yyyy-MM-dd") }).then(
-      () => {
-        mutate();
-        mutateSwr(`/api/items/${itemId}`);
-        setItemId(undefined);
-        if (inputRef.current) {
-          inputRef.current.value = "";
-          inputRef.current.focus();
-        }
-      },
-    );
+    updateItem(itemId, { lastseen: format(new Date(), "yyyy-MM-dd") }).then(() => {
+      mutate();
+      mutateSwr(`/api/items/${itemId}`);
+      setItemId(undefined);
+      if (inputRef.current) {
+        inputRef.current.value = "";
+        inputRef.current.focus();
+      }
+    });
   }
 
   return (
@@ -51,7 +48,7 @@ export function Inventory() {
           inputRef={inputRef}
           style={{ width: "8em" }}
           type="number"
-          onChange={debounce((e) => setItemId(parseInt(e.target.value)), 400)}
+          onChange={debounce((e) => setItemId(parseInt(e.target.value, 10)), 400)}
         />
       </Box>
 

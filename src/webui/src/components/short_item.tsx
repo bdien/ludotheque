@@ -1,6 +1,6 @@
+import Typography from "@mui/material/Typography";
 import { Link } from "wouter";
 import { useItems } from "../api/hooks";
-import Typography from "@mui/material/Typography";
 
 export function ShortItem({ item_id }: { item_id: number }) {
   const { items } = useItems();

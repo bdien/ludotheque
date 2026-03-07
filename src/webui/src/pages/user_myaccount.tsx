@@ -1,6 +1,6 @@
-import { useGlobalStore } from "../hooks/global_store";
-import { useLocation } from "wouter";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useLocation } from "wouter";
+import { useGlobalStore } from "../hooks/global_store";
 
 export function UserMyAccount() {
   const { account } = useGlobalStore();
@@ -10,5 +10,5 @@ export function UserMyAccount() {
   if (!account || account.id === 0) loginWithRedirect();
 
   setLocation(`/users/${account.id}`);
-  return <></>;
+  return;
 }

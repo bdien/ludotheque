@@ -1,11 +1,11 @@
+import { Table, TableCell, TableRow, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
-import { useLoansLate } from "../api/hooks";
-import { Typography, Table, TableCell, TableRow } from "@mui/material";
 import { differenceInDays } from "date-fns";
-import { APILoanWithUser } from "../api/models";
-import { ShortUser } from "../components/short_user";
-import { ShortItem } from "../components/short_item";
+import { useLoansLate } from "../api/hooks";
+import type { APILoanWithUser } from "../api/models";
 import { Loading } from "../components/loading";
+import { ShortItem } from "../components/short_item";
+import { ShortUser } from "../components/short_user";
 import { useGlobalStore } from "../hooks/global_store";
 
 const categories = new Map([
@@ -65,10 +65,7 @@ export function LateLoans() {
           <>
             <TableRow>
               <TableCell colSpan={2} sx={{ backgroundColor: "#EEEEEE" }}>
-                <Typography
-                  variant="overline"
-                  sx={{ fontSize: "1em", fontWeight: 700 }}
-                >
+                <Typography variant="overline" sx={{ fontSize: "1em", fontWeight: 700 }}>
                   Retard de {categories.get(idx)} ({grouped[idx].length} jeu
                   {grouped[idx].length > 1 ? "x" : ""})
                 </Typography>
@@ -77,13 +74,9 @@ export function LateLoans() {
 
             {grouped[idx].map((i) => (
               <TableRow key={i.id}>
-                <TableCell
-                  sx={{ px: 1, display: "flex", alignItems: "center" }}
-                >
+                <TableCell sx={{ px: 1, display: "flex", alignItems: "center" }}>
                   <ShortUser user_id={i.user} />
-                  <Box
-                    sx={{ flex: 1, textAlign: "right", fontWeight: 500, mx: 1 }}
-                  >
+                  <Box sx={{ flex: 1, textAlign: "right", fontWeight: 500, mx: 1 }}>
                     <ShortItem item_id={i.item} />
                   </Box>
                 </TableCell>

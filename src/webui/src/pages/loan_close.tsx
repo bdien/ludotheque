@@ -1,14 +1,14 @@
-import { useSWRConfig } from "swr";
-import Typography from "@mui/material/Typography";
-import { useLoan } from "../api/hooks";
-import { closeLoan, fetchItem } from "../api/calls";
-import { useEffect, useState } from "react";
-import { ItemModel, APILoan } from "../api/models";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import { navigate } from "wouter/use-browser-location";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import { useEffect, useState } from "react";
+import { useSWRConfig } from "swr";
+import { navigate } from "wouter/use-browser-location";
+import { closeLoan, fetchItem } from "../api/calls";
+import { useLoan } from "../api/hooks";
+import type { APILoan, ItemModel } from "../api/models";
 
 interface LoanCloseProps {
   id: number;
@@ -32,9 +32,7 @@ export function LoanClose(props: LoanCloseProps) {
   }, [loan]);
 
   if (!loan || !item) return <>Loading</>;
-  const picture = item?.pictures?.length
-    ? item.pictures[0]
-    : "../../notavailable.webp";
+  const picture = item?.pictures?.length ? item.pictures[0] : "../../notavailable.webp";
 
   function onSubmit(loan: APILoan) {
     setApiError(null);
@@ -43,6 +41,7 @@ export function LoanClose(props: LoanCloseProps) {
     closeLoan(loan.id)
       .then(() => {
         mutate(`/api/users/${loan.user}`);
+        mutate(`/api/users/${loan.user}/history`);
         mutate(`/api/items/${loan.item}`);
         navigate(returnPath || "/");
       })
@@ -76,12 +75,7 @@ export function LoanClose(props: LoanCloseProps) {
           src={`/storage/img/${picture}`}
         />
       )}
-      <Typography
-        variant="h5"
-        textAlign="center"
-        fontWeight="bold"
-        sx={{ p: 2 }}
-      >
+      <Typography variant="h5" textAlign="center" fontWeight="bold" sx={{ p: 2 }}>
         {item.name} ({item.id})
       </Typography>
 
@@ -95,9 +89,7 @@ export function LoanClose(props: LoanCloseProps) {
       )}
 
       <Box sx={{ pt: 2 }}>
-        <Typography fontWeight={500}>
-          Merci de vérifier le contenu du jeu
-        </Typography>
+        <Typography fontWeight={500}>Merci de vérifier le contenu du jeu</Typography>
         {item?.content && (
           <Typography
             color="text.secondary"
@@ -107,7 +99,8 @@ export function LoanClose(props: LoanCloseProps) {
           >
             <ul>
               {item.content.map((row, idx) => (
-                <li key={idx}>{row}</li>
+                /* biome-ignore lint/suspicious/noArrayIndexKey: Stable index */
+                <li key={idx}> {row}</li>
               ))}
             </ul>
           </Typography>

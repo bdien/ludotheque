@@ -46,7 +46,7 @@ export function AgeChip(props: AgeChipProps) {
         border: "1px solid #DDDDDD",
       }}
       sx={{ mx: "5px" }}
-      label={props.age + "+"}
+      label={`${props.age}+`}
       icon=<Icon>{props.icon}</Icon>
     ></Chip>
   );

@@ -90,7 +90,7 @@ def uniquesplit(lst: str | None) -> list:
 
 @router.get("/users", tags=["users"])
 def get_users(
-    auth: Annotated[AuthUser, Depends(auth_user)],
+    auth: Annotated[AuthUser, Depends(auth_user_required)],
     nb: int = 0,
     sort: str | None = None,
     q: str | None = None,
@@ -187,9 +187,13 @@ def search_user(
 def get_user(
     user_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]
 ) -> APIUser:
-    # Must be authenticated. If not checking self, must be at least benevole
+    # Must be authenticated. If not checking self, check rights
     if user_id != auth.id:
         auth.check_right("user_list")
+
+    # Special case: id = 0 -> new user
+    if user_id == 0:
+        return APIUser(id=0, name="", enabled=True, credit=0, role="user")
 
     with db:
         user = (

@@ -1,11 +1,8 @@
-import React, { ReactNode } from "react";
-import { EmblaOptionsType } from "embla-carousel";
-import {
-  PrevButton,
-  NextButton,
-  usePrevNextButtons,
-} from "./EmblaCarouselArrows";
+import type { EmblaOptionsType } from "embla-carousel";
 import useEmblaCarousel from "embla-carousel-react";
+import type React from "react";
+import type { ReactNode } from "react";
+import { NextButton, PrevButton, usePrevNextButtons } from "./EmblaCarouselArrows";
 
 interface PropType {
   slides: ReactNode[];
@@ -16,18 +13,15 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
   const { slides, options } = props;
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
 
-  const {
-    prevBtnDisabled,
-    nextBtnDisabled,
-    onPrevButtonClick,
-    onNextButtonClick,
-  } = usePrevNextButtons(emblaApi);
+  const { prevBtnDisabled, nextBtnDisabled, onPrevButtonClick, onNextButtonClick } =
+    usePrevNextButtons(emblaApi);
 
   return (
     <section className="embla">
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
           {slides.map((item, index) => (
+            /* biome-ignore lint/suspicious/noArrayIndexKey: Stable index */
             <div className="embla__slide" key={index}>
               {item}
             </div>

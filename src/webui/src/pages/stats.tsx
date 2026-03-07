@@ -1,24 +1,24 @@
-import { useItems, useStats } from "../api/hooks";
 import {
-  Chart as ChartJS,
-  DoughnutController,
-  LinearScale,
-  CategoryScale,
-  TimeScale,
-  BarElement,
   ArcElement,
   BarController,
-  PointElement,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  DoughnutController,
   Legend,
+  LinearScale,
+  PointElement,
+  TimeScale,
   Tooltip,
 } from "chart.js";
 import { Chart } from "react-chartjs-2";
+import { useItems, useStats } from "../api/hooks";
 import "chartjs-adapter-date-fns";
-import { StatsCard } from "../components/stats_card";
 import Grid from "@mui/material/Grid";
-import { useGlobalStore } from "../hooks/global_store";
-import { ItemModel } from "../api/models";
 import { differenceInMonths } from "date-fns";
+import type { ItemModel } from "../api/models";
+import { StatsCard } from "../components/stats_card";
+import { useGlobalStore } from "../hooks/global_store";
 
 ChartJS.register(
   LinearScale,
@@ -39,10 +39,7 @@ function itemsCountLastLoan(items: ItemModel[]) {
   return items.reduce((counts: Record<number, number>, item: ItemModel) => {
     if (item.enabled && !item.big && !item.outside) {
       const nbmonths =
-        6 *
-        Math.ceil(
-          Math.max(0.01, differenceInMonths(now, item.loanstop || "")) / 6,
-        );
+        6 * Math.ceil(Math.max(0.01, differenceInMonths(now, item.loanstop || "")) / 6);
       counts[nbmonths] = (counts[nbmonths] || 0) + 1;
     }
     return counts;
@@ -65,7 +62,7 @@ export function Stats() {
   const itemsPerLastLoan = itemsCountLastLoan(Array.from(items.values()));
   const gdata_itemsPerLastLoan = {
     labels: Object.keys(itemsPerLastLoan).map((i) =>
-      i == "NaN" ? "Jamais emprunté" : `- de ${i} mois`,
+      i === "NaN" ? "Jamais emprunté" : `- de ${i} mois`,
     ),
     datasets: [
       {

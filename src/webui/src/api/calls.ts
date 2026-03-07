@@ -1,11 +1,4 @@
-import {
-  User,
-  ItemModel,
-  LoanCreateResult,
-  ApiError,
-  EMail,
-  Account,
-} from "./models";
+import type { Account, ApiError, EMail, ItemModel, LoanCreateResult, User } from "./models";
 export const SERVER_URL = "/api";
 
 let access_token: string | null = null;
@@ -14,15 +7,14 @@ export function setToken(token: string) {
   access_token = token;
 }
 
+/* biome-ignore lint/suspicious/noExplicitAny: Can return anything */
 export async function fetcher(url: string): Promise<any> {
   let options = {};
-  if (access_token)
-    options = { headers: { authorization: `bearer ${access_token}` } };
+  if (access_token) options = { headers: { authorization: `bearer ${access_token}` } };
 
   const res = await fetch(url, options);
 
-  if (res.status >= 400)
-    throw new Error(await res.text(), { cause: res.status });
+  if (res.status >= 400) throw new Error(await res.text(), { cause: res.status });
 
   return res.json();
 }
@@ -46,9 +38,7 @@ export async function exportItems(): Promise<string> {
 
 export async function searchItem(txt: string): Promise<ItemModel[]> {
   if (!txt) return Promise.resolve([]);
-  const response = await fetchWithToken(
-    encodeURI(`${SERVER_URL}/items/search?q=${txt}`),
-  );
+  const response = await fetchWithToken(encodeURI(`${SERVER_URL}/items/search?q=${txt}`));
   return response.json();
 }
 
@@ -57,10 +47,7 @@ export async function fetchItem(itemId: number): Promise<ItemModel> {
   return response.json();
 }
 
-export async function updateItem(
-  itemId: number,
-  obj: object,
-): Promise<ItemModel> {
+export async function updateItem(itemId: number, obj: object): Promise<ItemModel> {
   const response = await fetchWithToken(`${SERVER_URL}/items/${itemId}`, {
     method: "POST",
     body: JSON.stringify(obj),
@@ -111,12 +98,9 @@ export async function createLoan(
 }
 
 export async function extendLoan(loanId: number): Promise<ItemModel> {
-  const response = await fetchWithToken(
-    `${SERVER_URL}/loans/${loanId}/extend`,
-    {
-      method: "POST",
-    },
-  );
+  const response = await fetchWithToken(`${SERVER_URL}/loans/${loanId}/extend`, {
+    method: "POST",
+  });
   return response.json();
 }
 
@@ -147,9 +131,7 @@ export async function fetchUser(userId: number): Promise<User> {
 
 export async function searchUser(txt: string): Promise<User[]> {
   if (!txt) return Promise.resolve([]);
-  const response = await fetchWithToken(
-    encodeURI(`${SERVER_URL}/users/search?q=${txt}`),
-  );
+  const response = await fetchWithToken(encodeURI(`${SERVER_URL}/users/search?q=${txt}`));
   return response.json();
 }
 

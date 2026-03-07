@@ -1,9 +1,9 @@
-import { Icon, Box, Button } from "@mui/material";
-import { ChangeEvent, useEffect, useState } from "react";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
-import { DraggableImage } from "./DraggableImage";
+import { Box, Button, Icon } from "@mui/material";
+import { type ChangeEvent, useEffect, useState } from "react";
 import Resizer from "react-image-file-resizer";
+import { DraggableImage } from "./DraggableImage";
 
 interface ImageChooserProps {
   onImageChange: (items: string[]) => void;
@@ -16,13 +16,13 @@ export function ImageChooser(props: ImageChooserProps) {
   // Call onImageChange if needed
   useEffect(() => {
     props.onImageChange(imgs);
-  }, [imgs]);
+  }, [imgs, props.onImageChange]);
 
   // Image move
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
-    if (!over || active.id == over.id) return;
+    if (!over || active.id === over.id) return;
 
     setImgs((items) => {
       const oldIndex = items.indexOf(active.id as string);
@@ -38,8 +38,7 @@ export function ImageChooser(props: ImageChooserProps) {
     // New image, resize it and let the parent knows that it is there
     if (files != null && files.length > 0) {
       Resizer.imageFileResizer(files[0], 800, 800, "WEBP", 90, 0, (uri) => {
-        if (imgs.indexOf(uri as string) == -1)
-          setImgs((imgs) => imgs.concat(uri as string));
+        if (imgs.indexOf(uri as string) === -1) setImgs((imgs) => imgs.concat(uri as string));
       });
     }
     e.target.value = "";
@@ -55,11 +54,7 @@ export function ImageChooser(props: ImageChooserProps) {
       <Box>
         <SortableContext items={imgs}>
           {imgs.map((filename) => (
-            <DraggableImage
-              key={filename}
-              filename={filename}
-              onRemove={handleDeleteImage}
-            />
+            <DraggableImage key={filename} filename={filename} onRemove={handleDeleteImage} />
           ))}
         </SortableContext>
       </Box>

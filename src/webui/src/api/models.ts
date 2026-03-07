@@ -56,6 +56,7 @@ export interface User {
 export interface ItemLinkModel {
   name: string;
   ref: string;
+  /* biome-ignore lint/suspicious/noExplicitAny: Can contain anything */
   extra?: Record<string, any>;
 }
 

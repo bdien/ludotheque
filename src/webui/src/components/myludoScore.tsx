@@ -6,7 +6,13 @@ interface MyludoScoreProps {
 export function MyludoScore(props: MyludoScoreProps) {
   return (
     <a href={`https://www.myludo.fr/#!/game/${props.myludoid}`}>
-      <svg xmlns="http://www.w3.org/2000/svg" width={50} height={54}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={50}
+        height={54}
+        role="img"
+        aria-label={`Note MyLudo ${props.score.toFixed(1)}`}
+      >
         <defs>
           <clipPath id="a">
             <path

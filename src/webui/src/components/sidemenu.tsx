@@ -1,10 +1,10 @@
-import ListItem from "@mui/material/ListItem";
-import List from "@mui/material/List";
-import ListItemText from "@mui/material/ListItemText";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import { Link, useLocation } from "wouter";
 import { Box, Collapse, Divider, Icon, Typography } from "@mui/material";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import { useState } from "react";
+import { Link, useLocation } from "wouter";
 import { useGlobalStore } from "../hooks/global_store";
 
 interface SideMenuProps {
@@ -27,8 +27,7 @@ export function SideMenu(props: SideMenuProps) {
   };
 
   function styleUrl(url: string) {
-    if (location == url)
-      return { backgroundColor: "primary.main", color: "white" };
+    if (location === url) return { backgroundColor: "primary.main", color: "white" };
     return {
       "&:hover": { backgroundColor: "#E5E7F9", color: "text.primary" },
       color: "text.secondary",
@@ -38,15 +37,12 @@ export function SideMenu(props: SideMenuProps) {
   return (
     <Box style={{ display: "flex", height: "100%", flexDirection: "column" }}>
       <List sx={{ flexGrow: "1" }}>
-        <ListItem
-          component={Link}
-          to="/"
-          onClick={() => props.setIsDrawerOpen(false)}
-        >
+        <ListItem component={Link} to="/" onClick={() => props.setIsDrawerOpen(false)}>
           <img
             src="/logosmall.webp"
             style={{ maxWidth: "100%" }}
             loading="lazy"
+            alt="Logo de la ludothèque"
           />
         </ListItem>
         <ListItem
@@ -231,19 +227,12 @@ export function SideMenu(props: SideMenuProps) {
               </List>
             </Collapse>
 
-            <ListItem
-              sx={{ ...styleUrl("/inventorymenu") }}
-              onClick={handleClickInventaire}
-            >
+            <ListItem sx={{ ...styleUrl("/inventorymenu") }} onClick={handleClickInventaire}>
               <ListItemIcon sx={{ color: "inherit" }}>
                 <Icon>find_replace</Icon>
               </ListItemIcon>
               <ListItemText primary="Inventaire" />
-              {inventoryOpen ? (
-                <Icon>expand_less</Icon>
-              ) : (
-                <Icon>expand_more</Icon>
-              )}
+              {inventoryOpen ? <Icon>expand_less</Icon> : <Icon>expand_more</Icon>}
             </ListItem>
             <Collapse in={inventoryOpen} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
@@ -287,11 +276,7 @@ export function SideMenu(props: SideMenuProps) {
       {/* Version at the bottom of the sidebar */}
       {info?.version && (
         <Box>
-          <Typography
-            color="text.disabled"
-            fontSize="0.75em"
-            sx={{ m: 2, opacity: 0.3 }}
-          >
+          <Typography color="text.disabled" fontSize="0.75em" sx={{ m: 2, opacity: 0.3 }}>
             Version {info.version} / DEVDEV
           </Typography>
         </Box>

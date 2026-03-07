@@ -1,5 +1,5 @@
-import { Info, Account } from "../api/models";
 import { create } from "zustand";
+import type { Account, Info } from "../api/models";
 
 export interface SnackbarMessage {
   message: string;
@@ -12,10 +12,7 @@ interface GlobalStore {
   snackbar: SnackbarMessage | null;
   setInfo: (info: Info) => void;
   setAccount: (account: Account) => void;
-  showSnackbar: (
-    message: string,
-    severity?: SnackbarMessage["severity"],
-  ) => void;
+  showSnackbar: (message: string, severity?: SnackbarMessage["severity"]) => void;
   hideSnackbar: () => void;
 }
 
@@ -57,9 +54,7 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
   snackbar: null,
   setInfo: (value: Info) => set(() => ({ info: value })),
   setAccount: (value: Account) => set(() => ({ account: value })),
-  showSnackbar: (
-    message: string,
-    severity: SnackbarMessage["severity"] = "success",
-  ) => set(() => ({ snackbar: { message, severity } })),
+  showSnackbar: (message: string, severity: SnackbarMessage["severity"] = "success") =>
+    set(() => ({ snackbar: { message, severity } })),
   hideSnackbar: () => set(() => ({ snackbar: null })),
 }));

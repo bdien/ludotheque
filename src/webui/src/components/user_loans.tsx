@@ -1,12 +1,12 @@
-import Box from "@mui/material/Box";
-import { MiniItem } from "./mini_item";
-import { APILoan } from "../api/models";
-import { Button, Icon } from "@mui/material";
-import { useState } from "react";
-import { closeLoan, extendLoan } from "../api/calls";
-import { mutate } from "swr";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { Button, Icon } from "@mui/material";
+import Box from "@mui/material/Box";
+import { useState } from "react";
+import { mutate } from "swr";
+import { closeLoan, extendLoan } from "../api/calls";
+import type { APILoan } from "../api/models";
 import { useGlobalStore } from "../hooks/global_store";
+import { MiniItem } from "./mini_item";
 
 interface UserLoansProps {
   userId: number;
@@ -17,12 +17,14 @@ interface UserLoansProps {
 function ModifyLoanButton({
   userId,
   loanId,
+  itemId,
   actionfunction,
   text,
 }: {
   userId: number;
   loanId: number;
-  actionfunction: (loanId: number) => Promise<any>;
+  itemId: number;
+  actionfunction: (loanId: number) => Promise<void>;
   text: string;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
@@ -33,12 +35,14 @@ function ModifyLoanButton({
       loading={loading}
       sx={{ mt: 0.5 }}
       onClick={() => {
-        window.umami?.track("FicheUser: " + text);
+        window.umami?.track(`FicheUser: ${text}`);
         setLoading(true);
         actionfunction(loanId)
           .then(() => {
             mutate(`/api/loans/${loanId}`);
+            mutate(`/api/items/${itemId}`);
             mutate(`/api/users/${userId}`);
+            mutate(`/api/users/${userId}/history`);
             mutate(`/api/users`);
           })
           .finally(() => {
@@ -56,14 +60,10 @@ export function UserLoans(props: UserLoansProps) {
   const today = new Date();
   const [parent] = useAutoAnimate();
 
-  if (props.loans.length == 0)
+  if (props.loans.length === 0)
     return (
       <Box sx={{ mx: "auto", textAlign: "center" }}>
-        <Icon
-          sx={{ color: "text.disabled", fontSize: "min(40vw, 250px)", mt: 4 }}
-        >
-          info
-        </Icon>
+        <Icon sx={{ color: "text.disabled", fontSize: "min(40vw, 250px)", mt: 4 }}>info</Icon>
         <br />
         Pas d'emprunts en cours
       </Box>
@@ -92,13 +92,15 @@ export function UserLoans(props: UserLoansProps) {
                   <ModifyLoanButton
                     userId={props.userId}
                     loanId={obj.id}
+                    itemId={obj.item}
                     actionfunction={closeLoan}
                     text="Rendre"
                   />
-                  {obj.extended! < info.loan.extend_max && (
+                  {(obj.extended || 0) < info.loan.extend_max && (
                     <ModifyLoanButton
                       userId={props.userId}
                       loanId={obj.id}
+                      itemId={obj.item}
                       actionfunction={extendLoan}
                       text="Prolonger"
                     />

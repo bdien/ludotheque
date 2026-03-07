@@ -1,4 +1,4 @@
-import { Alert, AlertColor } from "@mui/material";
+import { Alert, type AlertColor } from "@mui/material";
 import { differenceInDays } from "date-fns";
 import { useEffect, useState } from "react";
 
@@ -18,7 +18,7 @@ export function NextOpening(props: NextOpeningProps) {
   }, []);
 
   if (!props.nextopening) {
-    return <></>;
+    return;
   }
 
   // Check if we're open now
@@ -65,10 +65,7 @@ export function NextOpening(props: NextOpeningProps) {
     );
 
   return (
-    <Alert
-      sx={{ my: 1, border: "1px solid #bebebeff" }}
-      severity={alertSeverity as AlertColor}
-    >
+    <Alert sx={{ my: 1, border: "1px solid #bebebeff" }} severity={alertSeverity as AlertColor}>
       {nextOpeningText}
     </Alert>
   );

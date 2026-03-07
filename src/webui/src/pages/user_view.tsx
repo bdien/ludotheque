@@ -1,19 +1,19 @@
-import MiniItem from "../components/mini_item";
-import { useUser } from "../api/hooks";
-import { useGlobalStore } from "../hooks/global_store";
-import Icon from "@mui/material/Icon";
-import Box from "@mui/material/Box";
-import { MiniUser } from "../components/mini_user";
-import SpeedDial from "@mui/material/SpeedDial";
-import SpeedDialIcon from "@mui/material/SpeedDialIcon";
-import SpeedDialAction from "@mui/material/SpeedDialAction";
-import { navigate } from "wouter/use-browser-location";
-import { Loading } from "../components/loading";
-import { Tab } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { Tab } from "@mui/material";
+import Box from "@mui/material/Box";
+import Icon from "@mui/material/Icon";
+import SpeedDial from "@mui/material/SpeedDial";
+import SpeedDialAction from "@mui/material/SpeedDialAction";
+import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import { useState } from "react";
+import { navigate } from "wouter/use-browser-location";
+import { useUser } from "../api/hooks";
+import { Loading } from "../components/loading";
+import MiniItem from "../components/mini_item";
+import { MiniUser } from "../components/mini_user";
 import { UserHistory } from "../components/user_history";
 import { UserLoans } from "../components/user_loans";
+import { useGlobalStore } from "../hooks/global_store";
 
 interface UserViewProps {
   id: number;
@@ -33,20 +33,14 @@ export function UserView(props: UserViewProps) {
 
       <TabContext value={tabIndex}>
         {/* Only display tabs if allowed */}
-        {(account?.id == user.id || account?.rights.includes("user_list")) && (
+        {(account?.id === user.id || account?.rights.includes("user_list")) && (
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <TabList
-              variant="fullWidth"
-              onChange={(_event, value) => setTabIndex(value)}
-            >
+            <TabList variant="fullWidth" onChange={(_event, value) => setTabIndex(value)}>
               <Tab label="Emprunts" value="loans" />
-              {(account?.id == user.id ||
-                account?.rights.includes("user_manage")) && (
+              {(account?.id === user.id || account?.rights.includes("user_manage")) && (
                 <Tab label="Historique" value="history" />
               )}
-              {user.bookings && user.bookings.length > 0 && (
-                <Tab label="Resas" value="bookings" />
-              )}
+              {user.bookings && user.bookings.length > 0 && <Tab label="Resas" value="bookings" />}
             </TabList>
           </Box>
         )}
@@ -65,27 +59,26 @@ export function UserView(props: UserViewProps) {
 
         <TabPanel value="bookings" sx={{ p: 0, pt: 2 }}>
           <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
-            {user.bookings &&
-              user.bookings.map((obj) => (
-                <MiniItem
-                  key={obj.item}
-                  id={obj.item}
-                  subtext={
-                    "Réservé le " +
-                    new Date(obj.created_at).toLocaleDateString("fr", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
-                  }
-                  action={{
-                    text: "Annuler",
-                    func: () => {
-                      console.log("TODO");
-                    },
-                  }}
-                />
-              ))}
+            {user.bookings?.map((obj) => (
+              <MiniItem
+                key={obj.item}
+                id={obj.item}
+                subtext={
+                  "Réservé le " +
+                  new Date(obj.created_at).toLocaleDateString("fr", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                }
+                action={{
+                  text: "Annuler",
+                  func: () => {
+                    console.log("TODO");
+                  },
+                }}
+              />
+            ))}
           </Box>
         </TabPanel>
       </TabContext>

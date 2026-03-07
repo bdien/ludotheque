@@ -1,14 +1,14 @@
-import Box from "@mui/material/Box";
 import { useAuth0 } from "@auth0/auth0-react";
+import { Icon, Typography } from "@mui/material";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import { differenceInDays } from "date-fns";
 import { useItems } from "../api/hooks";
+import type { ItemListEntry } from "../api/models";
+import ItemImage from "../components/ItemImage";
+import { NextOpening } from "../components/NextOpening";
 import { useGlobalStore } from "../hooks/global_store";
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
-import Alert from "@mui/material/Alert";
-import { differenceInDays } from "date-fns";
-import { ItemListEntry } from "../api/models";
-import ItemImage from "../components/ItemImage";
-import { Icon, Typography } from "@mui/material";
-import { NextOpening } from "../components/NextOpening";
 
 export function Main() {
   const { info, account } = useGlobalStore();
@@ -20,9 +20,7 @@ export function Main() {
   let lastitems: ItemListEntry[] = [];
   if (items) {
     lastitems = Array.from(items.values()).filter(
-      (i) =>
-        differenceInDays(new Date(), i.created_at) <= info.item_new_days &&
-        i.enabled,
+      (i) => differenceInDays(new Date(), i.created_at) <= info.item_new_days && i.enabled,
     );
   }
 
@@ -36,12 +34,10 @@ export function Main() {
 
       {isAuthenticated && account && !account?.id && (
         <Alert severity="error">
-          Nous n'arrivons pas à trouver l'adhérent correspondant à votre email (
-          {user?.email}).
+          Nous n'arrivons pas à trouver l'adhérent correspondant à votre email ({user?.email}).
           <br />
-          Pourriez-vous{" "}
-          <a href="mailto:laludodupoissonlune@gmail.com">nous contacter</a> afin
-          de résoudre ce problème ?
+          Pourriez-vous <a href="mailto:laludodupoissonlune@gmail.com">nous contacter</a> afin de
+          résoudre ce problème ?
         </Alert>
       )}
 
@@ -50,13 +46,12 @@ export function Main() {
 
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
-          La <b>Ludo du Poisson Lune</b> vous propose un espace jeux pour passer
-          un bon moment en famille ou avec les copains...
+          La <b>Ludo du Poisson Lune</b> vous propose un espace jeux pour passer un bon moment en
+          famille ou avec les copains...
         </p>
         <p>
-          Nous sommes ouverts <b>tous les samedis de 10h30 à 12h</b>, hors les
-          samedis du milieu des vacances scolaires et jours fériés, au{" "}
-          <b>pôle enfance de la Passerelle</b>,{" "}
+          Nous sommes ouverts <b>tous les samedis de 10h30 à 12h</b>, hors les samedis du milieu des
+          vacances scolaires et jours fériés, au <b>pôle enfance de la Passerelle</b>,{" "}
           <a href="https://www.google.com/maps/place/48%C2%B008'04.6%22N+1%C2%B032'15.6%22W">
             à proximité du cinéma
           </a>{" "}
@@ -64,21 +59,17 @@ export function Main() {
         </p>
         {isAuthenticated && (
           <p>
-            Si vous souhaitez aider aux permanences, n'hésitez pas à vous
-            inscrire sur{" "}
-            <a href="https://framadate.org/iq7g6GZcr3rECGcC">le planning</a>.
-            Les emprunts sont gratuits votre jour de permanence !
+            Si vous souhaitez aider aux permanences, n'hésitez pas à vous inscrire sur{" "}
+            <a href="https://framadate.org/iq7g6GZcr3rECGcC">le planning</a>. Les emprunts sont
+            gratuits votre jour de permanence !
           </p>
         )}
         <p>
-          La Ludo, c'est un choix de {info ? info.nbitems : "près de 1000"} jeux
-          pour tout public (de 9 mois à 99 ans), pour jouer sur place ou à la
-          maison.
+          La Ludo, c'est un choix de {info ? info.nbitems : "près de 1000"} jeux pour tout public
+          (de 9 mois à 99 ans), pour jouer sur place ou à la maison.
           <br />
           Vous pouvez nous contacter par e-mail à{" "}
-          <a href="mailto:laludodupoissonlune@gmail.com">
-            laludodupoissonlune@gmail.com
-          </a>
+          <a href="mailto:laludodupoissonlune@gmail.com">laludodupoissonlune@gmail.com</a>
         </p>
 
         {lastitems.length > 1 && (
@@ -120,28 +111,21 @@ export function Main() {
               <br />
             </p>
             <ul>
+              <li>Adhésion annuelle familiale de {info.pricing.yearly}€ (Caution de 40€).</li>
               <li>
-                Adhésion annuelle familiale de {info.pricing.yearly}€ (Caution
-                de 40€).
-              </li>
-              <li>
-                Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines
-                ({info.loan.maxitems} jeux max en même temps).
+                Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines (
+                {info.loan.maxitems} jeux max en même temps).
               </li>
               <li>
                 Carte prépayée (Optionnelle): {info.pricing.card}€ (
                 {info.pricing.card / info.pricing.regular} jeux +{" "}
-                {(info.pricing.card_value - info.pricing.card) /
-                  info.pricing.regular}{" "}
-                gratuits).
+                {(info.pricing.card_value - info.pricing.card) / info.pricing.regular} gratuits).
               </li>
               <li>
                 Jeux surdimensionnés:
                 <ul>
                   <li>{info.pricing.big}€ pour les adhérents</li>
-                  <li>
-                    {info.pricing.big_associations}€ pour les associations
-                  </li>
+                  <li>{info.pricing.big_associations}€ pour les associations</li>
                   <li>
                     Caution (non-encaissée):
                     <ul>
@@ -158,7 +142,7 @@ export function Main() {
 
       <img
         src="/photomain.webp"
-        alt="Logo Picture"
+        alt="Logo"
         fetchPriority="high"
         style={{ maxWidth: "50vw", borderRadius: "2%" }}
       />

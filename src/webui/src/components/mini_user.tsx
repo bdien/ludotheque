@@ -1,19 +1,19 @@
-import { User } from "../api/models";
-import Paper from "@mui/material/Paper";
-import Grid from "@mui/material/Grid";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
-import Icon from "@mui/material/Icon";
-import { useState } from "react";
-import Link from "@mui/material/Link";
-import { differenceInDays, formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Modal from "@mui/material/Modal";
-import Button from "@mui/material/Button";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import { differenceInDays, formatDistanceToNow, isToday } from "date-fns";
+import { fr } from "date-fns/locale";
+import { useState } from "react";
+import type { User } from "../api/models";
 import { useGlobalStore } from "../hooks/global_store";
 
 interface MiniUserProps {
@@ -29,23 +29,17 @@ function emailLate(user: User) {
   let last_warning_days = 99;
   if (user.last_warning) {
     last_warning_days = differenceInDays(new Date(), user.last_warning);
-    if (last_warning_days == 0) return ` - Courriel envoyé aujourd'hui`;
-    if (last_warning_days < 15)
-      return ` - Courriel envoyé il y a ${last_warning_days}j`;
+    if (last_warning_days === 0) return ` - Courriel envoyé aujourd'hui`;
+    if (last_warning_days < 15) return ` - Courriel envoyé il y a ${last_warning_days}j`;
   }
 
   return (
     <>
       {" - "}{" "}
-      <Link
-        href={`/users/${user.id}/email`}
-        sx={{ textDecoration: "none", cursor: "pointer" }}
-      >
+      <Link href={`/users/${user.id}/email`} sx={{ textDecoration: "none", cursor: "pointer" }}>
         Envoyer un email
       </Link>
-      {last_warning_days < 60
-        ? ` (Envoyé il y a ${Math.ceil(last_warning_days / 7)} sem)`
-        : ""}
+      {last_warning_days < 60 ? ` (Envoyé il y a ${Math.ceil(last_warning_days / 7)} sem)` : ""}
     </>
   );
 }
@@ -63,9 +57,7 @@ export function MiniUser(props: MiniUserProps) {
   };
 
   const today = new Date();
-  const late_loans = props.user?.loans?.filter(
-    (i) => differenceInDays(today, i.stop) > 0,
-  ).length;
+  const late_loans = props.user?.loans?.filter((i) => differenceInDays(today, i.stop) > 0).length;
   const verylate_loans = props.user?.loans?.filter(
     (i) => differenceInDays(today, i.stop) >= (info?.email_minlate ?? 15),
   ).length;
@@ -86,14 +78,14 @@ export function MiniUser(props: MiniUserProps) {
             {props.user.name}
 
             {/* Icone admin/bureau */}
-            {props.user.role == "admin" && (
+            {props.user.role === "admin" && (
               <Icon fontSize="small" sx={{ ml: 0.3 }}>
                 star
               </Icon>
             )}
 
             {/* Icone bénévole */}
-            {props.user.role == "benevole" && (
+            {props.user.role === "benevole" && (
               <Icon fontSize="small" sx={{ ml: 0.3 }}>
                 star_half
               </Icon>
@@ -119,11 +111,7 @@ export function MiniUser(props: MiniUserProps) {
             {(props.display_loans ?? true) ? (
               <Box sx={{ mr: 1, display: "flex" }}>
                 <Icon sx={{ mr: "0.15em" }}>local_offer</Icon>
-                <Typography
-                  component="span"
-                  fontWeight={500}
-                  sx={{ mr: "0.6ch" }}
-                >
+                <Typography component="span" fontWeight={500} sx={{ mr: "0.6ch" }}>
                   {props.user?.loans?.length}
                 </Typography>
                 emprunt
@@ -136,26 +124,21 @@ export function MiniUser(props: MiniUserProps) {
             {/* Credit sur la carte */}
             <Box sx={{ mr: 1, display: "flex" }}>
               <Icon sx={{ mr: "0.15em" }}>savings</Icon>
-              <Typography
-                component="span"
-                fontWeight={500}
-                sx={{ mr: "0.6ch" }}
-              >
+              <Typography component="span" fontWeight={500} sx={{ mr: "0.6ch" }}>
                 {props.user?.credit}€
               </Typography>
             </Box>
 
             {/* Fin de l'adhésion */}
             {props.user?.subscription && (
-              <>
-                <Box sx={{ mr: 1, display: "flex" }}>
-                  <Icon sx={{ mr: "0.15em" }}>event</Icon>
-                  {new Date(props.user.subscription).toLocaleDateString(
-                    undefined,
-                    { year: "numeric", month: "long", day: "numeric" },
-                  )}
-                </Box>
-              </>
+              <Box sx={{ mr: 1, display: "flex" }}>
+                <Icon sx={{ mr: "0.15em" }}>event</Icon>
+                {new Date(props.user.subscription).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </Box>
             )}
           </Box>
         </Box>
@@ -205,25 +188,24 @@ export function MiniUser(props: MiniUserProps) {
         <Alert elevation={1} severity="error" sx={{ my: 1 }}>
           {late_loans} jeu{late_loans > 1 ? "x" : ""} en retard
           {/* Emails pour retard */}
-          {account?.rights.includes("user_manage") && verylate_loans
-            ? emailLate(props.user)
-            : ""}
+          {account?.rights.includes("user_manage") && verylate_loans ? emailLate(props.user) : ""}
         </Alert>
       ) : (
         ""
       )}
 
       {/* Adhésion en retard */}
-      {props.user?.subscription &&
-        new Date(props.user?.subscription) <= today && (
-          <Alert elevation={1} severity="error" sx={{ my: 1 }}>
-            Adhésion expirée{" "}
-            {formatDistanceToNow(props.user?.subscription, {
-              locale: fr,
-              addSuffix: true,
-            })}
-          </Alert>
-        )}
+      {props.user?.subscription && new Date(props.user?.subscription) <= today && (
+        <Alert elevation={1} severity="error" sx={{ my: 1 }}>
+          Adhésion expirée{" "}
+          {isToday(props.user?.subscription)
+            ? ""
+            : formatDistanceToNow(props.user?.subscription, {
+                locale: fr,
+                addSuffix: true,
+              })}
+        </Alert>
+      )}
 
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
         <Paper
@@ -243,16 +225,16 @@ export function MiniUser(props: MiniUserProps) {
             <>
               <h3>Emails</h3>
               <ul>
-                {props.user?.emails?.map((i, idx) => <li key={idx}>{i}</li>)}
+                {props.user?.emails?.map((i, _idx) => (
+                  <li key={i}>{i}</li>
+                ))}
               </ul>
             </>
           )}
           {props.user?.informations && (
             <>
               <h3>Informations</h3>
-              <Box sx={{ whiteSpace: "pre-wrap" }}>
-                {props.user?.informations}
-              </Box>
+              <Box sx={{ whiteSpace: "pre-wrap" }}>{props.user?.informations}</Box>
             </>
           )}
           <Grid container justifyContent="flex-end" sx={{ mt: 3 }}>

@@ -1,10 +1,10 @@
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import { useItem } from "../api/hooks";
-import { formatDistanceToNow, differenceInDays } from "date-fns";
-import { fr } from "date-fns/locale";
-import Link from "@mui/material/Link";
 import Icon from "@mui/material/Icon";
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
+import { differenceInDays, formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+import { useItem } from "../api/hooks";
 import { AgeChip } from "./age_chip";
 
 interface InventoryItemProps {
@@ -21,13 +21,11 @@ export function InventoryItem(props: InventoryItemProps) {
   const { item, error } = useItem(props.id);
 
   if (error) return <div>Jeu non trouvé</div>;
-  if (!item) return <></>;
+  if (!item) return;
 
   const days = differenceInDays(new Date(), item.lastseen ?? "");
 
-  const picture = item?.pictures?.length
-    ? item.pictures[0]
-    : "../../notavailable.webp";
+  const picture = item?.pictures?.length ? item.pictures[0] : "../../notavailable.webp";
 
   // render data
   return (
@@ -38,21 +36,13 @@ export function InventoryItem(props: InventoryItemProps) {
             {item.name} ({item.id})
           </Link>
           <AgeChip age={item.age} />
-          {item.status == "out" && (
-            <Icon
-              fontSize="small"
-              color="secondary"
-              sx={{ opacity: 0.7, pt: 0.2, ml: 1 }}
-            >
+          {item.status === "out" && (
+            <Icon fontSize="small" color="secondary" sx={{ opacity: 0.7, pt: 0.2, ml: 1 }}>
               logout
             </Icon>
           )}
           {!item.enabled && (
-            <Icon
-              fontSize="small"
-              color="error"
-              sx={{ opacity: 0.7, pt: 0.2, ml: 1 }}
-            >
+            <Icon fontSize="small" color="error" sx={{ opacity: 0.7, pt: 0.2, ml: 1 }}>
               construction
             </Icon>
           )}
@@ -60,17 +50,13 @@ export function InventoryItem(props: InventoryItemProps) {
         Vu la dernière fois{" "}
         <Box sx={{ display: "inline", color: dayscolor(days) }}>
           {days
-            ? "il y a " +
-              formatDistanceToNow(item.lastseen ?? "", { locale: fr })
+            ? `il y a ${formatDistanceToNow(item.lastseen ?? "", { locale: fr })}`
             : "aujourd'hui"}
         </Box>
       </Box>
 
-      <Box
-        display="flex"
-        sx={{ mt: 1, maxWidth: "95vw", height: "clamp(200px, 35vh, 550px)" }}
-      >
-        <img src={`/storage/img/${picture}`} />
+      <Box display="flex" sx={{ mt: 1, maxWidth: "95vw", height: "clamp(200px, 35vh, 550px)" }}>
+        <img src={`/storage/img/${picture}`} alt="Affiche du jeu" />
       </Box>
     </>
   );

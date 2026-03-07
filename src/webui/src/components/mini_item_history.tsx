@@ -1,9 +1,9 @@
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import { useItem } from "../api/hooks";
-import { Link } from "wouter";
 import Skeleton from "@mui/material/Skeleton";
-import { APILoan } from "../api/models";
+import Typography from "@mui/material/Typography";
+import { Link } from "wouter";
+import { useItem } from "../api/hooks";
+import type { APILoan } from "../api/models";
 
 interface MiniItemHistoryProps {
   loan: APILoan;
@@ -31,6 +31,8 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
               objectFit: "contain",
             }}
             src="/storage/thumb/notavailable.png"
+            alt={`Aperçu non disponible`}
+            aria-hidden="true"
           />
         </div>
         <div style={{ width: "60%", marginLeft: "10px" }}>
@@ -41,9 +43,7 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
       </Box>
     );
 
-  const picture = item?.pictures?.length
-    ? item.pictures[0]
-    : "../../notavailable.webp";
+  const picture = item?.pictures?.length ? item.pictures[0] : "../../notavailable.webp";
 
   // render data
   return (
@@ -69,25 +69,19 @@ export function MiniItemHistory(props: MiniItemHistoryProps) {
               }}
               src={`/storage/thumb/${picture}`}
               loading="lazy"
+              alt={`Aperçu du jeu`}
+              aria-hidden="true"
             />
           </Link>
         ) : (
-          <Skeleton
-            sx={{ bgcolor: "grey.200" }}
-            variant="rounded"
-            width="100%"
-            height="100%"
-          />
+          <Skeleton sx={{ bgcolor: "grey.200" }} variant="rounded" width="100%" height="100%" />
         )}
       </div>
       <div style={{ width: "60%", marginLeft: "10px" }}>
         {item ? (
           <>
             <Typography component="div" fontWeight={600}>
-              <Link
-                href={`/items/${props.loan.item}`}
-                style={{ textDecoration: "none" }}
-              >
+              <Link href={`/items/${props.loan.item}`} style={{ textDecoration: "none" }}>
                 {item.name} ({props.loan.item})
               </Link>
             </Typography>

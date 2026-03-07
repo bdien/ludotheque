@@ -1,14 +1,14 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import * as Sentry from "@sentry/react";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import * as Sentry from "@sentry/react";
 import { fr } from "date-fns/locale/fr";
-import theme from "./theme";
+import React from "react";
+import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
+import theme from "./theme";
 
 if (import.meta.env.PROD) {
   Sentry.init({

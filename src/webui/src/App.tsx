@@ -1,31 +1,31 @@
-import { Route, Switch } from "wouter";
-import { TopBar } from "./components/topbar";
-import { Loan } from "./pages/loan";
-import { Item } from "./pages/item_view";
-import { ItemList } from "./pages/item_list";
-import { ItemEdit } from "./pages/item_edit";
-import { UserList } from "./pages/user_list";
-import { UserEdit } from "./pages/user_edit";
-import { UserView } from "./pages/user_view";
-import { Ledger } from "./pages/ledger";
-import { Box, Toolbar, Snackbar, Alert } from "@mui/material";
-import { Main } from "./pages/main";
-import { LoanClose } from "./pages/loan_close";
-import { getAccount, setToken } from "./api/calls";
 import { useAuth0 } from "@auth0/auth0-react";
+import { Alert, Box, Snackbar, Toolbar } from "@mui/material";
 import { useEffect, useState } from "react";
+import { Route, Switch } from "wouter";
+import { getAccount, setToken } from "./api/calls";
 import { useInfo } from "./api/hooks";
+import { TopBar } from "./components/topbar";
+import { ItemEdit } from "./pages/item_edit";
+import { ItemList } from "./pages/item_list";
+import { Item } from "./pages/item_view";
+import { Ledger } from "./pages/ledger";
+import { Loan } from "./pages/loan";
+import { LoanClose } from "./pages/loan_close";
+import { Main } from "./pages/main";
+import { UserEdit } from "./pages/user_edit";
+import { UserList } from "./pages/user_list";
+import { UserView } from "./pages/user_view";
 import "./styles.css";
-import { LateLoans } from "./pages/late_loans";
-import { LateEmail } from "./pages/late_email";
-import { Stats } from "./pages/stats";
+import { Loading } from "./components/loading";
+import { useGlobalStore } from "./hooks/global_store";
 import { Documents } from "./pages/documents";
 import { Inventory } from "./pages/inventory";
-import { useGlobalStore } from "./hooks/global_store";
-import { LessLoaned } from "./pages/lessloaned";
 import { InventoryRev } from "./pages/inventoryrev";
+import { LateEmail } from "./pages/late_email";
+import { LateLoans } from "./pages/late_loans";
+import { LessLoaned } from "./pages/lessloaned";
+import { Stats } from "./pages/stats";
 import { UserMyAccount } from "./pages/user_myaccount";
-import { Loading } from "./components/loading";
 
 declare global {
   interface Window {
@@ -43,15 +43,14 @@ function App() {
   const globalStoreSetInfo = useGlobalStore((state) => state.setInfo);
   const snackbar = useGlobalStore((state) => state.snackbar);
   const hideSnackbar = useGlobalStore((state) => state.hideSnackbar);
-  const { isAuthenticated, isLoading, getAccessTokenSilently, logout } =
-    useAuth0();
+  const { isAuthenticated, isLoading, getAccessTokenSilently, logout } = useAuth0();
 
   // If info has changed, update global store
   useEffect(() => {
     if (info) {
       globalStoreSetInfo(info);
     }
-  }, [info]);
+  }, [info, globalStoreSetInfo]);
 
   // If user authentication changed
   useEffect(() => {
@@ -67,8 +66,7 @@ function App() {
         .then((token) => {
           setToken(token);
           getAccount().then((data) => {
-            if (data.id == 14)
-              window.umami?.identify({ name: "Benoit", role: data.role });
+            if (data.id === 14) window.umami?.identify({ name: "Benoit", role: data.role });
             else window.umami?.identify({ role: data.role });
             globalStoreSetAccount(data);
             setAuthDone(true);
@@ -79,7 +77,7 @@ function App() {
           setAuthDone(true);
         });
     }
-  }, [isLoading, isAuthenticated]);
+  }, [isLoading, isAuthenticated, logout, globalStoreSetAccount, getAccessTokenSilently]);
 
   // Do not display anything if /info and /account are not done
   if (!info || !authdone) {
@@ -110,17 +108,17 @@ function App() {
           </Route>
           <Route path="/users/:id">
             {(params) => {
-              return <UserView id={parseInt(params.id)} />;
+              return <UserView id={parseInt(params.id, 10)} />;
             }}
           </Route>
           <Route path="/users/:id/email">
             {(params) => {
-              return <LateEmail id={parseInt(params.id)} />;
+              return <LateEmail id={parseInt(params.id, 10)} />;
             }}
           </Route>
           <Route path="/users/:id/edit">
             {(params) => {
-              return <UserEdit id={parseInt(params.id)} />;
+              return <UserEdit id={parseInt(params.id, 10)} />;
             }}
           </Route>
 
@@ -132,12 +130,12 @@ function App() {
           </Route>
           <Route path="/items/:id">
             {(params) => {
-              return <Item id={parseInt(params.id)} />;
+              return <Item id={parseInt(params.id, 10)} />;
             }}
           </Route>
           <Route path="/items/:id/edit">
             {(params) => {
-              return <ItemEdit id={parseInt(params.id)} />;
+              return <ItemEdit id={parseInt(params.id, 10)} />;
             }}
           </Route>
 
@@ -145,7 +143,7 @@ function App() {
           <Route path="/loans/late" component={LateLoans} />
           <Route path="/loans/:id/close">
             {(params) => {
-              return <LoanClose id={parseInt(params.id)} />;
+              return <LoanClose id={parseInt(params.id, 10)} />;
             }}
           </Route>
 

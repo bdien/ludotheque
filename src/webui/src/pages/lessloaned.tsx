@@ -1,5 +1,5 @@
-import { useItemsLessLoaned } from "../api/hooks";
 import { Typography } from "@mui/material";
+import { useItemsLessLoaned } from "../api/hooks";
 import MiniItem from "../components/mini_item";
 
 export function LessLoaned() {
