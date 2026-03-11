@@ -5,7 +5,7 @@ from typing import Annotated
 
 import pytest
 from fastapi import Header
-from playhouse.sqlite_ext import SqliteExtDatabase
+from peewee import SqliteDatabase
 
 import api.items
 import api.pwmodels
@@ -35,7 +35,7 @@ def dbtables():
     # Note: Memory does not seem to exists for multiple connections
     with tempfile.NamedTemporaryFile() as tmpfile:
         logging.getLogger("peewee").setLevel(logging.INFO)
-        database = SqliteExtDatabase(
+        database = SqliteDatabase(
             tmpfile.name, pragmas={"foreign_keys": 1}, autoconnect=False
         )
         api.pwmodels.db.initialize(database)

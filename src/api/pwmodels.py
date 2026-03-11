@@ -4,14 +4,14 @@ from datetime import date, datetime, timedelta
 
 import peewee
 from playhouse.shortcuts import model_to_dict
-from playhouse.sqlite_ext import JSONField, SqliteExtDatabase
+from playhouse.sqlite_ext import JSONField
 
 from api.config import LOAN_WEEKS
 
 db = peewee.DatabaseProxy()
 dbpath = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 db.initialize(
-    SqliteExtDatabase(
+    peewee.SqliteDatabase(
         f"{dbpath}/ludotheque.db",
         autoconnect=False,
         pragmas={
