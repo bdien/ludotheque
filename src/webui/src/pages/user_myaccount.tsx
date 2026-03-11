@@ -10,5 +10,5 @@ export function UserMyAccount() {
   if (!account || account.id === 0) loginWithRedirect();
 
   setLocation(`/users/${account.id}`);
-  return;
+  return <></>;
 }

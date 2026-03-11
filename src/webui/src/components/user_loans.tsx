@@ -24,7 +24,8 @@ function ModifyLoanButton({
   userId: number;
   loanId: number;
   itemId: number;
-  actionfunction: (loanId: number) => Promise<void>;
+  /* biome-ignore lint/suspicious/noExplicitAny: Can be anything */
+  actionfunction: (loanId: number) => Promise<any>;
   text: string;
 }) {
   const [loading, setLoading] = useState<boolean>(false);
