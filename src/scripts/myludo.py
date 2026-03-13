@@ -20,8 +20,10 @@ class MyLudo:
         self.cache = diskcache.Cache(".ludoweb_cache")
 
         # Random user-agents
-        agents = requests.get("https://jnrbsn.github.io/user-agents/user-agents.json").json()
-        self.session.headers.update({"user-agent": random.choice(agents)})
+        agents = requests.get(
+            "https://jnrbsn.github.io/user-agents/user-agents.json", timeout=20
+        ).json()
+        self.session.headers.update({"user-agent": random.choice(agents)})  # noqa: S311
 
         # Find CSRF-Token
         r = self.session.get("https://www.myludo.fr/#!/home")
