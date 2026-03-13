@@ -3,6 +3,7 @@ import argparse
 import contextlib
 import html
 import os
+import random
 import re
 import sys
 
@@ -18,6 +19,10 @@ class MyLudo:
         self.session = requests.Session()
         self.cache = diskcache.Cache(".ludoweb_cache")
 
+        # Random user-agents
+        agents = requests.get("https://jnrbsn.github.io/user-agents/user-agents.json").json()
+        self.session.headers.update({"user-agent": random.choice(agents)})
+
         # Find CSRF-Token
         r = self.session.get("https://www.myludo.fr/#!/home")
         res = re.search('name="csrf-token" content="(.*?)"', r.text)
@@ -27,11 +32,6 @@ class MyLudo:
         # Add headers
         self.session.headers.update({"x-csrf-token": res[1]})
         self.session.headers.update({"referer": "https://www.myludo.fr/"})
-        self.session.headers.update(
-            {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-            }
-        )
 
     def search(self, name, limit=18):
         data = self.cache.get(f"myludo_search_{name}")
