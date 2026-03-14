@@ -12,6 +12,8 @@ interface ImageChooserProps {
 
 export function ImageChooser(props: ImageChooserProps) {
   const [imgs, setImgs] = useState<string[]>(props.src ?? []);
+  // @ts-expect-error https://github.com/onurzorluer/react-image-file-resizer/issues/68
+  const resizer: typeof Resizer = Resizer.default || Resizer;
 
   // Call onImageChange if needed
   useEffect(() => {
@@ -37,7 +39,7 @@ export function ImageChooser(props: ImageChooserProps) {
 
     // New image, resize it and let the parent knows that it is there
     if (files != null && files.length > 0) {
-      Resizer.imageFileResizer(files[0], 800, 800, "WEBP", 90, 0, (uri) => {
+      resizer.imageFileResizer(files[0], 800, 800, "WEBP", 90, 0, (uri) => {
         if (imgs.indexOf(uri as string) === -1) setImgs((imgs) => imgs.concat(uri as string));
       });
     }
