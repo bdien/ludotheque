@@ -62,3 +62,21 @@ class APIItem(BaseModel):
     created_at: datetime.date | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class APICategory(BaseModel):
+    id: int
+    name: str
+
+
+class APISendMailResult(BaseModel):
+    title: str
+    body: str
+    to: list[str]
+    sent: bool = False
+    error: str | None = None
+
+    def update(self, data: dict) -> APISendMailResult:
+        for k, v in data.items():
+            setattr(self, k, v)
+        return self

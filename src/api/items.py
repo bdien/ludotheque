@@ -8,13 +8,13 @@ import os
 from typing import Annotated
 
 import peewee
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse
 from PIL import Image
 from playhouse.shortcuts import model_to_dict
 
 from api.config import IMAGE_MAX_DIM, THUMB_DIM
-from api.models import APIItem
+from api.models import APICategory, APIItem
 from api.pwmodels import (
     Booking,
     Category,
@@ -89,6 +89,7 @@ def get_items(
     nb: int = 0,
     sort: str | None = None,
     q: str | None = None,
+    category: int | None = None,
 ):
     # Subquery (to add the last loan and extract status)
     subquery = Loan.select(
@@ -115,6 +116,8 @@ def get_items(
         query = query.limit(nb)
     if q:
         query = query.where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
+    if category:
+        query = query.join(ItemCategory).where(ItemCategory.category == category)
 
     if sort == "created_at":
         query = query.order_by(Item.created_at.desc(), Item.id.desc())
@@ -462,7 +465,7 @@ async def create_item_rating(
 @router.delete("/items/{item_id}", tags=["item"])
 async def delete_item(
     item_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]
-):
+) -> str:
     "Delete an item"
     auth.check_right("item_delete")
     with db:
@@ -484,7 +487,7 @@ async def delete_item(
 
 
 @router.get("/categories", tags=["categories"])
-def get_categories():
+def get_categories() -> list[APICategory]:
     "Return all categories"
     with db:
         return list(Category.select().order_by(Category.name).dicts())
@@ -492,22 +495,26 @@ def get_categories():
 
 @router.post("/categories", tags=["categories"])
 async def create_category(
-    request: Request, auth: Annotated[AuthUser, Depends(auth_user_required)]
-):
+    name: Annotated[str, Body(embed=True)],
+    auth: Annotated[AuthUser, Depends(auth_user_required)],
+) -> APICategory:
     auth.check_right("item_manage")
-    body = await request.json()
     with db:
-        c = Category.create(name=body["name"])
-        return model_to_dict(c)
+        return Category.create(name=name)
 
 
 @router.post("/categories/{cat_id}", tags=["categories"])
 async def update_category(
     cat_id: int,
-    request: Request,
+    name: Annotated[str, Body(embed=True)],
     auth: Annotated[AuthUser, Depends(auth_user_required)],
-):
+) -> APICategory:
     auth.check_right("item_manage")
-    body = await request.json()
     with db:
-        Category.update(name=body["name"]).where(Category.id == cat_id).execute()
+        cats = (
+            Category.update(name=name)
+            .where(Category.id == cat_id)
+            .returning(Category)
+            .execute()
+        )
+        return cats[0]

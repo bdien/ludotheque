@@ -14,11 +14,30 @@ def test_create_category():
     assert response.status_code == 200
     newcat = response.json()
     assert "id" in newcat
+    assert newcat["name"] == "cat1"
 
     # Check in DB
     with db:
         cat_db = Category.get_by_id(newcat["id"])
         assert cat_db.name == "cat1"
+
+
+def test_update_category():
+    response = client.post("/categories", json={"name": "cat1"}, headers=AUTH_ADMIN)
+    assert response.status_code == 200
+    catid = response.json()["id"]
+
+    response = client.post(
+        f"/categories/{catid}", json={"name": "cat2"}, headers=AUTH_ADMIN
+    )
+    assert response.status_code == 200
+    newcat = response.json()
+    assert newcat == {"id": catid, "name": "cat2"}
+
+    # Check in DB
+    with db:
+        cat_db = Category.get_by_id(catid)
+        assert cat_db.name == "cat2"
 
 
 def test_create_item_with_category():

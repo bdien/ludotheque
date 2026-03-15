@@ -13,7 +13,7 @@ from fastapi.responses import PlainTextResponse
 from playhouse.shortcuts import model_to_dict
 
 from api.config import EMAIL_MINLATE, EMAIL_MINPERIOD
-from api.models import APILoan, APIUser
+from api.models import APILoan, APISendMailResult, APIUser
 from api.pwmodels import Booking, EMail, Item, Loan, User, db
 from api.system import (
     AuthUser,
@@ -232,7 +232,7 @@ def get_user(
         if user_id != auth.id:
             del ret["emails"]
 
-    return APIUser.model_validate(ret)
+    return ret
 
 
 @router.get(
@@ -295,7 +295,7 @@ async def modify_user(
 @router.delete("/users/{user_id}", tags=["user"])
 async def delete_user(
     user_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]
-):
+) -> str:
     auth.check_right("user_delete")
     with db:
         user = User.get_or_none(User.id == user_id)
@@ -306,11 +306,11 @@ async def delete_user(
         return "OK"
 
 
-def plural(lst, plural="s", singular="") -> str:
+def _plural(lst, plural="s", singular="") -> str:
     return singular if len(lst) == 1 else plural
 
 
-def shortDate(d: datetime.date):
+def _shortDate(d: datetime.date):
     fmt = "%d %B %Y" if d.year != datetime.date.today().year else "%d %B"
     return d.strftime(fmt).lstrip("0")
 
@@ -328,7 +328,7 @@ def send_late_email_manually(
         return send_late_email(user_id, send)
 
 
-def send_late_email(user_id: int, send: bool | None = True):
+def send_late_email(user_id: int, send: bool | None = True) -> APISendMailResult:
     user = User.get_or_none(User.id == user_id)
     if not user:
         raise HTTPException(400, "No such user")
@@ -361,19 +361,19 @@ def send_late_email(user_id: int, send: bool | None = True):
         loader=jinja2.FileSystemLoader(pathlib.Path(__file__).parent / "templates"),
         autoescape=True,
     )
-    env.filters.update({"plural": plural, "shortdate": shortDate})
+    env.filters.update({"plural": _plural, "shortdate": _shortDate})
     txt = env.get_template("email_retard.txt").render(
         loans=loans, next_opening=get_next_opening()
     )
     txt = txt.replace("\n", "<br/>")
 
     # Send email
-    result = {"title": "Jeux en retard", "body": txt, "to": emails, "sent": False}
+    result = APISendMailResult(title="Jeux en retard", body=txt, to=emails)
     if send:
-        result |= send_email(result["to"], result["title"], result["body"])
+        result.update(send_email(result.to, result.title, result.body))
 
     # Update last warning date
-    if result["sent"]:
+    if result.sent:
         user.last_warning = datetime.date.today()
         user.save()
         log_event(None, f"Email envoyé à '{user.name}' ({user.id})")
