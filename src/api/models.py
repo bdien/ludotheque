@@ -1,6 +1,7 @@
 import datetime
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class APIUserHistoryItem(BaseModel):
@@ -65,8 +66,10 @@ class APIItem(BaseModel):
 
 
 class APICategory(BaseModel):
-    id: int
-    name: str
+    id: Annotated[int, Field(description="ID de la catégorie", example=41)]
+    name: Annotated[
+        str, Field(description="Nom de la catégorie", example="Jeu de Plateau")
+    ]
 
 
 class APISendMailResult(BaseModel):
