@@ -21,7 +21,7 @@
     "@mui/material": "^7.3.9",
     "@mui/system": "^7.3.9",
     "@mui/x-date-pickers": "^8.27.2",
-    "@sentry/react": "^10.43.0",
+    "@sentry/react": "^10.45.0",
     "@sentry/vite-plugin": "^5.1.1",
     "chart.js": "^4.5.1",
     "chartjs-adapter-date-fns": "^3.0.0",
@@ -31,22 +31,30 @@
     "react": "^19.2.4",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.4",
-    "react-hook-form": "^7.71.2",
+    "react-hook-form": "^7.72.0",
     "react-image-file-resizer": "^0.4.8",
     "react-markdown": "^10.1.0",
     "react-virtuoso": "^4.18.3",
     "swr": "^2.4.1",
     "wouter": "^3.9.0",
-    "zustand": "^5.0.11"
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.6",
+    "@biomejs/biome": "^2.4.8",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "typescript": "^5.9.3",
-    "vite": "^8.0.0",
+    "vite": "^8.0.2",
     "vite-plugin-pwa": "^1.2.0",
     "workbox-window": "^7.4.0"
+  },
+  "overrides": {
+    "vite-plugin-pwa": {
+      "vite": "^8.0.0"
+    },
+    "workbox-build": {
+      "@rollup/plugin-terser": "^1.0.0"
+    }
   }
 }

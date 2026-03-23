@@ -66,9 +66,13 @@ class APIItem(BaseModel):
 
 
 class APICategory(BaseModel):
-    id: Annotated[int, Field(description="ID de la catégorie", example=41)]
+    id: Annotated[int, Field(description="ID de la catégorie", examples=[41, 655])]
     name: Annotated[
-        str, Field(description="Nom de la catégorie", example="Jeu de Plateau")
+        str,
+        Field(
+            description="Nom de la catégorie",
+            examples=["Jeu de Plateau", "Jeu de Rôle"],
+        ),
     ]
 
 
