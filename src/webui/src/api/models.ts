@@ -45,6 +45,7 @@ export interface User {
   informations?: string;
   subscription?: string;
   apikey?: string;
+  calendar_token?: string;
   created_at?: string;
   last_warning?: string;
   loans?: APILoan[];

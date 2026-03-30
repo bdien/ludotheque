@@ -1,5 +1,5 @@
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { Tab } from "@mui/material";
+import { Button, Paper, Tab } from "@mui/material";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 import SpeedDial from "@mui/material/SpeedDial";
@@ -23,9 +23,21 @@ export function UserView(props: UserViewProps) {
   const { account } = useGlobalStore();
   const { user, error, mutate } = useUser(props.id);
   const [tabIndex, setTabIndex] = useState("loans");
+  const [calInfoShown, setCalInfoShown] = useState(false);
 
   if (error) return <div>Impossible de charger: {error}</div>;
   if (!user || !mutate) return <Loading />;
+
+  const calendarUrl = user.calendar_token
+    ? `${window.location.origin}/api/calendar/${user.calendar_token}.ics`
+    : null;
+
+  const copyCalendarUrl = () => {
+    if (calendarUrl) {
+      navigator.clipboard.writeText(calendarUrl);
+      setCalInfoShown(true);
+    }
+  };
 
   return (
     <>
@@ -51,6 +63,44 @@ export function UserView(props: UserViewProps) {
             loans={user.loans ?? []}
             buttons={account?.rights.includes("loan_manage")}
           />
+          {calendarUrl && (account?.id === user.id || account?.rights.includes("user_manage")) && (
+            <>
+              <Button
+                variant="contained"
+                color="info"
+                startIcon={<Icon>calendar_today</Icon>}
+                onClick={copyCalendarUrl}
+              >
+                Ajouter au calendrier
+              </Button>
+              <Box
+                sx={{ mt: 2 }}
+                component={Paper}
+                p={2}
+                elevation={1}
+                hidden={!calInfoShown}
+                style={{ textAlign: "justify" }}
+              >
+                Le lien a été copié dans votre presse-papier.
+                <br />
+                Vous pouvez coller ce lien dans votre application de calendrier pour retrouver vos
+                emprunts en cours.
+                <br />
+                <ul>
+                  <li>
+                    <a href="https://www.onecal.io/fr/blog/how-to-subscribe-to-a-web-ics-calendar-in-google-calendar">
+                      Google Calendar
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://www.onecal.io/fr/blog/how-to-subscribe-to-a-web-ics-calendar-in-outlook">
+                      Outlook
+                    </a>
+                  </li>
+                </ul>
+              </Box>
+            </>
+          )}
         </TabPanel>
 
         <TabPanel value="history" sx={{ p: 0, pt: 1 }}>

@@ -15,6 +15,7 @@ import api.ledger
 import api.loans
 import api.system
 import api.users
+import api.webcalendar
 from api.item_stats import update_olditems
 
 
@@ -109,3 +110,4 @@ app.include_router(api.bookings.router)
 app.include_router(api.loans.router)
 app.include_router(api.system.router)
 app.include_router(api.ledger.router)
+app.include_router(api.webcalendar.router)

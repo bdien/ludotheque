@@ -1,5 +1,6 @@
 import os
 import re
+import uuid
 from datetime import date, datetime, timedelta
 
 import peewee
@@ -71,6 +72,7 @@ class User(BaseModel):
     informations = peewee.TextField(null=True)
     subscription = peewee.DateField(default=date.today)  # End of
     apikey = peewee.CharField(null=True)
+    calendar_token = peewee.CharField(default=lambda: uuid.uuid4().hex, unique=True)
     created_at = peewee.DateField(default=date.today)
     last_warning = peewee.DateField(null=True)
     lastseen = peewee.DateField(default=date.today)

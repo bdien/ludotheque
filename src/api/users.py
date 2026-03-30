@@ -227,10 +227,13 @@ def get_user(
     if not auth.has_right("user_manage"):
         del ret["notes"]
         del ret["informations"]
-        del ret["apikey"]
         del ret["last_warning"]
         if user_id != auth.id:
             del ret["emails"]
+
+    if user_id != auth.id:
+        del ret["apikey"]
+        del ret["calendar_token"]
 
     return ret
 

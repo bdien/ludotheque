@@ -19,6 +19,7 @@ dependencies = [
     "vacances-scolaires-france>=0.10.0",
     "jours-feries-france>=0.7.0",
     "bgg-api>=1.1.14",
+    "icalendar>=7.0.3",
 ]
 requires-python = ">=3.14"
 license = {text = "GPL2"}

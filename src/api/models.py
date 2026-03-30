@@ -38,6 +38,7 @@ class APIUser(BaseModel):
     informations: str | None = ""
     subscription: datetime.date | None = None
     apikey: str | None = None
+    calendar_token: str | None = None
     created_at: datetime.date | None = None
     last_warning: datetime.date | None = None
     loans: list[APILoan] = []
