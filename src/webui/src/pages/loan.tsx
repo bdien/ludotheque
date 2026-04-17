@@ -66,6 +66,7 @@ export function Loan() {
       false,
     )
       .then(() => {
+        navigator.vibrate?.(30);
         mutate(`/api/users/${user.id}`);
         items.map((i) => mutate(`/api/items/${i.id}`));
         showSnackbar("Emprunt enregistré");
@@ -164,7 +165,7 @@ export function Loan() {
           <Button onClick={menuAddLoanOpen}>
             <Icon>add</Icon>
           </Button>
-          <Menu id="menu-add-loan" anchorEl={anchorEl} open={openAdd} onClose={menuAddLoanClose}>
+          <Menu anchorEl={anchorEl} open={openAdd} onClose={menuAddLoanClose}>
             <MenuItem
               onClick={() => {
                 addItem(fakeItemAdhesion);

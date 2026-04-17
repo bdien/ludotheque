@@ -63,44 +63,46 @@ export function UserView(props: UserViewProps) {
             loans={user.loans ?? []}
             buttons={account?.rights.includes("loan_manage")}
           />
-          {calendarUrl && (account?.id === user.id || account?.rights.includes("user_manage")) && (
-            <>
-              <Button
-                variant="contained"
-                color="info"
-                startIcon={<Icon>calendar_today</Icon>}
-                onClick={copyCalendarUrl}
-              >
-                Ajouter au calendrier
-              </Button>
-              <Box
-                sx={{ mt: 2 }}
-                component={Paper}
-                p={2}
-                elevation={1}
-                hidden={!calInfoShown}
-                style={{ textAlign: "justify" }}
-              >
-                Le lien a été copié dans votre presse-papier.
-                <br />
-                Vous pouvez coller ce lien dans votre application de calendrier pour retrouver vos
-                emprunts en cours.
-                <br />
-                <ul>
-                  <li>
-                    <a href="https://www.onecal.io/fr/blog/how-to-subscribe-to-a-web-ics-calendar-in-google-calendar">
-                      Google Calendar
-                    </a>
-                  </li>
-                  <li>
-                    <a href="https://www.onecal.io/fr/blog/how-to-subscribe-to-a-web-ics-calendar-in-outlook">
-                      Outlook
-                    </a>
-                  </li>
-                </ul>
-              </Box>
-            </>
-          )}
+          {calendarUrl &&
+            user.loans &&
+            (account?.id === user.id || account?.rights.includes("user_manage")) && (
+              <>
+                <Button
+                  variant="contained"
+                  color="info"
+                  startIcon={<Icon>calendar_today</Icon>}
+                  onClick={copyCalendarUrl}
+                >
+                  Ajouter au calendrier
+                </Button>
+                <Box
+                  sx={{ mt: 2 }}
+                  component={Paper}
+                  p={2}
+                  elevation={1}
+                  hidden={!calInfoShown}
+                  style={{ textAlign: "justify" }}
+                >
+                  Le lien a été copié dans votre presse-papier.
+                  <br />
+                  Vous pouvez coller ce lien dans votre application de calendrier pour retrouver vos
+                  emprunts en cours.
+                  <br />
+                  <ul>
+                    <li>
+                      <a href="https://www.onecal.io/fr/blog/how-to-subscribe-to-a-web-ics-calendar-in-google-calendar">
+                        Google Calendar
+                      </a>
+                    </li>
+                    <li>
+                      <a href="https://www.onecal.io/fr/blog/how-to-subscribe-to-a-web-ics-calendar-in-outlook">
+                        Outlook
+                      </a>
+                    </li>
+                  </ul>
+                </Box>
+              </>
+            )}
         </TabPanel>
 
         <TabPanel value="history" sx={{ p: 0, pt: 1 }}>

@@ -40,6 +40,7 @@ function ModifyLoanButton({
         setLoading(true);
         actionfunction(loanId)
           .then(() => {
+            navigator.vibrate?.(30);
             mutate(`/api/loans/${loanId}`);
             mutate(`/api/items/${itemId}`);
             mutate(`/api/users/${userId}`);
