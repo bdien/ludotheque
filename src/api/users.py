@@ -160,7 +160,7 @@ def export_users(auth: Annotated[AuthUser, Depends(auth_user_required)]):
 @router.get("/users/me", tags=["user"])
 def get_myself(auth: Annotated[AuthUser | None, Depends(auth_user)]):
     if not auth:
-        return {}
+        return {"id": 0, "role": "", "rights": []}
     return {"role": auth.role, "id": auth.id, "rights": auth.rights}
 
 
