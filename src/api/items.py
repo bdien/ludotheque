@@ -3,14 +3,25 @@ import contextlib
 import csv
 import datetime
 import hashlib
+import html
 import io
 import os
 from typing import Annotated
+from urllib.parse import quote
 
 import peewee
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, PlainTextResponse
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
+
+# Pillow safety limits
+# Cap decoded pixel count to mitigate decompression bombs (default Pillow warns at
+# ~89 Mpx; we set a hard error well above legitimate input but far below DoS sizes).
+Image.MAX_IMAGE_PIXELS = 40_000_000
+# Allowed input formats for uploaded pictures.
+_ALLOWED_IMAGE_FORMATS = {"PNG", "JPEG", "WEBP", "AVIF", "GIF"}
+# Maximum size of a single base64-encoded picture payload (~12 MB of decoded bytes).
+_MAX_PICTURE_B64_LEN = 16 * 1024 * 1024
 from playhouse.shortcuts import model_to_dict
 
 from api.config import IMAGE_MAX_DIM, THUMB_DIM
@@ -314,19 +325,29 @@ def get_item_opengraph(item_id: int):
         if not item:
             raise HTTPException(404)
 
-        html = "<!doctype html>\n<html>\n<head>\n"
-        html += f"  <title>{item.name}</title>\n"
-        html += f'  <meta property="og:title" content="{item.name}"/>\n'
-        html += '  <meta property="og:type" content="website"/>\n'
-        html += '  <meta property="og:site_name" content="Ludo du Poisson-Lune"/>\n'
-        html += '  <meta property="og:locale" content="fr_FR"/>\n'
-        html += f'  <meta property="og:url" content="https://ludotheque.fly.dev/items/{item.id}"/>\n'
-        description = item.description.replace("\n", "").replace('"', "&quot;")
-        html += f'  <meta property="og:description" content="{description}"/>\n'
-        for i in item.pictures:
-            html += f'  <meta property="og:image" content="https://ludotheque.fly.dev/storage/img/{i}"/>\n'
-        html += "</head>\n<body></body>\n</html>\n"
-        return html
+        # All user-controlled fields must be HTML-escaped to prevent XSS.
+        name = html.escape(item.name or "", quote=True)
+        description = html.escape(
+            (item.description or "").replace("\n", " "), quote=True
+        )
+
+        out = "<!doctype html>\n<html>\n<head>\n"
+        out += f"  <title>{name}</title>\n"
+        out += f'  <meta property="og:title" content="{name}"/>\n'
+        out += '  <meta property="og:type" content="website"/>\n'
+        out += '  <meta property="og:site_name" content="Ludo du Poisson-Lune"/>\n'
+        out += '  <meta property="og:locale" content="fr_FR"/>\n'
+        out += f'  <meta property="og:url" content="https://ludotheque.fly.dev/items/{int(item.id)}"/>\n'
+        out += f'  <meta property="og:description" content="{description}"/>\n'
+        for i in item.pictures or []:
+            # URL-encode the filename, then HTML-escape the resulting URL.
+            safe_url = html.escape(
+                f"https://ludotheque.fly.dev/storage/img/{quote(str(i), safe='')}",
+                quote=True,
+            )
+            out += f'  <meta property="og:image" content="{safe_url}"/>\n'
+        out += "</head>\n<body></body>\n</html>\n"
+        return out
 
 
 def modif_pictures(
@@ -344,11 +365,26 @@ def modif_pictures(
                 oldpictures.remove(p)
             continue
 
-        # New pictures (UUencoded bytes)
-        imgdata = io.BytesIO(base64.b64decode(p.split(",", 1)[1]))
+        # New pictures (base64-encoded bytes). Cap input size to prevent
+        # memory/CPU exhaustion via huge payloads.
+        if len(p) > _MAX_PICTURE_B64_LEN:
+            raise HTTPException(413, "Picture too large")
+        try:
+            raw = base64.b64decode(p.split(",", 1)[1], validate=False)
+        except (ValueError, IndexError) as e:
+            raise HTTPException(400, "Invalid picture encoding") from e
+        imgdata = io.BytesIO(raw)
 
-        # Convert (and maybe resize) new image to webP
-        img = Image.open(imgdata)
+        # Open and validate format/decompression-bomb safety.
+        try:
+            img = Image.open(imgdata)
+            if img.format not in _ALLOWED_IMAGE_FORMATS:
+                raise HTTPException(400, f"Unsupported image format: {img.format}")
+            # Force decoding now so MAX_IMAGE_PIXELS / format errors raise here
+            # rather than later in save().
+            img.load()
+        except (UnidentifiedImageError, Image.DecompressionBombError) as e:
+            raise HTTPException(400, "Invalid or oversized image") from e
         if (img.width > IMAGE_MAX_DIM) or (img.height > IMAGE_MAX_DIM):
             img.thumbnail((IMAGE_MAX_DIM, IMAGE_MAX_DIM))
 

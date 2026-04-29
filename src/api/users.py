@@ -75,8 +75,8 @@ async def create_user(
     return model_to_dict(user)
 
 
-def re_acc(txt):
-    "Remove accents"
+def re_acc(txt: str) -> str:
+    txt = re.escape(txt or "")
     for r in ("[éèëe]", "[aà]", "[cç]", "[uù]", "[îiï]"):
         txt = re.sub(r, r, txt)
     return txt
