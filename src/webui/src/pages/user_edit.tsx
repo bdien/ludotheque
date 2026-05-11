@@ -28,6 +28,7 @@ interface FormValues {
   id: number;
   name: string;
   emails: { email: string }[];
+  phones: { phone: string }[];
   credit: number;
   role: string;
   notes: string;
@@ -46,6 +47,11 @@ function generateDefaultValues(user?: User): FormValues | undefined {
           return { email: i };
         })
       : ([] as { email: string }[]),
+    phones: user.phones
+      ? user.phones.map((i) => {
+          return { phone: i };
+        })
+      : ([] as { phone: string }[]),
     credit: user.credit,
     role: user.role,
     notes: user.notes ?? "",
@@ -67,7 +73,16 @@ export function UserEdit(props: UserEditProps) {
   const { register, handleSubmit, control } = useForm({
     defaultValues: generateDefaultValues(user),
   });
-  const { fields, append, remove } = useFieldArray({ control, name: "emails" });
+  const {
+    fields: emailFields,
+    append: appendEmail,
+    remove: removeEmail,
+  } = useFieldArray({ control, name: "emails" });
+  const {
+    fields: phoneFields,
+    append: appendPhone,
+    remove: removePhone,
+  } = useFieldArray({ control, name: "phones" });
   const { ConfirmDialog, confirmPromise } = useConfirm(
     "Suppression du compte",
     "Cela supprimera définitivement tout son historique",
@@ -81,6 +96,7 @@ export function UserEdit(props: UserEditProps) {
     user.id ||= data.id;
     user.name = data.name;
     user.emails = data.emails.map((i) => i.email);
+    user.phones = data.phones.map((i) => i.phone);
     user.credit = data.credit;
     user.role = data.role;
     user.notes = data.notes;
@@ -180,6 +196,8 @@ export function UserEdit(props: UserEditProps) {
         </Alert>
       )}
 
+      <h2 style={{ marginBottom: 1 }}>Informations générales</h2>
+
       <TextField
         fullWidth
         label="Nom du compte"
@@ -189,8 +207,38 @@ export function UserEdit(props: UserEditProps) {
         {...register("name")}
       />
 
+      <TextField
+        fullWidth
+        margin="normal"
+        label="Informations (Adresses / ...)"
+        defaultValue={user.informations}
+        placeholder="Informations (Adresses / ...)"
+        multiline
+        minRows={1}
+        {...register("informations")}
+      />
+
+      <TextField
+        fullWidth
+        margin="normal"
+        label="Notes (Cheque de caution...)"
+        defaultValue={user.notes}
+        multiline
+        minRows={1}
+        {...register("notes")}
+      />
+
+      <FormControlLabel
+        control={
+          <Checkbox color="error" defaultChecked={!user.enabled} {...register("disabled")} />
+        }
+        label="Désactiver l'adhérent"
+      />
+
+      <h2 style={{ marginBottom: 1 }}>Emails</h2>
+
       <Box>
-        {fields.map((field, idx) => (
+        {emailFields.map((field, idx) => (
           <Box sx={{ display: "flex" }} key={field.id}>
             <TextField
               fullWidth
@@ -200,18 +248,56 @@ export function UserEdit(props: UserEditProps) {
               sx={{ flexGrow: 1 }}
               {...register(`emails.${idx}.email`)}
             />
-            <Button onClick={() => remove(idx)}>
+            <Button onClick={() => removeEmail(idx)}>
               <Icon>delete</Icon>
             </Button>
           </Box>
         ))}
-        <Button startIcon={<Icon>add</Icon>} onClick={() => append({ email: "" })}>
+        <Button startIcon={<Icon>add</Icon>} onClick={() => appendEmail({ email: "" })}>
           Ajouter un EMail
+        </Button>
+      </Box>
+
+      <h2 style={{ marginBottom: 1 }}>Numéros de Téléphone</h2>
+
+      <Box>
+        {phoneFields.map((field, idx) => (
+          <Box sx={{ display: "flex" }} key={field.id}>
+            <TextField
+              fullWidth
+              label={`Téléphone ${idx + 1}`}
+              margin="normal"
+              autoCorrect="off"
+              sx={{ flexGrow: 1 }}
+              {...register(`phones.${idx}.phone`)}
+            />
+            <Button onClick={() => removePhone(idx)}>
+              <Icon>delete</Icon>
+            </Button>
+          </Box>
+        ))}
+        <Button startIcon={<Icon>add</Icon>} onClick={() => appendPhone({ phone: "" })}>
+          Ajouter un numéro
         </Button>
       </Box>
 
       {user?.id !== 0 && (
         <>
+          <h2 style={{ marginBottom: 1 }}>Zone dangereuse</h2>
+
+          <TextField
+            fullWidth
+            label="Rôle"
+            margin="normal"
+            defaultValue={user.role}
+            {...register("role")}
+            select
+          >
+            <MenuItem value={"user"}>Adhérent</MenuItem>
+            <MenuItem value={"benevole"}>Bénévole</MenuItem>
+            <MenuItem value={"admin"}>Membre du Bureau</MenuItem>
+          </TextField>
+
           <Alert elevation={1} severity="warning" sx={{ mt: 2, mb: 1 }}>
             Evitez de modifier ces paramètres directement et passez plutôt par "Nouvel Emprunt" puis
             "+".
@@ -242,49 +328,8 @@ export function UserEdit(props: UserEditProps) {
               }}
             />
           </Alert>
-
-          <TextField
-            fullWidth
-            label="Rôle"
-            margin="normal"
-            defaultValue={user.role}
-            {...register("role")}
-            select
-          >
-            <MenuItem value={"user"}>Adhérent</MenuItem>
-            <MenuItem value={"benevole"}>Bénévole</MenuItem>
-            <MenuItem value={"admin"}>Membre du Bureau</MenuItem>
-          </TextField>
         </>
       )}
-
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Informations (Adresses / Téléphones / ...)"
-        defaultValue={user.informations}
-        placeholder="Informations (Adresses / Enfants / Téléphones)"
-        multiline
-        minRows={1}
-        {...register("informations")}
-      />
-
-      <TextField
-        fullWidth
-        margin="normal"
-        label="Notes (Cheque de caution...)"
-        defaultValue={user.notes}
-        multiline
-        minRows={1}
-        {...register("notes")}
-      />
-
-      <FormControlLabel
-        control={
-          <Checkbox color="error" defaultChecked={!user.enabled} {...register("disabled")} />
-        }
-        label="Désactiver l'adhérent"
-      />
 
       <Button
         variant="contained"

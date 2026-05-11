@@ -231,6 +231,16 @@ export function MiniUser(props: MiniUserProps) {
               </ul>
             </>
           )}
+          {props.user?.phones && (
+            <>
+              <h3>Téléphones</h3>
+              <ul>
+                {props.user?.phones?.map((i, _idx) => (
+                  <li key={i}>{i}</li>
+                ))}
+              </ul>
+            </>
+          )}
           {props.user?.informations && (
             <>
               <h3>Informations</h3>

@@ -39,6 +39,7 @@ export interface User {
   enabled?: boolean;
   role: string;
   emails: string[];
+  phones: string[];
   bookings?: Booking[];
   credit: number;
   notes?: string;

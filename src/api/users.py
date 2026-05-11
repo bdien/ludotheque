@@ -230,6 +230,7 @@ def get_user(
         del ret["last_warning"]
         if user_id != auth.id:
             del ret["emails"]
+            del ret["phones"]
 
     if user_id != auth.id:
         del ret["apikey"]
