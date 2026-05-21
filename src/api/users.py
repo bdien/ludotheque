@@ -1,3 +1,4 @@
+import contextlib
 import csv
 import datetime
 import io
@@ -419,4 +420,5 @@ def automatic_email_late():
 
         for i in users:
             log_event(None, f"Automatic email to {i}")
-            send_late_email(i)
+            with contextlib.suppress(Exception):
+                send_late_email(i)
