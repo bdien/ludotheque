@@ -13,9 +13,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from playhouse.shortcuts import model_to_dict
 
-from api.config import EMAIL_MINLATE, EMAIL_MINPERIOD
+from api.config import get_config
 from api.models import APILoan, APISendMailResult, APIUser
-from api.pwmodels import Booking, EMail, Item, Loan, User, db
+from api.pwmodels import EMail, Item, Loan, User, db
 from api.system import (
     AuthUser,
     auth_user,
@@ -217,14 +217,6 @@ def get_user(
             .dicts()
         )
 
-        # Bookings
-        ret["bookings"] = list(
-            Booking.select()
-            .where(Booking.user == user)
-            .order_by(Booking.created_at)
-            .dicts()
-        )
-
     if not auth.has_right("user_manage"):
         del ret["notes"]
         del ret["informations"]
@@ -337,10 +329,9 @@ def send_late_email(user_id: int, send: bool | None = True) -> APISendMailResult
     user = User.get_or_none(User.id == user_id)
     if not user:
         raise HTTPException(400, "No such user")
-    if (
-        user.last_warning
-        and (datetime.date.today() - user.last_warning).days < EMAIL_MINPERIOD
-    ):
+    if user.last_warning and (
+        datetime.date.today() - user.last_warning
+    ).days < get_config("email_minperiod"):
         raise HTTPException(400, "Too frequent emails")
 
     emails = [i.email for i in EMail.select().where(EMail.user == user_id)]
@@ -389,8 +380,12 @@ def send_late_email(user_id: int, send: bool | None = True) -> APISendMailResult
 def _users_to_notify_lateloand() -> list[int]:
     "Get all users with late loans that haven't been notified in N days"
 
-    last_warning_limit = datetime.date.today() - datetime.timedelta(EMAIL_MINPERIOD)
-    loan_stop_mindate = datetime.date.today() - datetime.timedelta(EMAIL_MINLATE)
+    last_warning_limit = datetime.date.today() - datetime.timedelta(
+        get_config("email_minperiod")
+    )
+    loan_stop_mindate = datetime.date.today() - datetime.timedelta(
+        get_config("email_minlate")
+    )
 
     query = (
         User.select(User.id)

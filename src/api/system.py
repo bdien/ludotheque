@@ -17,7 +17,6 @@ from starlette.background import BackgroundTask
 from vacances_scolaires_france import SchoolHolidayDates
 
 import api.gsheets
-from api import config
 from api.pwmodels import EMail, Item, Loan, Log, User, db
 
 router = APIRouter()
@@ -50,11 +49,11 @@ def _compute_rights(role: str) -> list[str]:
 
     # Allow to create loans/items/users
     if __check_role(role, "admin"):
-        rights.update({"user_create", "item_create", "loan_create", "booking_create"})
+        rights.update({"user_create", "item_create", "loan_create"})
 
     # Allow to manage loans/items (return, extend, edit) + list users (To close loans)
     if __check_role(role, "admin"):
-        rights.update({"loan_manage", "item_manage", "booking_manage", "user_list"})
+        rights.update({"loan_manage", "item_manage", "user_list"})
 
     # Allow to manage users (export, edit, enable/disable, email)
     if __check_role(role, "admin"):
@@ -62,7 +61,7 @@ def _compute_rights(role: str) -> list[str]:
 
     # Allow to delete users/items/loans
     if __check_role(role, "admin"):
-        rights.update({"user_delete", "item_delete", "loan_delete", "booking_delete"})
+        rights.update({"user_delete", "item_delete", "loan_delete"})
 
     # Allow to do maintenance, access stats, ledger, backup
     if __check_role(role, "admin"):
@@ -79,8 +78,10 @@ def __check_role(role: str, minrole: str = "user") -> bool:
 
 def __validate_token(authorization: str) -> str | None:
     "Validate token, fetch user info and extract email"
+    from api.config import get_config
+
     r = requests.get(
-        f"https://{config.AUTH_DOMAIN}/userinfo",
+        f"https://{get_config('auth_domain')}/userinfo",
         headers={"Authorization": authorization},
         timeout=60,
     )
@@ -100,7 +101,9 @@ def auth_user(
 
     # API-Key ?
     user = None
-    if f" {config.APIKEY_PREFIX}" in authorization.lower():
+    from api.config import get_config
+
+    if f" {get_config('apikey_prefix')}" in authorization.lower():
         with db:
             # Remove Bearer
             apikey = authorization.split(" ", 1)[1]
@@ -313,25 +316,24 @@ def get_next_saturday(today: datetime.date) -> datetime.date:
 def info():
     "Return global information about the system"
 
+    from api.config import get_config_all
+
     with db:
+        cfg = get_config_all()
         return {
             "nbitems": Item.select().where(Item.enabled).count(),
-            "domain": config.AUTH_DOMAIN,
-            "pricing": config.PRICING,
+            "domain": cfg.get("auth_domain"),
+            "pricing": cfg.get("pricing"),
             "next_opening": get_next_opening().isoformat(),
             "loan": {
-                "maxitems": config.LOAN_MAXITEMS,
-                "weeks": config.LOAN_WEEKS,
-                "extend_max": config.LOAN_EXTEND_MAX,
+                "maxitems": cfg.get("loan_maxitems"),
+                "weeks": cfg.get("loan_weeks"),
+                "extend_max": cfg.get("loan_extend_max"),
             },
-            "booking": {
-                "maxitems": config.BOOKING_MAXITEMS,
-                "weeks": config.BOOKING_WEEKS,
-            },
-            "image_max": config.IMAGE_MAX_DIM,
-            "email_minperiod": config.EMAIL_MINPERIOD,
-            "email_minlate": config.EMAIL_MINLATE,
-            "item_new_days": config.ITEM_NEW_DAYS,
+            "image_max": cfg.get("image_max_dim"),
+            "email_minperiod": cfg.get("email_minperiod"),
+            "email_minlate": cfg.get("email_minlate"),
+            "item_new_days": cfg.get("item_new_days"),
             "version": "DEVDEV",
         }
 
@@ -343,16 +345,20 @@ def send_email(recipients: list[str], subject: str, body: str):
         print("No SMTP password, not sending email")
         return {"sent": False, "error": "Envoi d'EMail désactivé"}
 
+    from api.config import get_config
+
     try:
         html_message = MIMEText(body, "html")
         html_message["Subject"] = subject
-        html_message["From"] = config.EMAIL_SENDER
+        html_message["From"] = get_config("email_sender")
         html_message["To"] = ", ".join(recipients)
 
-        recipients.append(config.EMAIL_CC)
+        recipients.append(get_config("email_cc"))
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(config.EMAIL_SENDER, os.environ["SMTP_PASSWORD"])
-            server.sendmail(config.EMAIL_SENDER, recipients, html_message.as_string())
+            server.login(get_config("email_sender"), os.environ["SMTP_PASSWORD"])
+            server.sendmail(
+                get_config("email_sender"), recipients, html_message.as_string()
+            )
 
         return {"sent": True}
     except Exception as e:

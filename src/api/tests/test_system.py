@@ -4,7 +4,6 @@ from conftest import AUTH_USER, fake_auth_user
 from fastapi.testclient import TestClient
 
 import api.system
-from api.config import APIKEY_PREFIX
 from api.main import app
 from api.pwmodels import EMail, User, db
 from api.system import auth_user, get_next_opening
@@ -21,27 +20,27 @@ def _clear_caches():
 
 def test_auth_apikey():
     with db:
-        user = User.create(name="A", apikey=f"{APIKEY_PREFIX}ABC")
+        user = User.create(name="A", apikey="akldABC")
 
     # Should not authenticate with an invalid apikey
     result = auth_user("Basic ABC")
     assert not result
     result = auth_user("Bearer ABC")
     assert not result
-    result = auth_user(f"Bearer {APIKEY_PREFIX}ABCD")
+    result = auth_user("Bearer akldABCD")
     assert not result
 
     # Should work
-    result = auth_user(f"Bearer {APIKEY_PREFIX}ABC")
+    result = auth_user("Bearer akldABC")
     assert result
     assert result.id == user.id
 
 
 def test_auth_apikey_userdisabled():
     with db:
-        User.create(name="A", enabled=False, apikey=f"{APIKEY_PREFIX}ABC")
+        User.create(name="A", enabled=False, apikey="akldABC")
 
-    result = auth_user(f"Bearer {APIKEY_PREFIX}ABC")
+    result = auth_user("Bearer akldABC")
     assert not result
 
 

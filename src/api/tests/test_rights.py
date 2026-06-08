@@ -14,9 +14,6 @@ def test_right_benevole():
 def test_right_admin():
     rights = _compute_rights("admin")
     assert sorted(rights) == [
-        "booking_create",
-        "booking_delete",
-        "booking_manage",
         "item_create",
         "item_delete",
         "item_manage",

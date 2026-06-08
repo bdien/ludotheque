@@ -24,10 +24,9 @@ _ALLOWED_IMAGE_FORMATS = {"PNG", "JPEG", "WEBP", "AVIF", "GIF"}
 _MAX_PICTURE_B64_LEN = 16 * 1024 * 1024
 from playhouse.shortcuts import model_to_dict
 
-from api.config import IMAGE_MAX_DIM, THUMB_DIM
+from api.config import get_config
 from api.models import APICategory, APIItem
 from api.pwmodels import (
-    Booking,
     Category,
     Item,
     ItemCategory,
@@ -275,22 +274,6 @@ def get_item(
             del base["lastseen"]
             del base["created_at"]
 
-        # Bookings
-        bookings = list(
-            Booking.select()
-            .where(Booking.item == item_id)
-            .order_by(Booking.created_at)
-            .dicts()
-        )
-        base["bookings"] = {"nb": len(bookings)}
-        if auth:
-            if auth.has_right("booking_manage"):
-                base["bookings"]["entries"] = bookings
-            else:
-                base["bookings"]["entries"] = [
-                    i for i in bookings if i["user"] == auth.id
-                ]
-
         # Ratings
         ratings = (
             Rating.select(
@@ -385,15 +368,16 @@ def modif_pictures(
             img.load()
         except (UnidentifiedImageError, Image.DecompressionBombError) as e:
             raise HTTPException(400, "Invalid or oversized image") from e
-        if (img.width > IMAGE_MAX_DIM) or (img.height > IMAGE_MAX_DIM):
-            img.thumbnail((IMAGE_MAX_DIM, IMAGE_MAX_DIM))
+        image_max_dim = get_config("image_max_dim")
+        if (img.width > image_max_dim) or (img.height > image_max_dim):
+            img.thumbnail((image_max_dim, image_max_dim))
 
         # Filename based on hash
         hash = hashlib.md5(img.tobytes()).hexdigest()  # noqa: S324
         filename = f"jeu_{item_id:05d}_{hash}.webp"
         if filename not in newpictures:
             img.save(f"{LUDO_STORAGE}/img/{filename}")
-            img.thumbnail((THUMB_DIM, THUMB_DIM))
+            img.thumbnail((get_config("thumb_dim"), get_config("thumb_dim")))
             img.save(f"{LUDO_STORAGE}/thumb/{filename}")
             newpictures.append(filename)
 

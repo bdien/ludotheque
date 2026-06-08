@@ -52,7 +52,6 @@ export function UserView(props: UserViewProps) {
               {(account?.id === user.id || account?.rights.includes("user_manage")) && (
                 <Tab label="Historique" value="history" />
               )}
-              {user.bookings && user.bookings.length > 0 && <Tab label="Resas" value="bookings" />}
             </TabList>
           </Box>
         )}
@@ -107,31 +106,6 @@ export function UserView(props: UserViewProps) {
 
         <TabPanel value="history" sx={{ p: 0, pt: 1 }}>
           <UserHistory id={user.id} />
-        </TabPanel>
-
-        <TabPanel value="bookings" sx={{ p: 0, pt: 2 }}>
-          <Box display="flex" flexWrap="wrap" width="100%" sx={{ pt: 2 }}>
-            {user.bookings?.map((obj) => (
-              <MiniItem
-                key={obj.item}
-                id={obj.item}
-                subtext={
-                  "Réservé le " +
-                  new Date(obj.created_at).toLocaleDateString("fr", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })
-                }
-                action={{
-                  text: "Annuler",
-                  func: () => {
-                    console.log("TODO");
-                  },
-                }}
-              />
-            ))}
-          </Box>
         </TabPanel>
       </TabContext>
 

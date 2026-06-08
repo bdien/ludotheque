@@ -13,7 +13,9 @@ import type {
 } from "./models";
 
 export function useInfo() {
-  const { data, error, isLoading } = useSWRImmutable<Info>(`${SERVER_URL}/info`, fetcher);
+  const { data, error, isLoading } = useSWR<Info>(`${SERVER_URL}/info`, fetcher, {
+    refreshInterval: 3600000,
+  });
 
   return {
     info: data,
@@ -234,5 +236,20 @@ export function useLedger() {
     ledger: data,
     isLoading,
     error,
+  };
+}
+
+export function useConfig() {
+  const { data, error, isLoading, mutate } = useSWR<Record<string, unknown>>(
+    `${SERVER_URL}/config`,
+    fetcher,
+    { dedupingInterval: 60000 },
+  );
+
+  return {
+    config: data,
+    isLoading,
+    error,
+    mutate,
   };
 }

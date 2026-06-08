@@ -4,7 +4,6 @@ import pytest
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 from fastapi.testclient import TestClient
 
-from api.config import EMAIL_MINLATE, EMAIL_MINPERIOD
 from api.main import app
 from api.pwmodels import EMail, Item, Loan, User, db
 from api.system import auth_user
@@ -239,12 +238,12 @@ def test_users_to_notify_lateloand():
         assert not _users_to_notify_lateloand()
 
         # Update the loan to be nearly late -> Nobody
-        loan1.stop = datetime.date.today() - datetime.timedelta(days=EMAIL_MINLATE - 1)
+        loan1.stop = datetime.date.today() - datetime.timedelta(days=14 - 1)
         loan1.save()
         assert not _users_to_notify_lateloand()
 
         # Update the loan to be late -> User2
-        loan1.stop = datetime.date.today() - datetime.timedelta(days=EMAIL_MINLATE + 1)
+        loan1.stop = datetime.date.today() - datetime.timedelta(days=14 + 1)
         loan1.save()
         assert _users_to_notify_lateloand() == [user2.id]
 
@@ -255,16 +254,12 @@ def test_users_to_notify_lateloand():
         user2.enabled = True
 
         # User2 was notified not too long ago
-        user2.last_warning = datetime.date.today() - datetime.timedelta(
-            days=EMAIL_MINPERIOD - 1
-        )
+        user2.last_warning = datetime.date.today() - datetime.timedelta(days=21 - 1)
         user2.save()
         assert not _users_to_notify_lateloand()
 
         # User2 was notified a while ago
-        user2.last_warning = datetime.date.today() - datetime.timedelta(
-            days=EMAIL_MINPERIOD + 1
-        )
+        user2.last_warning = datetime.date.today() - datetime.timedelta(days=21 + 1)
         user2.save()
         assert _users_to_notify_lateloand() == [user2.id]
 

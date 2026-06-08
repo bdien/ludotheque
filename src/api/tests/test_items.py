@@ -1,11 +1,11 @@
 import datetime
 
 import pytest
-from conftest import AUTH_ADMIN, AUTH_USER, AUTH_USER_ID, fake_auth_user, headers_auth
+from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user, headers_auth
 from fastapi.testclient import TestClient
 
 from api.main import app
-from api.pwmodels import Booking, Category, Item, ItemCategory, ItemLink, Loan, User, db
+from api.pwmodels import Category, Item, ItemCategory, ItemLink, Loan, User, db
 from api.system import auth_user
 
 client = TestClient(app)
@@ -194,34 +194,6 @@ def test_get_items_loaned():
     assert items[0]["status"] != "out"
     assert items[1]["name"] == "item2"
     assert items[1]["status"] == "out"
-
-
-def test_get_items_bookings():
-    with db:
-        item = Item.create(id=5, name="item1")
-        user = User.get(id=AUTH_USER_ID)
-        Booking.create(user=user, item=item)
-
-    # Check in API (Non-auth user)
-    response = client.get(f"/items/{item.id}").json()
-    assert response["bookings"] == {"nb": 1}
-    assert response["bookings"]["nb"] == 1
-    assert "entries" not in response["bookings"]
-
-    # Normal user
-    response = client.get(f"/items/{item.id}", headers=AUTH_USER).json()
-    assert response["bookings"]["nb"] == 1
-    assert "entries" in response["bookings"]
-    assert len(response["bookings"]["entries"]) == 1
-    entry = response["bookings"]["entries"][0]
-    assert entry["user"] == user.id
-
-    # Admin user
-    response = client.get(f"/items/{item.id}", headers=AUTH_ADMIN).json()
-    assert response["bookings"]["nb"] == 1
-    assert len(response["bookings"]["entries"]) == 1
-    entry = response["bookings"]["entries"][0]
-    assert entry["user"] == user.id
 
 
 def test_modif_category():

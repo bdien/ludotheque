@@ -1,13 +1,21 @@
 from conftest import AUTH_ADMIN, fake_auth_user
 from fastapi.testclient import TestClient
 
-from api.config import PRICING
 from api.main import app
 from api.pwmodels import Item, Ledger, User, db
 from api.system import auth_user
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user
+
+PRICING = {
+    "regular": 0.5,
+    "big": 5,
+    "big_associations": 7,
+    "card": 12,
+    "card_value": 14,
+    "yearly": 10,
+}
 
 
 def test_ledger_nocredit():

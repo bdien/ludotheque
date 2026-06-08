@@ -5,13 +5,23 @@ import pytest
 from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
 from fastapi.testclient import TestClient
 
-from api.config import LOAN_EXTEND_DAYS, LOAN_EXTEND_MAX, PRICING
 from api.main import app
 from api.pwmodels import Item, Loan, User, db
 from api.system import auth_user
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user
+
+PRICING = {
+    "regular": 0.5,
+    "big": 5,
+    "big_associations": 7,
+    "card": 12,
+    "card_value": 14,
+    "yearly": 10,
+}
+LOAN_EXTEND_MAX = 1
+LOAN_EXTEND_DAYS = 15
 
 USER_ID = 66
 ITEM_ID = 158

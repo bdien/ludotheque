@@ -33,7 +33,6 @@ class APIUser(BaseModel):
     role: str
     emails: list[str] = []
     phones: list[str] = []
-    bookings: list[int] = []
     credit: float
     notes: str | None = ""
     informations: str | None = ""

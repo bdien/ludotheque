@@ -20,11 +20,13 @@ export async function fetcher(url: string): Promise<any> {
 }
 
 function fetchWithToken(url: string, params: object = {}) {
-  if (access_token)
+  if (access_token) {
+    const { headers = {}, ...rest } = params as { headers?: Record<string, string> };
     params = {
-      ...params,
-      headers: { authorization: `bearer ${access_token}` },
+      ...rest,
+      headers: { ...headers, authorization: `bearer ${access_token}` },
     };
+  }
   return fetch(url, params);
 }
 
@@ -65,19 +67,6 @@ export async function createItem(obj: object): Promise<ItemModel | ApiError> {
 
 export async function deleteItem(itemId: number) {
   await fetchWithToken(`${SERVER_URL}/items/${itemId}`, {
-    method: "DELETE",
-  });
-}
-
-export async function bookitem(itemId: number) {
-  await fetchWithToken(`${SERVER_URL}/bookings`, {
-    method: "POST",
-    body: JSON.stringify({ item: itemId }),
-  });
-}
-
-export async function unbook(bookingId: number) {
-  await fetchWithToken(`${SERVER_URL}/bookings/${bookingId}`, {
     method: "DELETE",
   });
 }
@@ -165,5 +154,22 @@ export async function emailUser(userId: number, send = false): Promise<EMail> {
       method: "POST",
     },
   );
+  return response.json();
+}
+
+// Config
+// -------------------
+
+export async function fetchConfig(): Promise<Record<string, unknown>> {
+  const response = await fetchWithToken(`${SERVER_URL}/config`);
+  return response.json();
+}
+
+export async function updateConfig(entries: Record<string, unknown>) {
+  const response = await fetchWithToken(`${SERVER_URL}/config`, {
+    method: "POST",
+    body: JSON.stringify(entries),
+    headers: { "Content-Type": "application/json" },
+  });
   return response.json();
 }

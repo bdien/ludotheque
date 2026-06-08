@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
 from playhouse.shortcuts import model_to_dict
 
-from api.config import LOAN_EXTEND_MAX, LOAN_WEEKS, PRICING
+from api.config import get_config
 from api.pwmodels import Item, Ledger, Loan, User, db
 from api.system import AuthUser, auth_user_required, get_next_saturday, is_holiday
 
@@ -38,7 +38,7 @@ def calculate_loan_stop_date() -> datetime.date:
     "Calculate the stop date for a new loan, based on the next opening saturday + LOAN_WEEKS"
 
     today = datetime.date.today()
-    theorical_date = today + datetime.timedelta(days=7 * LOAN_WEEKS)
+    theorical_date = today + datetime.timedelta(days=7 * get_config("loan_weeks"))
 
     # Adjusted for public holidays
     adjusted = get_next_saturday(theorical_date)
@@ -81,12 +81,13 @@ async def create_loan(
         # Will contains the final prices for all items + subscription + card
         final_prices = body["items"].copy()
 
+        pricing = get_config("pricing")
         # Special cases (Yearly subscription (-1) / Fill loan card (-2))
         if subscription := -1 in body["items"]:
-            final_prices[final_prices.index(-1)] = PRICING["yearly"]
+            final_prices[final_prices.index(-1)] = pricing["yearly"]
             body["items"].remove(-1)
         if fillcard := -2 in body["items"]:
-            final_prices[final_prices.index(-2)] = PRICING["card"]
+            final_prices[final_prices.index(-2)] = pricing["card"]
             body["items"].remove(-2)
         simulation = body.get("simulation", False)
 
@@ -102,15 +103,15 @@ async def create_loan(
             raise HTTPException(400, "Some items are already borrowed by the same user")
 
         # Money to pay from "real" money in any case
-        topay_realmoney = PRICING["yearly"] if subscription else 0
+        topay_realmoney = pricing["yearly"] if subscription else 0
         if fillcard:
-            topay_realmoney += PRICING["card"]
+            topay_realmoney += pricing["card"]
 
             # Simulate new user card
-            user.credit += PRICING["card_value"]
+            user.credit += pricing["card_value"]
 
         # Now calculate how much is taken from the card and how much is remaining
-        cost_items = [PRICING["big" if i.big else "regular"] for i in items]
+        cost_items = [pricing["big" if i.big else "regular"] for i in items]
         # Benevole/Admin: nullify item prices
         if user.role in ("admin", "benevole"):
             cost_items = [0] * len(cost_items)
@@ -164,8 +165,8 @@ async def create_loan(
                     operator_id=auth.id,
                     user_id=user.id,
                     item_id=-1,
-                    cost=PRICING["yearly"],
-                    money=PRICING["yearly"],
+                    cost=pricing["yearly"],
+                    money=pricing["yearly"],
                 )
                 user.subscription = max(
                     datetime.date.today(), user.subscription
@@ -176,8 +177,8 @@ async def create_loan(
                     operator_id=auth.id,
                     user_id=user.id,
                     item_id=-2,
-                    cost=PRICING["card"],
-                    money=PRICING["card"],
+                    cost=pricing["card"],
+                    money=pricing["card"],
                 )
 
             user.save()
@@ -248,7 +249,7 @@ def extend_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_requir
             raise HTTPException(400, "No such loan")
         if loan.status != "out":
             raise HTTPException(400, "Already closed")
-        if loan.extended >= LOAN_EXTEND_MAX:
+        if loan.extended >= get_config("loan_extend_max"):
             raise HTTPException(400, "Maximum number of extensions reached")
 
         # Take the most recent date (today or current stop) and add 15 days

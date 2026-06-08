@@ -18,6 +18,7 @@ import { UserView } from "./pages/user_view";
 import "./styles.css";
 import { Loading } from "./components/loading";
 import { useGlobalStore } from "./hooks/global_store";
+import { Config } from "./pages/config";
 import { Documents } from "./pages/documents";
 import { Inventory } from "./pages/inventory";
 import { InventoryRev } from "./pages/inventoryrev";
@@ -152,6 +153,7 @@ function App() {
           <Route path="/inventoryrev" component={InventoryRev} />
           <Route path="/lessloaned" component={LessLoaned} />
           <Route path="/documents" component={Documents} />
+          <Route path="/config" component={Config} />
           <Route path="/stats" component={Stats} />
           <Route path="/myaccount" component={UserMyAccount} />
 

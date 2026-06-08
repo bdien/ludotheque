@@ -16,21 +16,10 @@ export interface Info {
     weeks: number;
     extend_max: number;
   };
-  booking: {
-    maxitems: number;
-    weeks: number;
-  };
   image_max: number;
   email_minperiod: number;
   email_minlate: number;
   item_new_days: number;
-}
-
-export interface Booking {
-  user: number;
-  item: number;
-  created_at: string;
-  start: string;
 }
 
 export interface User {
@@ -40,7 +29,6 @@ export interface User {
   role: string;
   emails: string[];
   phones: string[];
-  bookings?: Booking[];
   credit: number;
   notes?: string;
   informations?: string;
@@ -97,10 +85,6 @@ export interface ItemModel {
   status?: string;
   return?: string;
   loans?: APILoan[];
-  bookings?: {
-    nb: number;
-    entries?: Booking[];
-  };
 }
 
 export interface APIUserHistoryItem {

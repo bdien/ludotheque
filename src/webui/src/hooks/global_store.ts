@@ -36,10 +36,6 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
       weeks: 0,
       extend_max: 0,
     },
-    booking: {
-      maxitems: 0,
-      weeks: 0,
-    },
     image_max: 0,
     email_minperiod: 0,
     email_minlate: 0,

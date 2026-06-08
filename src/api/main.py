@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 
-import api.bookings
+import api.config
 import api.gsheets
 import api.items
 import api.ledger
@@ -105,8 +105,8 @@ app = FastAPI(root_path="/api", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins="*")
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.include_router(api.users.router)
+app.include_router(api.config.router)
 app.include_router(api.items.router)
-app.include_router(api.bookings.router)
 app.include_router(api.loans.router)
 app.include_router(api.system.router)
 app.include_router(api.ledger.router)

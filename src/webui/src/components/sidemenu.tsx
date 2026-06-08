@@ -224,6 +224,22 @@ export function SideMenu(props: SideMenuProps) {
                   </ListItemIcon>
                   <ListItemText primary="Statistiques" />
                 </ListItem>
+
+                {/* Config */}
+                <ListItem
+                  component={Link}
+                  to="/config"
+                  onClick={() => {
+                    window.umami?.track("SideBar: Configuration");
+                    props.setIsDrawerOpen(false);
+                  }}
+                  sx={{ ...styleUrl("/config"), pl: 4 }}
+                >
+                  <ListItemIcon sx={{ color: "inherit" }}>
+                    <Icon>settings</Icon>
+                  </ListItemIcon>
+                  <ListItemText primary="Configuration" />
+                </ListItem>
               </List>
             </Collapse>
 
