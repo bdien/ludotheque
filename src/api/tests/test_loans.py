@@ -274,6 +274,7 @@ def test_loan_subscription():
         headers=AUTH_ADMIN,
     ).json()
 
+    del response["stop_date"]
     assert response == {
         "cost": PRICING["yearly"],
         "items_cost": [PRICING["yearly"]],
@@ -328,6 +329,7 @@ def test_loan_fillcard():
         headers=AUTH_ADMIN,
     ).json()
 
+    del response["stop_date"]
     assert response == {
         "cost": PRICING["card"],
         "items_cost": [PRICING["card"]],
@@ -351,6 +353,7 @@ def test_loan_fillcard_simulation():
         headers=AUTH_ADMIN,
     ).json()
 
+    del response["stop_date"]
     assert response == {
         "cost": PRICING["card"],
         "items_cost": [PRICING["card"]],
@@ -374,6 +377,7 @@ def test_loan_fillcard_plus_subscription():
         headers=AUTH_ADMIN,
     ).json()
 
+    del response["stop_date"]
     assert response == {
         "cost": PRICING["yearly"] + PRICING["card"],
         "items_cost": [PRICING["yearly"], PRICING["card"]],
@@ -398,6 +402,7 @@ def test_loan_fillcard_plus_item():
     assert response["loans"]
     response["loans"] = []
 
+    del response["stop_date"]
     assert response == {
         "cost": PRICING["big"] + PRICING["card"],
         "items_cost": [PRICING["big"], PRICING["card"]],
@@ -426,6 +431,7 @@ def test_loan_fillcard_benevole():
     assert response["loans"]
     response["loans"] = []
 
+    del response["stop_date"]
     assert response == {
         "cost": PRICING["card"],
         "items_cost": [0, PRICING["card"]],
@@ -454,6 +460,7 @@ def test_loan_fillcard_admin():
     assert response["loans"]
     response["loans"] = []
 
+    del response["stop_date"]
     assert response == {
         "cost": PRICING["card"],
         "items_cost": [0, PRICING["card"]],

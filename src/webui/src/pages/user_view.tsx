@@ -9,7 +9,6 @@ import { useState } from "react";
 import { navigate } from "wouter/use-browser-location";
 import { useUser } from "../api/hooks";
 import { Loading } from "../components/loading";
-import MiniItem from "../components/mini_item";
 import { MiniUser } from "../components/mini_user";
 import { UserHistory } from "../components/user_history";
 import { UserLoans } from "../components/user_loans";

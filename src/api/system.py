@@ -325,9 +325,11 @@ def info():
             "domain": cfg.get("auth_domain"),
             "pricing": cfg.get("pricing"),
             "next_opening": get_next_opening().isoformat(),
+            "summer_mode": cfg.get("summer_mode"),
             "loan": {
                 "maxitems": cfg.get("loan_maxitems"),
                 "weeks": cfg.get("loan_weeks"),
+                "weeks_summer": cfg.get("loan_weeks_summer"),
                 "extend_max": cfg.get("loan_extend_max"),
             },
             "image_max": cfg.get("image_max_dim"),

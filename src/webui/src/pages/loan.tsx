@@ -85,7 +85,7 @@ export function Loan() {
     if (item.id === -1) return info.pricing.yearly;
     if (item.id === -2) return info.pricing.card;
     if (item.big) return info.pricing.big;
-
+    if (info.summer_mode) return info.pricing.regular_summer;
     return info.pricing.regular;
   }
 
@@ -195,6 +195,15 @@ export function Loan() {
 
       {loanResult && (
         <Box>
+          <Typography sx={{ mb: 1 }}>
+            Retour pour le{" "}
+            {new Date(loanResult.stop_date).toLocaleString("fr-FR", {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            })}
+            {info?.summer_mode && " (Mode été 🌞)"}
+          </Typography>
           <Typography variant="h5" sx={{ mb: 0 }}>
             Total
           </Typography>

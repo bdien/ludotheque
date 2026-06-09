@@ -108,7 +108,7 @@ export function MiniUser(props: MiniUserProps) {
             }}
           >
             {/* Nombre d'emprunts */}
-            {(props.display_loans ?? true) ? (
+            {(props.display_loans ?? true) && props.user?.loans ? (
               <Box sx={{ mr: 1, display: "flex" }}>
                 <Icon sx={{ mr: "0.15em" }}>local_offer</Icon>
                 <Typography component="span" fontWeight={500} sx={{ mr: "0.6ch" }}>

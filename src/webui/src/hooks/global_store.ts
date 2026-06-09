@@ -23,8 +23,10 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
     domain: "",
     version: "",
     next_opening: "",
+    summer_mode: false,
     pricing: {
       regular: 0,
+      regular_summer: 0,
       big: 0,
       big_associations: 0,
       yearly: 0,
@@ -34,6 +36,7 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
     loan: {
       maxitems: 0,
       weeks: 0,
+      weeks_summer: 0,
       extend_max: 0,
     },
     image_max: 0,

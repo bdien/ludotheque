@@ -98,7 +98,7 @@ export function UserLoans(props: UserLoansProps) {
                     actionfunction={closeLoan}
                     text="Rendre"
                   />
-                  {(obj.extended || 0) < info.loan.extend_max && (
+                  {(obj.extended || 0) < info.loan.extend_max && !info.summer_mode && (
                     <ModifyLoanButton
                       userId={props.userId}
                       loanId={obj.id}

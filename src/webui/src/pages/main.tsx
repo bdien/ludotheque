@@ -16,7 +16,7 @@ export function Main() {
   const { items } = useItems({ sort: "created_at", nb: 8 });
   const isOnline = useOnlineStatus();
 
-  // Filtres les jeux de moins de 3 mois
+  // Filtres les jeux récents
   let lastitems: ItemListEntry[] = [];
   if (items) {
     lastitems = Array.from(items.values()).filter(
@@ -49,6 +49,7 @@ export function Main() {
           La <b>Ludo du Poisson Lune</b> vous propose un espace jeux pour passer un bon moment en
           famille ou avec les copains...
         </p>
+
         <p>
           Nous sommes ouverts <b>tous les samedis de 10h30 à 12h</b>, hors les samedis du milieu des
           vacances scolaires et jours fériés, au <b>pôle enfance de la Passerelle</b>,{" "}
@@ -72,7 +73,7 @@ export function Main() {
           <a href="mailto:laludodupoissonlune@gmail.com">laludodupoissonlune@gmail.com</a>
         </p>
 
-        {lastitems.length > 1 && (
+        {lastitems.length > 0 && (
           <Box
             sx={{
               backgroundColor: "white",
@@ -112,9 +113,12 @@ export function Main() {
             </p>
             <ul>
               <li>Adhésion annuelle familiale de {info.pricing.yearly}€ (Caution de 40€).</li>
+              <li>{info.loan.maxitems} jeux max en même temps.</li>
+              {info.summer_mode && (
+                <li>Mode été 🌞: {info.pricing.regular_summer}€ / jeu pour l'été</li>
+              )}
               <li>
-                Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines (
-                {info.loan.maxitems} jeux max en même temps).
+                Un jeu: {info.pricing.regular}€ pour {info.loan.weeks} semaines
               </li>
               <li>
                 Carte prépayée (Optionnelle): {info.pricing.card}€ (

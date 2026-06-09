@@ -34,23 +34,36 @@ def get_loans_late(
         return list(loans.dicts())
 
 
-def calculate_loan_stop_date() -> datetime.date:
+def calculate_loan_stop_date(summer_mode: bool = False) -> datetime.date:
     "Calculate the stop date for a new loan, based on the next opening saturday + LOAN_WEEKS"
 
     today = datetime.date.today()
-    theorical_date = today + datetime.timedelta(days=7 * get_config("loan_weeks"))
+    loan_duration_weeks: int = (
+        get_config("loan_weeks_summer") if summer_mode else get_config("loan_weeks")
+    )
+    theorical_date = today + datetime.timedelta(days=7 * loan_duration_weeks)
 
     # Adjusted for public holidays
     adjusted = get_next_saturday(theorical_date)
 
     # If the jump is huge, check for the opening before the theorical date
-    if (adjusted - theorical_date).days > 30:
+    if not summer_mode and (adjusted - theorical_date).days > 30:
         while theorical_date > today:
             if not is_holiday(theorical_date):
                 return theorical_date
             theorical_date -= datetime.timedelta(days=7)
 
     return adjusted
+
+
+def __get_item_price(
+    item: Item, pricing: dict, summer_mode: bool = False
+) -> float | int:
+    if item.big:
+        return pricing["big"]
+    if summer_mode:
+        return pricing["regular_summer"]
+    return pricing["regular"]
 
 
 @router.post("/loans", tags=["loans"])
@@ -78,10 +91,14 @@ async def create_loan(
             )
         )
 
+        # Final stop date
+        summer_mode: bool = get_config("summer_mode")
+        loan_stop_date = calculate_loan_stop_date(summer_mode)
+
         # Will contains the final prices for all items + subscription + card
         final_prices = body["items"].copy()
 
-        pricing = get_config("pricing")
+        pricing: dict[str, float] = get_config("pricing")
         # Special cases (Yearly subscription (-1) / Fill loan card (-2))
         if subscription := -1 in body["items"]:
             final_prices[final_prices.index(-1)] = pricing["yearly"]
@@ -92,7 +109,7 @@ async def create_loan(
         simulation = body.get("simulation", False)
 
         # Regular items
-        items = [Item.get_or_none(Item.id == i) for i in body["items"]]
+        items: list[Item] = [Item.get_or_none(Item.id == i) for i in body["items"]]
         if not all(items):
             logging.error("Cannot find some items")
             raise HTTPException(400, "Cannot find some items")
@@ -111,7 +128,7 @@ async def create_loan(
             user.credit += pricing["card_value"]
 
         # Now calculate how much is taken from the card and how much is remaining
-        cost_items = [pricing["big" if i.big else "regular"] for i in items]
+        cost_items = [__get_item_price(i, pricing, summer_mode) for i in items]
         # Benevole/Admin: nullify item prices
         if user.role in ("admin", "benevole"):
             cost_items = [0] * len(cost_items)
@@ -128,7 +145,6 @@ async def create_loan(
         loans = []
         if not simulation:
             today = datetime.date.today()
-            loan_stop_date = calculate_loan_stop_date()
             remaining_topay_fromcredit = topay_fromcredit
 
             # For each item, forget any other loan and create a new one
@@ -189,6 +205,7 @@ async def create_loan(
 
         return {
             "cost": cost,
+            "stop_date": loan_stop_date,
             "items_cost": final_prices,
             "topay": {"credit": topay_fromcredit, "real": topay_realmoney},
             "new_credit": user.credit,

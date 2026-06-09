@@ -1,4 +1,14 @@
-import { Alert, Box, Button, Divider, Icon, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  FormControlLabel,
+  Icon,
+  Switch,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { mutate } from "swr";
 import { navigate } from "wouter/use-browser-location";
@@ -7,6 +17,7 @@ import { useGlobalStore } from "../hooks/global_store";
 
 interface PricingFields {
   regular: number;
+  regular_summer: number;
   big: number;
   big_associations: number;
   card: number;
@@ -16,6 +27,7 @@ interface PricingFields {
 
 interface ConfigFormValues {
   loan_weeks: number;
+  loan_weeks_summer: number;
   loan_maxitems: number;
   loan_extend_max: number;
   loan_extend_days: number;
@@ -24,6 +36,7 @@ interface ConfigFormValues {
   email_sender: string;
   email_cc: string;
   item_new_days: number;
+  summer_mode: boolean;
   pricing: PricingFields;
 }
 
@@ -39,6 +52,7 @@ export function Config() {
     fetcher(`${SERVER_URL}/config`).then((data: Record<string, unknown>) => {
       const parsed: ConfigFormValues = {
         loan_weeks: (data.loan_weeks as number) ?? 3,
+        loan_weeks_summer: (data.loan_weeks_summer as number) ?? 8,
         loan_maxitems: (data.loan_maxitems as number) ?? 8,
         loan_extend_max: (data.loan_extend_max as number) ?? 1,
         loan_extend_days: (data.loan_extend_days as number) ?? 15,
@@ -47,8 +61,10 @@ export function Config() {
         email_sender: (data.email_sender as string) ?? "",
         email_cc: (data.email_cc as string) ?? "",
         item_new_days: (data.item_new_days as number) ?? 60,
+        summer_mode: (data.summer_mode as boolean) ?? false,
         pricing: {
           regular: (data.pricing as PricingFields)?.regular ?? 0,
+          regular_summer: (data.pricing as PricingFields)?.regular_summer ?? 1,
           big: (data.pricing as PricingFields)?.big ?? 0,
           big_associations: (data.pricing as PricingFields)?.big_associations ?? 0,
           card: (data.pricing as PricingFields)?.card ?? 0,
@@ -84,9 +100,11 @@ export function Config() {
         if (k === "pricing") {
           const pricingInit = init.pricing;
           const pricingCurr = values.pricing;
-          if (JSON.stringify(pricingInit) !== JSON.stringify(pricingCurr)) {
-            entries.pricing = pricingCurr;
+          const changed: Record<string, number> = {};
+          for (const pk of Object.keys(pricingCurr) as (keyof PricingFields)[]) {
+            if (pricingCurr[pk] !== pricingInit[pk]) changed[pk] = pricingCurr[pk];
           }
+          if (Object.keys(changed).length > 0) entries.pricing = changed;
         } else if (v !== (init as unknown as Record<string, unknown>)[k]) {
           entries[k] = v;
         }
@@ -134,11 +152,28 @@ export function Config() {
       )}
 
       {section("Emprunt")}
+      <FormControlLabel
+        control={
+          <Switch
+            checked={values.summer_mode}
+            onChange={(e) => update("summer_mode", e.target.checked)}
+          />
+        }
+        label="Mode été 🌞"
+      />
       <TextField
         label="Durée d'emprunt (semaines)"
         type="number"
         value={values.loan_weeks}
         onChange={(e) => update("loan_weeks", Number(e.target.value))}
+        fullWidth
+        margin="normal"
+      />
+      <TextField
+        label="Durée d'emprunt été🌞 (semaines)"
+        type="number"
+        value={values.loan_weeks_summer}
+        onChange={(e) => update("loan_weeks_summer", Number(e.target.value))}
         fullWidth
         margin="normal"
       />
@@ -216,6 +251,15 @@ export function Config() {
         slotProps={{ htmlInput: { step: 0.1 } }}
         value={values.pricing.regular}
         onChange={(e) => updatePricing("regular", Number(e.target.value))}
+        fullWidth
+        margin="normal"
+      />
+      <TextField
+        label="Tarif d'un jeu normal été 🌞 (€)"
+        type="number"
+        slotProps={{ htmlInput: { step: 0.1 } }}
+        value={values.pricing.regular_summer}
+        onChange={(e) => updatePricing("regular_summer", Number(e.target.value))}
         fullWidth
         margin="normal"
       />

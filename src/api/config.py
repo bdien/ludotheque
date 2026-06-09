@@ -6,10 +6,11 @@ from fastapi import APIRouter, Body, Depends
 from api.pwmodels import Config, db
 from api.system import auth_user_required
 
-__DEFAULTS: dict[str, str | int | dict[str, float | int]] = {
+__DEFAULTS: dict[str, str | bool | int | dict[str, float | int]] = {
     "auth_domain": "dev-th8igg4x0hj35r1b.eu.auth0.com",
     "pricing": {
         "regular": 0.5,
+        "regular_summer": 1,
         "big": 5,
         "big_associations": 7,
         "card": 12,
@@ -17,6 +18,7 @@ __DEFAULTS: dict[str, str | int | dict[str, float | int]] = {
         "yearly": 10,
     },
     "loan_weeks": 3,
+    "loan_weeks_summer": 8,
     "loan_maxitems": 8,
     "loan_extend_max": 1,
     "loan_extend_days": 15,
@@ -28,6 +30,7 @@ __DEFAULTS: dict[str, str | int | dict[str, float | int]] = {
     "email_minperiod": 21,
     "email_minlate": 14,
     "item_new_days": 60,
+    "summer_mode": False,
 }
 
 
@@ -44,17 +47,19 @@ def get_config_all() -> dict:
             db.close()
 
 
-def get_config(key: str) -> str | int | dict[str, float | int] | None:
+def get_config(key: str) -> str | bool | int | dict[str, float | int] | None:
     need_close = db.is_closed()
     try:
         if need_close:
             db.connect()
-        return Config.get(Config.key == key).value
+        value = Config.get(Config.key == key).value
     except Config.DoesNotExist, peewee.OperationalError:
-        return __DEFAULTS.get(key)
+        value = __DEFAULTS.get(key)
     finally:
         if need_close:
             db.close()
+
+    return value
 
 
 router = APIRouter()
@@ -73,6 +78,10 @@ async def router_set_config(
     auth.check_right("system")
     with db:
         for key, value in body.items():
+            # Special case for pricing
+            if key == "pricing":
+                value = get_config("pricing") | value
+
             obj, created = Config.get_or_create(
                 key=key,
                 defaults={"value": value},

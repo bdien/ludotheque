@@ -3,8 +3,10 @@ export interface Info {
   domain: string;
   version: string;
   next_opening: string;
+  summer_mode: boolean;
   pricing: {
     regular: number;
+    regular_summer: number;
     big: number;
     big_associations: number;
     yearly: number;
@@ -14,6 +16,7 @@ export interface Info {
   loan: {
     maxitems: number;
     weeks: number;
+    weeks_summer: number;
     extend_max: number;
   };
   image_max: number;
@@ -119,6 +122,7 @@ export interface Account {
 export interface LoanCreateResult {
   cost: number;
   items_cost: number[];
+  stop_date: string;
   topay: {
     credit: number;
     real: number;
