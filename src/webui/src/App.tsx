@@ -16,6 +16,7 @@ import { UserEdit } from "./pages/user_edit";
 import { UserList } from "./pages/user_list";
 import { UserView } from "./pages/user_view";
 import "./styles.css";
+import { ErrorBoundary } from "./components/error_boundary";
 import { Loading } from "./components/loading";
 import { useGlobalStore } from "./hooks/global_store";
 import { Config } from "./pages/config";
@@ -25,6 +26,7 @@ import { InventoryRev } from "./pages/inventoryrev";
 import { LateEmail } from "./pages/late_email";
 import { LateLoans } from "./pages/late_loans";
 import { LessLoaned } from "./pages/lessloaned";
+import { NotFound } from "./pages/not_found";
 import { Stats } from "./pages/stats";
 import { UserMyAccount } from "./pages/user_myaccount";
 
@@ -100,68 +102,71 @@ function App() {
         }}
       >
         <Toolbar />
-        <Switch>
-          <Route path="/users" component={UserList} />
-          <Route path="/users/new">
-            {() => {
-              return <UserEdit />;
-            }}
-          </Route>
-          <Route path="/users/:id">
-            {(params) => {
-              return <UserView id={parseInt(params.id, 10)} />;
-            }}
-          </Route>
-          <Route path="/users/:id/email">
-            {(params) => {
-              return <LateEmail id={parseInt(params.id, 10)} />;
-            }}
-          </Route>
-          <Route path="/users/:id/edit">
-            {(params) => {
-              return <UserEdit id={parseInt(params.id, 10)} />;
-            }}
-          </Route>
+        <ErrorBoundary>
+          <Switch>
+            <Route path="/users" component={UserList} />
+            <Route path="/users/new">
+              {() => {
+                return <UserEdit />;
+              }}
+            </Route>
+            <Route path="/users/:id">
+              {(params) => {
+                return <UserView id={parseInt(params.id, 10)} />;
+              }}
+            </Route>
+            <Route path="/users/:id/email">
+              {(params) => {
+                return <LateEmail id={parseInt(params.id, 10)} />;
+              }}
+            </Route>
+            <Route path="/users/:id/edit">
+              {(params) => {
+                return <UserEdit id={parseInt(params.id, 10)} />;
+              }}
+            </Route>
 
-          <Route path="/items" component={ItemList} />
-          <Route path="/items/new">
-            {() => {
-              return <ItemEdit />;
-            }}
-          </Route>
-          <Route path="/items/:id">
-            {(params) => {
-              return <Item id={parseInt(params.id, 10)} />;
-            }}
-          </Route>
-          <Route path="/items/:id/edit">
-            {(params) => {
-              return <ItemEdit id={parseInt(params.id, 10)} />;
-            }}
-          </Route>
+            <Route path="/items" component={ItemList} />
+            <Route path="/items/new">
+              {() => {
+                return <ItemEdit />;
+              }}
+            </Route>
+            <Route path="/items/:id">
+              {(params) => {
+                return <Item id={parseInt(params.id, 10)} />;
+              }}
+            </Route>
+            <Route path="/items/:id/edit">
+              {(params) => {
+                return <ItemEdit id={parseInt(params.id, 10)} />;
+              }}
+            </Route>
 
-          <Route path="/loans/new" component={Loan} />
-          <Route path="/loans/late" component={LateLoans} />
-          <Route path="/loans/:id/close">
-            {(params) => {
-              return <LoanClose id={parseInt(params.id, 10)} />;
-            }}
-          </Route>
+            <Route path="/loans/new" component={Loan} />
+            <Route path="/loans/late" component={LateLoans} />
+            <Route path="/loans/:id/close">
+              {(params) => {
+                return <LoanClose id={parseInt(params.id, 10)} />;
+              }}
+            </Route>
 
-          <Route path="/ledger" component={Ledger} />
-          <Route path="/inventory" component={Inventory} />
-          <Route path="/inventoryrev" component={InventoryRev} />
-          <Route path="/lessloaned" component={LessLoaned} />
-          <Route path="/documents" component={Documents} />
-          <Route path="/config" component={Config} />
-          <Route path="/stats" component={Stats} />
-          <Route path="/myaccount" component={UserMyAccount} />
+            <Route path="/ledger" component={Ledger} />
+            <Route path="/inventory" component={Inventory} />
+            <Route path="/inventoryrev" component={InventoryRev} />
+            <Route path="/lessloaned" component={LessLoaned} />
+            <Route path="/documents" component={Documents} />
+            <Route path="/config" component={Config} />
+            <Route path="/stats" component={Stats} />
+            <Route path="/myaccount" component={UserMyAccount} />
 
-          <Route path="/" component={Main} />
-        </Switch>
+            <Route path="/" component={Main} />
+            <Route component={NotFound} />
+          </Switch>
 
-        {/* Only way I found to keep some space at the very bottom */}
-        <Box height="10px"></Box>
+          {/* Only way I found to keep some space at the very bottom */}
+          <Box height="10px"></Box>
+        </ErrorBoundary>
       </Box>
 
       {/* Global Snackbar for notifications */}

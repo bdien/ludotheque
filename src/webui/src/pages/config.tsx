@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { mutate } from "swr";
 import { navigate } from "wouter/use-browser-location";
 import { fetcher, SERVER_URL, updateConfig } from "../api/calls";
+import { Loading } from "../components/loading";
 import { useGlobalStore } from "../hooks/global_store";
 
 interface PricingFields {
@@ -78,7 +79,7 @@ export function Config() {
     });
   }, []);
 
-  if (loading || !values) return "Chargement...";
+  if (loading || !values) return <Loading />;
 
   function update<K extends keyof ConfigFormValues>(key: K, value: ConfigFormValues[K]) {
     setValues((prev) => (prev ? { ...prev, [key]: value } : prev));

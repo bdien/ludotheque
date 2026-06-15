@@ -17,6 +17,7 @@ import "chartjs-adapter-date-fns";
 import Grid from "@mui/material/Grid";
 import { differenceInMonths } from "date-fns";
 import type { ItemModel } from "../api/models";
+import { Loading } from "../components/loading";
 import { StatsCard } from "../components/stats_card";
 import { useGlobalStore } from "../hooks/global_store";
 
@@ -57,7 +58,7 @@ export function Stats() {
   const { items } = useItems();
   const { stats } = useStats();
 
-  if (!stats || !items) return "Loading";
+  if (!stats || !items) return <Loading />;
 
   const itemsPerLastLoan = itemsCountLastLoan(Array.from(items.values()));
   const gdata_itemsPerLastLoan = {

@@ -9,6 +9,7 @@ import { navigate } from "wouter/use-browser-location";
 import { closeLoan, fetchItem } from "../api/calls";
 import { useLoan } from "../api/hooks";
 import type { APILoan, ItemModel } from "../api/models";
+import { Loading } from "../components/loading";
 
 interface LoanCloseProps {
   id: number;
@@ -31,7 +32,7 @@ export function LoanClose(props: LoanCloseProps) {
     }
   }, [loan]);
 
-  if (!loan || !item) return <>Loading</>;
+  if (!loan || !item) return <Loading />;
   const picture = item?.pictures?.length ? item.pictures[0] : "../../notavailable.webp";
 
   function onSubmit(loan: APILoan) {

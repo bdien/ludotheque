@@ -7,11 +7,12 @@ import { mutate as mutateSwr } from "swr";
 import { updateItem } from "../api/calls";
 import { useItemsLastseen } from "../api/hooks";
 import InventoryItem from "../components/inventory_item";
+import { Loading } from "../components/loading";
 
 export function Inventory() {
   const [itemId, setItemId] = useState<number | undefined>(undefined);
   const { items, mutate } = useItemsLastseen();
-  if (!items) return "Loading";
+  if (!items) return <Loading />;
 
   const inputRef: React.RefObject<HTMLInputElement | null> = createRef();
 

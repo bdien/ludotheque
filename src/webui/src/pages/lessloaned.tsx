@@ -1,10 +1,11 @@
 import { Typography } from "@mui/material";
 import { useItemsLessLoaned } from "../api/hooks";
+import { Loading } from "../components/loading";
 import MiniItem from "../components/mini_item";
 
 export function LessLoaned() {
   const { items } = useItemsLessLoaned();
-  if (!items) return "Loading";
+  if (!items) return <Loading />;
 
   return (
     <>

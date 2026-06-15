@@ -110,7 +110,7 @@ interface ItemLessLoanedEntry extends ItemModel {
 
 export function useItemsLessLoaned() {
   const { data, error, isLoading, mutate } = useSWR<ItemLessLoanedEntry[]>(
-    `${SERVER_URL}//items/nbloans`,
+    `${SERVER_URL}/items/nbloans`,
     fetcher,
     { dedupingInterval: 60000 },
   );
