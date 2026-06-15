@@ -1,0 +1,4 @@
+allowBuilds:
+  esbuild: true
+  '@sentry/cli': true
+  browser-tabs-lock: false

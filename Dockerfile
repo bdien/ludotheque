@@ -4,9 +4,7 @@ ARG SENTRY_AUTH_TOKEN
 ENV SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN
 
 # Build website
-RUN apk add nodejs
-RUN wget -qO- https://get.pnpm.io/install.sh  | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
-ENV PATH="$PATH:/root/.local/share/pnpm"
+RUN apk add pnpm
 ADD . /app
 RUN sed -i "s/DEVDEV/`date +%m%d%H%M`/" /app/src/api/system.py /app/src/webui/src/components/sidemenu.tsx
 RUN cd /app/src/webui && pnpm install && pnpm run build
