@@ -2,9 +2,11 @@ import {
   Alert,
   Box,
   Button,
-  Divider,
-  FormControlLabel,
+  Container,
+  Grid,
   Icon,
+  Paper,
+  Stack,
   Switch,
   TextField,
   Typography,
@@ -39,6 +41,26 @@ interface ConfigFormValues {
   item_new_days: number;
   summer_mode: boolean;
   pricing: PricingFields;
+}
+
+function SectionCard({
+  icon,
+  title,
+  children,
+}: {
+  icon: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Paper sx={{ p: 3 }}>
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2.5 }}>
+        <Icon color="primary">{icon}</Icon>
+        <Typography variant="h6">{title}</Typography>
+      </Stack>
+      {children}
+    </Paper>
+  );
 }
 
 export function Config() {
@@ -128,23 +150,12 @@ export function Config() {
     }
   }
 
-  function section(title: string) {
-    return (
-      <>
-        <Divider sx={{ my: 3 }} />
-        <Typography variant="h6" gutterBottom>
-          {title}
-        </Typography>
-      </>
-    );
-  }
-
   return (
-    <Box sx={{ maxWidth: 600 }}>
-      <Typography variant="h5" gutterBottom>
-        <Icon sx={{ verticalAlign: "middle", mr: 1 }}>settings</Icon>
-        Configuration
-      </Typography>
+    <Container maxWidth="md" sx={{ py: 3 }}>
+      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
+        <Icon sx={{ fontSize: 32, color: "primary.main" }}>settings</Icon>
+        <Typography variant="h5">Configuration</Typography>
+      </Stack>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -152,171 +163,205 @@ export function Config() {
         </Alert>
       )}
 
-      {section("Emprunt")}
-      <FormControlLabel
-        control={
-          <Switch
-            checked={values.summer_mode}
-            onChange={(e) => update("summer_mode", e.target.checked)}
+      <Stack spacing={3}>
+        <SectionCard icon="swap_horiz" title="Emprunt">
+          <Stack direction="row" spacing={4} sx={{ mb: 2 }}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Switch
+                checked={values.summer_mode}
+                onChange={(e) => update("summer_mode", e.target.checked)}
+              />
+              <Typography>Mode été</Typography>
+            </Stack>
+          </Stack>
+          <Grid container spacing={2}>
+            <Grid size={6}>
+              <TextField
+                label="Durée d'emprunt (semaines)"
+                type="number"
+                value={values.loan_weeks}
+                onChange={(e) => update("loan_weeks", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Durée d'emprunt été (semaines)"
+                type="number"
+                value={values.loan_weeks_summer}
+                onChange={(e) => update("loan_weeks_summer", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Max d'objets par adhérent"
+                type="number"
+                value={values.loan_maxitems}
+                onChange={(e) => update("loan_maxitems", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={3}>
+              <TextField
+                label="Prolongations max"
+                type="number"
+                value={values.loan_extend_max}
+                onChange={(e) => update("loan_extend_max", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={3}>
+              <TextField
+                label="Jours de prolongation"
+                type="number"
+                value={values.loan_extend_days}
+                onChange={(e) => update("loan_extend_days", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+        </SectionCard>
+
+        <SectionCard icon="mail" title="Email">
+          <Grid container spacing={2}>
+            <Grid size={6}>
+              <TextField
+                label="Période min entre emails (jours)"
+                type="number"
+                value={values.email_minperiod}
+                onChange={(e) => update("email_minperiod", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Retard min avant email (jours)"
+                type="number"
+                value={values.email_minlate}
+                onChange={(e) => update("email_minlate", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Email expéditeur"
+                value={values.email_sender}
+                onChange={(e) => update("email_sender", e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                label="Email en copie"
+                value={values.email_cc}
+                onChange={(e) => update("email_cc", e.target.value)}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+        </SectionCard>
+
+        <SectionCard icon="sports_esports" title="Jeux">
+          <TextField
+            label="Âge (en jours) où un jeu est considéré comme nouveau"
+            type="number"
+            value={values.item_new_days}
+            onChange={(e) => update("item_new_days", Number(e.target.value))}
+            fullWidth
           />
-        }
-        label="Mode été 🌞"
-      />
-      <TextField
-        label="Durée d'emprunt (semaines)"
-        type="number"
-        value={values.loan_weeks}
-        onChange={(e) => update("loan_weeks", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Durée d'emprunt été🌞 (semaines)"
-        type="number"
-        value={values.loan_weeks_summer}
-        onChange={(e) => update("loan_weeks_summer", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Nombre max d'objets emprunté par un adhérent"
-        type="number"
-        value={values.loan_maxitems}
-        onChange={(e) => update("loan_maxitems", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Nombre de prolongations maximum"
-        type="number"
-        value={values.loan_extend_max}
-        onChange={(e) => update("loan_extend_max", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Jours de prolongation"
-        type="number"
-        value={values.loan_extend_days}
-        onChange={(e) => update("loan_extend_days", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
+        </SectionCard>
 
-      {section("Email")}
-      <TextField
-        label="Période minimum entre emails (jours)"
-        type="number"
-        value={values.email_minperiod}
-        onChange={(e) => update("email_minperiod", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Retard minimum avant email (jours)"
-        type="number"
-        value={values.email_minlate}
-        onChange={(e) => update("email_minlate", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Email expediteur"
-        value={values.email_sender}
-        onChange={(e) => update("email_sender", e.target.value)}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Email en copie"
-        value={values.email_cc}
-        onChange={(e) => update("email_cc", e.target.value)}
-        fullWidth
-        margin="normal"
-      />
+        <SectionCard icon="euro" title="Tarifs">
+          <Grid container spacing={2}>
+            <Grid size={4}>
+              <TextField
+                label="Jeu normal (€)"
+                type="number"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                value={values.pricing.regular}
+                onChange={(e) => updatePricing("regular", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={4}>
+              <TextField
+                label="Jeu normal été (€)"
+                type="number"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                value={values.pricing.regular_summer}
+                onChange={(e) => updatePricing("regular_summer", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={4}>
+              <TextField
+                label="Gros jeu (€)"
+                type="number"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                value={values.pricing.big}
+                onChange={(e) => updatePricing("big", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={4}>
+              <TextField
+                label="Gros jeu assos (€)"
+                type="number"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                value={values.pricing.big_associations}
+                onChange={(e) => updatePricing("big_associations", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={4}>
+              <TextField
+                label="Carte (€)"
+                type="number"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                value={values.pricing.card}
+                onChange={(e) => updatePricing("card", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={4}>
+              <TextField
+                label="Valeur carte (€)"
+                type="number"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                value={values.pricing.card_value}
+                onChange={(e) => updatePricing("card_value", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={4}>
+              <TextField
+                label="Adhésion annuelle (€)"
+                type="number"
+                slotProps={{ htmlInput: { step: 0.1 } }}
+                value={values.pricing.yearly}
+                onChange={(e) => updatePricing("yearly", Number(e.target.value))}
+                fullWidth
+              />
+            </Grid>
+          </Grid>
+        </SectionCard>
 
-      {section("Jeux")}
-      <TextField
-        label="Age (en jours) où un jeu est considéré comme nouveau"
-        type="number"
-        value={values.item_new_days}
-        onChange={(e) => update("item_new_days", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-
-      {section("Tarifs")}
-      <TextField
-        label="Tarif d'un jeu normal (€)"
-        type="number"
-        slotProps={{ htmlInput: { step: 0.1 } }}
-        value={values.pricing.regular}
-        onChange={(e) => updatePricing("regular", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Tarif d'un jeu normal été 🌞 (€)"
-        type="number"
-        slotProps={{ htmlInput: { step: 0.1 } }}
-        value={values.pricing.regular_summer}
-        onChange={(e) => updatePricing("regular_summer", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Tarif gros jeu (€)"
-        type="number"
-        slotProps={{ htmlInput: { step: 0.1 } }}
-        value={values.pricing.big}
-        onChange={(e) => updatePricing("big", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Tarif gros jeu (€, pour les assos)"
-        type="number"
-        slotProps={{ htmlInput: { step: 0.1 } }}
-        value={values.pricing.big_associations}
-        onChange={(e) => updatePricing("big_associations", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Tarif d'une carte (€)"
-        type="number"
-        slotProps={{ htmlInput: { step: 0.1 } }}
-        value={values.pricing.card}
-        onChange={(e) => updatePricing("card", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Valeur carte (€)"
-        type="number"
-        slotProps={{ htmlInput: { step: 0.1 } }}
-        value={values.pricing.card_value}
-        onChange={(e) => updatePricing("card_value", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        label="Adhésion annuelle (€)"
-        type="number"
-        slotProps={{ htmlInput: { step: 0.1 } }}
-        value={values.pricing.yearly}
-        onChange={(e) => updatePricing("yearly", Number(e.target.value))}
-        fullWidth
-        margin="normal"
-      />
-
-      <Divider sx={{ my: 3 }} />
-      <Button variant="contained" fullWidth color="secondary" onClick={onSubmit} loading={saving}>
-        Sauvegarder
-      </Button>
-      <Button variant="outlined" fullWidth sx={{ mt: 1 }} onClick={() => navigate("/")}>
-        Annuler
-      </Button>
-    </Box>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={onSubmit}
+            loading={saving}
+            sx={{ flex: 1 }}
+          >
+            Sauvegarder
+          </Button>
+          <Button variant="outlined" onClick={() => navigate("/")} sx={{ flex: 1 }}>
+            Annuler
+          </Button>
+        </Box>
+      </Stack>
+    </Container>
   );
 }
