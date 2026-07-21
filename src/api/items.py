@@ -288,7 +288,7 @@ def get_item(
             i.source: round(i.sum / i.total, 1) for i in ratings if i.total
         }
 
-        if loans:
+        if loans and loans[0]:
             base["status"] = loans[0].status
             if auth:
                 base["return"] = loans[0].stop

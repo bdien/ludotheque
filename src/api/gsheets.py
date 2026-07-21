@@ -61,7 +61,8 @@ def publish_gsheets():
             [
                 user.id,
                 user.name,
-                (user.email_set and user.email_set[0].email) or "",
+                (user.email_set and user.email_set[0] and user.email_set[0].email)
+                or "",
                 (user.enabled and " ") or "Désactivé",
                 totalloans_per_userid[user.id][0],
                 totalloans_per_userid[user.id][1],
