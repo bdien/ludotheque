@@ -58,7 +58,7 @@ restore = "rm -rf storage/img storage/thumb storage/ludotheque.db; curl -H \"Aut
 
 [dependency-groups]
 dev = [
-    "ruff>=0.8.3",
+    "ruff>=0.16.0",
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",
     "httpx>=0.28.1",
