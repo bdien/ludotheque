@@ -559,7 +559,6 @@ export function Item(props: ItemProps) {
                 }}
               >
                 {item.content.map((row, idx) => (
-                  /* biome-ignore lint/suspicious/noArrayIndexKey: Stable index */
                   <li key={idx}>{row}</li>
                 ))}
               </Box>

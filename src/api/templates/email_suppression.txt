@@ -1,7 +1,7 @@
 Cher⸱e ancien⸱ne adhérent⸱e de la ludothèque d'Acigné,
 
 Cela fait un moment que nous ne sommes pas vus. Afin d'éviter de conserver vos données personnelles, nous allons bientôt supprimer votre compte.
-Merci de nous indiquer si vous souhaitez le garder un peu plus longtemps. 
+Merci de nous indiquer si vous souhaitez le garder un peu plus longtemps.
 Bien sûr, si vous souhaitez recréer un compte plus tard, cela est tout à fait possible.
 
 {%- if card_items }

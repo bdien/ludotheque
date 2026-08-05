@@ -21,7 +21,6 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
       <div className="embla__viewport" ref={emblaRef}>
         <div className="embla__container">
           {slides.map((item, index) => (
-            /* biome-ignore lint/suspicious/noArrayIndexKey: Stable index */
             <div className="embla__slide" key={index}>
               {item}
             </div>

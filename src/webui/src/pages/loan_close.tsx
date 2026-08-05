@@ -100,7 +100,6 @@ export function LoanClose(props: LoanCloseProps) {
           >
             <ul>
               {item.content.map((row, idx) => (
-                /* biome-ignore lint/suspicious/noArrayIndexKey: Stable index */
                 <li key={idx}> {row}</li>
               ))}
             </ul>

@@ -41,7 +41,6 @@ export function LateEmail(props: LateEmailProps) {
           <Typography
             variant="body2"
             color="text.secondary"
-            /* biome-ignore lint/security/noDangerouslySetInnerHtml: no user-provided content */
             dangerouslySetInnerHTML={{
               __html: email.body,
             }}

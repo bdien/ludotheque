@@ -18,5 +18,5 @@ export function UserMyAccount() {
     }
   }, [account, isAuthenticated, loginWithRedirect, setLocation]);
 
-  return <></>;
+  return null;
 }
