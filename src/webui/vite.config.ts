@@ -9,7 +9,7 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
   workbox: {
     globPatterns: ["**/*.{js,css,html,webp,woff,woff2}"],
     navigateFallback: "/index.html",
-    navigateFallbackDenylist: [/^\/api/, /^\/storage/],
+    navigateFallbackDenylist: [/^\/api/, /^\/storage/, /^\/docs/],
     runtimeCaching: [
       {
         urlPattern: /^https:\/\/.*\/api\/info/i,
