@@ -27,6 +27,7 @@ import { LateEmail } from "./pages/late_email";
 import { LateLoans } from "./pages/late_loans";
 import { LessLoaned } from "./pages/lessloaned";
 import { NotFound } from "./pages/not_found";
+import { PlanningRedirect } from "./pages/planning";
 import { Stats } from "./pages/stats";
 import { UserMyAccount } from "./pages/user_myaccount";
 
@@ -160,6 +161,7 @@ function App() {
             <Route path="/stats" component={Stats} />
             <Route path="/myaccount" component={UserMyAccount} />
 
+            <Route path="/planning" component={PlanningRedirect} />
             <Route path="/" component={Main} />
             <Route component={NotFound} />
           </Switch>

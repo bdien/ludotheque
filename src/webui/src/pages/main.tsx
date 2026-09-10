@@ -58,11 +58,11 @@ export function Main() {
           </a>{" "}
           à Acigné. Vous pouvez passer également passer pour jouer sur place.
         </p>
-        {isAuthenticated && (
+        {isAuthenticated && info.planning_url && (
           <p>
             Si vous souhaitez aider aux permanences, n'hésitez pas à vous inscrire sur{" "}
-            <a href="https://framadate.org/iq7g6GZcr3rECGcC">le planning</a>. Les emprunts sont
-            gratuits votre jour de permanence !
+            <a href="/planning">le planning</a>. Les emprunts sont gratuits votre jour de permanence
+            !
           </p>
         )}
         <p>

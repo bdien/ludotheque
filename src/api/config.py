@@ -31,6 +31,7 @@ __DEFAULTS: dict[str, str | bool | int | dict[str, float | int]] = {
     "email_minlate": 14,
     "item_new_days": 60,
     "summer_mode": False,
+    "planning_url": "",
 }
 
 

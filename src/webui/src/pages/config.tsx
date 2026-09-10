@@ -40,6 +40,7 @@ interface ConfigFormValues {
   email_cc: string;
   item_new_days: number;
   summer_mode: boolean;
+  planning_url: string;
   pricing: PricingFields;
 }
 
@@ -85,6 +86,7 @@ export function Config() {
         email_cc: (data.email_cc as string) ?? "",
         item_new_days: (data.item_new_days as number) ?? 60,
         summer_mode: (data.summer_mode as boolean) ?? false,
+        planning_url: (data.planning_url as string) ?? "",
         pricing: {
           regular: (data.pricing as PricingFields)?.regular ?? 0,
           regular_summer: (data.pricing as PricingFields)?.regular_summer ?? 1,
@@ -268,6 +270,17 @@ export function Config() {
             type="number"
             value={values.item_new_days}
             onChange={(e) => update("item_new_days", Number(e.target.value))}
+            fullWidth
+          />
+        </SectionCard>
+
+        <SectionCard icon="link" title="Général">
+          <TextField
+            label="URL du planning bénévoles"
+            type="url"
+            value={values.planning_url}
+            onChange={(e) => update("planning_url", e.target.value)}
+            helperText="Lien vers le planning Framadate ou autre (vide = masque le lien)"
             fullWidth
           />
         </SectionCard>

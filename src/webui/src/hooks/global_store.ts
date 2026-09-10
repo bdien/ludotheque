@@ -43,6 +43,7 @@ export const useGlobalStore = create<GlobalStore>((set) => ({
     email_minperiod: 0,
     email_minlate: 0,
     item_new_days: 0,
+    planning_url: "",
   },
   // User account (Default value to avoid undefined)
   account: {

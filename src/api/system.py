@@ -336,6 +336,7 @@ def info():
             "email_minperiod": cfg.get("email_minperiod"),
             "email_minlate": cfg.get("email_minlate"),
             "item_new_days": cfg.get("item_new_days"),
+            "planning_url": cfg.get("planning_url"),
             "version": "DEVDEV",
         }
 

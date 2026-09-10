@@ -23,6 +23,7 @@ export interface Info {
   email_minperiod: number;
   email_minlate: number;
   item_new_days: number;
+  planning_url: string;
 }
 
 export interface User {
