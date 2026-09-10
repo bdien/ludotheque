@@ -64,6 +64,7 @@ def today_plus_loantime():
 
 
 class User(BaseModel):
+    id = peewee.AutoField()
     name = peewee.CharField()
     enabled = peewee.BooleanField(default=True)
     role = peewee.CharField(default="user")
@@ -80,11 +81,13 @@ class User(BaseModel):
 
 
 class EMail(BaseModel):
+    id = peewee.AutoField()
     email = peewee.CharField(unique=True)
     user = peewee.ForeignKeyField(model=User)
 
 
 class Item(BaseModel):
+    id = peewee.AutoField()
     name = peewee.CharField()
     enabled = peewee.BooleanField(default=True)
     description = peewee.TextField(null=True)
@@ -102,6 +105,7 @@ class Item(BaseModel):
 
 
 class Category(BaseModel):
+    id = peewee.AutoField()
     name = peewee.CharField(unique=True)
 
 
@@ -125,6 +129,7 @@ class ItemLink(BaseModel):
 
 
 class Loan(BaseModel):
+    id = peewee.AutoField()
     user = peewee.ForeignKeyField(model=User, null=True)
     item = peewee.ForeignKeyField(model=Item)
     start = peewee.DateField(default=date.today)
@@ -134,6 +139,7 @@ class Loan(BaseModel):
 
 
 class Ledger(BaseModel):
+    id = peewee.AutoField()
     operator_id = peewee.ForeignKeyField(model=User, null=True)
     user = peewee.ForeignKeyField(model=User, null=True)  # Source of the transfer
     loan_id = peewee.ForeignKeyField(model=Loan, null=True)
@@ -145,6 +151,7 @@ class Ledger(BaseModel):
 
 
 class Rating(BaseModel):
+    id = peewee.AutoField()
     item = peewee.ForeignKeyField(model=Item)
     user = peewee.ForeignKeyField(model=User, null=True)
     source = peewee.CharField(default="website")
@@ -156,11 +163,13 @@ class Rating(BaseModel):
 
 
 class Config(BaseModel):
+    id = peewee.AutoField()
     key = peewee.CharField(unique=True)
     value = JSONField()
 
 
 class Log(BaseModel):
+    id = peewee.AutoField()
     user = peewee.ForeignKeyField(model=User, null=True)
     text = peewee.CharField(null=True)
     created_at = peewee.DateTimeField(default=datetime.now)

@@ -54,7 +54,7 @@ def get_config(key: str) -> str | bool | int | dict[str, float | int] | None:
         if need_close:
             db.connect()
         value = Config.get(Config.key == key).value
-    except Config.DoesNotExist, peewee.OperationalError:
+    except Config.DoesNotExist, peewee.OperationalError:  # ty:ignore[unresolved-attribute]
         value = __DEFAULTS.get(key)
     finally:
         if need_close:
