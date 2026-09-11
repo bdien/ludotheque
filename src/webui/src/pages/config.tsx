@@ -5,6 +5,7 @@ import {
   Container,
   Grid,
   Icon,
+  InputAdornment,
   Paper,
   Stack,
   Switch,
@@ -54,10 +55,14 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <Paper sx={{ p: 3 }}>
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2.5 }}>
-        <Icon color="primary">{icon}</Icon>
-        <Typography variant="h6">{title}</Typography>
+    <Paper sx={{ p: { xs: 2, sm: 2.5 }, overflow: "hidden" }} variant="outlined">
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+        <Icon color="primary" sx={{ fontSize: 20 }}>
+          {icon}
+        </Icon>
+        <Typography variant="subtitle1" fontWeight={600}>
+          {title}
+        </Typography>
       </Stack>
       {children}
     </Paper>
@@ -153,10 +158,10 @@ export function Config() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 3 }}>
-      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 3 }}>
-        <Icon sx={{ fontSize: 32, color: "primary.main" }}>settings</Icon>
-        <Typography variant="h5">Configuration</Typography>
+    <Container maxWidth="md" sx={{ py: { xs: 2, sm: 3 }, px: { xs: 1.5, sm: 2 } }}>
+      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2.5 }}>
+        <Icon sx={{ fontSize: 28, color: "primary.main" }}>settings</Icon>
+        <Typography variant="h6">Configuration</Typography>
       </Stack>
 
       {error && (
@@ -165,60 +170,79 @@ export function Config() {
         </Alert>
       )}
 
-      <Stack spacing={3}>
+      <Stack spacing={2.5}>
         <SectionCard icon="swap_horiz" title="Emprunt">
-          <Stack direction="row" spacing={4} sx={{ mb: 2 }}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Switch
-                checked={values.summer_mode}
-                onChange={(e) => update("summer_mode", e.target.checked)}
-              />
-              <Typography>Mode été</Typography>
-            </Stack>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+            <Switch
+              checked={values.summer_mode}
+              onChange={(e) => update("summer_mode", e.target.checked)}
+              size="small"
+            />
+            <Typography variant="body2">Mode été</Typography>
           </Stack>
-          <Grid container spacing={2}>
+          <Grid container spacing={1.5}>
             <Grid size={6}>
               <TextField
-                label="Durée d'emprunt (semaines)"
+                label="Durée"
                 type="number"
+                size="small"
                 value={values.loan_weeks}
                 onChange={(e) => update("loan_weeks", Number(e.target.value))}
+                slotProps={{
+                  input: { endAdornment: <InputAdornment position="end">semaines</InputAdornment> },
+                }}
                 fullWidth
               />
             </Grid>
             <Grid size={6}>
               <TextField
-                label="Durée d'emprunt été (semaines)"
+                label="Durée (été)"
                 type="number"
+                size="small"
                 value={values.loan_weeks_summer}
                 onChange={(e) => update("loan_weeks_summer", Number(e.target.value))}
+                slotProps={{
+                  input: { endAdornment: <InputAdornment position="end">semaines</InputAdornment> },
+                }}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={{ xs: 6, sm: 3 }}>
+              <TextField
+                label="Prolongation"
+                type="number"
+                size="small"
+                value={values.loan_extend_max}
+                onChange={(e) => update("loan_extend_max", Number(e.target.value))}
+                slotProps={{
+                  input: { endAdornment: <InputAdornment position="end">max</InputAdornment> },
+                }}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={{ xs: 6, sm: 3 }}>
+              <TextField
+                label="Durée prolongation"
+                type="number"
+                size="small"
+                value={values.loan_extend_days}
+                onChange={(e) => update("loan_extend_days", Number(e.target.value))}
+                slotProps={{
+                  input: { endAdornment: <InputAdornment position="end">jours</InputAdornment> },
+                }}
                 fullWidth
               />
             </Grid>
             <Grid size={6}>
               <TextField
-                label="Max d'objets par adhérent"
+                label="Limite par adhérent"
                 type="number"
+                size="small"
                 value={values.loan_maxitems}
                 onChange={(e) => update("loan_maxitems", Number(e.target.value))}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={3}>
-              <TextField
-                label="Prolongations max"
-                type="number"
-                value={values.loan_extend_max}
-                onChange={(e) => update("loan_extend_max", Number(e.target.value))}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={3}>
-              <TextField
-                label="Jours de prolongation"
-                type="number"
-                value={values.loan_extend_days}
-                onChange={(e) => update("loan_extend_days", Number(e.target.value))}
+                slotProps={{
+                  input: { endAdornment: <InputAdornment position="end">jeux</InputAdornment> },
+                }}
                 fullWidth
               />
             </Grid>
@@ -226,38 +250,52 @@ export function Config() {
         </SectionCard>
 
         <SectionCard icon="mail" title="Email">
-          <Grid container spacing={2}>
+          <Grid container spacing={1.5}>
             <Grid size={6}>
               <TextField
-                label="Période min entre emails (jours)"
+                label="Retard mini"
                 type="number"
-                value={values.email_minperiod}
-                onChange={(e) => update("email_minperiod", Number(e.target.value))}
-                fullWidth
-              />
-            </Grid>
-            <Grid size={6}>
-              <TextField
-                label="Retard min avant email (jours)"
-                type="number"
+                size="small"
                 value={values.email_minlate}
                 onChange={(e) => update("email_minlate", Number(e.target.value))}
+                slotProps={{
+                  input: { endAdornment: <InputAdornment position="end">jours</InputAdornment> },
+                }}
                 fullWidth
               />
             </Grid>
             <Grid size={6}>
               <TextField
-                label="Email expéditeur"
+                label="Entre 2 emails"
+                type="number"
+                size="small"
+                value={values.email_minperiod}
+                onChange={(e) => update("email_minperiod", Number(e.target.value))}
+                slotProps={{
+                  input: { endAdornment: <InputAdornment position="end">jours</InputAdornment> },
+                }}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                label="Expéditeur"
+                type="email"
+                size="small"
                 value={values.email_sender}
                 onChange={(e) => update("email_sender", e.target.value)}
+                placeholder="ludotheque@example.com"
                 fullWidth
               />
             </Grid>
-            <Grid size={6}>
+            <Grid size={12}>
               <TextField
                 label="Email en copie"
+                type="email"
+                size="small"
                 value={values.email_cc}
                 onChange={(e) => update("email_cc", e.target.value)}
+                placeholder="copie@example.com"
                 fullWidth
               />
             </Grid>
@@ -266,92 +304,126 @@ export function Config() {
 
         <SectionCard icon="sports_esports" title="Jeux">
           <TextField
-            label="Âge (en jours) où un jeu est considéré comme nouveau"
+            label="Nouveauté"
             type="number"
+            size="small"
             value={values.item_new_days}
             onChange={(e) => update("item_new_days", Number(e.target.value))}
+            slotProps={{
+              input: { endAdornment: <InputAdornment position="end">jours</InputAdornment> },
+            }}
+            helperText="Durée pendant laquelle un jeu est 'nouveau'"
             fullWidth
           />
         </SectionCard>
 
         <SectionCard icon="link" title="Général">
           <TextField
-            label="URL du planning bénévoles"
+            label="Planning bénévoles"
             type="url"
+            size="small"
             value={values.planning_url}
             onChange={(e) => update("planning_url", e.target.value)}
-            helperText="Lien vers le planning Framadate ou autre (vide = masque le lien)"
+            placeholder="https://framadate.org/..."
+            helperText="Lien Framadate ou autre (vide = masqué)"
             fullWidth
           />
         </SectionCard>
 
         <SectionCard icon="euro" title="Tarifs">
-          <Grid container spacing={2}>
-            <Grid size={4}>
+          <Grid container spacing={1.5}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <TextField
-                label="Jeu normal (€)"
+                label="Normal"
                 type="number"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                size="small"
+                slotProps={{
+                  htmlInput: { step: 0.1 },
+                  input: { endAdornment: <InputAdornment position="end">€</InputAdornment> },
+                }}
                 value={values.pricing.regular}
                 onChange={(e) => updatePricing("regular", Number(e.target.value))}
                 fullWidth
               />
             </Grid>
-            <Grid size={4}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <TextField
-                label="Jeu normal été (€)"
+                label="Normal été"
                 type="number"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                size="small"
+                slotProps={{
+                  htmlInput: { step: 0.1 },
+                  input: { endAdornment: <InputAdornment position="end">€</InputAdornment> },
+                }}
                 value={values.pricing.regular_summer}
                 onChange={(e) => updatePricing("regular_summer", Number(e.target.value))}
                 fullWidth
               />
             </Grid>
-            <Grid size={4}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <TextField
-                label="Gros jeu (€)"
+                label="Gros jeu"
                 type="number"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                size="small"
+                slotProps={{
+                  htmlInput: { step: 0.1 },
+                  input: { endAdornment: <InputAdornment position="end">€</InputAdornment> },
+                }}
                 value={values.pricing.big}
                 onChange={(e) => updatePricing("big", Number(e.target.value))}
                 fullWidth
               />
             </Grid>
-            <Grid size={4}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <TextField
-                label="Gros jeu assos (€)"
+                label="Gros jeu (assos)"
                 type="number"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                size="small"
+                slotProps={{
+                  htmlInput: { step: 0.1 },
+                  input: { endAdornment: <InputAdornment position="end">€</InputAdornment> },
+                }}
                 value={values.pricing.big_associations}
-                onChange={(e) => updatePricing("big_associations", Number(e.target.value))}
                 fullWidth
               />
             </Grid>
-            <Grid size={4}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <TextField
-                label="Carte (€)"
+                label="Prix de la Carte"
                 type="number"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                size="small"
+                slotProps={{
+                  htmlInput: { step: 0.1 },
+                  input: { endAdornment: <InputAdornment position="end">€</InputAdornment> },
+                }}
                 value={values.pricing.card}
                 onChange={(e) => updatePricing("card", Number(e.target.value))}
                 fullWidth
               />
             </Grid>
-            <Grid size={4}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <TextField
-                label="Valeur carte (€)"
+                label="Valeur de la carte"
                 type="number"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                size="small"
+                slotProps={{
+                  htmlInput: { step: 0.1 },
+                  input: { endAdornment: <InputAdornment position="end">€</InputAdornment> },
+                }}
                 value={values.pricing.card_value}
                 onChange={(e) => updatePricing("card_value", Number(e.target.value))}
                 fullWidth
               />
             </Grid>
-            <Grid size={4}>
+            <Grid size={{ xs: 6, md: 4 }}>
               <TextField
-                label="Adhésion annuelle (€)"
+                label="Adhésion annuelle"
                 type="number"
-                slotProps={{ htmlInput: { step: 0.1 } }}
+                size="small"
+                slotProps={{
+                  htmlInput: { step: 0.1 },
+                  input: { endAdornment: <InputAdornment position="end">€</InputAdornment> },
+                }}
                 value={values.pricing.yearly}
                 onChange={(e) => updatePricing("yearly", Number(e.target.value))}
                 fullWidth
@@ -360,7 +432,7 @@ export function Config() {
           </Grid>
         </SectionCard>
 
-        <Box sx={{ display: "flex", gap: 2 }}>
+        <Box sx={{ display: "flex", gap: 1.5, flexDirection: { xs: "column", sm: "row" } }}>
           <Button
             variant="contained"
             color="secondary"
