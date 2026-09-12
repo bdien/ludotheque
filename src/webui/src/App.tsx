@@ -43,13 +43,19 @@ declare global {
 }
 
 function App() {
-  const { info } = useInfo();
+  const { info, error: infoError } = useInfo();
   const [authdone, setAuthDone] = useState(false);
   const globalStoreSetAccount = useGlobalStore((state) => state.setAccount);
   const globalStoreSetInfo = useGlobalStore((state) => state.setInfo);
   const snackbar = useGlobalStore((state) => state.snackbar);
   const hideSnackbar = useGlobalStore((state) => state.hideSnackbar);
   const { isAuthenticated, isLoading, getAccessTokenSilently, logout } = useAuth0();
+
+  // Safety net: never block the UI forever if Auth0 is unreachable (PWA offline)
+  useEffect(() => {
+    const timer = setTimeout(() => setAuthDone(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // If info has changed, update global store
   useEffect(() => {
@@ -71,22 +77,26 @@ function App() {
       getAccessTokenSilently()
         .then((token) => {
           setToken(token);
-          getAccount().then((data) => {
-            if (data.id === 14) window.umami?.identify({ name: "Benoit", role: data.role });
-            else window.umami?.identify({ role: data.role });
-            globalStoreSetAccount(data);
-            setAuthDone(true);
-          });
+          return getAccount();
+        })
+        .then((data) => {
+          if (data.id === 14) window.umami?.identify({ name: "Benoit", role: data.role });
+          else window.umami?.identify({ role: data.role });
+          globalStoreSetAccount(data);
+          setAuthDone(true);
         })
         .catch(() => {
-          logout();
+          // Stay in the app (no redirect): offline a redirect would kick the
+          // user out of the PWA, online they are simply treated as a guest.
+          logout({ openUrl: false });
           setAuthDone(true);
         });
     }
   }, [isLoading, isAuthenticated, logout, globalStoreSetAccount, getAccessTokenSilently]);
 
-  // Do not display anything if /info and /account are not done
-  if (!info || !authdone) {
+  // Offline-first: render as soon as auth is settled and /info either
+  // arrived or definitively failed (store defaults then apply, e.g. PWA offline)
+  if ((!info && !infoError) || !authdone) {
     return <Loading />;
   }
 

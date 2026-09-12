@@ -12,10 +12,11 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
     navigateFallbackDenylist: [/^\/api/, /^\/storage/, /^\/docs/],
     runtimeCaching: [
       {
-        urlPattern: /^https:\/\/.*\/api\/info/i,
+        urlPattern: /\/api\/info/i,
         handler: "NetworkFirst",
         options: {
           cacheName: "api-info",
+          networkTimeoutSeconds: 3,
           expiration: {
             maxEntries: 1,
             maxAgeSeconds: 3600 * 24 * 7,
@@ -26,10 +27,11 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
         },
       },
       {
-        urlPattern: /^https:\/\/.*\/api\/items\/?\d*/i,
+        urlPattern: /\/api\/items/i,
         handler: "NetworkFirst",
         options: {
           cacheName: "api-items",
+          networkTimeoutSeconds: 3,
           expiration: {
             maxEntries: 100,
             maxAgeSeconds: 3600 * 24 * 31,
@@ -40,10 +42,11 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
         },
       },
       {
-        urlPattern: /^https:\/\/.*\/api\/categories/i,
+        urlPattern: /\/api\/categories/i,
         handler: "NetworkFirst",
         options: {
           cacheName: "api-categories",
+          networkTimeoutSeconds: 3,
           expiration: {
             maxEntries: 1,
             maxAgeSeconds: 3600 * 24 * 31,
@@ -54,7 +57,7 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
         },
       },
       {
-        urlPattern: /^https:\/\/.*\/storage\/thumb\/.*/i,
+        urlPattern: /\/storage\/thumb\//i,
         handler: "CacheFirst",
         options: {
           cacheName: "thumbnails",
