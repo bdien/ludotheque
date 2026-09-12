@@ -37,6 +37,19 @@ async def lifespan(app: FastAPI):
     with contextlib.suppress(Exception):
         locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
 
+    # Ensure preference columns exist (idempotent migration for existing DB)
+    with contextlib.suppress(Exception):
+        from api.pwmodels import _migrate_preferences_columns, db
+
+        if db.is_closed():
+            db.connect()
+            try:
+                _migrate_preferences_columns()
+            finally:
+                db.close()
+        else:
+            _migrate_preferences_columns()
+
     # Not in production, stop here
     if os.getenv("LUDO_ENV") != "production":
         yield

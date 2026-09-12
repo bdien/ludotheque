@@ -20,7 +20,7 @@ sur un ordinateur ensuite.
 
 Le Backend python tournera sur un docker linux limité en mémoire (256Mo).
 Le code python doit toujours passer les règles du linter (`ruff`). Ne pas introduire
-de nouvelles erreurs de types (`ty`).
+de nouvelles erreurs de types (`ty`), amélioration progressive.
 
 La base de données sqlite3 est accessible en lecture seule dans `storage/ludotheque.db`.
 

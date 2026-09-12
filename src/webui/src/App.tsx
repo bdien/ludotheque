@@ -19,6 +19,8 @@ import "./styles.css";
 import { ErrorBoundary } from "./components/error_boundary";
 import { Loading } from "./components/loading";
 import { useGlobalStore } from "./hooks/global_store";
+import { Account } from "./pages/account";
+import { AccountLoans } from "./pages/account_loans";
 import { Config } from "./pages/config";
 import { Documents } from "./pages/documents";
 import { Inventory } from "./pages/inventory";
@@ -159,6 +161,8 @@ function App() {
             <Route path="/documents" component={Documents} />
             <Route path="/config" component={Config} />
             <Route path="/stats" component={Stats} />
+            <Route path="/account/loans" component={AccountLoans} />
+            <Route path="/account" component={Account} />
             <Route path="/myaccount" component={UserMyAccount} />
 
             <Route path="/planning" component={PlanningRedirect} />

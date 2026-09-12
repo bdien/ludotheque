@@ -59,24 +59,7 @@ export function SideMenu(props: SideMenuProps) {
           </ListItemIcon>
           <ListItemText primary="Liste des jeux" />
         </ListItem>
-        {account?.id ? (
-          <ListItem
-            component={Link}
-            to={`/users/${account.id}`}
-            onClick={() => {
-              window.umami?.track("SideBar: Mon Compte");
-              props.setIsDrawerOpen(false);
-            }}
-            sx={{ ...styleUrl(`/users/${account.id}`) }}
-          >
-            <ListItemIcon sx={{ color: "inherit" }}>
-              <Icon>account_circle</Icon>
-            </ListItemIcon>
-            <ListItemText primary="Mon compte" />
-          </ListItem>
-        ) : (
-          ""
-        )}
+
         {account?.rights.includes("loan_create") && (
           <>
             <Divider />

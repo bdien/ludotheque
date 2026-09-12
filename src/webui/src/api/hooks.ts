@@ -253,3 +253,23 @@ export function useConfig() {
     mutate,
   };
 }
+
+export interface Preferences {
+  newsletter_optin: boolean;
+  email_optin: boolean;
+}
+
+export function usePreferences() {
+  const { data, error, isLoading, mutate } = useSWR<Preferences>(
+    `${SERVER_URL}/users/me/preferences`,
+    fetcher,
+    { dedupingInterval: 60000 },
+  );
+
+  return {
+    preferences: data,
+    isLoading,
+    error,
+    mutate,
+  };
+}

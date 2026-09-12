@@ -165,6 +165,41 @@ def get_myself(auth: Annotated[AuthUser | None, Depends(auth_user)]):
     return {"role": auth.role, "id": auth.id, "rights": auth.rights}
 
 
+@router.get("/users/me/preferences", tags=["user"])
+def get_preferences(auth: Annotated[AuthUser, Depends(auth_user_required)]):
+    with db:
+        user = User.get_or_none(User.id == auth.id)
+        if not user:
+            raise HTTPException(404)
+        return {
+            "newsletter_optin": bool(user.newsletter_optin),
+            "email_optin": bool(user.email_optin),
+        }
+
+
+@router.patch("/users/me/preferences", tags=["user"])
+async def patch_preferences(
+    request: Request, auth: Annotated[AuthUser, Depends(auth_user_required)]
+):
+    body = await request.json()
+    updates: dict = {}
+    for key in ("newsletter_optin", "email_optin"):
+        if key in body:
+            val = body[key]
+            if not isinstance(val, bool):
+                raise HTTPException(400, f"Invalid {key}: must be boolean")
+            updates[key] = val
+    if not updates:
+        raise HTTPException(400, "Nothing to update")
+    with db:
+        User.update(**updates).where(User.id == auth.id).execute()
+        user = User.get_by_id(auth.id)
+        return {
+            "newsletter_optin": bool(user.newsletter_optin),
+            "email_optin": bool(user.email_optin),
+        }
+
+
 @router.get("/users/search", tags=["users"])
 def search_user(
     auth: Annotated[AuthUser, Depends(auth_user_required)], q: str | None = None
@@ -219,9 +254,9 @@ def get_user(
 
     if not auth.has_right("user_manage"):
         del ret["notes"]
-        del ret["informations"]
         del ret["last_warning"]
         if user_id != auth.id:
+            del ret["informations"]
             del ret["emails"]
             del ret["phones"]
 
@@ -329,6 +364,8 @@ def send_late_email(user_id: int, send: bool | None = True) -> APISendMailResult
     user = User.get_or_none(User.id == user_id)
     if not user:
         raise HTTPException(400, "No such user")
+    if not user.email_optin:
+        raise HTTPException(400, "Emails disabled by user preference")
     if user.last_warning and (
         datetime.date.today() - user.last_warning
     ).days < get_config("email_minperiod"):
@@ -393,6 +430,7 @@ def _users_to_notify_lateloand() -> list[int]:
         .group_by(User.id)
         .where(
             User.enabled,
+            User.email_optin,
             (User.last_warning == None) | (User.last_warning < last_warning_limit),  # noqa: E711
             Loan.stop < loan_stop_mindate,
         )

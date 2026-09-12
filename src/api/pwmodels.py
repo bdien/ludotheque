@@ -1,3 +1,4 @@
+import contextlib
 import os
 import re
 import uuid
@@ -29,6 +30,22 @@ def regexp(expr, s):
     return re.search(expr, s, re.IGNORECASE) is not None
 
 
+def _migrate_preferences_columns():
+    # Idempotent migration for existing SQLite files (Fly.io)
+    try:
+        db.execute_sql("SELECT newsletter_optin FROM user LIMIT 1")
+    except Exception:
+        with contextlib.suppress(Exception):
+            db.execute_sql(
+                "ALTER TABLE user ADD COLUMN newsletter_optin INTEGER DEFAULT 1"
+            )
+    try:
+        db.execute_sql("SELECT email_optin FROM user LIMIT 1")
+    except Exception:
+        with contextlib.suppress(Exception):
+            db.execute_sql("ALTER TABLE user ADD COLUMN email_optin INTEGER DEFAULT 1")
+
+
 def create_all_tables(drop=False):
     tbls = [
         User,
@@ -46,6 +63,9 @@ def create_all_tables(drop=False):
     if drop:
         db.drop_tables(tbls)
     db.create_tables(tbls)
+    # Ensure new columns exist even if table already existed
+    with contextlib.suppress(Exception):
+        _migrate_preferences_columns()
 
 
 class BaseModel(peewee.Model):
@@ -78,6 +98,8 @@ class User(BaseModel):
     created_at = peewee.DateField(default=date.today)
     last_warning = peewee.DateField(null=True)
     lastseen = peewee.DateField(default=date.today)
+    newsletter_optin = peewee.BooleanField(default=True)
+    email_optin = peewee.BooleanField(default=True)
 
 
 class EMail(BaseModel):

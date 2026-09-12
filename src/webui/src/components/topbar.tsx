@@ -3,14 +3,17 @@ import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { SideMenu } from "./sidemenu";
 
 interface TopBarProps {
@@ -21,6 +24,7 @@ export function TopBar(props: TopBarProps) {
   const [anchorUserMenu, setAnchorUserMenu] = useState<null | HTMLElement>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
+  const [, navigate] = useLocation();
 
   const handleUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorUserMenu(event.currentTarget);
@@ -84,7 +88,6 @@ export function TopBar(props: TopBarProps) {
                 <Avatar alt={user.name} src={user.picture} />
               </IconButton>
               <Menu
-                id="usermenu-appbar"
                 anchorEl={anchorUserMenu}
                 anchorOrigin={{
                   vertical: "top",
@@ -98,7 +101,31 @@ export function TopBar(props: TopBarProps) {
                 open={Boolean(anchorUserMenu)}
                 onClose={handleUserMenuClose}
               >
-                <MenuItem onClick={handleUserMenuClose}>{user?.name}</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleUserMenuClose();
+                    window.umami?.track("TopBar: Mon Profil");
+                    navigate("/account");
+                  }}
+                >
+                  <ListItemIcon>
+                    <Icon fontSize="small">account_circle</Icon>
+                  </ListItemIcon>
+                  Mon profil
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleUserMenuClose();
+                    window.umami?.track("TopBar: Mes Emprunts");
+                    navigate("/account/loans");
+                  }}
+                >
+                  <ListItemIcon>
+                    <Icon fontSize="small">history</Icon>
+                  </ListItemIcon>
+                  Mes emprunts
+                </MenuItem>
+                <Divider />
                 <MenuItem
                   onClick={() =>
                     logout({

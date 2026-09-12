@@ -14,7 +14,7 @@ export function UserMyAccount() {
       return;
     }
     if (account && account.id !== 0) {
-      setLocation(`/users/${account.id}`);
+      setLocation("/account");
     }
   }, [account, isAuthenticated, loginWithRedirect, setLocation]);
 

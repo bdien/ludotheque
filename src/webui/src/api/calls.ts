@@ -157,6 +157,28 @@ export async function emailUser(userId: number, send = false): Promise<EMail> {
   return response.json();
 }
 
+export async function fetchPreferences(): Promise<{
+  newsletter_optin: boolean;
+  email_optin: boolean;
+}> {
+  const response = await fetchWithToken(`${SERVER_URL}/users/me/preferences`);
+  if (!response.ok) throw new Error(await response.text(), { cause: response.status });
+  return response.json();
+}
+
+export async function updatePreferences(obj: {
+  newsletter_optin?: boolean;
+  email_optin?: boolean;
+}): Promise<{ newsletter_optin: boolean; email_optin: boolean }> {
+  const response = await fetchWithToken(`${SERVER_URL}/users/me/preferences`, {
+    method: "PATCH",
+    body: JSON.stringify(obj),
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!response.ok) throw new Error(await response.text(), { cause: response.status });
+  return response.json();
+}
+
 // Config
 // -------------------
 

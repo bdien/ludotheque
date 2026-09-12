@@ -129,8 +129,12 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
     ],
     shortcuts: [
       {
-        name: "Mon compte",
-        url: "/myaccount",
+        name: "Mon profil",
+        url: "/account",
+      },
+      {
+        name: "Mes emprunts",
+        url: "/account/loans",
       },
       {
         name: "Liste des jeux",
