@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import { differenceInDays } from "date-fns";
 import { useItems } from "../api/hooks";
 import type { ItemListEntry } from "../api/models";
+import { GameNights } from "../components/GameNights";
 import ItemImage from "../components/ItemImage";
 import { NextOpening } from "../components/NextOpening";
 import { useGlobalStore } from "../hooks/global_store";
@@ -43,6 +44,9 @@ export function Main() {
 
       {/* Prochaine ouverture */}
       <NextOpening nextopening={info.next_opening} />
+
+      {/* Soirées jeux */}
+      <GameNights />
 
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
