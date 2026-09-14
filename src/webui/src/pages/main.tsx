@@ -51,16 +51,17 @@ export function Main() {
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
           La <b>Ludo du Poisson Lune</b> vous propose un espace jeux pour passer un bon moment en
-          famille ou avec les copains...
+          famille ou avec entre amis. La Ludo, c'est un choix de {info ? info.nbitems : "près de 1000"}
+          {" "}jeux pour tout public (de 9 mois à 99 ans), pour jouer sur place ou à la maison.
         </p>
 
         <p>
-          Nous sommes ouverts <b>tous les samedis de 10h30 à 12h</b>, hors les samedis du milieu des
+          Nous sommes ouverts <b>tous les samedis de 10h30 à 12h</b>, sauf les samedis du milieu des
           vacances scolaires et jours fériés, au <b>pôle enfance de la Passerelle</b>,{" "}
           <a href="https://www.google.com/maps/place/48%C2%B008'04.6%22N+1%C2%B032'15.6%22W">
             à proximité du cinéma
           </a>{" "}
-          à Acigné. Vous pouvez passer également passer pour jouer sur place.
+          à Acigné.
         </p>
         {isAuthenticated && info.planning_url && (
           <p>
@@ -70,9 +71,6 @@ export function Main() {
           </p>
         )}
         <p>
-          La Ludo, c'est un choix de {info ? info.nbitems : "près de 1000"} jeux pour tout public
-          (de 9 mois à 99 ans), pour jouer sur place ou à la maison.
-          <br />
           Vous pouvez nous contacter par e-mail à{" "}
           <a href="mailto:laludodupoissonlune@gmail.com">laludodupoissonlune@gmail.com</a>
         </p>
