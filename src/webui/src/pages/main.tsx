@@ -51,8 +51,8 @@ export function Main() {
       <Box sx={{ pb: 2, textAlign: "justify" }}>
         <p>
           La <b>Ludo du Poisson Lune</b> vous propose un espace jeux pour passer un bon moment en
-          famille ou avec entre amis. La Ludo, c'est un choix de {info ? info.nbitems : "près de 1000"}
-          {" "}jeux pour tout public (de 9 mois à 99 ans), pour jouer sur place ou à la maison.
+          famille ou entre amis. La Ludo, c'est un choix de {info ? info.nbitems : "près de 1000"}{" "}
+          jeux pour tout public (de 9 mois à 99 ans), pour jouer sur place ou à la maison.
         </p>
 
         <p>
