@@ -3,71 +3,13 @@ import argparse
 import contextlib
 import html
 import os
-import random
 import re
 import sys
 
-import diskcache
 import questionary
-import requests
 from cli import Ludotheque
 
-
-class MyLudo:
-    def __init__(self):
-        # Get session ID cookie
-        self.session = requests.Session()
-        self.cache = diskcache.Cache(".ludoweb_cache")
-
-        # Random user-agents
-        agents = requests.get(
-            "https://jnrbsn.github.io/user-agents/user-agents.json", timeout=20
-        ).json()
-        self.session.headers.update({"user-agent": random.choice(agents)})  # noqa: S311
-
-        # Find CSRF-Token
-        r = self.session.get("https://www.myludo.fr/#!/home")
-        res = re.search('name="csrf-token" content="(.*?)"', r.text)
-        if not res:
-            raise RuntimeError("Cannot find CSRF Token")
-
-        # Add headers
-        self.session.headers.update({"x-csrf-token": res[1]})
-        self.session.headers.update({"referer": "https://www.myludo.fr/"})
-
-    def search(self, name, limit=18):
-        data = self.cache.get(f"myludo_search_{name}")
-        if not data:
-            r = self.session.get(
-                f"https://www.myludo.fr/views/search/datas.php?type=search&tab=games&words={name}&limit={limit}&order=bymagic"
-            )
-            data = r.json()["list"]
-            self.cache.set(f"myludo_search_{name}", data, expire=604800)  # 1 week
-
-        return {f"{i['title']} ({i['id']})": i["id"] for i in data}
-
-    def game(self, game_id: int) -> dict:
-        desc = self.cache.get(f"myludo_game_{game_id}")
-        if not desc:
-            r = self.session.get(
-                f"https://www.myludo.fr/views/game/datas.php?type=game&id={game_id}"
-            )
-            desc = r.json()
-            self.cache.set(f"myludo_game_{game_id}", desc, expire=604800)  # 1 week
-
-        # New requests to get content + descriptions
-        game_info = self.cache.get(f"myludo_info_{game_id}")
-        if not game_info:
-            r = self.session.get(
-                f"https://www.myludo.fr/views/game/datas.php?type=info&id={game_id}"
-            )
-            game_info = r.json()
-            self.cache.set(f"myludo_info_{game_id}", game_info, expire=604800)  # 1 week
-
-        for i in "content", "description", "themes":
-            desc[i] = game_info[i]
-
-        return desc
+from api.item_stats import MyLudo
 
 
 def main():
