@@ -89,8 +89,8 @@ export function UserLoans(props: UserLoansProps) {
               })
             }
             button={
-              account.rights.includes("loan_manage") ? (
-                <span style={{ display: "flex", gap: "5px" }}>
+              <span style={{ display: "flex", gap: "5px" }}>
+                {account.rights.includes("loan_manage") && (
                   <ModifyLoanButton
                     userId={props.userId}
                     loanId={obj.id}
@@ -98,17 +98,17 @@ export function UserLoans(props: UserLoansProps) {
                     actionfunction={closeLoan}
                     text="Rendre"
                   />
-                  {(obj.extended || 0) < info.loan.extend_max && !info.summer_mode && (
-                    <ModifyLoanButton
-                      userId={props.userId}
-                      loanId={obj.id}
-                      itemId={obj.item}
-                      actionfunction={extendLoan}
-                      text="Prolonger"
-                    />
-                  )}
-                </span>
-              ) : undefined
+                )}
+                {(obj.extended || 0) < info.loan.extend_max && !info.summer_mode && (
+                  <ModifyLoanButton
+                    userId={props.userId}
+                    loanId={obj.id}
+                    itemId={obj.item}
+                    actionfunction={extendLoan}
+                    text="Prolonger"
+                  />
+                )}
+              </span>
             }
           />
         );

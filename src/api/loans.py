@@ -259,15 +259,17 @@ def close_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_require
 
 @router.post("/loans/{loan_id}/extend", tags=["loan"])
 def extend_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_required)]):
-    auth.check_right("loan_manage")
     with db:
         loan = Loan.get_or_none(Loan.id == loan_id)
         if not loan:
-            raise HTTPException(400, "No such loan")
+            raise HTTPException(404, "Loan not found")
         if loan.status != "out":
             raise HTTPException(400, "Already closed")
         if loan.extended >= get_config("loan_extend_max"):
             raise HTTPException(400, "Maximum number of extensions reached")
+        # Regular user can only handle his loans
+        if not auth.has_right("loan_manage") and loan.user.id != auth.id:
+            raise HTTPException(404, "Loan not found")
 
         # Take the most recent date (today or current stop) and add 15 days
         loan.stop = max(datetime.date.today(), loan.stop) + datetime.timedelta(days=15)

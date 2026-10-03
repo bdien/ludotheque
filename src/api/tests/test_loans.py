@@ -2,7 +2,7 @@ import datetime
 
 import freezegun
 import pytest
-from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user
+from conftest import AUTH_ADMIN, AUTH_USER, AUTH_USER_ID, fake_auth_user
 from fastapi.testclient import TestClient
 
 from api.main import app
@@ -189,7 +189,7 @@ def test_close_loan(dbitems):
     "stopdate",
     (datetime.date.today(), datetime.date.today() - datetime.timedelta(days=1)),
 )
-def test_extend_loan(dbitems, stopdate):
+def test_extend_loan_admin(dbitems, stopdate):
     # Create loan
     with db:
         loan = Loan.create(user=USER_ID, item=ITEM_ID, stop=stopdate)
@@ -215,6 +215,48 @@ def test_extend_loan(dbitems, stopdate):
     # Close loan
     response = client.post(f"/loans/{loan.id}/close", headers=AUTH_ADMIN)
     assert response.status_code == 200
+
+
+@pytest.mark.parametrize(
+    "stopdate",
+    (datetime.date.today(), datetime.date.today() - datetime.timedelta(days=1)),
+)
+def test_extend_loan_user(dbitems, stopdate):
+    # Create loan
+    with db:
+        loan = Loan.create(user=AUTH_USER_ID, item=ITEM_ID, stop=stopdate)
+
+    # Extend it
+    for _ in range(LOAN_EXTEND_MAX):
+        response = client.post(f"/loans/{loan.id}/extend", headers=AUTH_USER)
+        assert response.status_code == 200
+        body = response.json()
+
+        # In both case, it should be today + LOAN_EXTEND_DAYS
+        assert (
+            body["stop"]
+            == (
+                datetime.date.today() + datetime.timedelta(days=LOAN_EXTEND_DAYS)
+            ).isoformat()
+        )
+
+    # Further extension should not work
+    response = client.post(f"/loans/{loan.id}/extend", headers=AUTH_USER)
+    assert response.status_code == 400
+
+    # Close loan should not work (Admin feature)
+    response = client.post(f"/loans/{loan.id}/close", headers=AUTH_USER)
+    assert response.status_code != 200
+
+
+def test_extend_loan_anotheruser(dbitems):
+    # Create loan
+    with db:
+        loan = Loan.create(user=USER_ID, item=ITEM_ID, stop=datetime.date.today())
+
+    # Extend it
+    response = client.post(f"/loans/{loan.id}/extend", headers=AUTH_USER)
+    assert response.status_code != 200
 
 
 def test_delete_loan():

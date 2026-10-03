@@ -1,9 +1,7 @@
 Cher⸱e adhérent⸱e de la ludothèque d'Acigné,
 
-À moins d'une erreur de notre part, nous constatons que vous avez actuellement {{ loans|length }} jeu{{ loans|plural("x") }} en retard.
-Afin de garantir un accès équitable à tous, nous vous serions reconnaissants de bien vouloir le{{ loans|plural("s") }} retourner dès que possible.
-
-Notre prochaine ouverture est le {{ next_opening | shortdate }}, mais la ludothèque est ouverte tous les samedis de 10h30 à 12h00 (hors les samedis du milieu des vacances scolaires).
+À moins d'une erreur de notre part, nous avons remarqué que vous avez actuellement {{ loans|length }} jeu{{ loans|plural("x") }} en retard.
+Afin de de permettre à tout le monde l'accès aux jeux, nous vous serions reconnaissants de bien vouloir le{{ loans|plural("s") }} retourner dès que possible.
 
 Voici {{ loans|plural("les jeux concernés", "le jeu concerné") }} :
 {%- for l in loans %}
@@ -11,7 +9,9 @@ Voici {{ loans|plural("les jeux concernés", "le jeu concerné") }} :
 {%- endfor %}
 
 Vous pouvez consulter vos prêts en cours en vous connectant sur notre site {{ "https://ludotheque.fly.dev" | urlize }}.
-<b>Note</b>: Il est possible de prolonger gratuitement vos prêts pour deux semaines. Contactez-nous en répondant à cet email.
+<b>Nouveau</b>, vous pouvez prolonger gratuitement vos prêts pour deux semaines sur le site (ou en nous contactant).
+
+La ludothèque est ouverte tous les samedis de 10h30 à 12h00 (hors les samedis du milieu des vacances scolaires). Notre prochaine ouverture est le {{ next_opening | shortdate }}.
 
 Nous vous remercions de votre compréhension et restons à votre disposition pour toute question éventuelle.
 
