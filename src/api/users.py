@@ -47,8 +47,8 @@ async def create_user(
     # Checks
     if not params:
         raise HTTPException(400, "Nothing to create")
-    if not (0 <= params.get("credit", 0) <= 100):
-        raise HTTPException(400, "Invalid credit")
+    if not (0 <= (params.get("credit") or 0) <= 100):
+        raise HTTPException(400, "Le credit doit être entre 0 et 100")
 
     with db:
         try:
@@ -69,7 +69,10 @@ async def create_user(
 
         except peewee.IntegrityError as e:
             if e.args[0] == "UNIQUE constraint failed: email.email":
-                raise HTTPException(500, "L'email est vide ou déjà utilisé") from None
+                raise HTTPException(
+                    400,
+                    "L'email est déjà utilisé dans un autre compte (Potentiellement désactivé)",
+                ) from None
             logging.exception("Create user")
             raise HTTPException(500, str(e)) from None
 

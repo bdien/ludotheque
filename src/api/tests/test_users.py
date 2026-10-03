@@ -49,12 +49,16 @@ def test_create_user_attributes():
     assert newjson.items() <= User.items()
 
 
-def test_create_user_invalid_credit():
-    newjson = {"name": "bob", "credit": -33, "role": "admin"}
+@pytest.mark.parametrize("credit", (0, "", 100))
+def test_create_user_valid_credit(credit):
+    newjson = {"name": "bob", "credit": credit, "role": "admin"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
-    assert response.status_code == 400
+    assert response.status_code == 200
 
-    newjson["credit"] = 40000
+
+@pytest.mark.parametrize("credit", (-33, 500))
+def test_create_user_invalid_credit(credit):
+    newjson = {"name": "bob", "credit": credit, "role": "admin"}
     response = client.post("/users", json=newjson, headers=AUTH_ADMIN)
     assert response.status_code == 400
 
