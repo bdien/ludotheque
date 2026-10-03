@@ -7,6 +7,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
+import { addMonths } from "date-fns";
 import { useEffect, useState } from "react";
 import { useSWRConfig } from "swr";
 import { useLocation } from "wouter";
@@ -114,6 +115,11 @@ export function Loan() {
     setItems((items) => [...items.slice(0, idx), ...items.slice(idx + 1)]);
   }
 
+  // Show "Adhésion" only if subscription expires in less than 6 months
+  // (or is missing/invalid, or already expired)
+  const showAdhesion =
+    !!user && (!user.subscription || new Date(user.subscription) <= addMonths(new Date(), 6));
+
   // Function to add/remove items when changing user
   function changeUser(user: User | null) {
     // If user must renew its subscription, add it to the loans
@@ -166,17 +172,22 @@ export function Loan() {
             <Icon>add</Icon>
           </Button>
           <Menu anchorEl={anchorEl} open={openAdd} onClose={menuAddLoanClose}>
-            <MenuItem
-              onClick={() => {
-                addItem(fakeItemAdhesion);
-                menuAddLoanClose();
-              }}
-            >
-              <ListItemIcon>
-                <Icon>credit_score</Icon>
-              </ListItemIcon>
-              <ListItemText>Adhésion</ListItemText>
-            </MenuItem>
+            {/* Adhésion */}
+            {showAdhesion && (
+              <MenuItem
+                onClick={() => {
+                  addItem(fakeItemAdhesion);
+                  menuAddLoanClose();
+                }}
+              >
+                <ListItemIcon>
+                  <Icon>credit_score</Icon>
+                </ListItemIcon>
+                <ListItemText>Adhésion</ListItemText>
+              </MenuItem>
+            )}
+
+            {/* Carte d'emprunt */}
             <MenuItem
               onClick={() => {
                 addItem(fakeItemCarte);
