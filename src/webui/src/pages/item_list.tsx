@@ -1,4 +1,4 @@
-import { Divider, ListItemIcon, ListItemText, Menu, MenuList } from "@mui/material";
+import { Divider, ListItemIcon, ListItemText, Menu, MenuList, Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
@@ -43,59 +43,58 @@ function exportCSV() {
 function nameDisplay(item: ItemListEntry, info: Info) {
   return (
     <Link href={`/items/${item.id}`} style={{ textDecoration: "none" }}>
-      <Box
-        style={{
-          cursor: "pointer",
+      <Stack
+        direction="row"
+        spacing={0.5}
+        alignItems="center"
+        sx={{
+          color: "primary.main",
+          fontSize: 14,
+          fontWeight: "500",
         }}
       >
-        <Box
-          component="span"
-          sx={{
-            color: "primary.main",
-            fontSize: 14,
-            fontWeight: "500",
-            mr: 1,
-            textDecoration: item.enabled ? "" : "line-through",
-          }}
-        >
-          {item.name}
-          {differenceInDays(new Date(), item.created_at) <= info.item_new_days && (
-            <span
-              style={{
-                padding: "0.2em 4px",
-                fontSize: "0.75em",
-                fontWeight: "400",
-                borderRadius: "6px",
-                marginLeft: "4px",
-                backgroundColor: "hsl(50, 100%, 70%)",
-                border: "1px solid #DDDDDD",
-              }}
-            >
-              New
-            </span>
-          )}
-        </Box>
+        <Box sx={{ textDecoration: item.enabled ? "" : "line-through" }}>{item.name}</Box>
+
+        {item.is_extension && (
+          <Icon aria-label="Extension" fontSize="small">
+            extension
+          </Icon>
+        )}
         {item.status === "out" && (
-          <Icon aria-label="Emprunté" fontSize="small" color="secondary" sx={{ pt: 0.2 }}>
+          <Icon aria-label="Emprunté" fontSize="small">
             logout
           </Icon>
         )}
         {item.big && (
-          <Icon aria-label="Surdimensionné" fontSize="small" color="secondary" sx={{ pt: 0.2 }}>
+          <Icon aria-label="Surdimensionné" fontSize="small">
             inventory
           </Icon>
         )}
         {item.outside && (
-          <Icon aria-label="Jeu d'Extérieur" fontSize="small" color="secondary" sx={{ pt: 0.2 }}>
+          <Icon aria-label="Jeu d'Extérieur" fontSize="small">
             park
           </Icon>
         )}
         {!item.enabled && (
-          <Icon aria-label="Indisponible" fontSize="small" color="warning" sx={{ pt: 0.2 }}>
+          <Icon aria-label="Indisponible" fontSize="small" color="warning">
             construction
           </Icon>
         )}
-      </Box>
+        {differenceInDays(new Date(), item.created_at) <= info.item_new_days && (
+          <span
+            style={{
+              padding: "0.2em 4px",
+              fontSize: "0.75em",
+              fontWeight: "400",
+              borderRadius: "6px",
+              backgroundColor: "hsl(50, 100%, 70%)",
+              border: "1px solid #DDDDDD",
+            }}
+          >
+            New
+          </span>
+        )}
+      </Stack>
     </Link>
   );
 }
@@ -205,12 +204,7 @@ export function ItemList() {
         <IconButton color="primary" onClick={filterMenuOpen}>
           <Icon>filter_alt</Icon>
         </IconButton>
-        <Menu
-          id="user-filter-menu"
-          anchorEl={anchorEl}
-          open={filterMenuOpened}
-          onClose={filterMenuClose}
-        >
+        <Menu anchorEl={anchorEl} open={filterMenuOpened} onClose={filterMenuClose}>
           <MenuList dense>
             <MenuItem
               onClick={() => {
@@ -302,7 +296,7 @@ export function ItemList() {
             <TableCell sx={{ p: 0.5, color: "#6B7582" }}>Nom</TableCell>
             <TableCell
               sx={{
-                width: "clamp(66px, 10vw, 240px)",
+                width: "clamp(40px, 8vw, 240px)",
                 textAlign: "center",
                 color: "#6B7582",
               }}
@@ -311,7 +305,7 @@ export function ItemList() {
             </TableCell>
             <TableCell
               sx={{
-                width: "clamp(50px, 10vw, 240px)",
+                maxWidth: "clamp(50px, 10vw, 240px)",
                 textAlign: "center",
                 color: "#6B7582",
                 p: 0.75,
@@ -332,11 +326,11 @@ export function ItemList() {
             >
               {row.id}
             </TableCell>
-            <TableCell sx={{ p: 0.5 }}>{nameDisplay(row, info)}</TableCell>
-            <TableCell sx={{ width: "clamp(66px, 10vw, 240px)", textAlign: "center" }}>
+            <TableCell sx={{ p: 0 }}>{nameDisplay(row, info)}</TableCell>
+            <TableCell sx={{ p: 0, textAlign: "center" }}>
               {playerDisplay(row)}
             </TableCell>
-            <TableCell sx={{ textAlign: "center", p: 0.75 }}>
+            <TableCell sx={{ textAlign: "center", p: 0, pr: 0.5 }}>
               <AgeChip age={row.age || 0} />
             </TableCell>
           </>

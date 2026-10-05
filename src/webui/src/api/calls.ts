@@ -38,9 +38,11 @@ export async function exportItems(): Promise<string> {
   return response.text();
 }
 
-export async function searchItem(txt: string): Promise<ItemModel[]> {
+export async function searchItem(txt: string, includeLoaned = false): Promise<ItemModel[]> {
   if (!txt) return Promise.resolve([]);
-  const response = await fetchWithToken(encodeURI(`${SERVER_URL}/items/search?q=${txt}`));
+  const response = await fetchWithToken(
+    encodeURI(`${SERVER_URL}/items/search?q=${txt}${includeLoaned ? "&include_loaned=true" : ""}`),
+  );
   return response.json();
 }
 

@@ -6,7 +6,7 @@ import hashlib
 import html
 import io
 import os
-from typing import Annotated
+from typing import Annotated, Any, cast
 from urllib.parse import quote
 
 import peewee
@@ -30,6 +30,7 @@ from api.pwmodels import (
     Category,
     Item,
     ItemCategory,
+    ItemExtension,
     ItemLink,
     Loan,
     Rating,
@@ -40,6 +41,18 @@ from api.system import AuthUser, auth_user, auth_user_required, log_event
 LUDO_STORAGE = os.getenv("LUDO_STORAGE", "../../storage").removesuffix("/")
 
 router = APIRouter()
+
+
+def _extension_ids() -> set[int]:
+    "Return the ids of all items that extend at least one base game"
+    ids: set[int] = set()
+    rows = cast(
+        list[tuple[int]],
+        list(ItemExtension.select(ItemExtension.extension).tuples()),
+    )
+    for row in rows:
+        ids.add(int(row[0]))
+    return ids
 
 
 @router.post("/items", tags=["items"])
@@ -81,6 +94,10 @@ async def create_item(
                 ItemCategory.insert(
                     item=item, category=i
                 ).on_conflict_ignore().execute()
+
+            # Insert base game links (extensions)
+            if body.get("bases") is not None:
+                _replace_bases(item.id, _parse_bases(body["bases"]))
 
             log_event(auth, f"Jeu '{item.name}' ({item.id}) créé")
 
@@ -140,7 +157,11 @@ def get_items(
     )
 
     with db:
-        return list(query.dicts())
+        items = list(query.dicts())
+        extensions = _extension_ids()
+        for entry in items:
+            entry["is_extension"] = entry["id"] in extensions
+        return items
 
 
 @router.get("/items/export", tags=["items"], response_class=PlainTextResponse)
@@ -215,20 +236,25 @@ def get_items_nbloans(auth: Annotated[AuthUser, Depends(auth_user_required)]):
 
 
 @router.get("/items/search", tags=["items"])
-def search_item(q: str | None = None):
-    "Return a list of max 10 items matching filter (and not already loaned)"
+def search_item(q: str | None = None, include_loaned: bool = False):
+    "Return a list of max 10 items matching filter (excluding loaned ones by default)"
 
     with db:
-        loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
-        return list(
+        query = (
             Item.select(Item.id, Item.age, Item.name, Item.big)
             .where((Item.name ** f"%{q}%") | (Item.id ** f"%{q}%"))
-            .where(Item.id.not_in(loaned_items))
             .where(Item.enabled)
             .order_by(Item.id)
             .limit(10)
-            .dicts()
         )
+        if not include_loaned:
+            loaned_items = Loan.select(Loan.item).where(Loan.status == "out")
+            query = query.where(Item.id.not_in(loaned_items))
+        items = list(query.dicts())
+        extensions = _extension_ids()
+        for entry in items:
+            entry["is_extension"] = entry["id"] in extensions
+        return items
 
 
 @router.get("/items/{item_id}", tags=["item"])
@@ -267,6 +293,30 @@ def get_item(
             {"name": i.name, "ref": i.ref, "extra": i.extra}
             for i in ItemLink.select().where(ItemLink.item == item_id)
         ]
+
+        # Base games (this item extends them) and extensions (they extend this
+        # item). Disabled games are hidden, as if the link did not exist.
+        base["bases"] = list(
+            Item.select(Item.id, Item.name)
+            .join(ItemExtension, on=(ItemExtension.base == Item.id))
+            .where(
+                ItemExtension.extension == item_id,
+                Item.enabled == True,  # noqa: E712
+            )
+            .order_by(Item.name)
+            .dicts()
+        )
+        base["extensions"] = list(
+            Item.select(Item.id, Item.name)
+            .join(ItemExtension, on=(ItemExtension.extension == Item.id))
+            .where(
+                ItemExtension.base == item_id,
+                Item.enabled == True,  # noqa: E712
+            )
+            .order_by(Item.name)
+            .dicts()
+        )
+        base["is_extension"] = bool(base["bases"])
 
         # Remove fields if needed
         if not auth or not auth.has_right("item_manage"):
@@ -331,6 +381,41 @@ def get_item_opengraph(item_id: int):
             out += f'  <meta property="og:image" content="{safe_url}"/>\n'
         out += "</head>\n<body></body>\n</html>\n"
         return out
+
+
+def _parse_bases(raw: object) -> list[int]:
+    "Normalize a bases payload (ids or {id, ...} objects) to a list of ids"
+    if not isinstance(raw, list):
+        raise HTTPException(400, "Invalid bases")
+    ids: list[int] = []
+    for entry in raw:
+        raw_id: Any
+        if isinstance(entry, dict):
+            raw_id = cast(Any, entry).get("id")
+        else:
+            raw_id = cast(Any, entry)
+        try:
+            ids.append(int(raw_id))
+        except TypeError, ValueError:
+            raise HTTPException(400, "Invalid bases") from None
+    return ids
+
+
+def _check_bases(item_id: int, bases: list[int]) -> None:
+    "Validate base game links (existence, no self-link)"
+    if item_id in bases:
+        raise HTTPException(400, "A game cannot extend itself")
+    for base_id in bases:
+        if not Item.get_or_none(Item.id == base_id):
+            raise HTTPException(400, f"No such base game '{base_id}'")
+
+
+def _replace_bases(item_id: int, bases: list[int]) -> None:
+    "Replace all base game links of an item"
+    _check_bases(item_id, bases)
+    ItemExtension.delete().where(ItemExtension.extension == item_id).execute()
+    for base_id in bases:
+        ItemExtension.create(extension=item_id, base=base_id)
 
 
 def modif_pictures(
@@ -446,6 +531,10 @@ async def modify_item(
             ).execute()
             ItemCategory.insert(item=item_id, category=i).on_conflict_ignore().execute()
 
+        # Modify base game links (extensions)
+        if body.get("bases") is not None:
+            _replace_bases(item_id, _parse_bases(body["bases"]))
+
     log_event(auth, f"Jeu '{item.name}' ({item.id}) modifié")
 
     return {"id": item.id}
@@ -492,6 +581,9 @@ async def delete_item(
         item = Item.get_or_none(Item.id == item_id)
         if not item:
             raise HTTPException(404)
+        ItemExtension.delete().where(
+            (ItemExtension.extension == item_id) | (ItemExtension.base == item_id)
+        ).execute()
         item.delete_instance(recursive=True)
 
         # Now remove every picture

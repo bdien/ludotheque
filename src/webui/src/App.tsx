@@ -76,6 +76,7 @@ function App() {
     } else {
       getAccessTokenSilently()
         .then((token) => {
+          if (!token) throw new Error("No access token");
           setToken(token);
           return getAccount();
         })

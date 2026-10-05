@@ -2,6 +2,7 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
+import Chip from "@mui/material/Chip";
 import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Icon from "@mui/material/Icon";
@@ -23,9 +24,10 @@ import { Controller, useForm } from "react-hook-form";
 import { navigate } from "wouter/use-browser-location";
 import { createItem, deleteItem, updateItem } from "../api/calls";
 import { useCategories, useItem, useItems } from "../api/hooks";
-import type { ItemModel } from "../api/models";
+import type { ItemBaseLink, ItemModel } from "../api/models";
 import { AgeChip } from "../components/age_chip";
 import { ImageChooser } from "../components/image_chooser";
+import { ItemSearch } from "../components/item_search";
 import { useGlobalStore } from "../hooks/global_store";
 import { useConfirm } from "../hooks/useConfirm";
 
@@ -84,6 +86,8 @@ export function ItemEdit(props: ItemEditProps) {
   const { categories } = useCategories();
   const [autoId, setAutoId] = useState<boolean>(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  // Base games (null = untouched, keep server links as-is on save)
+  const [baseGames, setBaseGames] = useState<ItemBaseLink[] | null>(null);
   const { register, control, handleSubmit } = useForm<FormValues>();
   const { account } = useGlobalStore();
   const { ConfirmDialog, confirmPromise } = useConfirm(
@@ -116,8 +120,16 @@ export function ItemEdit(props: ItemEditProps) {
           .map((i) => i.trim())
       : [];
 
+    // Base game links: only send when edited (null = untouched)
+    const payload: Record<string, unknown> = { ...item };
+    if (baseGames === null) {
+      delete payload.bases;
+    } else {
+      payload.bases = baseGames.map((b) => b.id);
+    }
+
     // Update or create user
-    const promise = initialItemId ? updateItem(item.id ?? 0, item) : createItem(item);
+    const promise = initialItemId ? updateItem(item.id ?? 0, payload) : createItem(payload);
     promise
       .then((result) => {
         // Error
@@ -155,6 +167,17 @@ export function ItemEdit(props: ItemEditProps) {
 
   if (error) return <div>Server error: {error.cause}</div>;
   if (!item) return;
+
+  const currentBases: ItemBaseLink[] = baseGames ?? item.bases ?? [];
+  const selfId: number = item.id;
+  function addBaseGame(found: ItemModel) {
+    if (found.id === selfId) return;
+    if (currentBases.some((b) => b.id === found.id)) return;
+    setBaseGames([...currentBases, { id: found.id, name: found.name }]);
+  }
+  function removeBaseGame(baseId: number) {
+    setBaseGames(currentBases.filter((b) => b.id !== baseId));
+  }
 
   // render data
   return (
@@ -295,7 +318,7 @@ export function ItemEdit(props: ItemEditProps) {
                 <TableCell sx={{ color: "primary.main" }}>Age</TableCell>
                 <TableCell>
                   <FormControl fullWidth>
-                    <InputLabel id="item-age-label">Age</InputLabel>
+                    <InputLabel>Age</InputLabel>
                     <Select
                       label="Age"
                       defaultValue={item.age}
@@ -334,7 +357,7 @@ export function ItemEdit(props: ItemEditProps) {
                 <TableCell sx={{ color: "primary.main" }}>Catégories</TableCell>
                 <TableCell>
                   <FormControl fullWidth>
-                    <InputLabel id="item-categories-label">Catégories</InputLabel>
+                    <InputLabel>Catégories</InputLabel>
                     <Select
                       label="Catégories"
                       multiple
@@ -357,6 +380,27 @@ export function ItemEdit(props: ItemEditProps) {
                         ))}
                     </Select>
                   </FormControl>
+                </TableCell>
+              </TableRow>
+
+              {/* Jeux de base (extension) */}
+              <TableRow>
+                <TableCell sx={{ color: "primary.main" }}>Extension de</TableCell>
+                <TableCell>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
+                    {currentBases.map((b) => (
+                      <Chip
+                        key={b.id}
+                        label={`[${b.id}] ${b.name}`}
+                        onDelete={() => removeBaseGame(b.id)}
+                      />
+                    ))}
+                  </Box>
+                  <ItemSearch
+                    setItem={addBaseGame}
+                    excludesIds={[item.id, ...currentBases.map((b) => b.id)]}
+                    includeLoaned
+                  />
                 </TableCell>
               </TableRow>
 

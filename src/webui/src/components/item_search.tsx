@@ -14,6 +14,9 @@ import { ageColors } from "./age_chip";
 interface ItemSearchProps {
   setItem: (params: ItemModel) => void;
   excludesIds: number[];
+  // Loaned games are hidden by default (loan cart). Set to find
+  // base games when editing extension links.
+  includeLoaned?: boolean;
 }
 
 export function ItemSearch(props: ItemSearchProps) {
@@ -22,10 +25,10 @@ export function ItemSearch(props: ItemSearchProps) {
   const [completeKey, setCompleteKey] = useState("aaa");
 
   useEffect(() => {
-    searchItem(itemInput).then((res) => {
+    searchItem(itemInput, props.includeLoaned ?? false).then((res) => {
       setItemChoices(res.filter((i) => !props.excludesIds.includes(i.id)));
     });
-  }, [itemInput, props.excludesIds]);
+  }, [itemInput, props.excludesIds, props.includeLoaned]);
 
   return (
     <Box sx={{ width: "100%", display: "flex", alignItems: "flex-end" }}>

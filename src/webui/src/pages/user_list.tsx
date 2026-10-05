@@ -108,12 +108,7 @@ export function UserList() {
         <IconButton color="primary" onClick={filterMenuOpen}>
           <Icon>filter_alt</Icon>
         </IconButton>
-        <Menu
-          id="user-filter-menu"
-          anchorEl={anchorEl}
-          open={filterMenuOpened}
-          onClose={filterMenuClose}
-        >
+        <Menu anchorEl={anchorEl} open={filterMenuOpened} onClose={filterMenuClose}>
           <MenuList dense>
             <MenuItem
               onClick={() => {

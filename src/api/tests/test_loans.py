@@ -6,7 +6,7 @@ from conftest import AUTH_ADMIN, AUTH_USER, AUTH_USER_ID, fake_auth_user
 from fastapi.testclient import TestClient
 
 from api.main import app
-from api.pwmodels import Item, Loan, User, db
+from api.pwmodels import Item, ItemExtension, Ledger, Loan, User, db
 from api.system import auth_user
 
 client = TestClient(app)
@@ -514,3 +514,129 @@ def test_loan_fillcard_admin():
     with db:
         newuser = User.get(name="Bob")
         assert newuser.credit == 1 + PRICING["card_value"]
+
+
+def _make_base_and_ext(credit=0):
+    "Create a user, a base game and its extension; return ids"
+    with db:
+        user = User.create(name="Bob", credit=credit)
+        base = Item.create(name="base")
+        ext = Item.create(name="ext")
+        ItemExtension.create(extension=ext, base=base)
+    return user.id, base.id, ext.id
+
+
+def test_loan_extension_free_with_base():
+    user_id, base_id, ext_id = _make_base_and_ext()
+
+    # Simulation first: extension is free, no DB writes
+    response = client.post(
+        "/loans",
+        json={"user": user_id, "items": [base_id, ext_id], "simulation": True},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items_cost"] == [PRICING["regular"], 0]
+    assert body["cost"] == PRICING["regular"]
+    with db:
+        assert Loan.select().count() == 0
+        assert Ledger.select().count() == 0
+
+    # Real loan
+    response = client.post(
+        "/loans",
+        json={"user": user_id, "items": [base_id, ext_id]},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items_cost"] == [PRICING["regular"], 0]
+    assert body["cost"] == PRICING["regular"]
+    assert body["topay"] == {"credit": 0, "real": PRICING["regular"]}
+
+    # Ledger: extension line at cost=0, money=0
+    with db:
+        loans = list(Loan.select().where(Loan.user == user_id, Loan.status == "out"))
+        assert len(loans) == 2
+        entries = {e.item_id: e for e in Ledger.select().where(Ledger.user == user_id)}
+        assert entries[base_id].cost == PRICING["regular"]
+        assert entries[ext_id].cost == 0
+        assert entries[ext_id].money == 0
+
+
+def test_loan_extension_alone_pays():
+    user_id, _base_id, ext_id = _make_base_and_ext()
+    response = client.post(
+        "/loans",
+        json={"user": user_id, "items": [ext_id]},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items_cost"] == [PRICING["regular"]]
+    assert body["cost"] == PRICING["regular"]
+
+
+def test_loan_extension_wrong_base_pays():
+    user_id, _base_id, ext_id = _make_base_and_ext()
+    with db:
+        other = Item.create(name="other")
+    response = client.post(
+        "/loans",
+        json={"user": user_id, "items": [other.id, ext_id]},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items_cost"] == [PRICING["regular"], PRICING["regular"]]
+    assert body["cost"] == 2 * PRICING["regular"]
+
+
+def test_loan_extension_multi_free():
+    user_id, base_id, ext_id = _make_base_and_ext()
+    with db:
+        ext2 = Item.create(name="ext2")
+        ItemExtension.create(extension=ext2, base=base_id)
+    response = client.post(
+        "/loans",
+        json={"user": user_id, "items": [base_id, ext_id, ext2.id]},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items_cost"] == [PRICING["regular"], 0, 0]
+    assert body["cost"] == PRICING["regular"]
+
+
+def test_loan_extension_base_already_out_still_pays():
+    "Base already borrowed by the user but absent from the cart -> extension pays"
+    user_id, base_id, ext_id = _make_base_and_ext()
+    response = client.post(
+        "/loans", json={"user": user_id, "items": [base_id]}, headers=AUTH_ADMIN
+    )
+    assert response.status_code == 200
+
+    response = client.post(
+        "/loans", json={"user": user_id, "items": [ext_id]}, headers=AUTH_ADMIN
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items_cost"] == [PRICING["regular"]]
+
+
+def test_loan_extension_benevole_stays_free():
+    with db:
+        user = User.create(name="Bob", role="benevole", credit=0)
+        base = Item.create(name="base")
+        ext = Item.create(name="ext")
+        ItemExtension.create(extension=ext, base=base)
+    response = client.post(
+        "/loans",
+        json={"user": user.id, "items": [base.id, ext.id]},
+        headers=AUTH_ADMIN,
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items_cost"] == [0, 0]
+    assert body["cost"] == 0

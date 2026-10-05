@@ -54,6 +54,7 @@ def create_all_tables(drop=False):
         ItemLink,
         Category,
         ItemCategory,
+        ItemExtension,
         Loan,
         Ledger,
         Rating,
@@ -148,6 +149,16 @@ class ItemLink(BaseModel):
 
     class Meta:
         primary_key = peewee.CompositeKey("item", "name")
+
+
+class ItemExtension(BaseModel):
+    """Link from an extension game to one of its base games (DB only)."""
+
+    extension = peewee.ForeignKeyField(model=Item, column_name="extension_id")
+    base = peewee.ForeignKeyField(model=Item, column_name="base_id")
+
+    class Meta:
+        primary_key = peewee.CompositeKey("extension", "base")
 
 
 class Loan(BaseModel):

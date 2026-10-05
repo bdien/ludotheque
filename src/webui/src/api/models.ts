@@ -65,6 +65,12 @@ export interface ItemListEntry {
   outside: boolean;
   status: string;
   created_at: string;
+  is_extension?: boolean;
+}
+
+export interface ItemBaseLink {
+  id: number;
+  name: string;
 }
 
 export interface ItemModel {
@@ -89,6 +95,9 @@ export interface ItemModel {
   status?: string;
   return?: string;
   loans?: APILoan[];
+  bases?: ItemBaseLink[];
+  extensions?: ItemBaseLink[];
+  is_extension?: boolean;
 }
 
 export interface APIUserHistoryItem {

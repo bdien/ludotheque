@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from playhouse.shortcuts import model_to_dict
 
 from api.config import get_config
-from api.pwmodels import Item, Ledger, Loan, User, db
+from api.pwmodels import Item, ItemExtension, Ledger, Loan, User, db
 from api.system import AuthUser, auth_user_required, get_next_saturday, is_holiday
 
 router = APIRouter()
@@ -129,6 +129,26 @@ async def create_loan(
 
         # Now calculate how much is taken from the card and how much is remaining
         cost_items = [__get_item_price(i, pricing, summer_mode) for i in items]
+        # Extensions borrowed together with one of their base games are free
+        # (direct link only, same cart only)
+        if items:
+            cart_ids = {i.id for i in items}
+
+            # Find all base items linked to the extensions in the cart and build
+            # a dictionary mapping extension IDs to their base item IDs
+            ext_base = list(
+                ItemExtension.select(ItemExtension.extension, ItemExtension.base)
+                .where(ItemExtension.extension.in_(items))
+                .tuples()
+            )
+
+            # Now, modify cost_items
+            free_ids = {ext for ext, base in ext_base if base in cart_ids}
+            if free_ids:
+                cost_items = [
+                    0 if i.id in free_ids else c
+                    for i, c in zip(items, cost_items, strict=True)
+                ]
         # Benevole/Admin: nullify item prices
         if user.role in ("admin", "benevole"):
             cost_items = [0] * len(cost_items)

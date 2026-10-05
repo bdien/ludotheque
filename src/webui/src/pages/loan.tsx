@@ -101,12 +101,20 @@ export function Loan() {
 
   // Transform items into LoanItemTableEntry
   const loanItems: LoanItemTableEntry[] = items.map((i, idx) => {
+    const simulatedPrice = loanResult?.items_cost[idx];
     return {
       id: i.id,
       age: i.age,
       name: i.name,
       price: itemPrice(i),
-      simulatedPrice: loanResult?.items_cost[idx],
+      is_extension: i.is_extension,
+      simulatedPrice,
+      offered:
+        loanResult != null &&
+        i.id > 0 &&
+        simulatedPrice === 0 &&
+        itemPrice(i) > 0 &&
+        user?.role === "user",
     };
   });
 
@@ -157,7 +165,7 @@ export function Loan() {
 
         {info &&
           (user?.loans?.length ?? 0) + items.filter((i) => i.id > 0).length >=
-            info.loan.maxitems && (
+          info.loan.maxitems && (
             <Alert severity="warning" variant="filled" sx={{ mb: 1 }}>
               Le maximum d'emprunts ({info.loan.maxitems}) a été atteint.
               <br />

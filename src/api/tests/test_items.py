@@ -5,7 +5,16 @@ from conftest import AUTH_ADMIN, AUTH_USER, fake_auth_user, headers_auth
 from fastapi.testclient import TestClient
 
 from api.main import app
-from api.pwmodels import Category, Item, ItemCategory, ItemLink, Loan, User, db
+from api.pwmodels import (
+    Category,
+    Item,
+    ItemCategory,
+    ItemExtension,
+    ItemLink,
+    Loan,
+    User,
+    db,
+)
 from api.system import auth_user
 
 client = TestClient(app)
@@ -333,3 +342,161 @@ def test_get_item_ratings():
         {"name": "myludo", "ref": "1234", "extra": {"rating": 7.8}},
         {"name": "bgg", "ref": "5678", "extra": {"rating": 6.3, "complexity": 2.1}},
     ]
+
+
+def test_extension_bases_crud():
+    "Link an extension to base games, read both sides, then unlink"
+    with db:
+        base1 = Item.create(name="base1")
+        base2 = Item.create(name="base2")
+        ext = Item.create(name="ext")
+
+    # Link to two bases
+    response = client.post(
+        f"/items/{ext.id}", json={"bases": [base1.id, base2.id]}, headers=AUTH_ADMIN
+    )
+    assert response.status_code == 200
+
+    # Extension side
+    response = client.get(f"/items/{ext.id}")
+    assert response.status_code == 200
+    api = response.json()
+    assert api["is_extension"] is True
+    assert sorted(b["id"] for b in api["bases"]) == sorted([base1.id, base2.id])
+
+    # Base side
+    response = client.get(f"/items/{base1.id}")
+    assert response.status_code == 200
+    api = response.json()
+    assert api["is_extension"] is False
+    assert [e["id"] for e in api["extensions"]] == [ext.id]
+    assert api["bases"] == []
+
+    # Unlink one base
+    response = client.post(
+        f"/items/{ext.id}", json={"bases": [base2.id]}, headers=AUTH_ADMIN
+    )
+    assert response.status_code == 200
+    response = client.get(f"/items/{ext.id}")
+    assert [b["id"] for b in response.json()["bases"]] == [base2.id]
+    response = client.get(f"/items/{base1.id}")
+    assert response.json()["extensions"] == []
+
+    # Unlink all -> no longer an extension
+    response = client.post(f"/items/{ext.id}", json={"bases": []}, headers=AUTH_ADMIN)
+    assert response.status_code == 200
+    response = client.get(f"/items/{ext.id}")
+    assert response.json()["bases"] == []
+    assert response.json()["is_extension"] is False
+
+
+def test_extension_bases_on_create():
+    "Create an item directly with bases"
+    with db:
+        base = Item.create(name="base")
+    response = client.post(
+        "/items", json={"name": "ext", "bases": [base.id]}, headers=AUTH_ADMIN
+    )
+    assert response.status_code == 200
+    response = client.get(f"/items/{response.json()['id']}")
+    assert response.json()["is_extension"] is True
+    assert [b["id"] for b in response.json()["bases"]] == [base.id]
+
+
+def test_extension_self_link_refused():
+    with db:
+        item = Item.create(name="obj")
+    response = client.post(
+        f"/items/{item.id}", json={"bases": [item.id]}, headers=AUTH_ADMIN
+    )
+    assert response.status_code == 400
+
+
+def test_extension_unknown_base_refused():
+    with db:
+        item = Item.create(name="obj")
+    response = client.post(
+        f"/items/{item.id}", json={"bases": [999999]}, headers=AUTH_ADMIN
+    )
+    assert response.status_code == 400
+
+
+def test_extension_edit_forbidden():
+    with db:
+        item = Item.create(name="obj")
+        base = Item.create(name="base")
+    response = client.post(
+        f"/items/{item.id}", json={"bases": [base.id]}, headers=AUTH_USER
+    )
+    assert response.status_code == 403
+
+
+def test_extension_disabled_bases_hidden():
+    "Disabled linked games are hidden, as if the link did not exist"
+    with db:
+        base = Item.create(name="base", enabled=False)
+        ext = Item.create(name="ext")
+        ItemExtension.create(extension=ext, base=base)
+
+    # The disabled base is hidden from the extension fiche...
+    response = client.get(f"/items/{ext.id}")
+    assert response.json()["bases"] == []
+    assert response.json()["is_extension"] is False
+    # ...but the enabled extension still shows on the base fiche
+    response = client.get(f"/items/{base.id}")
+    assert [e["id"] for e in response.json()["extensions"]] == [ext.id]
+
+
+def test_extension_list_and_search_flags():
+    with db:
+        base = Item.create(name="basegame")
+        ext = Item.create(name="extgame")
+        ItemExtension.create(extension=ext, base=base)
+
+    response = client.get("/items")
+    assert response.status_code == 200
+    flags = {i["name"]: i["is_extension"] for i in response.json()}
+    assert flags == {"basegame": False, "extgame": True}
+
+    response = client.get("/items/search?q=game")
+    assert response.status_code == 200
+    flags = {i["name"]: i["is_extension"] for i in response.json()}
+    assert flags == {"basegame": False, "extgame": True}
+
+
+def test_search_include_loaned():
+    "Loaned games are hidden by default but visible with include_loaned"
+    with db:
+        user = User.create(name="user")
+        item = Item.create(name="loanable")
+        Loan.create(user=user, item=item, status="out")
+
+    response = client.get("/items/search?q=loanable")
+    assert response.status_code == 200
+    assert response.json() == []
+
+    response = client.get("/items/search?q=loanable&include_loaned=true")
+    assert response.status_code == 200
+    assert [i["name"] for i in response.json()] == ["loanable"]
+
+
+def test_delete_item_cleans_extension_links():
+    with db:
+        base = Item.create(name="base")
+        ext = Item.create(name="ext")
+        ItemExtension.create(extension=ext, base=base)
+
+    # Delete the extension -> link gone
+    response = client.delete(f"/items/{ext.id}", headers=AUTH_ADMIN)
+    assert response.status_code == 200
+    with db:
+        assert ItemExtension.select().count() == 0
+
+    # Re-link then delete the base -> link gone too
+    with db:
+        ext2 = Item.create(name="ext2")
+        ItemExtension.create(extension=ext2, base=base)
+    response = client.delete(f"/items/{base.id}", headers=AUTH_ADMIN)
+    assert response.status_code == 200
+    with db:
+        assert ItemExtension.select().count() == 0

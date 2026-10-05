@@ -1,5 +1,6 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
 import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
@@ -8,13 +9,16 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Paper from "@mui/material/Paper";
 import { ageColors } from "./age_chip";
+import { Stack } from "@mui/material";
 
 export interface LoanItemTableEntry {
   id: number;
   age?: number;
   name: string;
   price: number;
+  is_extension?: boolean;
   simulatedPrice?: number;
+  offered?: boolean;
 }
 
 interface LoanItemTableProps {
@@ -56,11 +60,32 @@ export function LoanItemTable(props: LoanItemTableProps) {
       {props.items.map((i, idx) => (
         <ListItem key={i.name} disableGutters divider={idx < props.items.length - 1}>
           <ListItemIcon sx={{ justifyContent: "center" }}>{iconForId(i.id, i.age)}</ListItemIcon>
-          <ListItemText>{i.name}</ListItemText>
-          <span>
-            <b>{i.simulatedPrice ?? i.price}€</b>
-          </span>
-          <span>
+          <ListItemText sx={{ display: "flex", alignItems: "center" }}>
+            <Stack
+              direction="row"
+              spacing={0.5}
+              alignItems="center"
+            >
+              <span>{i.name}</span>
+              {i.is_extension && (
+                <Icon aria-label="Extension" fontSize="small">
+                  extension
+                </Icon>
+              )}
+            </Stack>
+          </ListItemText>
+          <Stack
+            direction="row"
+            spacing={0}
+            alignItems="center"
+          >
+            {i.offered ? (
+              <Chip size="small" label="0€" color="success" />
+            ) : (
+              <span>
+                <b>{i.simulatedPrice ?? i.price}€</b>
+              </span>
+            )}
             <IconButton
               sx={{ py: 0, pl: 0.75 }}
               size="large"
@@ -69,7 +94,7 @@ export function LoanItemTable(props: LoanItemTableProps) {
             >
               <Icon>clear</Icon>
             </IconButton>
-          </span>
+          </Stack>
         </ListItem>
       ))}
     </List>

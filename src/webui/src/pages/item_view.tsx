@@ -1,4 +1,13 @@
-import { Accordion, AccordionDetails, Divider, Fab, Paper, Stack, styled } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  Alert,
+  Divider,
+  Fab,
+  Paper,
+  Stack,
+  styled,
+} from "@mui/material";
 import MuiAccordionSummary, { type AccordionSummaryProps } from "@mui/material/AccordionSummary";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
@@ -16,7 +25,7 @@ import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { differenceInDays, formatDistanceToNow, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { navigate } from "wouter/use-browser-location";
 import { useCategories, useItem } from "../api/hooks";
@@ -31,14 +40,6 @@ interface ItemProps {
 }
 
 /* ── Styled components ──────────────────────────────────────── */
-const Section = styled(Box)(({ theme }) => ({
-  marginLeft: theme.spacing(1),
-  marginRight: theme.spacing(1),
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
-  },
-}));
 
 const StyledAccordion = styled(Accordion)(({ theme }) => ({
   borderRadius: "16px !important",
@@ -355,284 +356,332 @@ export function Item(props: ItemProps) {
       </Box>
 
       {/* ── Main info card ─────────────────────────────────── */}
-      <Section>
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: "20px",
-            border: `1px solid ${theme.palette.divider}`,
-            overflow: "hidden",
-            mb: 2,
-          }}
-        >
-          {/* Title + Status */}
-          <Box sx={{ px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 2.5 }, pb: 1 }}>
-            <Stack direction="row" alignItems="center" spacing={1} flexWrap="nowrap">
-              <Typography
-                variant={desktop ? "h4" : "h5"}
-                fontWeight={800}
-                sx={{
-                  lineHeight: 1.2,
-                  letterSpacing: "-0.02em",
-                  color: "primary.dark",
-                }}
-              >
-                {item.name}
-              </Typography>
-              <ItemIdBox item={item} />
-            </Stack>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-              sx={{ mt: 0.5 }}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: "20px",
+          border: `1px solid ${theme.palette.divider}`,
+          overflow: "hidden",
+          mb: 2,
+        }}
+      >
+        {/* Title + Status */}
+        <Box sx={{ px: { xs: 2, sm: 3 }, pt: { xs: 2, sm: 2.5 }, pb: 1 }}>
+          <Stack direction="row" alignItems="center" spacing={1} flexWrap="nowrap">
+            <Typography
+              variant={desktop ? "h4" : "h5"}
+              fontWeight={800}
+              sx={{
+                lineHeight: 1.2,
+                letterSpacing: "-0.02em",
+                color: "primary.dark",
+              }}
             >
-              <StatusBadge item={item} />
-              {itemScore !== null && (
-                <Stack direction="row" alignItems="center" spacing={0.5}>
-                  <Rating value={itemScore} precision={0.5} size="small" readOnly />
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-                    {itemScore.toFixed(1)}
-                  </Typography>
-                </Stack>
-              )}
-            </Stack>
-            {ownLoans.length > 0 && (
-              <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.75 }}>
-                <Icon sx={{ fontSize: "0.95rem", color: "info.main" }}>info_outline</Icon>
-                <Typography variant="caption" color="info.main" sx={{ fontWeight: 500 }}>
-                  Vous avez emprunté ce jeu {formatRelativeTime(ownLoans[0].start)}
+              {item.name}
+            </Typography>
+            <ItemIdBox item={item} />
+          </Stack>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ mt: 0.5 }}
+          >
+            <StatusBadge item={item} />
+            {itemScore !== null && (
+              <Stack direction="row" alignItems="center" spacing={0.5}>
+                <Rating value={itemScore} precision={0.5} size="small" readOnly />
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+                  {itemScore.toFixed(1)}
                 </Typography>
               </Stack>
             )}
-          </Box>
-
-          {/* Quick stats strip */}
-          <Divider />
-          <Stack direction="row" justifyContent="space-evenly" sx={{ py: 1.5 }}>
-            <QuickStat icon="people_alt" value={displayPlayersText(item)} label="joueurs" />
-            {item.gametime ? (
-              <QuickStat icon="schedule" value={`${item.gametime}`} label="minutes" />
-            ) : null}
-            {item.age !== undefined ? (
-              <QuickStat icon="cake" value={`${item.age}+`} label="ans" />
-            ) : null}
           </Stack>
+          {ownLoans.length > 0 && (
+            <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 0.75 }}>
+              <Icon sx={{ fontSize: "0.95rem", color: "info.main" }}>info_outline</Icon>
+              <Typography variant="caption" color="info.main" sx={{ fontWeight: 500 }}>
+                Vous avez emprunté ce jeu {formatRelativeTime(ownLoans[0].start)}
+              </Typography>
+            </Stack>
+          )}
+        </Box>
 
-          {/* Description */}
-          {item.description && (
-            <>
-              <Divider />
+        {/* Quick stats strip */}
+        <Divider />
+        <Stack direction="row" justifyContent="space-evenly" sx={{ py: 1.5 }}>
+          <QuickStat icon="people_alt" value={displayPlayersText(item)} label="joueurs" />
+          {item.gametime ? (
+            <QuickStat icon="schedule" value={`${item.gametime}`} label="minutes" />
+          ) : null}
+          {item.age !== undefined ? (
+            <QuickStat icon="cake" value={`${item.age}+`} label="ans" />
+          ) : null}
+        </Stack>
+
+        {/* Description */}
+        {(item.description || item.is_extension) && (
+          <>
+            <Divider />
+            <Box
+              sx={{
+                px: { xs: 2, sm: 3 },
+                pt: 2,
+                pb: 0.5,
+                position: "relative",
+              }}
+            >
+              {item.is_extension && (
+                <Alert sx={{ mb: 1 }} severity="info">
+                  Ce jeu est une extension et vous aurez besoin d'un jeu de base
+                  {item.bases?.length && (
+                    <>
+                      {" "}
+                      (
+                      {item.bases.map((b, idx) => (
+                        <Fragment key={b.id}>
+                          {idx > 0 && " ou "}
+                          <Link href={`/items/${b.id}`} style={{ textDecoration: "none" }}>
+                            {b.name}
+                          </Link>
+                        </Fragment>
+                      ))}
+                      )
+                    </>
+                  )}
+                </Alert>
+              )}
+
               <Box
+                ref={descRef}
                 sx={{
-                  px: { xs: 2, sm: 3 },
-                  pt: 2,
-                  pb: 0.5,
-                  position: "relative",
+                  ...(!descExpanded && {
+                    maxHeight: "6.5em",
+                    overflow: "hidden",
+                  }),
+                  ...(!descExpanded &&
+                    descOverflows && {
+                      maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+                      WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
+                    }),
+                  "& p": {
+                    mt: 0,
+                    mb: 1,
+                    lineHeight: 1.7,
+                    color: "text.secondary",
+                    fontSize: "0.92rem",
+                  },
+                  "& p:last-child": { mb: 0 },
                 }}
               >
-                <Box
-                  ref={descRef}
-                  sx={{
-                    ...(!descExpanded && {
-                      maxHeight: "6.5em",
-                      overflow: "hidden",
-                    }),
-                    ...(!descExpanded &&
-                      descOverflows && {
-                        maskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
-                        WebkitMaskImage: "linear-gradient(to bottom, black 60%, transparent 100%)",
-                      }),
-                    "& p": {
-                      mt: 0,
-                      mb: 1,
-                      lineHeight: 1.7,
-                      color: "text.secondary",
-                      fontSize: "0.92rem",
-                    },
-                    "& p:last-child": { mb: 0 },
-                  }}
-                >
-                  <ReactMarkdown>{item.description}</ReactMarkdown>
-                </Box>
-                {descOverflows && (
-                  <Box sx={{ textAlign: "center", pb: 0.5 }}>
-                    <Typography
-                      component="button"
-                      variant="caption"
-                      onClick={() => setDescExpanded((v) => !v)}
-                      sx={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        color: "primary.main",
-                        fontWeight: 600,
-                        p: 0.5,
-                        "&:hover": { textDecoration: "underline" },
-                      }}
-                    >
-                      {descExpanded ? "Voir moins" : "Voir plus"}
-                    </Typography>
-                  </Box>
-                )}
+                <ReactMarkdown>{item.description}</ReactMarkdown>
               </Box>
-            </>
-          )}
+              {descOverflows && (
+                <Box sx={{ textAlign: "center", pb: 0.5 }}>
+                  <Typography
+                    component="button"
+                    variant="caption"
+                    onClick={() => setDescExpanded((v) => !v)}
+                    sx={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "primary.main",
+                      fontWeight: 600,
+                      p: 0.5,
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                  >
+                    {descExpanded ? "Voir moins" : "Voir plus"}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </>
+        )}
 
-          {/* Tags row: complexity, links, categories */}
-          {hasTags && (
-            <>
-              <Divider />
-              <Stack
-                direction="row"
-                flexWrap="wrap"
-                gap={0.75}
-                sx={{ px: { xs: 2, sm: 3 }, py: 1.5 }}
+        {/* Extensions */}
+        {item.extensions && item.extensions.length > 0 && (
+          <>
+            <Divider />
+            <Box
+              sx={{
+                px: { xs: 2, sm: 3 },
+                p: 0.5,
+                position: "relative",
+              }}
+            >
+              <Typography
+                sx={{
+                  lineHeight: 1.7,
+                  color: "text.secondary",
+                  fontSize: "0.92rem",
+                }}
               >
-                {bgg_link?.extra?.complexity && renderComplexityChip(bgg_link.extra.complexity)}
-                {item.links?.map((lnk) => renderItemLink(lnk))}
-                {item.categories &&
-                  categories &&
-                  item.categories.map((cat) => (
-                    <Chip
-                      key={cat}
-                      sx={{ borderRadius: "20px" }}
-                      color="primary"
-                      size="small"
-                      icon={<Icon>category</Icon>}
-                      label={categories.get(cat)}
-                    />
-                  ))}
-              </Stack>
-            </>
-          )}
-        </Paper>
-      </Section>
+                <b>
+                  {item.extensions.length} extension{item.extensions.length > 1 ? "s" : ""}
+                </b>
+                :{" "}
+                {item.extensions.map((e, idx) => (
+                  <Fragment key={e.id}>
+                    {idx > 0 && ", "}
+                    <Link href={`/items/${e.id}`} style={{ textDecoration: "none" }}>
+                      {e.name}
+                    </Link>
+                  </Fragment>
+                ))}
+              </Typography>
+            </Box>
+          </>
+        )}
+
+        {/* Tags row: complexity, links, categories */}
+        {hasTags && (
+          <>
+            <Divider />
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+              gap={0.75}
+              sx={{ px: { xs: 2, sm: 3 }, py: 1.5 }}
+            >
+              {bgg_link?.extra?.complexity && renderComplexityChip(bgg_link.extra.complexity)}
+              {item.links?.map((lnk) => renderItemLink(lnk))}
+              {item.categories &&
+                categories &&
+                item.categories.map((cat) => (
+                  <Chip
+                    key={cat}
+                    sx={{ borderRadius: "20px" }}
+                    color="primary"
+                    size="small"
+                    icon={<Icon>category</Icon>}
+                    label={categories.get(cat)}
+                  />
+                ))}
+            </Stack>
+          </>
+        )}
+      </Paper>
 
       {/* ── Notes ───────────────────────────────────────────── */}
       {item.notes && (
-        <Section>
-          <Paper
-            elevation={0}
-            sx={{
-              mb: 2,
-              px: 2,
-              py: 1.5,
-              borderRadius: "16px",
-              bgcolor: "rgba(85,108,214,0.05)",
-              border: "1px solid rgba(85,108,214,0.12)",
-            }}
-          >
-            <Stack direction="row" spacing={1} alignItems="flex-start">
-              <Icon sx={{ color: "primary.main", fontSize: "1.15rem", mt: "3px" }}>
-                sticky_note_2
-              </Icon>
-              <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-                {item.notes}
-              </Typography>
-            </Stack>
-          </Paper>
-        </Section>
+        <Paper
+          elevation={0}
+          sx={{
+            mb: 2,
+            px: 2,
+            py: 1.5,
+            borderRadius: "16px",
+            bgcolor: "rgba(85,108,214,0.05)",
+            border: "1px solid rgba(85,108,214,0.12)",
+          }}
+        >
+          <Stack direction="row" spacing={1} alignItems="flex-start">
+            <Icon sx={{ color: "primary.main", fontSize: "1.15rem", mt: "3px" }}>
+              sticky_note_2
+            </Icon>
+            <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+              {item.notes}
+            </Typography>
+          </Stack>
+        </Paper>
       )}
 
       {/* ── Game contents ───────────────────────────────────── */}
       {item.content && item.content.length > 0 && (
-        <Section>
-          <StyledAccordion>
-            <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-              <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>inventory_2</Icon>
-              <Typography fontWeight={600} variant="body2">
-                Contenu du jeu
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ px: 2, py: 1.5 }}>
-              <Box
-                component="ul"
-                sx={{
-                  m: 0,
-                  pl: 2.5,
-                  "& li": {
-                    color: "text.secondary",
-                    fontSize: "0.9rem",
-                    py: 0.25,
-                  },
-                }}
-              >
-                {item.content.map((row, idx) => (
-                  <li key={idx}>{row}</li>
-                ))}
-              </Box>
-            </AccordionDetails>
-          </StyledAccordion>
-        </Section>
+        <StyledAccordion>
+          <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+            <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>inventory_2</Icon>
+            <Typography fontWeight={600} variant="body2">
+              Contenu du jeu
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ px: 2, py: 1.5 }}>
+            <Box
+              component="ul"
+              sx={{
+                m: 0,
+                pl: 2.5,
+                "& li": {
+                  color: "text.secondary",
+                  fontSize: "0.9rem",
+                  py: 0.25,
+                },
+              }}
+            >
+              {item.content.map((row, idx) => (
+                <li key={idx}>{row}</li>
+              ))}
+            </Box>
+          </AccordionDetails>
+        </StyledAccordion>
       )}
 
       {/* ── Loan history ────────────────────────────────────── */}
       {item?.loans?.length ? (
-        <Section>
-          <StyledAccordion>
-            <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
-              <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>history</Icon>
-              <Typography fontWeight={600} variant="body2">
-                {account.role === "admin" ? (
-                  <>Emprunts ({nb_loans_percent(item, 365)}% du temps cette année)</>
-                ) : (
-                  "Vos emprunts"
-                )}
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ p: 0 }}>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
+        <StyledAccordion>
+          <AccordionSummary expandIcon={<Icon>expand_more</Icon>}>
+            <Icon sx={{ color: "text.secondary", fontSize: "1.2rem" }}>history</Icon>
+            <Typography fontWeight={600} variant="body2">
+              {account.role === "admin" ? (
+                <>Emprunts ({nb_loans_percent(item, 365)}% du temps cette année)</>
+              ) : (
+                "Vos emprunts"
+              )}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    {account.role === "admin" && (
+                      <TableCell sx={{ fontWeight: 600 }}>Adhérent</TableCell>
+                    )}
+                    <TableCell sx={{ fontWeight: 600 }}>Début</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Fin</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {item.loans.map((i) => (
+                    <TableRow key={i.id}>
                       {account.role === "admin" && (
-                        <TableCell sx={{ fontWeight: 600 }}>Adhérent</TableCell>
+                        <TableCell>
+                          {account.id === i.user ? (
+                            <Link href={`/users/${i.user}`} style={{ textDecoration: "none" }}>
+                              Vous
+                            </Link>
+                          ) : i.user ? (
+                            <ShortUser user_id={i.user} />
+                          ) : (
+                            "Inconnu"
+                          )}
+                        </TableCell>
                       )}
-                      <TableCell sx={{ fontWeight: 600 }}>Début</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Fin</TableCell>
+                      <TableCell>
+                        {new Date(i.start).toLocaleDateString(undefined, {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        {i.status === "out"
+                          ? "En cours"
+                          : new Date(i.stop).toLocaleDateString(undefined, {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {item.loans.map((i) => (
-                      <TableRow key={i.id}>
-                        {account.role === "admin" && (
-                          <TableCell>
-                            {account.id === i.user ? (
-                              <Link href={`/users/${i.user}`} style={{ textDecoration: "none" }}>
-                                Vous
-                              </Link>
-                            ) : i.user ? (
-                              <ShortUser user_id={i.user} />
-                            ) : (
-                              "Inconnu"
-                            )}
-                          </TableCell>
-                        )}
-                        <TableCell>
-                          {new Date(i.start).toLocaleDateString(undefined, {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </TableCell>
-                        <TableCell>
-                          {i.status === "out"
-                            ? "En cours"
-                            : new Date(i.stop).toLocaleDateString(undefined, {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              })}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </AccordionDetails>
-          </StyledAccordion>
-        </Section>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </AccordionDetails>
+        </StyledAccordion>
       ) : null}
     </Box>
   );
