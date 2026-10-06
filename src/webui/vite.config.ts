@@ -100,31 +100,31 @@ const manifestForPlugin: Partial<VitePWAOptions> = {
     ],
     icons: [
       {
-        src: "/pwaicon-96-96.webp",
+        src: "/pwaicon-96-96-v2.webp",
         sizes: "96x96",
         type: "image/webp",
         purpose: "any",
       },
       {
-        src: "/pwaicon-192-192.webp",
+        src: "/pwaicon-192-192-v2.webp",
         sizes: "192x192",
         type: "image/webp",
         purpose: "any",
       },
       {
-        src: "/pwaicon-512-512.webp",
+        src: "/pwaicon-512-512-v2.webp",
         sizes: "512x512",
         type: "image/webp",
         purpose: "any",
       },
       {
-        src: "/pwaicon-512-512.png",
+        src: "/pwaicon-512-512-v2.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
       },
       {
-        src: "/pwaicon-512-512.webp",
+        src: "/pwaicon-512-512-v2.webp",
         sizes: "512x512",
         type: "image/webp",
         purpose: "maskable",
