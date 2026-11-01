@@ -21,7 +21,7 @@ __DEFAULTS: dict[str, str | bool | int | dict[str, float | int]] = {
     "loan_weeks_summer": 8,
     "loan_maxitems": 8,
     "loan_extend_max": 1,
-    "loan_extend_days": 15,
+    "loan_extend_weeks": 3,
     "apikey_prefix": "akld",
     "image_max_dim": 800,
     "thumb_dim": 200,
@@ -61,6 +61,17 @@ def get_config(key: str) -> str | bool | int | dict[str, float | int] | None:
             db.close()
 
     return value
+
+
+def get_config_int(key: str) -> int:
+    "Return the integer value of a config key, or its integer default"
+    value = get_config(key)
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    default = __DEFAULTS.get(key)
+    if isinstance(default, int) and not isinstance(default, bool):
+        return default
+    return 0
 
 
 router = APIRouter()

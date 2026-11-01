@@ -79,9 +79,9 @@ class BaseModel(peewee.Model):
 
 
 def today_plus_loantime():
-    from api.config import get_config
+    from api.config import get_config_int
 
-    return date.today() + timedelta(days=get_config("loan_weeks") * 7)
+    return date.today() + timedelta(days=get_config_int("loan_weeks") * 7)
 
 
 class User(BaseModel):

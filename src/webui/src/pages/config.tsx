@@ -34,7 +34,7 @@ interface ConfigFormValues {
   loan_weeks_summer: number;
   loan_maxitems: number;
   loan_extend_max: number;
-  loan_extend_days: number;
+  loan_extend_weeks: number;
   email_minperiod: number;
   email_minlate: number;
   email_sender: string;
@@ -84,7 +84,7 @@ export function Config() {
         loan_weeks_summer: (data.loan_weeks_summer as number) ?? 8,
         loan_maxitems: (data.loan_maxitems as number) ?? 8,
         loan_extend_max: (data.loan_extend_max as number) ?? 1,
-        loan_extend_days: (data.loan_extend_days as number) ?? 15,
+        loan_extend_weeks: (data.loan_extend_weeks as number) ?? 3,
         email_minperiod: (data.email_minperiod as number) ?? 21,
         email_minlate: (data.email_minlate as number) ?? 14,
         email_sender: (data.email_sender as string) ?? "",
@@ -225,10 +225,10 @@ export function Config() {
                 label="Durée prolongation"
                 type="number"
                 size="small"
-                value={values.loan_extend_days}
-                onChange={(e) => update("loan_extend_days", Number(e.target.value))}
+                value={values.loan_extend_weeks}
+                onChange={(e) => update("loan_extend_weeks", Number(e.target.value))}
                 slotProps={{
-                  input: { endAdornment: <InputAdornment position="end">jours</InputAdornment> },
+                  input: { endAdornment: <InputAdornment position="end">semaines</InputAdornment> },
                 }}
                 fullWidth
               />

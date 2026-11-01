@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from api.main import app
 from api.pwmodels import Item, ItemExtension, Ledger, Loan, User, db
-from api.system import auth_user
+from api.system import auth_user, get_next_saturday
 
 client = TestClient(app)
 app.dependency_overrides[auth_user] = fake_auth_user
@@ -21,7 +21,7 @@ PRICING = {
     "yearly": 10,
 }
 LOAN_EXTEND_MAX = 1
-LOAN_EXTEND_DAYS = 15
+LOAN_EXTEND_WEEKS = 3
 
 USER_ID = 66
 ITEM_ID = 158
@@ -200,13 +200,12 @@ def test_extend_loan_admin(dbitems, stopdate):
         assert response.status_code == 200
         body = response.json()
 
-        # In both case, it should be today + LOAN_EXTEND_DAYS
-        assert (
-            body["stop"]
-            == (
-                datetime.date.today() + datetime.timedelta(days=LOAN_EXTEND_DAYS)
-            ).isoformat()
+        # In both case, it should be today + LOAN_EXTEND_WEEKS, aligned on the
+        # next opening saturday
+        expected = get_next_saturday(
+            datetime.date.today() + datetime.timedelta(days=7 * LOAN_EXTEND_WEEKS)
         )
+        assert body["stop"] == expected.isoformat()
 
     # Further extension should not work
     response = client.post(f"/loans/{loan.id}/extend", headers=AUTH_ADMIN)
@@ -232,13 +231,12 @@ def test_extend_loan_user(dbitems, stopdate):
         assert response.status_code == 200
         body = response.json()
 
-        # In both case, it should be today + LOAN_EXTEND_DAYS
-        assert (
-            body["stop"]
-            == (
-                datetime.date.today() + datetime.timedelta(days=LOAN_EXTEND_DAYS)
-            ).isoformat()
+        # In both case, it should be today + LOAN_EXTEND_WEEKS, aligned on the
+        # next opening saturday
+        expected = get_next_saturday(
+            datetime.date.today() + datetime.timedelta(days=7 * LOAN_EXTEND_WEEKS)
         )
+        assert body["stop"] == expected.isoformat()
 
     # Further extension should not work
     response = client.post(f"/loans/{loan.id}/extend", headers=AUTH_USER)
@@ -247,6 +245,26 @@ def test_extend_loan_user(dbitems, stopdate):
     # Close loan should not work (Admin feature)
     response = client.post(f"/loans/{loan.id}/close", headers=AUTH_USER)
     assert response.status_code != 200
+
+
+@pytest.mark.parametrize(
+    ("today", "expected"),
+    [
+        ("2025-11-10", "2025-12-06"),  # Lundi + 3 semaines -> samedi suivant
+        ("2025-11-08", "2025-11-29"),  # Samedi + 3 semaines -> pile un samedi
+        ("2025-10-11", "2025-11-08"),  # Samedi + 3 semaines férié -> reporté
+    ],
+)
+def test_extend_loan_stopdate(dbitems, today, expected):
+    "Check that an extension adds LOAN_EXTEND_WEEKS weeks, on the next opening saturday"
+
+    with freezegun.freeze_time(today):
+        with db:
+            loan = Loan.create(user=USER_ID, item=ITEM_ID, stop=datetime.date.today())
+
+        response = client.post(f"/loans/{loan.id}/extend", headers=AUTH_ADMIN)
+        assert response.status_code == 200
+        assert response.json()["stop"] == expected
 
 
 def test_extend_loan_anotheruser(dbitems):

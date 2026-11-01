@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
 from playhouse.shortcuts import model_to_dict
 
-from api.config import get_config
+from api.config import get_config, get_config_int
 from api.pwmodels import Item, ItemExtension, Ledger, Loan, User, db
 from api.system import AuthUser, auth_user_required, get_next_saturday, is_holiday
 
@@ -38,8 +38,10 @@ def calculate_loan_stop_date(summer_mode: bool = False) -> datetime.date:
     "Calculate the stop date for a new loan, based on the next opening saturday + LOAN_WEEKS"
 
     today = datetime.date.today()
-    loan_duration_weeks: int = (
-        get_config("loan_weeks_summer") if summer_mode else get_config("loan_weeks")
+    loan_duration_weeks = (
+        get_config_int("loan_weeks_summer")
+        if summer_mode
+        else get_config_int("loan_weeks")
     )
     theorical_date = today + datetime.timedelta(days=7 * loan_duration_weeks)
 
@@ -291,8 +293,13 @@ def extend_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_requir
         if not auth.has_right("loan_manage") and loan.user.id != auth.id:
             raise HTTPException(404, "Loan not found")
 
-        # Take the most recent date (today or current stop) and add 15 days
-        loan.stop = max(datetime.date.today(), loan.stop) + datetime.timedelta(days=15)
+        # Take the most recent date (today or current stop), add the extension
+        # duration (in weeks) and adjust it to the next opening saturday
+        extend_weeks = get_config_int("loan_extend_weeks")
+        theorical_date = max(datetime.date.today(), loan.stop) + datetime.timedelta(
+            days=7 * extend_weeks
+        )
+        loan.stop = get_next_saturday(theorical_date)
         loan.extended += 1
         loan.save()
 
