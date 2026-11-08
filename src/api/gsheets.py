@@ -11,6 +11,17 @@ from api.pwmodels import EMail, Item, Loan, User, db
 SHEET_ID = "1G8smBWLbcLIQwFoR6EiAawQDAAPJjQQIdLczJ1gcPN8"
 
 
+def fmt_date(value) -> str:
+    "Format a date for display. Values from raw SQL aggregates can be string"
+
+    if not value:
+        return " "
+    if isinstance(value, str):
+        # SQLite returns dates as "YYYY-MM-DD"
+        value = datetime.date.fromisoformat(value[:10])
+    return value.strftime("%d/%m/%Y")
+
+
 def publish_gsheets():
     # Read credentials from envvar
     account_txt = os.getenv("GOOGLESERVICEACCOUNT")
@@ -96,7 +107,10 @@ def publish_gsheets():
                 subquery.c.status.alias("status"),
                 subquery.c.user_id.alias("user_id"),
                 peewee.fn.Count(Loan.id).alias("nbloans"),
-                peewee.fn.Max(Loan.stop).alias("lastloan"),
+                # Last loan whatever its age
+                Loan.select(peewee.fn.Max(Loan.stop))
+                .where(Loan.item == Item.id)
+                .alias("lastloan_ever"),
             )
             .order_by(Item.id)
             .left_outer_join(
@@ -122,7 +136,7 @@ def publish_gsheets():
                 or " ",
                 ((i.status == "out") and user_mapping[i.user_id]) or " ",
                 i.notes or " ",
-                (i.lastloan and i.lastloan.strftime("%d/%m/%Y")) or " ",
+                fmt_date(i.lastloan_ever),
                 i.lastseen.strftime("%d/%m/%Y"),
                 i.created_at.strftime("%d/%m/%Y"),
             ]
