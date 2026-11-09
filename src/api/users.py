@@ -13,7 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 from playhouse.shortcuts import model_to_dict
 
-from api.config import get_config
+from api.config import get_config_int
 from api.models import APILoan, APISendMailResult, APIUser
 from api.pwmodels import EMail, Item, Loan, User, db
 from api.system import (
@@ -371,7 +371,7 @@ def send_late_email(user_id: int, send: bool | None = True) -> APISendMailResult
         raise HTTPException(400, "Emails disabled by user preference")
     if user.last_warning and (
         datetime.date.today() - user.last_warning
-    ).days < get_config("email_minperiod"):
+    ).days < get_config_int("email_minperiod"):
         raise HTTPException(400, "Too frequent emails")
 
     emails = [i.email for i in EMail.select().where(EMail.user == user_id)]
@@ -421,10 +421,10 @@ def _users_to_notify_lateloand() -> list[int]:
     "Get all users with late loans that haven't been notified in N days"
 
     last_warning_limit = datetime.date.today() - datetime.timedelta(
-        get_config("email_minperiod")
+        get_config_int("email_minperiod")
     )
     loan_stop_mindate = datetime.date.today() - datetime.timedelta(
-        get_config("email_minlate")
+        get_config_int("email_minlate")
     )
 
     query = (

@@ -51,6 +51,9 @@ max-complexity = 28
 [tool.ty]
 baseline = "ty-baseline.json"
 
+[tool.ty.src]
+exclude = [ "src/api/tests" ]
+
 [tool.taskipy.tasks]
 build = "cd src/webui && pnpm run build"
 api = "cd src/api && uvicorn main:app --reload"

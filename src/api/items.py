@@ -24,7 +24,7 @@ _ALLOWED_IMAGE_FORMATS = {"PNG", "JPEG", "WEBP", "AVIF", "GIF"}
 _MAX_PICTURE_B64_LEN = 16 * 1024 * 1024
 from playhouse.shortcuts import model_to_dict
 
-from api.config import get_config
+from api.config import get_config_int
 from api.models import APICategory, APIItem
 from api.pwmodels import (
     Category,
@@ -453,7 +453,7 @@ def modif_pictures(
             img.load()
         except (UnidentifiedImageError, Image.DecompressionBombError) as e:
             raise HTTPException(400, "Invalid or oversized image") from e
-        image_max_dim = get_config("image_max_dim")
+        image_max_dim = get_config_int("image_max_dim")
         if (img.width > image_max_dim) or (img.height > image_max_dim):
             img.thumbnail((image_max_dim, image_max_dim))
 
@@ -462,7 +462,7 @@ def modif_pictures(
         filename = f"jeu_{item_id:05d}_{hash}.webp"
         if filename not in newpictures:
             img.save(f"{LUDO_STORAGE}/img/{filename}")
-            img.thumbnail((get_config("thumb_dim"), get_config("thumb_dim")))
+            img.thumbnail((get_config_int("thumb_dim"), get_config_int("thumb_dim")))
             img.save(f"{LUDO_STORAGE}/thumb/{filename}")
             newpictures.append(filename)
 

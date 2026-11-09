@@ -287,7 +287,7 @@ def extend_loan(loan_id: int, auth: Annotated[AuthUser, Depends(auth_user_requir
             raise HTTPException(404, "Loan not found")
         if loan.status != "out":
             raise HTTPException(400, "Already closed")
-        if loan.extended >= get_config("loan_extend_max"):
+        if loan.extended >= get_config_int("loan_extend_max"):
             raise HTTPException(400, "Maximum number of extensions reached")
         # Regular user can only handle his loans
         if not auth.has_right("loan_manage") and loan.user.id != auth.id:
