@@ -1,4 +1,5 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { Stack } from "@mui/material";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Icon from "@mui/material/Icon";
@@ -9,7 +10,6 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Paper from "@mui/material/Paper";
 import { ageColors } from "./age_chip";
-import { Stack } from "@mui/material";
 
 export interface LoanItemTableEntry {
   id: number;
@@ -61,11 +61,7 @@ export function LoanItemTable(props: LoanItemTableProps) {
         <ListItem key={i.name} disableGutters divider={idx < props.items.length - 1}>
           <ListItemIcon sx={{ justifyContent: "center" }}>{iconForId(i.id, i.age)}</ListItemIcon>
           <ListItemText sx={{ display: "flex", alignItems: "center" }}>
-            <Stack
-              direction="row"
-              spacing={0.5}
-              alignItems="center"
-            >
+            <Stack direction="row" spacing={0.5} alignItems="center">
               <span>{i.name}</span>
               {i.is_extension && (
                 <Icon aria-label="Extension" fontSize="small">
@@ -74,11 +70,7 @@ export function LoanItemTable(props: LoanItemTableProps) {
               )}
             </Stack>
           </ListItemText>
-          <Stack
-            direction="row"
-            spacing={0}
-            alignItems="center"
-          >
+          <Stack direction="row" spacing={0} alignItems="center">
             {i.offered ? (
               <Chip size="small" label="0€" color="success" />
             ) : (

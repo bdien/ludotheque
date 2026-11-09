@@ -2,11 +2,7 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { Button, Paper, Tab } from "@mui/material";
 import Box from "@mui/material/Box";
 import Icon from "@mui/material/Icon";
-import SpeedDial from "@mui/material/SpeedDial";
-import SpeedDialAction from "@mui/material/SpeedDialAction";
-import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 import { useState } from "react";
-import { navigate } from "wouter/use-browser-location";
 import { useUser } from "../api/hooks";
 import { Loading } from "../components/loading";
 import { MiniUser } from "../components/mini_user";
@@ -107,36 +103,6 @@ export function UserView(props: UserViewProps) {
           <UserHistory id={user.id} />
         </TabPanel>
       </TabContext>
-
-      {/* Edit button */}
-      {account?.rights.includes("user_manage") && (
-        <SpeedDial
-          ariaLabel="Actions"
-          sx={{
-            position: "fixed",
-            bottom: (theme) => theme.spacing(2),
-            right: (theme) => theme.spacing(2),
-          }}
-          icon={<SpeedDialIcon />}
-        >
-          <SpeedDialAction
-            key="edit"
-            icon={<Icon>edit</Icon>}
-            slotProps={{ tooltip: { open: true, title: "Edition" } }}
-            onClick={() => {
-              navigate(`/users/${user.id}/edit`);
-            }}
-          />
-          <SpeedDialAction
-            key="emprunter"
-            icon={<Icon>logout</Icon>}
-            slotProps={{ tooltip: { open: true, title: "Faire un emprunt" } }}
-            onClick={() => {
-              navigate(`/loans/new?user=${user.id}`);
-            }}
-          />
-        </SpeedDial>
-      )}
     </>
   );
 }

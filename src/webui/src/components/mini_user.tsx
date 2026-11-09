@@ -5,6 +5,8 @@ import Grid from "@mui/material/Grid";
 import Icon from "@mui/material/Icon";
 import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Modal from "@mui/material/Modal";
@@ -13,6 +15,7 @@ import Typography from "@mui/material/Typography";
 import { differenceInDays, formatDistanceToNow, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState } from "react";
+import { navigate } from "wouter/use-browser-location";
 import type { User } from "../api/models";
 import { useGlobalStore } from "../hooks/global_store";
 
@@ -155,13 +158,29 @@ export function MiniUser(props: MiniUserProps) {
                 <Icon>more_vert</Icon>
               </IconButton>
               <Menu anchorEl={anchorEl} open={menuOpened} onClose={menuClose}>
+                {account?.rights.includes("user_manage") && (
+                  <MenuItem
+                    onClick={() => {
+                      menuClose();
+                      navigate(`/users/${props.user.id}/edit`);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <Icon>edit</Icon>
+                    </ListItemIcon>
+                    <ListItemText>Editer</ListItemText>
+                  </MenuItem>
+                )}
                 <MenuItem
                   onClick={() => {
                     menuClose();
                     setModalOpen(true);
                   }}
                 >
-                  Détails
+                  <ListItemIcon>
+                    <Icon>info</Icon>
+                  </ListItemIcon>
+                  <ListItemText>Détails</ListItemText>
                 </MenuItem>
               </Menu>
             </>

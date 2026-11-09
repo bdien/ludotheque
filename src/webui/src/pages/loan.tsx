@@ -165,7 +165,7 @@ export function Loan() {
 
         {info &&
           (user?.loans?.length ?? 0) + items.filter((i) => i.id > 0).length >=
-          info.loan.maxitems && (
+            info.loan.maxitems && (
             <Alert severity="warning" variant="filled" sx={{ mb: 1 }}>
               Le maximum d'emprunts ({info.loan.maxitems}) a été atteint.
               <br />

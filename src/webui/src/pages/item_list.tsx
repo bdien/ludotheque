@@ -327,9 +327,7 @@ export function ItemList() {
               {row.id}
             </TableCell>
             <TableCell sx={{ p: 0 }}>{nameDisplay(row, info)}</TableCell>
-            <TableCell sx={{ p: 0, textAlign: "center" }}>
-              {playerDisplay(row)}
-            </TableCell>
+            <TableCell sx={{ p: 0, textAlign: "center" }}>{playerDisplay(row)}</TableCell>
             <TableCell sx={{ textAlign: "center", p: 0, pr: 0.5 }}>
               <AgeChip age={row.age || 0} />
             </TableCell>
