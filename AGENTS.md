@@ -7,7 +7,7 @@ Prod : https://ludotheque.fly.dev/ — Déployé via `Dockerfile` sur Fly.io.
 
 ## Stack
 
-- **API** : Python 3.14+, FastAPI, Peewee (SQLite), APScheduler, Jinja2. `src/api/`
+- **API** : Python 3.15+, FastAPI, Peewee (SQLite), APScheduler, Jinja2. `src/api/`
 - **WebUI** : React 19, MUI 7, Vite 8, TypeScript strict, PWA (workbox). `src/webui/`
 - **DB** : SQLite (non versionnée)
 - **Package managers** : `uv` (Python), `pnpm` (TS)

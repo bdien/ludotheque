@@ -12,7 +12,7 @@
 
 ## Serveur
 
-Le serveur est en Python 3.14+ avec FastAPI, peewee.
+Le serveur est en Python 3.15+ avec FastAPI, peewee.
 
 Pour lancer les tests: `uv run pytest`
 Pour lancer le serveur: `uv run task api`
