@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: "v6.0.0"
     hooks:
       - id: check-added-large-files
       - id: check-case-conflict
@@ -8,12 +8,16 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.16.1"
+    rev: "v0.17.4"
     hooks:
       - id: ruff-format
       - id: ruff
         args: [--fix, --show-fixes, --exit-non-zero-on-fix]
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: "v0.0.99"
+    hooks:
+      - id: ty
   - repo: https://github.com/biomejs/pre-commit
-    rev: "v2.5.7"
+    rev: "v2.6.6"
     hooks:
       - id: biome-check

@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime
+from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException
@@ -24,13 +24,12 @@ def get_calendar_feed(calendar_token: str):
             .join(Item)
             .where(Loan.user == user, Loan.status == "out")
             .order_by(Loan.stop)
-            .dicts()
         )
 
         # Group loans by stop date
-        by_date: dict[str, list[str]] = defaultdict(list)
+        by_date: dict[date, list[str]] = defaultdict(list)
         for loan in loans:
-            by_date[loan["stop"]].append(loan["name"])
+            by_date[loan.stop].append(loan.item.name)
 
     cal = Calendar()
     cal.add("prodid", "-//Ludothèque du Poisson Lune//FR")
